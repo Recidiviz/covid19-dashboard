@@ -1,0 +1,14 @@
+{
+  "singleQuote": false,
+  "trailingComma": "all",
+  "arrowParens": "always",
+
+  "overrides": [
+    {
+      "files": "*.json",
+      "options": {
+        "printWidth": 0
+      }
+    }
+  ]
+}
