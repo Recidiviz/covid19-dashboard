@@ -11,6 +11,6 @@
   },
   "scripts": {
     "build-local": "tailwindcss build src/styles.css -o src/output.css",
-    "build-prod": "mkdir -p build && cp src/index.html build/index.html && postcss src/styles.css -o build/output.css"
+    "build-prod": "mkdir -p build && cp src/index.html build/index.html && cp -R src/assets build && postcss src/styles.css -o build/output.css"
   }  
 }
