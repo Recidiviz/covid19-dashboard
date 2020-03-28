@@ -6,6 +6,7 @@ const appState = {
 
 function updateAppState(changesObj) {
   Object.assign(appState, changesObj);
+  repaint();
 }
 
 function getStateName(stateCode) {
@@ -99,22 +100,42 @@ function repaint() {
   paintInfectedPct();
 }
 
+function deselectState() {
+  // deselect previous state, if any
+  $("path.state, circle.state").removeClass("active");
+}
+
 $(document).ready(function() {
   // initialize
   repaint();
 
+  // -----------------------------------
   // event handlers
-  $("path.state, circle.state").hover(function(e) {
+  // -----------------------------------
+
+  // map interactions
+  $("path.state, circle.state").click(function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    deselectState();
+    // select new state
+    $(e.target).addClass("active");
+    // propagate new data
     updateAppState({ stateCode: e.target.id });
-    repaint();
-  });
-  $("path.state, circle.state").mouseleave(function(e) {
-    repaint();
   });
 
+  $("#us_map").click(function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    // reset state to US
+    deselectState();
+    // propagate new data
+    updateAppState({ stateCode: "US" });
+  });
+
+  // form inputs
   $("#infected_percentage").on("input", function(e) {
     e.preventDefault();
     updateInfectedPct(e.target.value);
-    repaint();
   });
 });
