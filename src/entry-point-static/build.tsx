@@ -8,7 +8,6 @@ let pageInfos: PageInfo[] = [
   { title: "Test Page", location: "/test" },
 ];
 
-console.log();
 console.log("Rendering React statically into HTML files:");
 
 for (let pageInfo of pageInfos) {

@@ -49,6 +49,6 @@
     ]
   },
   "scripts": {
-    "build": "parcel build index.html && parcel build --target node src/entry-point-static/build.tsx && node dist/build.js && rm -f dist/build.js dist/build.js.map"
+    "build": "parcel build index.html && echo && parcel build --target node src/entry-point-static/build.tsx && echo && node dist/build.js && rm -f dist/build.js dist/build.js.map"
   }
 }
