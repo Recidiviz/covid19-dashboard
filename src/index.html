@@ -87,10 +87,14 @@
                 <p class="text-base sm:leading-6 font-light text-teal-400">
                   Incarcerated
                 </p>
-                <p
-                  id="incarcerated_population"
-                  class="my-2 text-2xl leading-8 text-teal-600 sm:text-3xl sm:leading-9"
-                ></p>
+                <div>
+                  <input
+                    type="number"
+                    id="incarcerated_population"
+                    class="slider-input text-teal-600 border-teal-600"
+                    required
+                  />
+                </div>
               </div>
               <svg
                 xmlns:cc="http://creativecommons.org/ns#"
@@ -465,7 +469,7 @@
                   <input
                     type="number"
                     id="infected_percentage"
-                    class="text-red-600 border-b border-red-600 block w-full bg-transparent text-center my-2 text-2xl leading-8 sm:text-3xl sm:leading-9"
+                    class="slider-input text-red-600 border-red-600"
                     min="0"
                     max="100"
                     required

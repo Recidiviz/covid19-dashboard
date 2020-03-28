@@ -1,7 +1,10 @@
 // application state object
 const appState = {
   percentageInfected: 100,
-  stateCode: "US"
+  stateCode: "",
+  incarceratedPopulation: 0,
+  incarceratedPopulationMax: 0,
+  incarceratedPopulationMin: 0
 };
 
 function updateAppState(changesObj) {
@@ -32,7 +35,7 @@ function getPercentageInfectedAsDecimal() {
 }
 
 function getICUBedsPercentage(stateCode) {
-  var incarceratedPopulation = getIncarceratedPopulation(stateCode);
+  var incarceratedPopulation = appState.incarceratedPopulation;
   var numberOfICUBeds = getNumberOfICUBeds(stateCode);
   var percentageHospitalized = getPercentageHospitalized(stateCode);
   var percentageInfected = getPercentageInfectedAsDecimal();
@@ -65,9 +68,12 @@ function paintHeading(stateCode) {
 }
 
 function paintIncarceratedPopulation(stateCode) {
-  $("#incarcerated_population").text(
-    getIncarceratedPopulation(stateCode).toLocaleString()
-  );
+  const input = $("#incarcerated_population");
+  input.val(appState.incarceratedPopulation);
+  input.attr({
+    min: appState.incarceratedPopulationMin,
+    max: appState.incarceratedPopulationMax
+  });
 }
 
 function paintNumberOfICUBeds(stateCode) {
@@ -90,6 +96,19 @@ function paintInfectedPct() {
   $("#infected_percentage").val(appState.percentageInfected);
 }
 
+function setCurrentState(stateCode) {
+  // fetch the base data from external file;
+  const pop = getIncarceratedPopulation(stateCode);
+  // because the population is user-editable we have to put it into app state
+  updateAppState({
+    stateCode,
+    incarceratedPopulation: pop,
+    // define valid input range according to base number
+    incarceratedPopulationMin: Math.round(pop * 0.5),
+    incarceratedPopulationMax: Math.round(pop * 1.5)
+  });
+}
+
 function repaint() {
   const stateCode = appState.stateCode;
   paintHeading(stateCode);
@@ -107,6 +126,7 @@ function deselectState() {
 
 $(document).ready(function() {
   // initialize
+  setCurrentState("US");
   repaint();
 
   // -----------------------------------
@@ -121,7 +141,7 @@ $(document).ready(function() {
     // select new state
     $(e.target).addClass("active");
     // propagate new data
-    updateAppState({ stateCode: e.target.id });
+    setCurrentState(e.target.id);
   });
 
   $("#us_map").click(function(e) {
@@ -130,12 +150,17 @@ $(document).ready(function() {
     // reset state to US
     deselectState();
     // propagate new data
-    updateAppState({ stateCode: "US" });
+    setCurrentState("US");
   });
 
   // form inputs
   $("#infected_percentage").on("input", function(e) {
     e.preventDefault();
-    updateInfectedPct(e.target.value);
+    updateInfectedPct(+e.target.value);
+  });
+
+  $("#incarcerated_population").on("input", function(e) {
+    e.preventDefault();
+    updateAppState({ incarceratedPopulation: +e.target.value });
   });
 });

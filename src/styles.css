@@ -3,6 +3,17 @@
 @tailwind components;
 /* purgecss end ignore */
 
+/* extracted components come right after the components directive */
+.slider-input {
+  @apply border-b block w-full bg-transparent text-center my-2 text-2xl leading-8;
+}
+
+@screen sm {
+  .slider-input {
+    @apply text-3xl leading-9;
+  }
+}
+
 @tailwind utilities;
 
 /*
