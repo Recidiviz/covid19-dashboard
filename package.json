@@ -1,5 +1,9 @@
 {
   "private": true,
+  "scripts": {
+    "clean": "rm -rf dist && rm -rf .cache",
+    "dev": "bin/parcel serve index.html"
+  },
   "dependencies": {},
   "devDependencies": {
     "@hot-loader/react-dom": "16.13.0",
