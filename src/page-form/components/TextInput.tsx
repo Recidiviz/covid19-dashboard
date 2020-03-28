@@ -36,6 +36,7 @@ interface Props {
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   defaultValue?: string;
+  type?: string;
 }
 
 const TextInput: React.FC<Props> = (props) => {
@@ -43,7 +44,7 @@ const TextInput: React.FC<Props> = (props) => {
     <TextInputContainer>
       <Label>{props.label}</Label>
       <Input
-        type="text"
+        type={props.type}
         defaultValue={props.defaultValue}
         value={props.value}
         placeholder={props.placeholder}
@@ -59,5 +60,11 @@ TextInput.propTypes = {
   value: PropTypes.string,
   onChange: PropTypes.func,
   defaultValue: PropTypes.string,
+  type: PropTypes.string,
 };
+
+TextInput.defaultProps = {
+  type: "text",
+};
+
 export default TextInput;
