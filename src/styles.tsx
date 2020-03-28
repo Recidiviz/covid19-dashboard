@@ -12,7 +12,6 @@ export const GlobalStyles = createGlobalStyle`
     font-size: 14px;
     line-height: 16px;
     letter-spacing: -0.05em;
-    color: #00413E;
     margin: 0px;
   }
 
@@ -29,8 +28,8 @@ export const GlobalStyles = createGlobalStyle`
   h2 {
     font-family: 'Rubik', sans-serif;    
     font-weight: 100;
-    font-size: 20px;
-    line-height: 1.4em;
+    font-size: 24px;
+    line-height: 1.7em;
     letter-spacing: -0.03em;
     color: #006C67;
   }

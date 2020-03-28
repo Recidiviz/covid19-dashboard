@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import styled from "styled-components";
 
 import { ContainerTint1 } from "../styles";
+import Form from "./components/Form";
 
 const FormSection = styled.div`
   display: flex;
@@ -17,7 +18,7 @@ const Container = styled(ContainerTint1)`
   padding-x: 48px;
 `;
 
-const Form: React.FC<{}> = () => {
+const FormPage: React.FC<{}> = () => {
   return (
     <Container>
       <FormSection>
@@ -28,10 +29,10 @@ const Form: React.FC<{}> = () => {
         </h2>
       </FormSection>
       <FormSection>
-        <h1>Title</h1>
+        <Form />
       </FormSection>
     </Container>
   );
 };
 
-export default Form;
+export default FormPage;
