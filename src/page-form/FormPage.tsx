@@ -1,16 +1,12 @@
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
 
-const FormContainer = styled.div`
-  padding: 24px;
-`;
+import { ContainerTint1 } from "../styles";
 
 const Form: React.FC<{}> = () => {
   return (
-    <div>
-      Hello
+    <ContainerTint1>
       <h1>Title</h1>
-    </div>
+    </ContainerTint1>
   );
 };
 

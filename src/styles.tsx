@@ -1,4 +1,4 @@
-import { createGlobalStyle } from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 
 export const GlobalStyles = createGlobalStyle`
   @import url('https://fonts.googleapis.com/css?family=Poppins&display=swap');
@@ -13,6 +13,7 @@ export const GlobalStyles = createGlobalStyle`
     line-height: 16px;
     letter-spacing: -0.05em;
     color: #00413E;
+    margin: 0px;
   }
 
   h1 {
@@ -98,4 +99,16 @@ export const GlobalStyles = createGlobalStyle`
     width: 137px;
     height: 10px;
   }
+
+  .tint1 {
+    background: #EAECEC;
+  }
+`;
+
+export const ContainerTint1 = styled.div`
+  height: 100%;
+  width: 100%;
+  padding: 24px;
+  background: #eaecec;
+  box-sizing: border-box;
 `;
