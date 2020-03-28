@@ -89,7 +89,7 @@ export const GlobalStyles = createGlobalStyle`
     height: 24px;
   }
 
-  .ic_share {
+  .ic-share {
     width: 14px;
     height: 14x;
   }
