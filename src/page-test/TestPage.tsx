@@ -46,6 +46,17 @@ const TestPage: React.FC<{}> = () => {
       <p>
         Go to <Link to="/">Home Page</Link>.
       </p>
+      <div>
+        <h1> h1 </h1>
+        <p> paragraph </p>
+        <body> body </body>
+        <div className="description"> description </div>
+        <div className="nav-link">nav-link</div>
+        <div className="metric">metric</div>
+        <div className="tooltip">tooltip</div>
+        <div className="ic-facts">ic-facts</div>
+        <div className="ic-share">ic-share</div>
+      </div>
     </div>
   );
 };
