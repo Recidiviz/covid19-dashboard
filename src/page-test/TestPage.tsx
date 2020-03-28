@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
+import NewsFeed, { FakeNewsFeedEvents } from "./NewsFeed";
+
 // Tests that async/await keywords are supported.
 async function delay(timeout: number) {
   return await new Promise((resolve) => setTimeout(resolve, timeout));
@@ -26,6 +28,8 @@ const TestPage: React.FC<{}> = () => {
 
   return (
     <div>
+      <h2>Test of news feed:</h2>
+      <NewsFeed events={FakeNewsFeedEvents} />
       <p>
         You can type in this textarea and make edits in src/test/TestPage.tsx
         and save, and your textarea text should be preserved. This tests React
