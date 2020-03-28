@@ -7,10 +7,12 @@
     "tailwindcss": "^1.2.0"
   },
   "devDependencies": {
-    "@fullhuman/postcss-purgecss": "^2.1.0"
+    "@fullhuman/postcss-purgecss": "^2.1.0",
+    "push-dir": "^0.4.1"
   },
   "scripts": {
     "build-local": "tailwindcss build src/styles.css -o src/output.css",
-    "build-prod": "mkdir -p build && cp src/index.html build/index.html && cp -R src/assets build && postcss src/styles.css -o build/output.css"
-  }  
+    "build-prod": "mkdir -p build && cp src/index.html build/index.html && cp -R src/assets build && postcss src/styles.css -o build/output.css",
+    "deploy": "push-dir --dir=build --branch=gh-pages"
+  }
 }
