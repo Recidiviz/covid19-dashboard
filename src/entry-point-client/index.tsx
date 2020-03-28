@@ -6,9 +6,15 @@ import App from "./App";
 
 (window as any).React = React;
 
-ReactDOM.render(
+let element = (
   <BrowserRouter>
     <App />
-  </BrowserRouter>,
-  document.getElementById("app"),
+  </BrowserRouter>
 );
+let container = document.getElementById("app");
+
+if (process.env.NODE_ENV === "development") {
+  ReactDOM.render(element, container);
+} else {
+  ReactDOM.hydrate(element, container);
+}
