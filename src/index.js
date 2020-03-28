@@ -1,6 +1,7 @@
 // application state object
 const appState = {
-  percentageInfected: 100
+  percentageInfected: 100,
+  stateCode: "US"
 };
 
 function updateAppState(changesObj) {
@@ -80,12 +81,16 @@ function paintStateName(stateCode) {
   $("#state_name").text(getStateName(stateCode));
 }
 
-function paintInfectedPct() {
-  // TODO: calculate
-  $("#infected_percentage").text(100 + "%");
+function updateInfectedPct(val) {
+  updateAppState({ percentageInfected: val });
 }
 
-function repaint(stateCode) {
+function paintInfectedPct() {
+  $("#infected_percentage").val(appState.percentageInfected);
+}
+
+function repaint() {
+  const stateCode = appState.stateCode;
   paintHeading(stateCode);
   paintIncarceratedPopulation(stateCode);
   paintNumberOfICUBeds(stateCode);
@@ -96,14 +101,20 @@ function repaint(stateCode) {
 
 $(document).ready(function() {
   // initialize
-  repaint("US");
+  repaint();
 
   // event handlers
   $("path.state, circle.state").hover(function(e) {
-    repaint(e.target.id); // e.target.id == the State code
+    updateAppState({ stateCode: e.target.id });
+    repaint();
+  });
+  $("path.state, circle.state").mouseleave(function(e) {
+    repaint();
   });
 
-  $("path.state, circle.state").mouseleave(function(e) {
-    repaint("US");
+  $("#infected_percentage").on("input", function(e) {
+    e.preventDefault();
+    updateInfectedPct(e.target.value);
+    repaint();
   });
 });

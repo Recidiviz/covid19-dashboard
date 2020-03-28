@@ -465,13 +465,22 @@
                 </g>
               </svg>
               <div class="w-24 text-center flex-shrink-0">
-                <p class="text-base sm:leading-6 font-light text-red-400">
-                  Infected
-                </p>
-                <p
-                  id="infected_percentage"
-                  class="my-2 text-2xl leading-8 text-red-600 sm:text-3xl sm:leading-9"
-                ></p>
+                <label
+                  class="text-base sm:leading-6 font-light text-red-500"
+                  for="infected_percentage"
+                >
+                  % Infected
+                </label>
+                <div>
+                  <input
+                    type="number"
+                    id="infected_percentage"
+                    class="text-red-600 border-b border-red-600 block w-full bg-transparent text-center my-2 text-2xl leading-8 sm:text-3xl sm:leading-9"
+                    min="0"
+                    max="100"
+                    required
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -512,6 +521,7 @@
       src="https://code.jquery.com/jquery-3.4.1.min.js"
       type="text/javascript"
     ></script>
+    <script src="polyfills.js" type="text/javascript"></script>
     <script src="assets/icuData.js" type="text/javascript"></script>
     <script src="index.js" type="text/javascript"></script>
   </body>
