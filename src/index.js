@@ -1,3 +1,12 @@
+// application state object
+const appState = {
+  percentageInfected: 100
+};
+
+function updateAppState(changesObj) {
+  Object.assign(appState, changesObj);
+}
+
 function getStateName(stateCode) {
   return ICU_DATA[stateCode].name;
 }
@@ -16,13 +25,20 @@ function getPercentageHospitalized(stateCode) {
   return 0.05;
 }
 
+function getPercentageInfectedAsDecimal() {
+  return appState.percentageInfected / 100;
+}
+
 function getICUBedsPercentage(stateCode) {
   var incarceratedPopulation = getIncarceratedPopulation(stateCode);
   var numberOfICUBeds = getNumberOfICUBeds(stateCode);
   var percentageHospitalized = getPercentageHospitalized(stateCode);
+  var percentageInfected = getPercentageInfectedAsDecimal();
 
   return parseInt(
-    ((incarceratedPopulation * percentageHospitalized) / numberOfICUBeds) * 100
+    ((incarceratedPopulation * percentageInfected * percentageHospitalized) /
+      numberOfICUBeds) *
+      100
   );
 }
 
