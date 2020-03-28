@@ -22,7 +22,15 @@ export const GlobalStyles = createGlobalStyle`
     font-weight: normal;
     font-size: 64px;
     line-height: 64px;
-    text-align: center;
+    letter-spacing: -0.03em;
+    color: #006C67;
+  }
+
+  h2 {
+    font-family: 'Rubik', sans-serif;    
+    font-weight: 100;
+    font-size: 20px;
+    line-height: 1.4em;
     letter-spacing: -0.03em;
     color: #006C67;
   }
