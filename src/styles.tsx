@@ -98,4 +98,4 @@ export const GlobalStyles = createGlobalStyle`
     width: 137px;
     height: 10px;
   }
-`
+`;
