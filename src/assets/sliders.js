@@ -3,6 +3,8 @@ function degreesToRadians(degrees) {
 }
 
 const Slider = function(metric) {
+  const self = this;
+
   const colorName = metric === "infected" ? "red" : "teal"; // tailwind css colors
   const baseColorIntensity = 200;
   const valueColorIntensity = 600;
@@ -129,6 +131,17 @@ const Slider = function(metric) {
   // draw handle
   // ----------------------------------
   // (x, y) = (r * cos(angle), r * sin(angle).
+  function setNewValue(val) {
+    const update = {};
+    if (metric === "infected") {
+      update.percentageInfected = val;
+    } else {
+      update.incarceratedPopulation = val;
+    }
+    updateAppState(update);
+  }
+
+  const radiusToDot = arcRadius - arcThickness / 2;
   function getHandleCoordinates(val) {
     // TODO: would be nice if we could just assume this was always up to date?
     updateArcScale();
@@ -136,13 +149,30 @@ const Slider = function(metric) {
     // starting at 12 o'clock but JavaScript doesn't?
     const angleOffset = -degreesToRadians(90);
     // we want the dot to be centered on the arc
-    const radiusToDot = arcRadius - arcThickness / 2;
+
     return {
       x: radiusToDot * Math.cos(arcScale(val) + angleOffset),
       y: radiusToDot * Math.sin(arcScale(val) + angleOffset)
     };
   }
   const valueHandle = container.append("g");
+
+  const drag = d3.drag().on("drag", function dragged() {
+    d3.event.sourceEvent.stopPropagation();
+    const coordsRelativeToArc = d3.mouse(baseArc.node());
+    let angleOfCoords = Math.atan2(
+      coordsRelativeToArc[0],
+      -coordsRelativeToArc[1]
+    );
+    // the angle flips to negative at the bottom of the circle;
+    // I don't know why but I know I don't want it to happen,
+    // so this fixes that
+    if (flip && angleOfCoords < 0) {
+      angleOfCoords = 2 * Math.PI + angleOfCoords;
+    }
+
+    setNewValue(Math.round(arcScale.invert(angleOfCoords)));
+  });
 
   function drawValueHandle() {
     valueHandle
@@ -159,7 +189,8 @@ const Slider = function(metric) {
       })
       .attr("cy", function(d) {
         return getHandleCoordinates(d).y;
-      });
+      })
+      .call(drag);
   }
 
   this.updateValue = function() {
