@@ -83,8 +83,9 @@ function paintHeading(stateCode) {
   if (stateCode == "US") {
     headingText =
       "As COVID-19 spreads, prisons and jails are the last dense gatherings in America. " +
-      "If states don't act now, 120% of ICU beds nationwide will be needed just for the " +
-      "infirm from prisons and jails.";
+      "If states don't act now, " +
+      getICUBedsPercentage(stateCode) +
+      "% of ICU beds nationwide will be needed just for the infirm from prisons and jails.";
   } else {
     headingText =
       "If no action is taken, " +
