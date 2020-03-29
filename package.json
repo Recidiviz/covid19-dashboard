@@ -3,6 +3,7 @@
   "dependencies": {},
   "devDependencies": {
     "@hot-loader/react-dom": "16.13.0",
+    "@types/chalk": "2.2.0",
     "@types/node": "12.12.31",
     "@types/react": "16.9.26",
     "@types/react-dom": "16.9.5",
@@ -12,6 +13,7 @@
     "@typescript-eslint/eslint-plugin": "2.25.0",
     "@typescript-eslint/parser": "2.25.0",
     "babel-plugin-styled-components": "1.10.7",
+    "chalk": "3.0.0",
     "eslint": "6.8.0",
     "eslint-config-prettier": "6.10.1",
     "eslint-plugin-prettier": "3.1.2",
@@ -47,5 +49,8 @@
       "eslint --cache --fix",
       "prettier --write"
     ]
+  },
+  "scripts": {
+    "build": "parcel build index.html && echo && parcel build --target node src/entry-point-static/build.tsx && echo && node dist/build.js && rm -f dist/build.js dist/build.js.map"
   }
 }
