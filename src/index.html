@@ -78,12 +78,16 @@
         <!-- End Larger Header -->
       </nav>
       <main
-        class="py-4 sm:py-16 sm:py-24 flex justify-between items-start container mx-auto"
+        class="py-4 sm:py-6 flex justify-between items-start container mx-auto"
       >
         <div class="w-3/5">
           <div class="my-6">
-            <div class="flex justify-center items-center">
-              <div class="w-48 text-center flex-shrink-0">
+            <div id="infected_slider" class="w-11/12 mx-auto"></div>
+            <div
+              id="map_and_text_container"
+              class="flex justify-center items-center"
+            >
+              <div class="w-24 text-center flex-shrink-0">
                 <p class="text-base sm:leading-6 font-light text-teal-400">
                   Incarcerated
                 </p>
@@ -477,16 +481,17 @@
                 </div>
               </div>
             </div>
+            <div id="incarcerated_slider" class="w-11/12 mx-auto"></div>
           </div>
         </div>
-        <div class="w-1/4 mr-1/12 mt-16 text-green-800">
+        <div class="w-1/4 mr-12 mt-56 text-green-800">
           <h1 id="icu_percentage" class="text-6xl font-sans font-black"></h1>
           <h2 class="text-xl mb-2 whitespace-no-wrap">
             ICU Beds Occupied in
             <span
               id="state_name"
               class="border-b border-green-800 text-green-800"
-              contenteditable=""
+              contenteditable
             ></span>
           </h2>
           <p id="icu_heading" class="text-base"></p>
@@ -511,12 +516,15 @@
         </div>
       </footer>
     </div>
+    <script src="assets/polyfills.js" type="text/javascript"></script>
     <script
       src="https://code.jquery.com/jquery-3.4.1.min.js"
       type="text/javascript"
     ></script>
-    <script src="assets/polyfills.js" type="text/javascript"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="assets/icuData.js" type="text/javascript"></script>
-    <script src="assets/index.js" type="text/javascript"></script>
+    <script src="assets/data-forms.js" type="text/javascript"></script>
+    <script src="assets/sliders.js" type="text/javascript"></script>
+    <script src="assets/init.js" type="text/javascript"></script>
   </body>
 </html>

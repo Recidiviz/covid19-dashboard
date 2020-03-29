@@ -11,6 +11,21 @@ const stateNames = Object.values(ICU_DATA).map(function(record) {
   return record.name;
 });
 
+const repaintFunctions = [];
+
+function registerRepaintFunction(fn) {
+  // these functions will all receive the state code as first argument,
+  // so they should either use it or ignore it gracefully
+  repaintFunctions.push(fn);
+}
+
+function repaint() {
+  const stateCode = appState.stateCode;
+  repaintFunctions.forEach(function(fn) {
+    fn(stateCode);
+  });
+}
+
 const stateCodesByName = {};
 Object.entries(ICU_DATA).forEach(function(entry) {
   const code = entry[0];
@@ -81,6 +96,7 @@ function paintHeading(stateCode) {
 
   $("#icu_heading").text(headingText);
 }
+registerRepaintFunction(paintHeading);
 
 function paintIncarceratedPopulation(stateCode) {
   const input = $("#incarcerated_population");
@@ -90,18 +106,22 @@ function paintIncarceratedPopulation(stateCode) {
     max: appState.incarceratedPopulationMax
   });
 }
+registerRepaintFunction(paintIncarceratedPopulation);
 
 function paintNumberOfICUBeds(stateCode) {
   $("#number_of_icu_beds").text(getNumberOfICUBeds(stateCode).toLocaleString());
 }
+registerRepaintFunction(paintNumberOfICUBeds);
 
 function paintIncarceratedPct(stateCode) {
   $("#icu_percentage").text(getICUBedsPercentage(stateCode) + "%");
 }
+registerRepaintFunction(paintIncarceratedPct);
 
 function paintStateName(stateCode) {
   $("#state_name").text(getStateName(stateCode));
 }
+registerRepaintFunction(paintStateName);
 
 function updateInfectedPct(val) {
   updateAppState({ percentageInfected: val });
@@ -110,6 +130,7 @@ function updateInfectedPct(val) {
 function paintInfectedPct() {
   $("#infected_percentage").val(appState.percentageInfected);
 }
+registerRepaintFunction(paintInfectedPct);
 
 function setCurrentState(stateCode) {
   // fetch the base data from external file;
@@ -127,60 +148,7 @@ function setCurrentState(stateCode) {
   $("#" + stateCode).addClass("active");
 }
 
-function repaint() {
-  const stateCode = appState.stateCode;
-  paintHeading(stateCode);
-  paintIncarceratedPopulation(stateCode);
-  paintNumberOfICUBeds(stateCode);
-  paintStateName(stateCode);
-  paintIncarceratedPct(stateCode);
-  paintInfectedPct();
-}
-
 function deselectState() {
   // deselect previous state, if any
   $("path.state, circle.state").removeClass("active");
 }
-
-$(document).ready(function() {
-  // initialize
-  setCurrentState("US");
-  repaint();
-
-  // -----------------------------------
-  // event handlers
-  // -----------------------------------
-
-  // map interactions
-  $("path.state, circle.state").click(function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    setCurrentState(e.target.id);
-  });
-
-  $("#us_map").click(function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    // reset state to US
-    setCurrentState("US");
-  });
-
-  // form inputs
-  $("#infected_percentage").on("input", function(e) {
-    e.preventDefault();
-    updateInfectedPct(+e.target.value);
-  });
-
-  $("#incarcerated_population").on("input", function(e) {
-    e.preventDefault();
-    updateAppState({ incarceratedPopulation: +e.target.value });
-  });
-
-  $("#state_name").on("input", function(e) {
-    const name = $(e.target)
-      .text()
-      .trim();
-    const code = getStateCodeFromName(name);
-    code && setCurrentState(code);
-  });
-});
