@@ -14,8 +14,12 @@ interface FormValues {
   source?: string;
 }
 
+const states = zcta.getStates();
+
 const Form: React.FC<{}> = () => {
-  const [formValues, setFormValues] = useState<FormValues>({});
+  const [formValues, setFormValues] = useState<FormValues>({
+    state: states[0],
+  });
 
   function handleFormChange(field: string, value: string) {
     setFormValues({ ...formValues, [field]: value });
@@ -53,7 +57,7 @@ const Form: React.FC<{}> = () => {
           value={formValues.state}
           onChange={(e) => handleFormChange("state", e.target.value)}
         >
-          {zcta.getStates().map((state: string) => (
+          {states.map((state: string) => (
             <option key={state} value={state}>
               {state}
             </option>
