@@ -9,6 +9,7 @@ interface Props {
   placeholder?: string;
   disabled?: boolean;
   label?: string;
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
 }
 
 const SelectContainer = styled.div`
@@ -37,7 +38,9 @@ const Select: React.FC<Props> = (props) => {
   return (
     <SelectContainer>
       <Label>{props.label}</Label>
-      <SelectInput value={props.value}>{props.children}</SelectInput>
+      <SelectInput onChange={props.onChange} value={props.value}>
+        {props.children}
+      </SelectInput>
     </SelectContainer>
   );
 };
