@@ -20,6 +20,7 @@ const TextAreaInput = styled.textarea`
   font-size: 16px;
   color: #00413e;
   resize: none;
+  font-family: "Poppins", sans-serif;
 `;
 const TextAreaContainer = styled.div`
   margin-bottom: 24px;
@@ -35,6 +36,7 @@ const TextArea: React.FC<Props> = (props) => {
         onChange={props.onChange}
         value={props.value}
         placeholder={props.placeholder}
+        name={props.label}
       />
     </TextAreaContainer>
   );

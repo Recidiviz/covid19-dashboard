@@ -41,6 +41,7 @@ const TextInput: React.FC<Props> = (props) => {
         value={props.value}
         placeholder={props.placeholder}
         onChange={props.onChange}
+        name={props.label}
       />
     </TextInputContainer>
   );

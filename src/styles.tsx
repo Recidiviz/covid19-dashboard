@@ -113,8 +113,8 @@ export const GlobalStyles = createGlobalStyle`
 `;
 
 export const ContainerTint1 = styled.div`
-  height: 100%;
-  width: 100%;
+  min-width: 100vw;
+  min-height: 100vh;
   padding: 24px;
   background: #eaecec;
   box-sizing: border-box;

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import zcta from "us-zcta-counties";
 
+import Button from "./Button";
 import Select from "./Select";
 import TextArea from "./TextArea";
 import TextInput from "./TextInput";
@@ -95,6 +96,7 @@ const Form: React.FC<{}> = () => {
         placeholder=""
         onChange={(e) => handleFormChange("additionalInfo", e.target.value)}
       />
+      <Button label="Send" />
     </div>
   );
 };

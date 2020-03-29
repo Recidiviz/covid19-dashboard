@@ -43,6 +43,7 @@ const Select: React.FC<Props> = (props) => {
         disabled={props.disabled}
         onChange={props.onChange}
         value={props.value}
+        name={props.label}
       >
         {props.children}
       </SelectInput>
