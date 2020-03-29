@@ -12,6 +12,7 @@ export interface PageInfo {
   title: string;
   location: string;
 }
+
 export default function generatePageContent({ title, location }: PageInfo) {
   let styleSheet = new ServerStyleSheet();
   let contentHtml = ReactDOMServer.renderToString(
@@ -23,8 +24,21 @@ export default function generatePageContent({ title, location }: PageInfo) {
   );
   const stylesHtml = styleSheet.getStyleTags();
   let template = fs.readFileSync("dist/index.html", "utf-8");
-  template = template.replace("TITLE GOES HERE", title);
-  template = template.replace("<style></style>", stylesHtml);
-  template = template.replace("CONTENT GOES HERE", contentHtml);
+
+  [
+    ["TITLE PLACEHOLDER", title],
+    ["<style></style>", stylesHtml],
+    ["CONTENT PLACEHOLDER", contentHtml],
+  ].map(([toFind, toReplace]) => {
+    if (template.indexOf(toFind) === -1) {
+      console.error(
+        "\nERROR: " +
+          `dist/index.html must include ${JSON.stringify(toFind)}. ` +
+          "This string is used when generating static pages.",
+      );
+      process.exit(1);
+    }
+    template.replace(toFind, toReplace);
+  });
   return template;
 }

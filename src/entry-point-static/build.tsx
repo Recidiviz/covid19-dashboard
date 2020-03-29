@@ -1,3 +1,4 @@
+import chalk from "chalk";
 import fs from "fs";
 import path from "path";
 
@@ -8,14 +9,13 @@ let pageInfos: PageInfo[] = [
   { title: "Test Page", location: "/test" },
 ];
 
-console.log("Rendering React statically into HTML files:");
+console.log(chalk.blueBright("Rendering React statically into HTML files:"));
 
 for (let pageInfo of pageInfos) {
-  let dirPath = path.join("dist", "." + pageInfo.location);
-  console.log(`Writing: ${dirPath}`);
-
+  let dirPath = path.join("dist", pageInfo.location);
   let filePath = path.join(dirPath, "index.html");
-  console.log(`Writing: ${filePath}`);
+
+  console.log(chalk.blueBright(`Writing: ${filePath}`));
 
   let html = generatePageContent(pageInfo);
   fs.mkdirSync(dirPath, { recursive: true });
