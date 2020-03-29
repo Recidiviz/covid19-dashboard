@@ -4,6 +4,8 @@ function degreesToRadians(degrees) {
 
 const Slider = function(metric) {
   const colorName = metric === "infected" ? "red" : "teal"; // tailwind css colors
+  const baseColorIntensity = 200;
+  const valueColorIntensity = 600;
   const flip = metric === "incarcerated";
   const targetSelector = "#" + metric + "_slider";
 
@@ -31,6 +33,9 @@ const Slider = function(metric) {
     offsetStyle.property = "margin-bottom";
   }
 
+  // ----------------------------------
+  // draw the base arc
+  // ----------------------------------
   const baseArcGenerator = d3
     .arc()
     .startAngle(startAngle)
@@ -46,15 +51,18 @@ const Slider = function(metric) {
     .append("svg")
     .attr("width", width)
     .attr("height", height)
+    .attr("class", "overflow-visible")
     .append("g")
     .attr("transform", containerTransform);
 
   const baseArc = container
     .append("path")
     .attr("d", baseArcGenerator())
-    .attr("class", "fill-current text-" + colorName + "-200");
+    .attr("class", "fill-current text-" + colorName + "-" + baseColorIntensity);
 
+  // ----------------------------------
   // draw the value arc
+  // ----------------------------------
   const arcScale = d3
     .scaleLinear()
     .range([startAngle, endAngle])
@@ -79,9 +87,7 @@ const Slider = function(metric) {
     valueArcGenerator.startAngle(startAngle);
   }
 
-  function getValuePath(val) {
-    // TODO: maybe don't have to do this on every repaint
-    // but for now they are coupled
+  function updateArcScale() {
     if (metric === "infected") {
       arcScale.domain([0, 100]);
     } else {
@@ -91,6 +97,13 @@ const Slider = function(metric) {
         appState.incarceratedPopulationMin
       ]);
     }
+  }
+
+  function getValuePath(val) {
+    // TODO: maybe don't have to do this on every repaint
+    // but for now they are coupled
+    updateArcScale();
+
     if (flip) {
       return valueArcGenerator({ startAngle: arcScale(val) });
     } else {
@@ -99,13 +112,59 @@ const Slider = function(metric) {
   }
 
   const valueArc = container.append("g");
-  this.updateValue = function() {
+
+  function drawValueArc() {
     valueArc
       .selectAll("path")
       .data([getSliderValue()])
       .join("path")
-      .attr("class", "fill-current text-" + colorName + "-600")
+      .attr(
+        "class",
+        "fill-current text-" + colorName + "-" + valueColorIntensity
+      )
       .attr("d", getValuePath);
+  }
+
+  // ----------------------------------
+  // draw handle
+  // ----------------------------------
+  // (x, y) = (r * cos(angle), r * sin(angle).
+  function getHandleCoordinates(val) {
+    // TODO: would be nice if we could just assume this was always up to date?
+    updateArcScale();
+    // these measurements are all off by 90 degrees because d3 draws arcs
+    // starting at 12 o'clock but JavaScript doesn't?
+    const angleOffset = -degreesToRadians(90);
+    // we want the dot to be centered on the arc
+    const radiusToDot = arcRadius - arcThickness / 2;
+    return {
+      x: radiusToDot * Math.cos(arcScale(val) + angleOffset),
+      y: radiusToDot * Math.sin(arcScale(val) + angleOffset)
+    };
+  }
+  const valueHandle = container.append("g");
+
+  function drawValueHandle() {
+    valueHandle
+      .selectAll("circle")
+      .data([getSliderValue()])
+      .join("circle")
+      .attr(
+        "class",
+        "fill-current text-" + colorName + "-" + valueColorIntensity
+      )
+      .attr("r", 10)
+      .attr("cx", function(d) {
+        return getHandleCoordinates(d).x;
+      })
+      .attr("cy", function(d) {
+        return getHandleCoordinates(d).y;
+      });
+  }
+
+  this.updateValue = function() {
+    drawValueArc();
+    drawValueHandle();
   };
 
   this.updateValue();
