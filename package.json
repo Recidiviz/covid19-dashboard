@@ -5,7 +5,6 @@
     "dev": "bin/parcel serve index.html"
   },
   "dependencies": {
-    "prop-types": "^15.7.2",
     "us-zcta-counties": "^0.0.2"
   },
   "devDependencies": {

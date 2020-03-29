@@ -21,7 +21,6 @@ const Form: React.FC<{}> = () => {
     setFormValues({ ...formValues, [field]: value });
   }
 
-  console.log(formValues);
   return (
     <div>
       <TextInput
@@ -64,12 +63,17 @@ const Form: React.FC<{}> = () => {
           label="county"
           value={formValues.county}
           onChange={(e) => handleFormChange("county", e.target.value)}
+          disabled={!formValues.state}
         >
-          {zcta.getStates().map((state: string) => (
-            <option key={state} value={state}>
-              {state}
-            </option>
-          ))}
+          {formValues.state ? (
+            zcta.getCountiesByState(formValues.state).map((county: string) => (
+              <option value={county} key={county}>
+                {county}
+              </option>
+            ))
+          ) : (
+            <option>Please select a state first.</option>
+          )}
         </Select>
       </div>
       <TextInput

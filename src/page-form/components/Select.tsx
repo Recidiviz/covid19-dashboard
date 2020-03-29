@@ -16,6 +16,7 @@ const SelectContainer = styled.div`
   position: relative;
   font-family: "Poppins", sans-serif;
   flex-grow: 1;
+  flex-basis: 50%;
   margin-right: 8px;
   margin-bottom: 24px;
 `;
@@ -38,7 +39,11 @@ const Select: React.FC<Props> = (props) => {
   return (
     <SelectContainer>
       <Label>{props.label}</Label>
-      <SelectInput onChange={props.onChange} value={props.value}>
+      <SelectInput
+        disabled={props.disabled}
+        onChange={props.onChange}
+        value={props.value}
+      >
         {props.children}
       </SelectInput>
     </SelectContainer>
