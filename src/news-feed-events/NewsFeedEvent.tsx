@@ -31,7 +31,6 @@ export function parseNewsFeedEventsFromTsv(tsv: string) {
       let header = Headers[i];
       let cell = row[i];
       record[header] = cell;
-      1;
     }
     return record;
   });
