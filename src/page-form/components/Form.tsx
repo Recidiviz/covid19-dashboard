@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import zcta from "us-zcta-counties";
 
 import Select from "./Select";
+import TextArea from "./TextArea";
 import TextInput from "./TextInput";
 
 interface FormValues {
@@ -12,6 +13,7 @@ interface FormValues {
   state?: string;
   county?: string;
   source?: string;
+  additionalInfo?: string;
 }
 
 const states = zcta.getStates();
@@ -86,6 +88,12 @@ const Form: React.FC<{}> = () => {
         defaultValue="https://"
         placeholder="What was done?"
         onChange={(e) => handleFormChange("source", e.target.value)}
+      />
+      <TextArea
+        label="additional information"
+        value={formValues.additionalInfo}
+        placeholder=""
+        onChange={(e) => handleFormChange("additionalInfo", e.target.value)}
       />
     </div>
   );
