@@ -1,5 +1,7 @@
 import React from "react";
+import zcta from "us-zcta-counties";
 
+import Select from "./Select";
 import TextInput from "./TextInput";
 
 const Form: React.FC<{}> = () => {
@@ -25,6 +27,22 @@ const Form: React.FC<{}> = () => {
         placeholder="What was done?"
         onChange={(e) => console.log(e.target.value)}
       />
+      <div style={{ display: "flex", width: "100%" }}>
+        <Select label="state">
+          {zcta.getStates().map((state: string) => (
+            <option key={state} value={state}>
+              {state}
+            </option>
+          ))}
+        </Select>
+        <Select label="county">
+          {zcta.getStates().map((state: string) => (
+            <option key={state} value={state}>
+              {state}
+            </option>
+          ))}
+        </Select>
+      </div>
       <TextInput
         label="source"
         defaultValue="https://"

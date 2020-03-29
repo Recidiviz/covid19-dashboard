@@ -2,14 +2,7 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-const Label = styled.span`
-  text-transform: uppercase;
-  font-size: 12px;
-  font-weight: 100;
-  font-family: "Poppins", sans-serif;
-  letter-spacing: 2px;
-  color: #00413e;
-`;
+import { Label } from "./form-styles";
 
 const Input = styled.input`
   padding: 16px;
@@ -44,7 +37,7 @@ const TextInput: React.FC<Props> = (props) => {
     <TextInputContainer>
       <Label>{props.label}</Label>
       <Input
-        type={props.type}
+        type={props.type || "text"}
         defaultValue={props.defaultValue}
         value={props.value}
         placeholder={props.placeholder}
@@ -52,19 +45,6 @@ const TextInput: React.FC<Props> = (props) => {
       />
     </TextInputContainer>
   );
-};
-
-TextInput.propTypes = {
-  label: PropTypes.string.isRequired,
-  placeholder: PropTypes.string,
-  value: PropTypes.string,
-  onChange: PropTypes.func,
-  defaultValue: PropTypes.string,
-  type: PropTypes.string,
-};
-
-TextInput.defaultProps = {
-  type: "text",
 };
 
 export default TextInput;
