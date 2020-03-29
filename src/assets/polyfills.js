@@ -1,5 +1,6 @@
 // ---------------------------------------------
 // Object.assign()
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
 // ---------------------------------------------
 if (typeof Object.assign !== "function") {
   // Must be writable: true, enumerable: false, configurable: true
@@ -34,6 +35,7 @@ if (typeof Object.assign !== "function") {
 
 // ---------------------------------------------
 // Object.entries()
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries
 // ---------------------------------------------
 
 if (!Object.entries) {
