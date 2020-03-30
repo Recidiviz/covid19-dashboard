@@ -53,6 +53,14 @@ export function initOverviewPage() {
   });
 
   $("#state_name")
+    .on("focus", (e) => {
+      // autoselect when entering the editable field
+      let range = document.createRange();
+      let sel = window.getSelection();
+      range.selectNodeContents(e.target);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    })
     .on("input", function (e) {
       const name = $(e.target).text().trim();
       autoSuggestState(name);

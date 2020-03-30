@@ -538,14 +538,15 @@ const OverviewPage: React.FC<{}> = () => {
             />
             <h2 className="text-lg mb-2 whitespace-no-wrap font-display font-light leading-normal">
               ICU Beds Occupied in{" "}
-              <span className="inline-block relative">
+              <span className="inline-block relative cursor-pointer">
                 <span
                   id="state_name_autocomplete"
-                  className="absolute block h-full text-green-light border-b border-green top-0 left-0 z-0"
+                  className="absolute h-full block text-green-light border-b top-0 left-0 z-0"
                 />
+
                 <span
                   id="state_name"
-                  className="border-b border-current z-10 relative block h-full"
+                  className="border-b border-current relative z-10 inline"
                   contentEditable
                 />
               </span>

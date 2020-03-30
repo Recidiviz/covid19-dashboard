@@ -158,12 +158,7 @@ export function setCurrentState(stateCode) {
 }
 
 function getSuggestedState(text) {
-  return (
-    text &&
-    stateNames.find(
-      (stateName) => stateName.toLowerCase().indexOf(text.toLowerCase()) === 0,
-    )
-  );
+  return text && stateNames.find((stateName) => stateName.indexOf(text) === 0);
 }
 
 export function autoSuggestState(text) {
