@@ -29060,27 +29060,11 @@ video {
   Note: Ideally, you shouldn't have to add too much custom CSS.
 */
 
-#us_map {
-  cursor: pointer;
-}
+/* NOTE: Custom CSS has been moved to OverviewPage.tsx! */
 
-path.state.active,
-path.state.active:hover,
-circle.state.active,
-circle.state.active:hover {
-  stroke: #22543d !important;
-  stroke-width: 2px;
-  stroke-linejoin: round;
-  fill: #22543d !important;
-}
-
-path.state:hover,
-circle.state:hover {
-  stroke: #68d391 !important;
-  stroke-width: 2px;
-  stroke-linejoin: round;
-  fill: #68d391 !important;
-}
+/*
+  End custom CSS
+ */
 
 @media (min-width: 640px) {
   .sm\:sr-only {

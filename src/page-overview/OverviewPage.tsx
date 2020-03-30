@@ -2,6 +2,28 @@ import styled from "styled-components";
 
 const OverviewPageDiv = styled.div`
   /* Add CSS for the overview page here! */
+
+  #us_map {
+    cursor: pointer;
+  }
+
+  path.state.active,
+  path.state.active:hover,
+  circle.state.active,
+  circle.state.active:hover {
+    stroke: #22543d !important;
+    stroke-width: 2px;
+    stroke-linejoin: round;
+    fill: #22543d !important;
+  }
+
+  path.state:hover,
+  circle.state:hover {
+    stroke: #68d391 !important;
+    stroke-width: 2px;
+    stroke-linejoin: round;
+    fill: #68d391 !important;
+  }
 `;
 
 const OverviewPage: React.FC<{}> = () => (
