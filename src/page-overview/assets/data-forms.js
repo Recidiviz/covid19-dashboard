@@ -161,10 +161,15 @@ function getSuggestedState(text) {
   return text && stateNames.find((stateName) => stateName.indexOf(text) === 0);
 }
 
+function clearAutoSuggest() {
+  $("#state_name_autocomplete").html("");
+}
+registerRepaintFunction(clearAutoSuggest);
+
 export function autoSuggestState(text) {
   const suggestion = getSuggestedState(text);
   const $autoCompleteEl = $("#state_name_autocomplete");
-  suggestion ? $autoCompleteEl.html(suggestion) : $autoCompleteEl.html("");
+  suggestion ? $autoCompleteEl.html(suggestion) : clearAutoSuggest();
 }
 
 export function autoCompleteState(text, $target) {
