@@ -66,46 +66,44 @@ function getPercentageHospitalized() {
   return 0.05;
 }
 
-function getPercentageInfectedAsDecimal() {
-  return appState.percentageInfected / 100;
-}
-
-function getICUBedsPercentage(stateCode) {
+function getICUBedsProjection(stateCode) {
+  // TODO: replace this with the real formula!!!!!!
   let incarceratedPopulation = appState.incarceratedPopulation;
   let numberOfICUBeds = getNumberOfICUBeds(stateCode);
   let percentageHospitalized = getPercentageHospitalized(stateCode);
-  let percentageInfected = getPercentageInfectedAsDecimal();
-
-  return parseInt(
-    ((incarceratedPopulation * percentageInfected * percentageHospitalized) /
-      numberOfICUBeds) *
-      100,
-  );
+  // TODO: this is extremely fake!!! it's just something that changes when you move the slider
+  let percentageInfected = 0.25 * appState.R0;
+  return {
+    ICUBedsPercentage: parseInt(
+      ((incarceratedPopulation * percentageInfected * percentageHospitalized) /
+        numberOfICUBeds) *
+        100,
+    ),
+    // TODO: this should be calculated by the new formula
+    numDays: Math.round(30 * (appState.R0 ? 1 / appState.R0 : 0.1)),
+  };
 }
 
 function paintHeading(stateCode) {
   let headingText;
 
+  const projection = getICUBedsProjection(stateCode);
+
   if (stateCode == "US") {
-    headingText =
-      "As COVID-19 spreads, prisons and jails are the last dense gatherings in America. " +
-      "If states don't act now, " +
-      getICUBedsPercentage(stateCode) +
-      "% of ICU beds nationwide will be needed just for the infirm from prisons and jails.";
+    headingText = `As COVID-19 spreads, prisons and jails are the last dense gatherings in America.
+      If states don't act now, ${projection.ICUBedsPercentage}% of ICU beds nationwide will be
+      needed within ${projection.numDays} days just for the infirm from prisons and jails.`;
   } else {
-    headingText =
-      "If no action is taken, " +
-      getICUBedsPercentage(stateCode) +
-      "% of " +
-      getStateName(stateCode) +
-      "’s ICU beds will be needed just for the infirm from prisons and jails.";
+    headingText = `If no action is taken, ${projection.ICUBedsPercentage}%
+      of ${getStateName(stateCode)}’s ICU beds will be needed within
+      ${projection.numDays} just for the infirm from prisons and jails.`;
   }
 
   $("#icu_heading").text(headingText);
 }
 registerRepaintFunction(paintHeading);
 
-function paintIncarceratedPopulation(stateCode) {
+function paintIncarceratedPopulation() {
   const input = $("#incarcerated_population");
   input.val(appState.incarceratedPopulation);
   input.attr({
@@ -121,7 +119,9 @@ function paintNumberOfICUBeds(stateCode) {
 registerRepaintFunction(paintNumberOfICUBeds);
 
 function paintIncarceratedPct(stateCode) {
-  $("#icu_percentage").text(getICUBedsPercentage(stateCode) + "%");
+  $("#icu_percentage").text(
+    getICUBedsProjection(stateCode).ICUBedsPercentage + "%",
+  );
 }
 registerRepaintFunction(paintIncarceratedPct);
 
@@ -129,10 +129,6 @@ function paintStateName(stateCode) {
   $("#state_name").text(getStateName(stateCode));
 }
 registerRepaintFunction(paintStateName);
-
-function updateInfectedPct(val) {
-  updateAppState({ percentageInfected: val });
-}
 
 function paintR0() {
   const input = $("#R0");
