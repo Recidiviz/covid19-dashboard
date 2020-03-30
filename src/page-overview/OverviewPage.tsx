@@ -173,7 +173,7 @@ const OverviewPage: React.FC<{}> = () => {
         <main className="py-4 sm:py-6 flex justify-between items-start container mx-auto">
           <div className="w-3/5">
             <div className="my-6">
-              <div id="infected_slider" className="w-11/12 mx-auto" />
+              <div id="R0_slider" className="w-11/12 mx-auto" />
               <div
                 id="map_and_text_container"
                 className="flex justify-center items-center"
@@ -504,17 +504,16 @@ const OverviewPage: React.FC<{}> = () => {
                 <div className="w-28 text-center flex-shrink-0">
                   <label
                     className="text-base sm:leading-6 font-light text-red tracking-normal"
-                    htmlFor="infected_percentage"
+                    htmlFor="R0"
                   >
-                    % Infected
+                    Transmission Rate
                   </label>
                   <div>
                     <input
                       type="number"
-                      id="infected_percentage"
+                      id="R0"
                       className="border-b block w-full bg-transparent text-center my-2 text-2xl leading-8 border-current text-red"
-                      min="0"
-                      max="100"
+                      step="0.1"
                       required
                     />
                   </div>

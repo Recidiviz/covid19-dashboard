@@ -1,4 +1,5 @@
 import {
+  getStateCodeFromName,
   registerRepaintFunction,
   repaint,
   setCurrentState,
@@ -9,7 +10,7 @@ import { initTooltips } from "./tooltip";
 export function initOverviewPage() {
   // initialize
   setCurrentState("US");
-  const infectedSlider = new Slider("infected");
+  const infectedSlider = new Slider("R0");
   registerRepaintFunction(infectedSlider.updateValue);
 
   const incarceratedSlider = new Slider("incarcerated");

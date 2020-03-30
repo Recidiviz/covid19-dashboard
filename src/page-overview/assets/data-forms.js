@@ -7,6 +7,9 @@ export const appState = {
   incarceratedPopulation: 0,
   incarceratedPopulationMax: 0,
   incarceratedPopulationMin: 0,
+  R0: 3.0,
+  R0Min: 0.0,
+  R0Max: 4.0,
 };
 
 const repaintFunctions = [];
@@ -33,6 +36,11 @@ Object.entries(ICU_DATA).forEach(function (entry) {
 
 export function updateAppState(changesObj) {
   Object.assign(appState, changesObj);
+  // coerce user-input numbers to required precision
+  appState.incarceratedPopulation = Math.round(
+    parseInt(appState.incarceratedPopulation),
+  );
+  appState.R0 = parseFloat(appState.R0).toFixed(1);
   repaint();
 }
 
@@ -40,7 +48,7 @@ export function getStateName(stateCode) {
   return ICU_DATA[stateCode].name;
 }
 
-function getStateCodeFromName(name) {
+export function getStateCodeFromName(name) {
   return stateCodesByName[name];
 }
 
@@ -52,7 +60,7 @@ function getNumberOfICUBeds(stateCode) {
   return ICU_DATA[stateCode].numberOfICUBeds;
 }
 
-function getPercentageHospitalized(stateCode) {
+function getPercentageHospitalized() {
   // Returning a hard coded value for now, but you could replace this value with
   // something that is populated from a form element, such as a slider.
   return 0.05;
@@ -126,10 +134,15 @@ function updateInfectedPct(val) {
   updateAppState({ percentageInfected: val });
 }
 
-function paintInfectedPct() {
-  $("#infected_percentage").val(appState.percentageInfected);
+function paintR0() {
+  const input = $("#R0");
+  input.val(appState.R0);
+  input.attr({
+    min: appState.R0Min,
+    max: appState.R0Max,
+  });
 }
-registerRepaintFunction(paintInfectedPct);
+registerRepaintFunction(paintR0);
 
 function deselectState() {
   // deselect previous state, if any
