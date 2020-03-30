@@ -75,6 +75,20 @@ const OverviewPageDiv = styled.div`
   .w-28 {
     width: 6.5rem;
   }
+
+  .map-tooltip {
+    position: absolute;
+    background-color: #00413e;
+    color: #fff;
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 400;
+  }
+
+  .hidden {
+    display: none;
+  }
 `;
 
 const OverviewPage: React.FC<{}> = () => {
@@ -559,6 +573,7 @@ const OverviewPage: React.FC<{}> = () => {
             </div>
           </div>
         </footer>
+        <div id="map_tooltip" className="map-tooltip hidden" />
       </div>
     </OverviewPageDiv>
   );

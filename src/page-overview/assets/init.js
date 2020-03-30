@@ -4,6 +4,7 @@ import {
   setCurrentState,
 } from "./data-forms";
 import { Slider } from "./sliders";
+import initTooltips from "./tooltip";
 
 export function initOverviewPage() {
   // initialize
@@ -20,6 +21,8 @@ export function initOverviewPage() {
   // -----------------------------------
   // event handlers
   // -----------------------------------
+
+  initTooltips();
 
   // map interactions
   $("path.state, circle.state").click(function (e) {
