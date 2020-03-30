@@ -4,7 +4,7 @@ import {
   setCurrentState,
 } from "./data-forms";
 import { Slider } from "./sliders";
-import initTooltips from "./tooltip";
+import { initTooltips } from "./tooltip";
 
 export function initOverviewPage() {
   // initialize

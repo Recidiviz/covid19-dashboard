@@ -1,6 +1,6 @@
 import { getStateName } from "./data-forms";
 
-export default function initTooltips() {
+export function initTooltips() {
   const $tooltip = $("#map_tooltip");
 
   $("#us_map .state")
