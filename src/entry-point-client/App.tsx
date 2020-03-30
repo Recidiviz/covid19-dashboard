@@ -3,6 +3,7 @@ import { Route, Switch } from "react-router-dom";
 
 import FormPage from "../page-form/FormPage";
 import HomePage from "../page-home/HomePage";
+import OverviewPage from "../page-overview/OverviewPage";
 import TestPage from "../page-test/TestPage";
 import { GlobalStyles } from "../styles";
 import WindowTitle from "./WindowTitle";
@@ -12,6 +13,10 @@ const App: React.FC<{}> = () => {
     <>
       <GlobalStyles />
       <Switch>
+        <Route path="/overview">
+          <WindowTitle>Overview</WindowTitle>
+          <OverviewPage />
+        </Route>
         <Route path="/test">
           <WindowTitle>Test Page</WindowTitle>
           <TestPage />
