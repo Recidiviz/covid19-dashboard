@@ -6,6 +6,7 @@ import generatePageContent, { PageInfo } from "./generatePageContent";
 
 let pageInfos: PageInfo[] = [
   { title: "Recidiviz COVID-19 Dashboard", location: "/" },
+  { title: "Overview", location: "/overview" },
   { title: "Test Page", location: "/test" },
 ];
 
