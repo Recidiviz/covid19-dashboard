@@ -44,7 +44,7 @@
     "*.{html,json,md}": [
       "prettier --write"
     ],
-    "*.tsx": [
+    "*.js,tsx": [
       "bash -c tsc",
       "eslint --cache --fix",
       "prettier --write"
