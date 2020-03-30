@@ -4,10 +4,10 @@ const appState = {
   stateCode: "",
   incarceratedPopulation: 0,
   incarceratedPopulationMax: 0,
-  incarceratedPopulationMin: 0
+  incarceratedPopulationMin: 0,
 };
 
-const stateNames = Object.values(ICU_DATA).map(function(record) {
+const stateNames = Object.values(ICU_DATA).map(function (record) {
   return record.name;
 });
 
@@ -21,13 +21,13 @@ function registerRepaintFunction(fn) {
 
 function repaint() {
   const stateCode = appState.stateCode;
-  repaintFunctions.forEach(function(fn) {
+  repaintFunctions.forEach(function (fn) {
     fn(stateCode);
   });
 }
 
 const stateCodesByName = {};
-Object.entries(ICU_DATA).forEach(function(entry) {
+Object.entries(ICU_DATA).forEach(function (entry) {
   const code = entry[0];
   const name = entry[1].name;
   stateCodesByName[name] = code;
@@ -65,20 +65,20 @@ function getPercentageInfectedAsDecimal() {
 }
 
 function getICUBedsPercentage(stateCode) {
-  var incarceratedPopulation = appState.incarceratedPopulation;
-  var numberOfICUBeds = getNumberOfICUBeds(stateCode);
-  var percentageHospitalized = getPercentageHospitalized(stateCode);
-  var percentageInfected = getPercentageInfectedAsDecimal();
+  let incarceratedPopulation = appState.incarceratedPopulation;
+  let numberOfICUBeds = getNumberOfICUBeds(stateCode);
+  let percentageHospitalized = getPercentageHospitalized(stateCode);
+  let percentageInfected = getPercentageInfectedAsDecimal();
 
   return parseInt(
     ((incarceratedPopulation * percentageInfected * percentageHospitalized) /
       numberOfICUBeds) *
-      100
+      100,
   );
 }
 
 function paintHeading(stateCode) {
-  var headingText;
+  let headingText;
 
   if (stateCode == "US") {
     headingText =
@@ -104,7 +104,7 @@ function paintIncarceratedPopulation(stateCode) {
   input.val(appState.incarceratedPopulation);
   input.attr({
     min: appState.incarceratedPopulationMin,
-    max: appState.incarceratedPopulationMax
+    max: appState.incarceratedPopulationMax,
   });
 }
 registerRepaintFunction(paintIncarceratedPopulation);
@@ -142,7 +142,7 @@ function setCurrentState(stateCode) {
     incarceratedPopulation: pop,
     // define valid input range according to base number
     incarceratedPopulationMin: Math.round(pop * 0.5),
-    incarceratedPopulationMax: Math.round(pop * 1.5)
+    incarceratedPopulationMax: Math.round(pop * 1.5),
   });
   // visually select new state on the map
   deselectState();

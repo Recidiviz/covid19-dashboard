@@ -12,13 +12,13 @@ if (typeof Object.assign !== "function") {
         throw new TypeError("Cannot convert undefined or null to object");
       }
 
-      var to = Object(target);
+      let to = Object(target);
 
-      for (var index = 1; index < arguments.length; index++) {
-        var nextSource = arguments[index];
+      for (let index = 1; index < arguments.length; index++) {
+        let nextSource = arguments[index];
 
         if (nextSource !== null && nextSource !== undefined) {
-          for (var nextKey in nextSource) {
+          for (let nextKey in nextSource) {
             // Avoid bugs when hasOwnProperty is shadowed
             if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
               to[nextKey] = nextSource[nextKey];
@@ -29,7 +29,7 @@ if (typeof Object.assign !== "function") {
       return to;
     },
     writable: true,
-    configurable: true
+    configurable: true,
   });
 }
 
@@ -39,8 +39,8 @@ if (typeof Object.assign !== "function") {
 // ---------------------------------------------
 
 if (!Object.entries) {
-  Object.entries = function(obj) {
-    var ownProps = Object.keys(obj),
+  Object.entries = function (obj) {
+    let ownProps = Object.keys(obj),
       i = ownProps.length,
       resArray = new Array(i); // preallocate the Array
     while (i--) resArray[i] = [ownProps[i], obj[ownProps[i]]];

@@ -2,7 +2,7 @@ function degreesToRadians(degrees) {
   return (degrees * Math.PI) / 180;
 }
 
-const Slider = function(metric) {
+const Slider = function (metric) {
   const self = this;
 
   const colorName = metric === "infected" ? "red" : "teal"; // tailwind css colors
@@ -21,7 +21,7 @@ const Slider = function(metric) {
   let startAngle,
     endAngle,
     offsetStyle = {
-      value: -($("#map_and_text_container").height() / 2) + "px"
+      value: -($("#map_and_text_container").height() / 2) + "px",
     };
   if (flip) {
     startAngle = degreesToRadians(90 + horizonOffsetDegrees);
@@ -65,10 +65,7 @@ const Slider = function(metric) {
   // ----------------------------------
   // draw the value arc
   // ----------------------------------
-  const arcScale = d3
-    .scaleLinear()
-    .range([startAngle, endAngle])
-    .clamp(true);
+  const arcScale = d3.scaleLinear().range([startAngle, endAngle]).clamp(true);
 
   function getSliderValue() {
     return metric === "infected"
@@ -96,7 +93,7 @@ const Slider = function(metric) {
       // these numbers are reversed because we are drawing the arc "backwards"
       arcScale.domain([
         appState.incarceratedPopulationMax,
-        appState.incarceratedPopulationMin
+        appState.incarceratedPopulationMin,
       ]);
     }
   }
@@ -122,7 +119,7 @@ const Slider = function(metric) {
       .join("path")
       .attr(
         "class",
-        "fill-current text-" + colorName + "-" + valueColorIntensity
+        "fill-current text-" + colorName + "-" + valueColorIntensity,
       )
       .attr("d", getValuePath);
   }
@@ -152,7 +149,7 @@ const Slider = function(metric) {
 
     return {
       x: radiusToDot * Math.cos(arcScale(val) + angleOffset),
-      y: radiusToDot * Math.sin(arcScale(val) + angleOffset)
+      y: radiusToDot * Math.sin(arcScale(val) + angleOffset),
     };
   }
   const valueHandle = container.append("g");
@@ -162,7 +159,7 @@ const Slider = function(metric) {
     const coordsRelativeToArc = d3.mouse(baseArc.node());
     let angleOfCoords = Math.atan2(
       coordsRelativeToArc[0],
-      -coordsRelativeToArc[1]
+      -coordsRelativeToArc[1],
     );
     // the angle flips to negative at the bottom of the circle;
     // I don't know why but I know I don't want it to happen,
@@ -181,19 +178,19 @@ const Slider = function(metric) {
       .join("circle")
       .attr(
         "class",
-        "fill-current text-" + colorName + "-" + valueColorIntensity
+        "fill-current text-" + colorName + "-" + valueColorIntensity,
       )
       .attr("r", 10)
-      .attr("cx", function(d) {
+      .attr("cx", function (d) {
         return getHandleCoordinates(d).x;
       })
-      .attr("cy", function(d) {
+      .attr("cy", function (d) {
         return getHandleCoordinates(d).y;
       })
       .call(drag);
   }
 
-  this.updateValue = function() {
+  this.updateValue = function () {
     drawValueArc();
     drawValueHandle();
   };
