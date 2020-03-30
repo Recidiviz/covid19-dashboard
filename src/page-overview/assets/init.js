@@ -1,4 +1,5 @@
 import {
+  autoCompleteState,
   autoSuggestState,
   getStateCodeFromName,
   registerRepaintFunction,
@@ -51,10 +52,24 @@ export function initOverviewPage() {
     updateAppState({ incarceratedPopulation: +e.target.value });
   });
 
-  $("#state_name").on("input", function (e) {
-    const name = $(e.target).text().trim();
-    autoSuggestState(name);
-    const code = getStateCodeFromName(name);
-    code && setCurrentState(code);
-  });
+  $("#state_name")
+    .on("input", function (e) {
+      const name = $(e.target).text().trim();
+      autoSuggestState(name);
+      const code = getStateCodeFromName(name);
+      code && setCurrentState(code);
+    })
+    .keydown((e) => {
+      let complete = false;
+      if (e.key === "Enter") {
+        e.preventDefault();
+        complete = true;
+      }
+      // don't prevent default on Tab so user can still navigate with it
+      if (complete || e.key === "Tab") {
+        const $input = $(e.target);
+        const name = $input.text().trim();
+        autoCompleteState(name, $input);
+      }
+    });
 }

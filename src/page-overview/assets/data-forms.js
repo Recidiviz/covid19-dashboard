@@ -157,12 +157,24 @@ export function setCurrentState(stateCode) {
   $("#" + stateCode).addClass("active");
 }
 
-export function autoSuggestState(text) {
-  const suggestion =
+function getSuggestedState(text) {
+  return (
     text &&
     stateNames.find(
       (stateName) => stateName.toLowerCase().indexOf(text.toLowerCase()) === 0,
-    );
+    )
+  );
+}
+
+export function autoSuggestState(text) {
+  const suggestion = getSuggestedState(text);
   const $autoCompleteEl = $("#state_name_autocomplete");
   suggestion ? $autoCompleteEl.html(suggestion) : $autoCompleteEl.html("");
+}
+
+export function autoCompleteState(text, $target) {
+  const suggestion = getSuggestedState(text);
+  suggestion && $target.html(suggestion);
+  // trigger input event so new data gets handled
+  $target.trigger("input");
 }
