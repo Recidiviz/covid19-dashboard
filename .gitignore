@@ -5,6 +5,9 @@
 # rather than matching a pattern. This helps makes it easier for us to know when
 # it's okay to remove lines from this file.
 
+# Custom
+/bin/**
+
 # Eslint
 /.eslintcache
 
@@ -15,6 +18,9 @@
 
 # Node
 /node_modules
+
+# Yarn
+/yarn-error.log
 
 # Package manager lockfiles. Including lockfiles for frontend projects can be
 # is more trouble than it's worth. We can un-ignore these files if we need them.
