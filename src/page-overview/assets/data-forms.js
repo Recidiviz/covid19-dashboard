@@ -9,10 +9,6 @@ export const appState = {
   incarceratedPopulationMin: 0,
 };
 
-const stateNames = Object.values(ICU_DATA).map(function (record) {
-  return record.name;
-});
-
 const repaintFunctions = [];
 
 export function registerRepaintFunction(fn) {
@@ -40,7 +36,7 @@ export function updateAppState(changesObj) {
   repaint();
 }
 
-function getStateName(stateCode) {
+export function getStateName(stateCode) {
   return ICU_DATA[stateCode].name;
 }
 

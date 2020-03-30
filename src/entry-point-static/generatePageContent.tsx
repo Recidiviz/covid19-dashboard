@@ -13,7 +13,10 @@ export interface PageInfo {
   location: string;
 }
 
-export default function generatePageContent({ title, location }: PageInfo) {
+export default function generatePageContent(
+  template: string,
+  { title, location }: PageInfo,
+) {
   let styleSheet = new ServerStyleSheet();
   let contentHtml = ReactDOMServer.renderToString(
     styleSheet.collectStyles(
@@ -23,7 +26,6 @@ export default function generatePageContent({ title, location }: PageInfo) {
     ),
   );
   const stylesHtml = styleSheet.getStyleTags();
-  let template = fs.readFileSync("dist/index.html", "utf-8");
 
   [
     ["TITLE PLACEHOLDER", title],
@@ -38,7 +40,7 @@ export default function generatePageContent({ title, location }: PageInfo) {
       );
       process.exit(1);
     }
-    template.replace(toFind, toReplace);
+    template = template.replace(toFind, toReplace);
   });
   return template;
 }
