@@ -1,4 +1,6 @@
 import {
+  autoSuggestState,
+  getStateCodeFromName,
   registerRepaintFunction,
   repaint,
   setCurrentState,
@@ -51,6 +53,7 @@ export function initOverviewPage() {
 
   $("#state_name").on("input", function (e) {
     const name = $(e.target).text().trim();
+    autoSuggestState(name);
     const code = getStateCodeFromName(name);
     code && setCurrentState(code);
   });

@@ -52,6 +52,14 @@ const OverviewPageDiv = styled.div`
     color: #00413e;
   }
 
+  .border-green {
+    border-color: #00413e;
+  }
+
+  .text-green-light {
+    color: #25b895;
+  }
+
   .text-teal {
     color: #006c67;
   }
@@ -530,11 +538,17 @@ const OverviewPage: React.FC<{}> = () => {
             />
             <h2 className="text-lg mb-2 whitespace-no-wrap font-display font-light leading-normal">
               ICU Beds Occupied in{" "}
-              <span
-                id="state_name"
-                className="border-b border-current"
-                contentEditable
-              />
+              <span className="inline-block relative">
+                <span
+                  id="state_name_autocomplete"
+                  className="absolute block h-full text-green-light border-b border-green top-0 left-0 z-0"
+                />
+                <span
+                  id="state_name"
+                  className="border-b border-current z-10 relative block h-full"
+                  contentEditable
+                />
+              </span>
             </h2>
             <p
               id="icu_heading"
