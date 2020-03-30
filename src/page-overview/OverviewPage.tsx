@@ -85,10 +85,6 @@ const OverviewPageDiv = styled.div`
     font-size: 0.75rem;
     font-weight: 400;
   }
-
-  .hidden {
-    display: none;
-  }
 `;
 
 const OverviewPage: React.FC<{}> = () => {
