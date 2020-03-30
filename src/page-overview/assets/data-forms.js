@@ -1,5 +1,7 @@
+import { ICU_DATA } from "./icuData";
+
 // application state object
-const appState = {
+export const appState = {
   percentageInfected: 100,
   stateCode: "",
   incarceratedPopulation: 0,
@@ -13,13 +15,13 @@ const stateNames = Object.values(ICU_DATA).map(function (record) {
 
 const repaintFunctions = [];
 
-function registerRepaintFunction(fn) {
+export function registerRepaintFunction(fn) {
   // these functions will all receive the state code as first argument,
   // so they should either use it or ignore it gracefully
   repaintFunctions.push(fn);
 }
 
-function repaint() {
+export function repaint() {
   const stateCode = appState.stateCode;
   repaintFunctions.forEach(function (fn) {
     fn(stateCode);
@@ -33,7 +35,7 @@ Object.entries(ICU_DATA).forEach(function (entry) {
   stateCodesByName[name] = code;
 });
 
-function updateAppState(changesObj) {
+export function updateAppState(changesObj) {
   Object.assign(appState, changesObj);
   repaint();
 }
@@ -133,7 +135,12 @@ function paintInfectedPct() {
 }
 registerRepaintFunction(paintInfectedPct);
 
-function setCurrentState(stateCode) {
+function deselectState() {
+  // deselect previous state, if any
+  $("path.state, circle.state").removeClass("active");
+}
+
+export function setCurrentState(stateCode) {
   // fetch the base data from external file;
   const pop = getIncarceratedPopulation(stateCode);
   // because the population is user-editable we have to put it into app state
@@ -147,9 +154,4 @@ function setCurrentState(stateCode) {
   // visually select new state on the map
   deselectState();
   $("#" + stateCode).addClass("active");
-}
-
-function deselectState() {
-  // deselect previous state, if any
-  $("path.state, circle.state").removeClass("active");
 }

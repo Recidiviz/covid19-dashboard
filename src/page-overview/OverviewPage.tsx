@@ -1,4 +1,7 @@
+import { useEffect } from "react";
 import styled from "styled-components";
+
+const { initOverviewPage } = require("./assets/init") as any;
 
 const OverviewPageDiv = styled.div`
   /* Add CSS for the overview page here! */
@@ -27,6 +30,15 @@ const OverviewPageDiv = styled.div`
 `;
 
 const OverviewPage: React.FC<{}> = () => {
+  useEffect(() => {
+    initOverviewPage();
+
+    return function cancel() {
+      // TODO: For performance reasons, we should be unsetting all of the jQuery
+      // handlers when the component is unmounted. That code should go here.
+    };
+  }, []);
+
   return (
     <OverviewPageDiv>
       <div className="min-h-screen">

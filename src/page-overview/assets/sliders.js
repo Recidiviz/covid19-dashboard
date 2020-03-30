@@ -1,8 +1,10 @@
+import { appState, updateAppState } from "./data-forms";
+
 function degreesToRadians(degrees) {
   return (degrees * Math.PI) / 180;
 }
 
-const Slider = function (metric) {
+export const Slider = function (metric) {
   const self = this;
 
   const colorName = metric === "infected" ? "red" : "teal"; // tailwind css colors
@@ -18,6 +20,7 @@ const Slider = function (metric) {
   const height = arcRadius;
   const horizonOffsetDegrees = 9;
 
+  let containerTransform;
   let startAngle,
     endAngle,
     offsetStyle = {

@@ -1,4 +1,11 @@
-$(document).ready(function () {
+import {
+  registerRepaintFunction,
+  repaint,
+  setCurrentState,
+} from "./data-forms";
+import { Slider } from "./sliders";
+
+export function initOverviewPage() {
   // initialize
   setCurrentState("US");
   const infectedSlider = new Slider("infected");
@@ -44,4 +51,4 @@ $(document).ready(function () {
     const code = getStateCodeFromName(name);
     code && setCurrentState(code);
   });
-});
+}

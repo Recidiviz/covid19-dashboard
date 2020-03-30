@@ -1,4 +1,4 @@
-const ICU_DATA = {
+export const ICU_DATA = {
   AK: {
     name: "Alaska",
     incarceratedPopulation: 11261,
