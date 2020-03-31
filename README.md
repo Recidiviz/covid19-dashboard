@@ -12,7 +12,13 @@ yarn install
 ### Development
 
 ```sh
-bin/parcel serve index.html
+yarn dev
+```
+
+To clean builds:
+
+```sh
+yarn clean
 ```
 
 Serves from <http://localhost:1234>.

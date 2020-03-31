@@ -1,6 +1,12 @@
 {
   "private": true,
-  "dependencies": {},
+  "scripts": {
+    "clean": "rm -rf dist && rm -rf .cache",
+    "dev": "bin/parcel serve index.html"
+  },
+  "dependencies": {
+    "us-zcta-counties": "^0.0.2"
+  },
   "devDependencies": {
     "@hot-loader/react-dom": "16.13.0",
     "@types/d3": "5.7.2",

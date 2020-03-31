@@ -1,4 +1,4 @@
-import { createGlobalStyle } from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 
 export const GlobalStyles = createGlobalStyle`
   body {
@@ -8,6 +8,7 @@ export const GlobalStyles = createGlobalStyle`
     font-size: 14px;
     line-height: 16px;
     letter-spacing: -0.05em;
+    margin: 0px;
     color: #00413E;
     background-color: #e9ecec;
   }
@@ -18,7 +19,15 @@ export const GlobalStyles = createGlobalStyle`
     font-weight: normal;
     font-size: 64px;
     line-height: 64px;
-    text-align: center;
+    letter-spacing: -0.03em;
+    color: #006C67;
+  }
+
+  h2 {
+    font-family: 'Rubik', sans-serif;    
+    font-weight: 100;
+    font-size: 24px;
+    line-height: 1.7em;
     letter-spacing: -0.03em;
     color: #006C67;
   }
@@ -95,4 +104,16 @@ export const GlobalStyles = createGlobalStyle`
     width: 137px;
     height: 10px;
   }
+
+  .tint1 {
+    background: #EAECEC;
+  }
+`;
+
+export const ContainerTint1 = styled.div`
+  min-width: 100vw;
+  min-height: 100vh;
+  padding: 24px;
+  background: #eaecec;
+  box-sizing: border-box;
 `;

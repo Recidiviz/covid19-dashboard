@@ -1,17 +1,38 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import styled from "styled-components";
 
-const FormContainer = styled.div`
-  padding: 24px;
+import { ContainerTint1 } from "../styles";
+import Form from "./components/Form";
+
+const FormSection = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  width: 40%;
+  padding: 48px;
 `;
 
-const Form: React.FC<{}> = () => {
+const Container = styled(ContainerTint1)`
+  display: flex;
+  justify-content: center;
+  padding-x: 48px;
+`;
+
+const FormPage: React.FC<{}> = () => {
   return (
-    <div>
-      Hello
-      <h1>Title</h1>
-    </div>
+    <Container>
+      <FormSection>
+        <h1>It takes a village.</h1>
+        <h2>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+          eiusmod tempor incididunt ut labore et dolore magna aliqua.{" "}
+        </h2>
+      </FormSection>
+      <FormSection>
+        <Form />
+      </FormSection>
+    </Container>
   );
 };
 
-export default Form;
+export default FormPage;
