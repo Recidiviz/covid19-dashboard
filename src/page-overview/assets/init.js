@@ -5,6 +5,7 @@ import {
   registerRepaintFunction,
   repaint,
   setCurrentState,
+  updateAppState,
 } from "./data-forms";
 import { Slider } from "./sliders";
 import { initTooltips } from "./tooltip";
@@ -12,8 +13,8 @@ import { initTooltips } from "./tooltip";
 export function initOverviewPage() {
   // initialize
   setCurrentState("US");
-  const infectedSlider = new Slider("infected");
-  registerRepaintFunction(infectedSlider.updateValue);
+  const r0Slider = new Slider("R0");
+  registerRepaintFunction(r0Slider.updateValue);
 
   const incarceratedSlider = new Slider("incarcerated");
   registerRepaintFunction(incarceratedSlider.updateValue);
@@ -42,14 +43,14 @@ export function initOverviewPage() {
   });
 
   // form inputs
-  $("#infected_percentage").on("input", function (e) {
+  $("#R0").on("input", function (e) {
     e.preventDefault();
-    updateInfectedPct(+e.target.value);
+    updateAppState({ R0: parseFloat(e.target.value) });
   });
 
   $("#incarcerated_population").on("input", function (e) {
     e.preventDefault();
-    updateAppState({ incarceratedPopulation: +e.target.value });
+    updateAppState({ incarceratedPopulation: parseInt(e.target.value) });
   });
 
   $("#state_name")

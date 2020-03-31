@@ -1,4 +1,5 @@
-import { ICU_DATA } from "./icuData";
+import { estimatePeakHospitalUse } from "../../infection-model";
+import { populationAndHospitalData } from "./dataSource";
 
 // application state object
 export const appState = {
@@ -7,6 +8,9 @@ export const appState = {
   incarceratedPopulation: 0,
   incarceratedPopulationMax: 0,
   incarceratedPopulationMin: 0,
+  R0: 3.7,
+  R0Min: 0.0,
+  R0Max: 4.0,
 };
 
 const repaintFunctions = [];
@@ -24,13 +28,14 @@ export function repaint() {
   });
 }
 
-const stateNames = Object.values(ICU_DATA).map(function (record) {
+const stateNames = Object.values(populationAndHospitalData).map(function (
+  record,
+) {
   return record.name;
 });
 
 const stateCodesByName = {};
-
-Object.entries(ICU_DATA).forEach(function (entry) {
+Object.entries(populationAndHospitalData).forEach(function (entry) {
   const code = entry[0];
   const name = entry[1].name;
   stateCodesByName[name] = code;
@@ -38,11 +43,16 @@ Object.entries(ICU_DATA).forEach(function (entry) {
 
 export function updateAppState(changesObj) {
   Object.assign(appState, changesObj);
+  // coerce user-input numbers to required precision
+  appState.incarceratedPopulation = Math.round(
+    parseInt(appState.incarceratedPopulation),
+  );
+  appState.R0 = parseFloat(appState.R0).toFixed(1);
   repaint();
 }
 
 export function getStateName(stateCode) {
-  return ICU_DATA[stateCode].name;
+  return populationAndHospitalData[stateCode].name;
 }
 
 export function getStateCodeFromName(name) {
@@ -50,59 +60,46 @@ export function getStateCodeFromName(name) {
 }
 
 function getIncarceratedPopulation(stateCode) {
-  return ICU_DATA[stateCode].incarceratedPopulation;
+  return populationAndHospitalData[stateCode].incarceratedPopulation;
 }
 
-function getNumberOfICUBeds(stateCode) {
-  return ICU_DATA[stateCode].numberOfICUBeds;
+function getHospitalBeds(stateCode) {
+  return populationAndHospitalData[stateCode].hospitalBeds;
 }
 
-function getPercentageHospitalized(stateCode) {
-  // Returning a hard coded value for now, but you could replace this value with
-  // something that is populated from a form element, such as a slider.
-  return 0.05;
-}
-
-function getPercentageInfectedAsDecimal() {
-  return appState.percentageInfected / 100;
-}
-
-function getICUBedsPercentage(stateCode) {
-  let incarceratedPopulation = appState.incarceratedPopulation;
-  let numberOfICUBeds = getNumberOfICUBeds(stateCode);
-  let percentageHospitalized = getPercentageHospitalized(stateCode);
-  let percentageInfected = getPercentageInfectedAsDecimal();
-
-  return parseInt(
-    ((incarceratedPopulation * percentageInfected * percentageHospitalized) /
-      numberOfICUBeds) *
-      100,
-  );
+function getPeakHospitalUse(stateCode) {
+  const incarceratedPopulation = appState.incarceratedPopulation;
+  const hospitalBedCapacity = getHospitalBeds(stateCode);
+  const R0 = appState.R0;
+  const { peakDay, peakUtilization } = estimatePeakHospitalUse({
+    hospitalBedCapacity,
+    incarceratedPopulation,
+    R0,
+  });
+  return { peakDay, peakUtilization: Math.round(peakUtilization * 100) };
 }
 
 function paintHeading(stateCode) {
   let headingText;
 
+  const { peakDay, peakUtilization } = getPeakHospitalUse(stateCode);
+
   if (stateCode == "US") {
-    headingText =
-      "As COVID-19 spreads, prisons and jails are the last dense gatherings in America. " +
-      "If states don't act now, " +
-      getICUBedsPercentage(stateCode) +
-      "% of ICU beds nationwide will be needed just for the infirm from prisons and jails.";
+    headingText = `As COVID-19 spreads, prisons and jails are the last dense
+      gatherings in America. If states don't act now, ${peakUtilization}% of
+      hospital beds nationwide will be needed within ${peakDay} days just for the
+      infirm from prisons and jails.`;
   } else {
-    headingText =
-      "If no action is taken, " +
-      getICUBedsPercentage(stateCode) +
-      "% of " +
-      getStateName(stateCode) +
-      "’s ICU beds will be needed just for the infirm from prisons and jails.";
+    headingText = `If no action is taken, ${peakUtilization}%
+      of ${getStateName(stateCode)}’s hospital beds will be needed within
+      ${peakDay} days just for the infirm from prisons and jails.`;
   }
 
   $("#icu_heading").text(headingText);
 }
 registerRepaintFunction(paintHeading);
 
-function paintIncarceratedPopulation(stateCode) {
+function paintIncarceratedPopulation() {
   const input = $("#incarcerated_population");
   input.val(appState.incarceratedPopulation);
   input.attr({
@@ -112,13 +109,10 @@ function paintIncarceratedPopulation(stateCode) {
 }
 registerRepaintFunction(paintIncarceratedPopulation);
 
-function paintNumberOfICUBeds(stateCode) {
-  $("#number_of_icu_beds").text(getNumberOfICUBeds(stateCode).toLocaleString());
-}
-registerRepaintFunction(paintNumberOfICUBeds);
-
 function paintIncarceratedPct(stateCode) {
-  $("#icu_percentage").text(getICUBedsPercentage(stateCode) + "%");
+  $("#icu_percentage").text(
+    getPeakHospitalUse(stateCode).peakUtilization + "%",
+  );
 }
 registerRepaintFunction(paintIncarceratedPct);
 
@@ -127,14 +121,15 @@ function paintStateName(stateCode) {
 }
 registerRepaintFunction(paintStateName);
 
-function updateInfectedPct(val) {
-  updateAppState({ percentageInfected: val });
+function paintR0() {
+  const input = $("#R0");
+  input.val(appState.R0);
+  input.attr({
+    min: appState.R0Min,
+    max: appState.R0Max,
+  });
 }
-
-function paintInfectedPct() {
-  $("#infected_percentage").val(appState.percentageInfected);
-}
-registerRepaintFunction(paintInfectedPct);
+registerRepaintFunction(paintR0);
 
 function deselectState() {
   // deselect previous state, if any
@@ -150,7 +145,7 @@ export function setCurrentState(stateCode) {
     incarceratedPopulation: pop,
     // define valid input range according to base number
     incarceratedPopulationMin: Math.round(pop * 0.5),
-    incarceratedPopulationMax: Math.round(pop * 1.5),
+    incarceratedPopulationMax: Math.round(pop * 1.1),
   });
   // visually select new state on the map
   deselectState();

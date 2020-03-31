@@ -5,7 +5,7 @@ function degreesToRadians(degrees) {
 }
 
 export const Slider = function (metric) {
-  const colorName = metric === "infected" ? "red" : "teal"; // tailwind css colors
+  const colorName = metric === "R0" ? "red" : "teal"; // tailwind css colors
   const flip = metric === "incarcerated";
   const targetSelector = "#" + metric + "_slider";
 
@@ -67,9 +67,7 @@ export const Slider = function (metric) {
   const arcScale = d3.scaleLinear().range([startAngle, endAngle]).clamp(true);
 
   function getSliderValue() {
-    return metric === "infected"
-      ? appState.percentageInfected
-      : appState.incarceratedPopulation;
+    return metric === "R0" ? appState.R0 : appState.incarceratedPopulation;
   }
 
   const valueArcGenerator = d3
@@ -86,8 +84,8 @@ export const Slider = function (metric) {
   }
 
   function updateArcScale() {
-    if (metric === "infected") {
-      arcScale.domain([0, 100]);
+    if (metric === "R0") {
+      arcScale.domain([appState.R0Min, appState.R0Max]);
     } else {
       // these numbers are reversed because we are drawing the arc "backwards"
       arcScale.domain([
@@ -126,8 +124,8 @@ export const Slider = function (metric) {
   // (x, y) = (r * cos(angle), r * sin(angle).
   function setNewValue(val) {
     const update = {};
-    if (metric === "infected") {
-      update.percentageInfected = val;
+    if (metric === "R0") {
+      update.R0 = val;
     } else {
       update.incarceratedPopulation = val;
     }
@@ -164,7 +162,7 @@ export const Slider = function (metric) {
       angleOfCoords = 2 * Math.PI + angleOfCoords;
     }
 
-    setNewValue(Math.round(arcScale.invert(angleOfCoords)));
+    setNewValue(arcScale.invert(angleOfCoords));
   });
 
   function drawValueHandle() {
