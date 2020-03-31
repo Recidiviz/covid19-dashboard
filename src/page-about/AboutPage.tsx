@@ -57,6 +57,7 @@ const AboutPageDiv = styled.div`
     letter-spacing: 0;
     font-family: "Rubik", sans-serif;
     line-height: 1.5;
+    font-weight: normal;
   }
 `;
 
@@ -68,7 +69,7 @@ const AboutPage: React.FC<{}> = () => (
         <main className="py-8 sm:py-16 sm:py-24">
           <div className="max-w-3xl mx-auto px-6 sm:px-8 lg:px-10 flex flex-col justify-start">
             <h1 className="text-2xl sm:text-3xl text-left font-display">Aim</h1>
-            <p className="leading-7 text-base sm:text-lg my-6 font-body font-normal">
+            <p className="leading-7 text-base sm:text-lg my-6 font-body">
               Poor medical infrastructure and close quarters mean that jails and
               prisons are uniquely susceptible to the COVID-19 pandemic. Because
               the virus has already entered several facilities, state
@@ -81,7 +82,7 @@ const AboutPage: React.FC<{}> = () => (
               </b>
               .
             </p>
-            <p className="leading-7 text-base sm:text-lg my-6 font-body font-normal">
+            <p className="leading-7 text-base sm:text-lg my-6 font-body">
               Recidiviz, in collaboration with X and Y, is standardizing and
               tracking those actions that state and county leaders across the
               country have taken to reduce populations and transmission rate.
@@ -95,7 +96,7 @@ const AboutPage: React.FC<{}> = () => (
             <h1 className="text-3xl mt-10 font-display text-left">
               What kind of actions?
             </h1>
-            <p className="leading-7 text-base sm:text-lg my-6 font-body font-normal">
+            <p className="leading-7 text-base sm:text-lg my-6 font-body">
               Although some actions have already been taken to reduce
               populations and transmission rates, there’s always more to be
               done. Here’s some of what we’ve heard discussed by leaders
@@ -126,7 +127,7 @@ const AboutPage: React.FC<{}> = () => (
                 </li>
               </ol>
             </b>
-            <p className="leading-7 text-base sm:text-lg my-6 font-body font-normal">
+            <p className="leading-7 text-base sm:text-lg my-6 font-body">
               As we build out our site, we’ll collect data to display how states
               and counties are intervening to make sure that inmates &mdash; and
               all of us &mdash; are better off.

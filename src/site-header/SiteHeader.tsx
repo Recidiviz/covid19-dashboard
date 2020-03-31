@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const siteHeader: React.FC<{}> = () => (
   <nav className="font-semibold font-display text-sm">
     <div className="flex justify-between h-16 flex-wrap">
@@ -13,12 +15,15 @@ const siteHeader: React.FC<{}> = () => (
       </div>
       {/* <!-- Nav Items and Social Links --> */}
       <div className="flex items-center justify-between">
-        <a href="#" className="mr-4 px-1 pt-1 font-medium text-green">
+        <Link to="/about" className="mr-4 px-1 pt-1 font-medium text-green">
           About
-        </a>
-        <a href="#" className="mx-4 px-1 pt-1 font-medium text-green">
+        </Link>
+        <Link
+          to="/get-involved"
+          className="mx-4 px-1 pt-1 font-medium text-green"
+        >
           Get Involved
-        </a>
+        </Link>
         <div className="mt-1 text-green flex justify-between text-green">
           <a href="#">
             <img
