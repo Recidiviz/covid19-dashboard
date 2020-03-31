@@ -6,7 +6,7 @@ import OverviewMap from "./OverviewMap";
 
 const { initOverviewPage } = require("./assets/init") as any;
 
-const OverviewPageDiv = styled.div`
+const Main = styled.main`
   /* Add CSS for the overview page here! */
 
   #us_map {
@@ -109,10 +109,10 @@ const OverviewPage: React.FC<{}> = () => {
   }, []);
 
   return (
-    <OverviewPageDiv>
+    <div>
       <div className="background-gray font-body text-green min-h-screen tracking-normal">
         <GlobalNav.Header />
-        <main className="py-4 sm:py-6 flex justify-between items-start container mx-auto">
+        <Main className="py-4 sm:py-6 flex justify-between items-start container mx-auto">
           <div className="w-3/5">
             <div className="my-6">
               <div id="infected_slider" className="w-11/12 mx-auto" />
@@ -181,11 +181,11 @@ const OverviewPage: React.FC<{}> = () => {
               className="text-base font-body tracking-normal leading-normal font-normal"
             />
           </div>
-        </main>
+        </Main>
         <GlobalNav.Footer />
         <div id="map_tooltip" className="map-tooltip hidden" />
       </div>
-    </OverviewPageDiv>
+    </div>
   );
 };
 
