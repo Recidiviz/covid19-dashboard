@@ -2,6 +2,12 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
+import NewsFeed from "../news-feed-events/NewsFeed";
+import {
+  FakeNewsFeedEvents,
+  useFetchedNewsFeedEvents,
+} from "../news-feed-events/NewsFeedEvent";
+
 // Tests that async/await keywords are supported.
 async function delay(timeout: number) {
   return await new Promise((resolve) => setTimeout(resolve, timeout));
@@ -24,8 +30,23 @@ const TestPage: React.FC<{}> = () => {
     effect();
   });
 
+  let fetchedNewsFeedEvents = useFetchedNewsFeedEvents();
+  let fetchedNewsFeed;
+  if (fetchedNewsFeedEvents.data) {
+    fetchedNewsFeed = <NewsFeed events={fetchedNewsFeedEvents.data} />;
+  } else if (fetchedNewsFeedEvents.didError) {
+    fetchedNewsFeed = <>(An error occurred while fetching)</>;
+  } else {
+    fetchedNewsFeed = <>Loading...</>;
+  }
+
   return (
     <div>
+      <h2>Test of news feed with fake data:</h2>
+      <NewsFeed events={FakeNewsFeedEvents} />
+      <h2>Test of news feed with data pulled from spreadsheet:</h2>
+
+      {fetchedNewsFeed}
       <p>
         You can type in this textarea and make edits in src/test/TestPage.tsx
         and save, and your textarea text should be preserved. This tests React

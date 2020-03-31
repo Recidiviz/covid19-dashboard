@@ -26,7 +26,7 @@ Serves from <http://localhost:1234>.
 ### Production
 
 ```sh
-bin/parcel build index.html
+yarn build
 ```
 
 Built files can be found in `/dist`.
@@ -34,6 +34,5 @@ Built files can be found in `/dist`.
 An easy way to try running the built files:
 
 ```sh
-cd dist/
-npx serve
+bash -c "cd dist && npx serve"
 ```
