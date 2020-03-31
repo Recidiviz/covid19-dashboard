@@ -3,6 +3,7 @@ import { Route, Switch } from "react-router-dom";
 
 import AboutPage from "../page-about/AboutPage";
 import FormPage from "../page-form/FormPage";
+import GetInvolvedPage from "../page-get-involved/GetInvolvedPage";
 import HomePage from "../page-home/HomePage";
 import OverviewPage from "../page-overview/OverviewPage";
 import TestPage from "../page-test/TestPage";
@@ -27,6 +28,9 @@ const App: React.FC<{}> = () => {
         </Route>
         <Route path="/about">
           <AboutPage />
+        </Route>
+        <Route path="/get-involved">
+          <GetInvolvedPage />
         </Route>
         <Route path="/">
           <WindowTitle>Recidiviz COVID-19 Dashboard</WindowTitle>
