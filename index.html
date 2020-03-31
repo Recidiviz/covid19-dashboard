@@ -1,0 +1,27 @@
+<!--
+  generatePageContent.tsx looks for the following strings in this file:
+  - "TITLE PLACEHOLDER"
+  - "<style></style>"
+  - "CONTENT PLACEHOLDER"
+  If you change any of these, make sure to edit generatePageContent.tsx as well.
+ -->
+<html>
+  <head>
+    <title>TITLE PLACEHOLDER</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/tailwindcss@1.2.0/dist/tailwind.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Poppins:300,400,600|Rubik&display=swap"
+      rel="stylesheet"
+    />
+    <style></style>
+  </head>
+  <body>
+    <div id="app">CONTENT PLACEHOLDER</div>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="src/entry-point-client/index.tsx"></script>
+  </body>
+</html>

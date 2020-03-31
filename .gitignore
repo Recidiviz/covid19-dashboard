@@ -1,13 +1,29 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
+# Common OS files
+.DS_Store
 
-# v0 build artifacts
-output.css
-/build
+# For files that there's a constant number of, put their absolute path here
+# rather than matching a pattern. This helps makes it easier for us to know when
+# it's okay to remove lines from this file.
+
+# Custom
+/bin/**
+
+# Eslint
+/.eslintcache
+
+# Parcel
+/.cache
+/.parcel-cache
+/dist
+
+# Node
 /node_modules
-yarn.lock
+
+# Yarn
+/yarn-error.log
+
+# Package manager lockfiles. Including lockfiles for frontend projects can be
+# is more trouble than it's worth. We can un-ignore these files if we need them.
+/package-lock.json
+/pnpm-lock.yaml
+/yarn.lock
