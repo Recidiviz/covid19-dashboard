@@ -108,7 +108,7 @@ const OverviewPage: React.FC<{}> = () => {
   return (
     <OverviewPageDiv>
       <div className="background-gray font-body text-green min-h-screen tracking-normal w-full">
-        <div className=".max-w-screen-xl px-4 mx-auto">
+        <div className="max-w-screen-xl px-4 mx-auto">
           <nav className="font-semibold font-display text-sm">
             <div className="flex justify-between h-16 flex-wrap">
               <div className="flex">
@@ -157,13 +157,13 @@ const OverviewPage: React.FC<{}> = () => {
           </nav>
           <main className="my-6 flex justify-between items-center flex-wrap">
             <div className="w-64 flex-shrink-0 flex-grow">
-              <div className="my-6">
+              <div className="mb-6 max-w-3xl">
                 <div id="R0_slider" className="w-11/12 mx-auto" />
                 <div
                   id="map_and_text_container"
                   className="flex justify-center items-center"
                 >
-                  <div className="w-28 text-center flex-shrink-0 font-display">
+                  <div className="w-28 text-center flex-shrink-0 font-display mr-6">
                     <p className="text-base leading-6 font-light text-teal tracking-normal">
                       Incarcerated
                     </p>
@@ -486,7 +486,7 @@ const OverviewPage: React.FC<{}> = () => {
                       </g>
                     </g>
                   </svg>
-                  <div className="w-28 text-center flex-shrink-0">
+                  <div className="w-28 text-center flex-shrink-0 ml-6">
                     <label
                       className="text-base leading-6 font-light text-red tracking-normal"
                       htmlFor="R0"
