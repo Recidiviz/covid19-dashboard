@@ -1,10 +1,6 @@
 import { createGlobalStyle } from "styled-components";
 
 export const GlobalStyles = createGlobalStyle`
-  @import url('https://fonts.googleapis.com/css?family=Poppins&display=swap');
-  @import url('https://fonts.googleapis.com/css?family=Libre+Baskerville&display=swap');
-  @import url('https://fonts.googleapis.com/css?family=Rubik&display=swap');
-
   body {
     font-family: 'Poppins', sans-serif;
     font-style: normal;
