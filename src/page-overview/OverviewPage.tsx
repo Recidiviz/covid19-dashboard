@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import styled from "styled-components";
 
 const { initOverviewPage } = require("./assets/init") as any;
+import SiteHeader from "../site-header/SiteHeader";
 
 const OverviewPageDiv = styled.div`
   /* Add CSS for the overview page here! */
@@ -105,52 +106,7 @@ const OverviewPage: React.FC<{}> = () => {
     <OverviewPageDiv>
       <div className="font-body text-green min-h-screen tracking-normal w-full">
         <div className="max-w-screen-xl px-4 mx-auto">
-          <nav className="font-semibold font-display text-sm">
-            <div className="flex justify-between h-16 flex-wrap">
-              <div className="flex">
-                <div className="flex uppercase">
-                  <h3 className="inline-flex items-center px-1 pt-1 leading-5">
-                    CJ Status •
-                  </h3>
-                  <h3 className="inline-flex items-center px-1 pt-1 leading-5 text-red">
-                    COVID-19
-                  </h3>
-                </div>
-              </div>
-              {/* <!-- Nav Items and Social Links --> */}
-              <div className="flex items-center justify-between">
-                <a href="#" className="mr-4 px-1 pt-1 font-medium text-green">
-                  About
-                </a>
-                <a href="#" className="mx-4 px-1 pt-1 font-medium text-green">
-                  Get Involved
-                </a>
-                <div className="mt-1 text-green flex justify-between text-green">
-                  <a href="#">
-                    <img
-                      className="h-4 w-4 mx-1"
-                      src={require("./assets/icons/ic_twitter.svg")}
-                    />
-                  </a>
-                  <a href="#">
-                    <img
-                      className="h-4 w-4 mx-1"
-                      src={require("./assets/icons/ic_facebook.svg")}
-                    />
-                  </a>
-                  <a href="#">
-                    <img
-                      className="h-4 w-4 mx-1"
-                      src={require("./assets/icons/ic_email.svg")}
-                    />
-                  </a>
-                </div>
-              </div>
-              {/* <!-- End Nav Items and Social Links --> */}
-            </div>
-
-            {/* <!-- End Larger Header --> */}
-          </nav>
+          <SiteHeader />
           <main className="my-6 flex justify-between items-center flex-wrap">
             <div className="w-64 flex-shrink-0 flex-grow">
               <div className="mb-6 max-w-3xl">
