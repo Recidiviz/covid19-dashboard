@@ -56,6 +56,7 @@ function simulateOneDay({
   const infectiousDelta = alpha * exposed - gamma * infectious;
 
   // The transition from susceptible -> exposed depend on the total infectious population
+  // TODO: calculate totalInfectious as a composite of different age groups
   const totalInfectious = infectious;
 
   let exposedDelta;
