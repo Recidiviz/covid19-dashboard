@@ -1,4 +1,7 @@
 import {
+  autoCompleteState,
+  autoSuggestState,
+  getStateCodeFromName,
   registerRepaintFunction,
   repaint,
   setCurrentState,
@@ -49,9 +52,32 @@ export function initOverviewPage() {
     updateAppState({ incarceratedPopulation: +e.target.value });
   });
 
-  $("#state_name").on("input", function (e) {
-    const name = $(e.target).text().trim();
-    const code = getStateCodeFromName(name);
-    code && setCurrentState(code);
-  });
+  $("#state_name")
+    .on("focus", (e) => {
+      // autoselect when entering the editable field
+      let range = document.createRange();
+      let sel = window.getSelection();
+      range.selectNodeContents(e.target);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    })
+    .on("input", function (e) {
+      const name = $(e.target).text().trim();
+      autoSuggestState(name);
+      const code = getStateCodeFromName(name);
+      code && setCurrentState(code);
+    })
+    .keydown((e) => {
+      let complete = false;
+      if (e.key === "Enter") {
+        e.preventDefault();
+        complete = true;
+      }
+      // don't prevent default on Tab so user can still navigate with it
+      if (complete || e.key === "Tab") {
+        const $input = $(e.target);
+        const name = $input.text().trim();
+        autoCompleteState(name, $input);
+      }
+    });
 }
