@@ -28,6 +28,12 @@ export function repaint() {
   });
 }
 
+const stateNames = Object.values(populationAndHospitalData).map(function (
+  record,
+) {
+  return record.name;
+});
+
 const stateCodesByName = {};
 Object.entries(populationAndHospitalData).forEach(function (entry) {
   const code = entry[0];
@@ -144,4 +150,26 @@ export function setCurrentState(stateCode) {
   // visually select new state on the map
   deselectState();
   $("#" + stateCode).addClass("active");
+}
+
+function getSuggestedState(text) {
+  return text && stateNames.find((stateName) => stateName.indexOf(text) === 0);
+}
+
+function clearAutoSuggest() {
+  $("#state_name_autocomplete").html("");
+}
+registerRepaintFunction(clearAutoSuggest);
+
+export function autoSuggestState(text) {
+  const suggestion = getSuggestedState(text);
+  const $autoCompleteEl = $("#state_name_autocomplete");
+  suggestion ? $autoCompleteEl.html(suggestion) : clearAutoSuggest();
+}
+
+export function autoCompleteState(text, $target) {
+  const suggestion = getSuggestedState(text);
+  suggestion && $target.html(suggestion);
+  // trigger input event so new data gets handled
+  $target.trigger("input");
 }
