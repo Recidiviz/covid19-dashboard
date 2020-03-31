@@ -81,4 +81,10 @@ export function initOverviewPage() {
         autoCompleteState(name, $input);
       }
     });
+
+  // redraw sliders on resize
+  $(window).resize(() => {
+    r0Slider.draw();
+    incarceratedSlider.draw();
+  });
 }
