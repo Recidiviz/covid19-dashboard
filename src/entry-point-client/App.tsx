@@ -1,6 +1,7 @@
 import { hot } from "react-hot-loader";
 import { Route, Switch } from "react-router-dom";
 
+import AboutPage from "../page-about/AboutPage";
 import FormPage from "../page-form/FormPage";
 import HomePage from "../page-home/HomePage";
 import OverviewPage from "../page-overview/OverviewPage";
@@ -23,6 +24,9 @@ const App: React.FC<{}> = () => {
         </Route>
         <Route path="/contribute">
           <FormPage />
+        </Route>
+        <Route path="/about">
+          <AboutPage />
         </Route>
         <Route path="/">
           <WindowTitle>Recidiviz COVID-19 Dashboard</WindowTitle>
