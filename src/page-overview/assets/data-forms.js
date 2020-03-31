@@ -1,4 +1,4 @@
-import { ICU_DATA } from "./icuData";
+import IcuData from "../../data/icuData";
 
 // application state object
 export const appState = {
@@ -24,13 +24,13 @@ export function repaint() {
   });
 }
 
-const stateNames = Object.values(ICU_DATA).map(function (record) {
+const stateNames = Object.values(IcuData).map(function (record) {
   return record.name;
 });
 
 const stateCodesByName = {};
 
-Object.entries(ICU_DATA).forEach(function (entry) {
+Object.entries(IcuData).forEach(function (entry) {
   const code = entry[0];
   const name = entry[1].name;
   stateCodesByName[name] = code;
@@ -42,7 +42,7 @@ export function updateAppState(changesObj) {
 }
 
 export function getStateName(stateCode) {
-  return ICU_DATA[stateCode].name;
+  return IcuData[stateCode].name;
 }
 
 export function getStateCodeFromName(name) {
@@ -50,11 +50,11 @@ export function getStateCodeFromName(name) {
 }
 
 function getIncarceratedPopulation(stateCode) {
-  return ICU_DATA[stateCode].incarceratedPopulation;
+  return IcuData[stateCode].incarceratedPopulation;
 }
 
 function getNumberOfICUBeds(stateCode) {
-  return ICU_DATA[stateCode].numberOfICUBeds;
+  return IcuData[stateCode].numberOfICUBeds;
 }
 
 function getPercentageHospitalized(stateCode) {
