@@ -1,4 +1,5 @@
-import { ICU_DATA } from "./icuData";
+import { estimatePeakHospitalUse } from "../../infection-model";
+import { populationAndHospitalData } from "./dataSource";
 
 // application state object
 export const appState = {
@@ -7,7 +8,7 @@ export const appState = {
   incarceratedPopulation: 0,
   incarceratedPopulationMax: 0,
   incarceratedPopulationMin: 0,
-  R0: 3.0,
+  R0: 3.7,
   R0Min: 0.0,
   R0Max: 4.0,
 };
@@ -28,7 +29,7 @@ export function repaint() {
 }
 
 const stateCodesByName = {};
-Object.entries(ICU_DATA).forEach(function (entry) {
+Object.entries(populationAndHospitalData).forEach(function (entry) {
   const code = entry[0];
   const name = entry[1].name;
   stateCodesByName[name] = code;
@@ -45,7 +46,7 @@ export function updateAppState(changesObj) {
 }
 
 export function getStateName(stateCode) {
-  return ICU_DATA[stateCode].name;
+  return populationAndHospitalData[stateCode].name;
 }
 
 export function getStateCodeFromName(name) {
@@ -53,50 +54,39 @@ export function getStateCodeFromName(name) {
 }
 
 function getIncarceratedPopulation(stateCode) {
-  return ICU_DATA[stateCode].incarceratedPopulation;
+  return populationAndHospitalData[stateCode].incarceratedPopulation;
 }
 
-function getNumberOfICUBeds(stateCode) {
-  return ICU_DATA[stateCode].numberOfICUBeds;
+function getHospitalBeds(stateCode) {
+  return populationAndHospitalData[stateCode].hospitalBeds;
 }
 
-function getPercentageHospitalized() {
-  // Returning a hard coded value for now, but you could replace this value with
-  // something that is populated from a form element, such as a slider.
-  return 0.05;
-}
-
-function getICUBedsProjection(stateCode) {
-  // TODO: replace this with the real formula!!!!!!
-  let incarceratedPopulation = appState.incarceratedPopulation;
-  let numberOfICUBeds = getNumberOfICUBeds(stateCode);
-  let percentageHospitalized = getPercentageHospitalized(stateCode);
-  // TODO: this is extremely fake!!! it's just something that changes when you move the slider
-  let percentageInfected = 0.25 * appState.R0;
-  return {
-    ICUBedsPercentage: parseInt(
-      ((incarceratedPopulation * percentageInfected * percentageHospitalized) /
-        numberOfICUBeds) *
-        100,
-    ),
-    // TODO: this should be calculated by the new formula
-    numDays: Math.round(30 * (appState.R0 ? 1 / appState.R0 : 0.1)),
-  };
+function getPeakHospitalUse(stateCode) {
+  const incarceratedPopulation = appState.incarceratedPopulation;
+  const hospitalBedCapacity = getHospitalBeds(stateCode);
+  const R0 = appState.R0;
+  const { peakDay, peakUtilization } = estimatePeakHospitalUse({
+    hospitalBedCapacity,
+    incarceratedPopulation,
+    R0,
+  });
+  return { peakDay, peakUtilization: Math.round(peakUtilization * 100) };
 }
 
 function paintHeading(stateCode) {
   let headingText;
 
-  const projection = getICUBedsProjection(stateCode);
+  const { peakDay, peakUtilization } = getPeakHospitalUse(stateCode);
 
   if (stateCode == "US") {
-    headingText = `As COVID-19 spreads, prisons and jails are the last dense gatherings in America.
-      If states don't act now, ${projection.ICUBedsPercentage}% of ICU beds nationwide will be
-      needed within ${projection.numDays} days just for the infirm from prisons and jails.`;
+    headingText = `As COVID-19 spreads, prisons and jails are the last dense
+      gatherings in America. If states don't act now, ${peakUtilization}% of
+      hospital beds nationwide will be needed within ${peakDay} days just for the
+      infirm from prisons and jails.`;
   } else {
-    headingText = `If no action is taken, ${projection.ICUBedsPercentage}%
-      of ${getStateName(stateCode)}’s ICU beds will be needed within
-      ${projection.numDays} just for the infirm from prisons and jails.`;
+    headingText = `If no action is taken, ${peakUtilization}%
+      of ${getStateName(stateCode)}’s hospital beds will be needed within
+      ${peakDay} days just for the infirm from prisons and jails.`;
   }
 
   $("#icu_heading").text(headingText);
@@ -113,14 +103,9 @@ function paintIncarceratedPopulation() {
 }
 registerRepaintFunction(paintIncarceratedPopulation);
 
-function paintNumberOfICUBeds(stateCode) {
-  $("#number_of_icu_beds").text(getNumberOfICUBeds(stateCode).toLocaleString());
-}
-registerRepaintFunction(paintNumberOfICUBeds);
-
 function paintIncarceratedPct(stateCode) {
   $("#icu_percentage").text(
-    getICUBedsProjection(stateCode).ICUBedsPercentage + "%",
+    getPeakHospitalUse(stateCode).peakUtilization + "%",
   );
 }
 registerRepaintFunction(paintIncarceratedPct);
