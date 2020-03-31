@@ -5,11 +5,7 @@ function degreesToRadians(degrees) {
 }
 
 export const Slider = function (metric) {
-  const self = this;
-
   const colorName = metric === "infected" ? "red" : "teal"; // tailwind css colors
-  const baseColorIntensity = 200;
-  const valueColorIntensity = 600;
   const flip = metric === "incarcerated";
   const targetSelector = "#" + metric + "_slider";
 
@@ -63,7 +59,7 @@ export const Slider = function (metric) {
   const baseArc = container
     .append("path")
     .attr("d", baseArcGenerator())
-    .attr("class", "fill-current text-" + colorName + "-" + baseColorIntensity);
+    .attr("class", "fill-current text-" + colorName + "-light");
 
   // ----------------------------------
   // draw the value arc
@@ -120,10 +116,7 @@ export const Slider = function (metric) {
       .selectAll("path")
       .data([getSliderValue()])
       .join("path")
-      .attr(
-        "class",
-        "fill-current text-" + colorName + "-" + valueColorIntensity,
-      )
+      .attr("class", "fill-current text-" + colorName)
       .attr("d", getValuePath);
   }
 
@@ -179,10 +172,7 @@ export const Slider = function (metric) {
       .selectAll("circle")
       .data([getSliderValue()])
       .join("circle")
-      .attr(
-        "class",
-        "fill-current text-" + colorName + "-" + valueColorIntensity,
-      )
+      .attr("class", "fill-current text-" + colorName)
       .attr("r", 10)
       .attr("cx", function (d) {
         return getHandleCoordinates(d).x;

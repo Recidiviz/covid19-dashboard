@@ -9,10 +9,6 @@ export const appState = {
   incarceratedPopulationMin: 0,
 };
 
-const stateNames = Object.values(ICU_DATA).map(function (record) {
-  return record.name;
-});
-
 const repaintFunctions = [];
 
 export function registerRepaintFunction(fn) {
@@ -28,7 +24,12 @@ export function repaint() {
   });
 }
 
+const stateNames = Object.values(ICU_DATA).map(function (record) {
+  return record.name;
+});
+
 const stateCodesByName = {};
+
 Object.entries(ICU_DATA).forEach(function (entry) {
   const code = entry[0];
   const name = entry[1].name;
@@ -40,11 +41,11 @@ export function updateAppState(changesObj) {
   repaint();
 }
 
-function getStateName(stateCode) {
+export function getStateName(stateCode) {
   return ICU_DATA[stateCode].name;
 }
 
-function getStateCodeFromName(name) {
+export function getStateCodeFromName(name) {
   return stateCodesByName[name];
 }
 
@@ -154,4 +155,26 @@ export function setCurrentState(stateCode) {
   // visually select new state on the map
   deselectState();
   $("#" + stateCode).addClass("active");
+}
+
+function getSuggestedState(text) {
+  return text && stateNames.find((stateName) => stateName.indexOf(text) === 0);
+}
+
+function clearAutoSuggest() {
+  $("#state_name_autocomplete").html("");
+}
+registerRepaintFunction(clearAutoSuggest);
+
+export function autoSuggestState(text) {
+  const suggestion = getSuggestedState(text);
+  const $autoCompleteEl = $("#state_name_autocomplete");
+  suggestion ? $autoCompleteEl.html(suggestion) : clearAutoSuggest();
+}
+
+export function autoCompleteState(text, $target) {
+  const suggestion = getSuggestedState(text);
+  suggestion && $target.html(suggestion);
+  // trigger input event so new data gets handled
+  $target.trigger("input");
 }

@@ -12,13 +12,14 @@ let pageInfos: PageInfo[] = [
 
 console.log(chalk.blueBright("Rendering React statically into HTML files:"));
 
+let template = fs.readFileSync("dist/index.html", "utf-8");
 for (let pageInfo of pageInfos) {
   let dirPath = path.join("dist", pageInfo.location);
   let filePath = path.join(dirPath, "index.html");
 
   console.log(chalk.blueBright(`Writing: ${filePath}`));
 
-  let html = generatePageContent(pageInfo);
+  let html = generatePageContent(template, pageInfo);
   fs.mkdirSync(dirPath, { recursive: true });
   fs.writeFileSync(filePath, html);
 }

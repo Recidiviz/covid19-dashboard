@@ -2,6 +2,7 @@
   "singleQuote": false,
   "trailingComma": "all",
   "arrowParens": "always",
+  "quoteProps": "consistent",
 
   "overrides": [
     {

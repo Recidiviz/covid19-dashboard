@@ -49,6 +49,10 @@
     // very noisy with Prettier violations that get autocorrected anyway.
     "prettier/prettier": "off",
 
+    // We use TypeScript props interfaces, which is mostly redundant with prop
+    // types.
+    "react/prop-types": "off",
+
     // We've removed this requirement by setting window.React.
     "react/react-in-jsx-scope": "off",
 
