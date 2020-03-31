@@ -1,3 +1,5 @@
+import ResizeObserver from "resize-observer-polyfill";
+
 import {
   autoCompleteState,
   autoSuggestState,
@@ -81,4 +83,25 @@ export function initOverviewPage() {
         autoCompleteState(name, $input);
       }
     });
+
+  // adjust map based on container size
+  const $map = $("#us_map");
+  const observeMapContainerSize = new ResizeObserver((entries) => {
+    const maxWidth = 500;
+
+    for (let entry of entries) {
+      // redraw sliders on resize
+      r0Slider.draw();
+      incarceratedSlider.draw();
+      const { width } = entry.contentRect;
+      if (width < maxWidth) {
+        $map.addClass("hidden");
+      } else {
+        $map.removeClass("hidden");
+      }
+    }
+  });
+  observeMapContainerSize.observe(
+    document.getElementById("map_and_text_container"),
+  );
 }

@@ -13,6 +13,7 @@ export const GlobalStyles = createGlobalStyle`
     line-height: 16px;
     letter-spacing: -0.05em;
     color: #00413E;
+    background-color: #e9ecec;
   }
 
   h1 {
