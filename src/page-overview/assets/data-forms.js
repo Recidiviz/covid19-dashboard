@@ -145,7 +145,7 @@ export function setCurrentState(stateCode) {
     incarceratedPopulation: pop,
     // define valid input range according to base number
     incarceratedPopulationMin: Math.round(pop * 0.5),
-    incarceratedPopulationMax: Math.round(pop * 1.5),
+    incarceratedPopulationMax: Math.round(pop * 1.1),
   });
   // visually select new state on the map
   deselectState();
