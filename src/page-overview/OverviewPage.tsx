@@ -44,10 +44,6 @@ const OverviewPageDiv = styled.div`
     font-size: 6rem;
   }
 
-  .background-gray {
-    background-color: #e9ecec;
-  }
-
   .text-green {
     color: #00413e;
   }
@@ -107,7 +103,7 @@ const OverviewPage: React.FC<{}> = () => {
 
   return (
     <OverviewPageDiv>
-      <div className="background-gray font-body text-green min-h-screen tracking-normal w-full">
+      <div className="font-body text-green min-h-screen tracking-normal w-full">
         <div className="max-w-screen-xl px-4 mx-auto">
           <nav className="font-semibold font-display text-sm">
             <div className="flex justify-between h-16 flex-wrap">
