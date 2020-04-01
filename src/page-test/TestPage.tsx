@@ -19,7 +19,7 @@ const Title = styled.h1`
   color: palevioletred;
 `;
 
-const TestPage: React.FC<{}> = () => {
+const TestPage: React.FC = () => {
   // Tests that hooks are supported.
   const [greetingReady, setGreetingReady] = useState<boolean>(false);
   useEffect(() => {

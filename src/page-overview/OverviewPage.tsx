@@ -42,7 +42,7 @@ const OverviewPageDiv = styled.div`
   }
 `;
 
-const OverviewPage: React.FC<{}> = () => {
+const OverviewPage: React.FC = () => {
   useEffect(() => {
     initOverviewPage();
 

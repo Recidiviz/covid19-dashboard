@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-const SiteHeader: React.FC<{}> = () => (
+const SiteHeader: React.FC = () => (
   <nav className="font-semibold font-display text-sm">
     <div className="flex justify-between h-16 flex-wrap">
       <div className="flex">
