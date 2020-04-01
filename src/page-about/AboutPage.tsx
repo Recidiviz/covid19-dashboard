@@ -2,66 +2,9 @@ import styled from "styled-components";
 
 import SiteHeader from "../site-header/SiteHeader";
 
-const AboutPageDiv = styled.div`
-  /* TODO: these are redundant with overview page, try to factor them out? */
-  .font-display {
-    font-family: "Poppins", sans-serif;
-  }
+const AboutPageDiv = styled.div``;
 
-  .font-body {
-    font-family: "Rubik", sans-serif;
-  }
-
-  .font-7xl {
-    font-size: 6rem;
-  }
-
-  .text-green {
-    color: #00413e;
-  }
-
-  .border-green {
-    border-color: #00413e;
-  }
-
-  .text-green-light {
-    color: #25b895;
-  }
-
-  .text-teal {
-    color: #006c67;
-  }
-
-  .text-teal-light {
-    color: #a7d1de;
-  }
-
-  .text-red {
-    color: #de5558;
-  }
-
-  .text-red-light {
-    color: #efb5b7;
-  }
-
-  .border-current {
-    border-color: currentColor;
-  }
-
-  .w-28 {
-    width: 6.5rem;
-  }
-
-  p,
-  ol {
-    letter-spacing: 0;
-    font-family: "Rubik", sans-serif;
-    line-height: 1.5;
-    font-weight: normal;
-  }
-`;
-
-const AboutPage: React.FC<{}> = () => (
+const AboutPage: React.FC = () => (
   <AboutPageDiv>
     <div className="font-body text-green min-h-screen tracking-normal w-full">
       <div className="max-w-screen-xl px-4 mx-auto">

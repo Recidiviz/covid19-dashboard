@@ -1,26 +1,18 @@
-import fs from "fs";
-import React from "react";
 import ReactDOMServer from "react-dom/server";
 import { StaticRouter } from "react-router-dom";
 import { ServerStyleSheet } from "styled-components";
 
 import App from "../entry-point-client/App";
-
-(global as any).React = React;
-
-export interface PageInfo {
-  title: string;
-  location: string;
-}
+import { PageInfo } from "../entry-point-client/PageList";
 
 export default function generatePageContent(
   template: string,
-  { title, location }: PageInfo,
+  { title, path }: PageInfo,
 ) {
   let styleSheet = new ServerStyleSheet();
   let contentHtml = ReactDOMServer.renderToString(
     styleSheet.collectStyles(
-      <StaticRouter location={location}>
+      <StaticRouter location={path}>
         <App />
       </StaticRouter>,
     ),
