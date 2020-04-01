@@ -1,7 +1,5 @@
 import { curveCatmullRom, format } from "d3";
-import { useState } from "react";
-import Measure from "react-measure";
-import XYFrame from "semiotic/lib/XYFrame";
+import ResponsiveXYFrame from "semiotic/lib/ResponsiveXYFrame";
 import styled from "styled-components";
 
 const ChartContainer = styled.div`
@@ -45,7 +43,28 @@ const ChartContainer = styled.div`
 `;
 
 export default function CurveChart({ curveData, hospitalBeds }) {
-  const [dimensions, updateDimensions] = useState({ width: 500 });
+  const lines = Object.entries(curveData).map(([bucket, values]) => ({
+    title: bucket,
+    key: bucket,
+    coordinates: values.map((count, index) => ({
+      count,
+      days: index + 1,
+    })),
+  }));
+
+  // make sure the Y axis includes hospital beds threshold
+  const maxCurvePeak = lines.reduce(
+    (highestPeak, { coordinates }) =>
+      Math.max(
+        highestPeak,
+        coordinates.reduce(
+          (linePeak, { count }) => Math.max(linePeak, count),
+          0,
+        ),
+      ),
+    0,
+  );
+  const yMax = Math.ceil(Math.max(hospitalBeds, maxCurvePeak) / 1000) * 1000;
 
   // TODO: factor colors out to variables somewhere?
   // also these are not totally final
@@ -56,18 +75,13 @@ export default function CurveChart({ curveData, hospitalBeds }) {
     hospitalBeds: "#de5558",
   };
   const frameProps = {
-    lines: Object.entries(curveData).map(([bucket, values]) => ({
-      title: bucket,
-      key: bucket,
-      coordinates: values.map((count, index) => ({
-        count,
-        days: index + 1,
-      })),
-    })),
+    lines,
     lineType: { type: "area", interpolator: curveCatmullRom },
     xAccessor: "days",
     yAccessor: "count",
-    size: [dimensions.width, 450],
+    responsiveWidth: true,
+    size: [450, 450],
+    yExtent: [0, yMax],
     margin: { left: 80, bottom: 90, right: 10, top: 40 },
     lineStyle: ({ key }) => ({
       stroke: colors[key],
@@ -99,17 +113,8 @@ export default function CurveChart({ curveData, hospitalBeds }) {
   };
 
   return (
-    <Measure
-      bounds
-      onResize={(contentRect) => {
-        updateDimensions(contentRect.bounds);
-      }}
-    >
-      {({ measureRef }) => (
-        <ChartContainer ref={measureRef}>
-          <XYFrame {...frameProps} />
-        </ChartContainer>
-      )}
-    </Measure>
+    <ChartContainer>
+      <ResponsiveXYFrame {...frameProps} />
+    </ChartContainer>
   );
 }
