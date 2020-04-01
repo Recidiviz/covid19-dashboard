@@ -1,17 +1,17 @@
 import { Link } from "react-router-dom";
 
-const siteHeader: React.FC<{}> = () => (
+const SiteHeader: React.FC = () => (
   <nav className="font-semibold font-display text-sm">
     <div className="flex justify-between h-16 flex-wrap">
       <div className="flex">
-        <div className="flex uppercase">
+        <Link to="/" className="flex uppercase">
           <h3 className="inline-flex items-center px-1 pt-1 leading-5">
             CJ Status •
           </h3>
           <h3 className="inline-flex items-center px-1 pt-1 leading-5 text-red">
             COVID-19
           </h3>
-        </div>
+        </Link>
       </div>
       {/* <!-- Nav Items and Social Links --> */}
       <div className="flex items-center justify-between">
@@ -50,4 +50,4 @@ const siteHeader: React.FC<{}> = () => (
   </nav>
 );
 
-export default siteHeader;
+export default SiteHeader;

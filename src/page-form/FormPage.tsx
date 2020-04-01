@@ -18,7 +18,7 @@ const Container = styled(ContainerTint1)`
   padding-x: 48px;
 `;
 
-const FormPage: React.FC<{}> = () => {
+const FormPage: React.FC = () => {
   return (
     <Container>
       <FormSection>

@@ -19,7 +19,7 @@ interface FormValues {
 
 const states = zcta.getStates();
 
-const Form: React.FC<{}> = () => {
+const Form: React.FC = () => {
   const [formValues, setFormValues] = useState<FormValues>({
     state: states[0],
   });
