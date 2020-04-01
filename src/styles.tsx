@@ -24,7 +24,7 @@ export const GlobalStyles = createGlobalStyle`
   }
 
   h2 {
-    font-family: 'Rubik', sans-serif;    
+    font-family: 'Rubik', sans-serif;
     font-weight: 100;
     font-size: 24px;
     line-height: 1.7em;
@@ -107,6 +107,62 @@ export const GlobalStyles = createGlobalStyle`
 
   .tint1 {
     background: #EAECEC;
+  }
+
+  .font-display {
+    font-family: "Poppins", sans-serif;
+  }
+
+  .font-body {
+    font-family: "Rubik", sans-serif;
+  }
+
+  .font-7xl {
+    font-size: 6rem;
+  }
+
+  .text-green {
+    color: #00413e;
+  }
+
+  .border-green {
+    border-color: #00413e;
+  }
+
+  .text-green-light {
+    color: #25b895;
+  }
+
+  .text-teal {
+    color: #006c67;
+  }
+
+  .text-teal-light {
+    color: #a7d1de;
+  }
+
+  .text-red {
+    color: #de5558;
+  }
+
+  .text-red-light {
+    color: #efb5b7;
+  }
+
+  .border-current {
+    border-color: currentColor;
+  }
+
+  .w-28 {
+    width: 6.5rem;
+  }
+
+  p,
+  ol {
+    letter-spacing: 0;
+    font-family: "Rubik", sans-serif;
+    line-height: 1.5;
+    font-weight: normal;
   }
 `;
 
