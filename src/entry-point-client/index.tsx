@@ -1,10 +1,10 @@
 import React from "react";
+(window as any).React = React;
+
 import ReactDOM from "react-dom";
 import { BrowserRouter } from "react-router-dom";
 
 import App from "./App";
-
-(window as any).React = React;
 
 let element = (
   <BrowserRouter>
