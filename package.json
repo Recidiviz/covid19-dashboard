@@ -2,7 +2,8 @@
   "private": true,
   "scripts": {
     "clean": "rm -rf dist && rm -rf .cache",
-    "dev": "bin/parcel serve index.html"
+    "dev": "bin/parcel serve index.html",
+    "build": "parcel build index.html && echo && parcel build --target node src/entry-point-static/build.tsx && echo && node dist/build.js && rm -f dist/build.js dist/build.js.map"
   },
   "dependencies": {
     "us-zcta-counties": "^0.0.2"
@@ -20,6 +21,7 @@
     "@typescript-eslint/parser": "2.25.0",
     "babel-plugin-styled-components": "1.10.7",
     "chalk": "3.0.0",
+    "d3": "^5.15.0",
     "date-fns": "2.11.1",
     "eslint": "6.8.0",
     "eslint-config-prettier": "6.10.1",
@@ -36,8 +38,10 @@
     "react-dom": "16.13.1",
     "react-hot-loader": "4.12.20",
     "react-is": "16.13.1",
+    "react-measure": "^2.3.0",
     "react-router-dom": "5.1.2",
     "resize-observer-polyfill": "^1.5.1",
+    "semiotic": "^1.20.5",
     "styled-components": "5.0.1",
     "typescript": "3.8.3"
   },
@@ -58,8 +62,5 @@
       "eslint --cache --fix",
       "prettier --write"
     ]
-  },
-  "scripts": {
-    "build": "parcel build index.html && echo && parcel build --target node src/entry-point-static/build.tsx && echo && node dist/build.js && rm -f dist/build.js dist/build.js.map"
   }
 }
