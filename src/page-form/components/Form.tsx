@@ -23,9 +23,18 @@ const Form: React.FC<{}> = () => {
   const [formValues, setFormValues] = useState<FormValues>({
     state: states[0],
   });
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
 
   function handleFormChange(field: string, value: string) {
     setFormValues({ ...formValues, [field]: value });
+  }
+
+  function submitForm() {
+    setIsSubmitting(true);
+    setIsSubmitting(false);
+    setHasSubmitted(true);
+    console.log(formValues);
   }
 
   return (
@@ -93,10 +102,13 @@ const Form: React.FC<{}> = () => {
       <TextArea
         label="additional information"
         value={formValues.additionalInfo}
-        placeholder=""
         onChange={(e) => handleFormChange("additionalInfo", e.target.value)}
       />
-      <Button label="Send" />
+      <Button
+        loading={isSubmitting}
+        label={hasSubmitted ? "Sent!" : "Send"}
+        onClick={submitForm}
+      />
     </div>
   );
 };
