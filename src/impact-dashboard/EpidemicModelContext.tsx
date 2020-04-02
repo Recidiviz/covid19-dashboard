@@ -76,7 +76,7 @@ function useEpidemicModelDispatch() {
 
   if (context === undefined) {
     throw new Error(
-      "useEpidemicModelDispatch must be used within a EpidemicModelProvider",
+      "useEpidemicModelDispatch must be used within an EpidemicModelProvider",
     );
   }
 
