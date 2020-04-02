@@ -27,7 +27,7 @@ const PageList: PageInfo[] = [
   },
   {
     path: "/get-involved",
-    title: getPageTitle("About"),
+    title: getPageTitle("Get Involved"),
     contents: <GetInvolvedPage />,
   },
   {
