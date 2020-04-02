@@ -47,7 +47,7 @@ function epidemicModelReducer(state: State, action: Action): State {
   }
 }
 
-function EpidemicModelProducer({ children }: EpidemicModelProviderProps) {
+function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
   const [state, dispatch] = React.useReducer(epidemicModelReducer, {
     stateCode: "US",
     // TODO: is this really where the initial data should come from?
@@ -89,7 +89,7 @@ function useEpidemicModelDispatch() {
 }
 
 export {
-  EpidemicModelProducer,
+  EpidemicModelProvider,
   useEpidemicModelState,
   useEpidemicModelDispatch,
 };
