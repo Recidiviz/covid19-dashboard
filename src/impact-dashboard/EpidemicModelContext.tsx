@@ -6,13 +6,9 @@ const {
 
 type Action = { type: "update"; payload: State };
 type Dispatch = (action: Action) => void;
-// TODO: define the real state
 interface State {
-  // could be the postal abbreviation like we use in the overview map, could be the FIPS code?
-  // TODO: investigate external data source to firm this up
-  stateCode: string;
-  // TODO: similar to stateCode, could be the name or could be the FIPS code
-  county?: string;
+  stateCode: string; // corresponds to populationAndHospitalData keys
+  countyName?: string;
   facilityName?: string;
   totalIncarcerated: number;
   infectionRate: number;
@@ -50,7 +46,6 @@ function epidemicModelReducer(state: State, action: Action): State {
 function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
   const [state, dispatch] = React.useReducer(epidemicModelReducer, {
     stateCode: "US",
-    // TODO: is this really where the initial data should come from?
     totalIncarcerated: populationAndHospitalData.US.incarceratedPopulation,
     infectionRate: 3.7,
   });
