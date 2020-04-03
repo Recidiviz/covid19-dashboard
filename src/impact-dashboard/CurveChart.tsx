@@ -44,7 +44,7 @@ const ChartContainer = styled.div`
   }
 `;
 
-export default function CurveChart({ curveData, hospitalBeds }) {
+export default function CurveChart({ curveData, hospitalBeds, markColors }) {
   const lines = Object.entries(curveData).map(([bucket, values]) => ({
     title: bucket,
     key: bucket,
@@ -68,14 +68,6 @@ export default function CurveChart({ curveData, hospitalBeds }) {
   );
   const yMax = Math.ceil(Math.max(hospitalBeds, maxCurvePeak) / 1000) * 1000;
 
-  // TODO: factor colors out to variables somewhere?
-  // also these are not totally final
-  const colors = {
-    exposed: "#00413e",
-    infectious: "#de5558",
-    hospitalized: "#65d4ff",
-    hospitalBeds: "#de5558",
-  };
   const frameProps = {
     lines,
     lineType: { type: "area", interpolator: curveCatmullRom },
@@ -86,9 +78,9 @@ export default function CurveChart({ curveData, hospitalBeds }) {
     yExtent: [0, yMax],
     margin: { left: 80, bottom: 90, right: 10, top: 40 },
     lineStyle: ({ key }) => ({
-      stroke: colors[key],
+      stroke: markColors[key],
       strokeWidth: 1,
-      fill: colors[key],
+      fill: markColors[key],
       fillOpacity: 0.1,
     }),
     axes: [
@@ -107,7 +99,7 @@ export default function CurveChart({ curveData, hospitalBeds }) {
         type: "y",
         className: "threshold-annotation",
         count: hospitalBeds,
-        color: colors.hospitalBeds,
+        color: markColors.hospitalBeds,
         note: { label: "Hospital Beds", lineType: null, dy: 1, dx: 0 },
         disable: ["connector"],
       },
