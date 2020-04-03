@@ -12,17 +12,28 @@ const ChartContainer = styled.div`
     letter-spacing: 0;
   }
 
-  .axis-baseline {
-    stroke: #ddd;
+  .axis-baseline,
+  .tick {
+    stroke: #467472;
   }
 
-  .tick,
-  .axis-tick path {
-    stroke: #ddd;
+  .tick {
+    stroke-opacity: 0.2;
+  }
+
+  .axis-baseline {
+    stroke-width: 2px;
+  }
+
+  .axis-title text,
+  .axis-label {
+    fill: #00413e;
+    font-weight: 400;
+    opacity: 0.7;
   }
 
   .axis-label {
-    fill: #858f8b;
+    font-size: 10px;
   }
 
   .tooltip-content {
@@ -92,6 +103,7 @@ export default function CurveChart({ curveData, hospitalBeds, markColors }) {
       {
         orient: "bottom",
         tickLineGenerator: () => null,
+        label: "Days",
       },
     ],
     annotations: [
