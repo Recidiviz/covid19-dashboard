@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { appState, updateAppState } from "./data-forms";
 
 function degreesToRadians(degrees) {

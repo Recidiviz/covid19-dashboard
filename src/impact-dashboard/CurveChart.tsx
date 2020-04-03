@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { curveCatmullRom, format } from "d3";
 import ResponsiveXYFrame from "semiotic/lib/ResponsiveXYFrame";
 import styled from "styled-components";

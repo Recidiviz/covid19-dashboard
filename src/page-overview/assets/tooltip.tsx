@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { getStateName } from "./data-forms";
 
 export function initTooltips() {

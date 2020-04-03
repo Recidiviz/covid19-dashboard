@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { estimatePeakHospitalUse } from "../../infection-model";
 import { populationAndHospitalData } from "./dataSource";
 

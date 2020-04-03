@@ -3,16 +3,13 @@
   "scripts": {
     "build": "parcel build index.html && echo && parcel build --target node src/entry-point-static/build.tsx && echo && node dist/build.js && rm -f dist/build.js dist/build.js.map",
     "clean": "rm -rf dist && rm -rf .cache",
-    "dev": "bin/parcel serve index.html"
+    "dev": "parcel serve index.html",
+    "postinstall": "touch node_modules/.bin/.keep"
   },
   "dependencies": {
-    "@types/ndarray": "1.0.7",
-    "ndarray": "1.0.19",
-    "us-zcta-counties": "^0.0.2"
-  },
-  "devDependencies": {
     "@hot-loader/react-dom": "16.13.0",
     "@types/d3": "5.7.2",
+    "@types/ndarray": "1.0.7",
     "@types/node": "12.12.31",
     "@types/react": "16.9.26",
     "@types/react-dom": "16.9.5",
@@ -34,6 +31,7 @@
     "eslint-plugin-simple-import-sort": "5.0.2",
     "husky": "4.2.3",
     "lint-staged": "10.0.9",
+    "ndarray": "1.0.19",
     "parcel": "1.12.4",
     "prettier": "2.0.2",
     "react": "16.13.1",
@@ -44,7 +42,8 @@
     "resize-observer-polyfill": "^1.5.1",
     "semiotic": "1.20.5",
     "styled-components": "5.0.1",
-    "typescript": "3.8.3"
+    "typescript": "3.8.3",
+    "us-zcta-counties": "0.0.2"
   },
   "alias": {
     "react-dom": "@hot-loader/react-dom"
@@ -55,13 +54,16 @@
     }
   },
   "lint-staged": {
-    "!(*.d.)ts": [
+    "!(*.d).ts": [
       "false -- Please use .tsx instead of .ts!"
+    ],
+    "*.js": [
+      "false -- Please use .tsx with `// @ts-nocheck` instead of .js!"
     ],
     "*.{html,json,md}": [
       "prettier --write"
     ],
-    "*.{d.ts,js,tsx}": [
+    "*.{d.ts,tsx}": [
       "bash -c tsc",
       "eslint --cache --fix",
       "prettier --write"
