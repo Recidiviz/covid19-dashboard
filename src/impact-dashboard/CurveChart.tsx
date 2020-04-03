@@ -56,38 +56,22 @@ const ChartContainer = styled.div`
 `;
 
 export default function CurveChart({ curveData, hospitalBeds, markColors }) {
-  const lines = Object.entries(curveData).map(([bucket, values]) => ({
-    title: bucket,
-    key: bucket,
-    coordinates: values.map((count, index) => ({
-      count,
-      days: index + 1,
-    })),
-  }));
-
-  // make sure the Y axis includes hospital beds threshold
-  const maxCurvePeak = lines.reduce(
-    (highestPeak, { coordinates }) =>
-      Math.max(
-        highestPeak,
-        coordinates.reduce(
-          (linePeak, { count }) => Math.max(linePeak, count),
-          0,
-        ),
-      ),
-    0,
-  );
-  const yMax = Math.ceil(Math.max(hospitalBeds, maxCurvePeak) / 1000) * 1000;
-
   const frameProps = {
-    lines,
+    lines: Object.entries(curveData).map(([bucket, values]) => ({
+      title: bucket,
+      key: bucket,
+      coordinates: values.map((count, index) => ({
+        count,
+        days: index + 1,
+      })),
+    })),
     lineType: { type: "area", interpolator: curveCatmullRom },
     xAccessor: "days",
     yAccessor: "count",
     responsiveWidth: true,
     size: [450, 450],
-    yExtent: [0, yMax],
-    margin: { left: 80, bottom: 90, right: 10, top: 40 },
+    yExtent: { extent: [0], includeAnnotations: true },
+    margin: { left: 60, bottom: 60, right: 10, top: 0 },
     lineStyle: ({ key }) => ({
       stroke: markColors[key],
       strokeWidth: 1,

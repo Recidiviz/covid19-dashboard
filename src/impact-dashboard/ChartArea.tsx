@@ -15,8 +15,9 @@ const Container = styled.div``;
 
 const LegendAndActions = styled.div`
   display: flex;
-  justify-content: space-between;
   flex-wrap: wrap;
+  justify-content: space-between;
+  margin-bottom: 40px;
 `;
 
 const LegendContainer = styled.div`
