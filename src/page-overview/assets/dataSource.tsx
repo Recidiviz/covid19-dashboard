@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 // these values were updated from the Recidiviz COVID model spreadsheet March 30, 2020
 export const populationAndHospitalData = {
   AK: {
