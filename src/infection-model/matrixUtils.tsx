@@ -1,12 +1,11 @@
-// helpers for the ndarray package
 import ndarray from "ndarray";
 
 export function getRowView(matrix: ndarray, rowIndex: number) {
-  return matrix.hi(rowIndex + 1).lo(rowIndex);
+  return matrix.lo(rowIndex).hi(rowIndex + 1);
 }
 
 export function getColView(matrix: ndarray, colIndex: number) {
-  return matrix.hi(matrix.shape[0], colIndex + 1).lo(0, colIndex);
+  return matrix.lo(0, colIndex).hi(matrix.shape[0], colIndex + 1);
 }
 
 export function getAllValues(matrixView: ndarray) {

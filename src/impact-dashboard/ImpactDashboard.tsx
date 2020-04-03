@@ -24,7 +24,6 @@ const ImpactDashboard: React.FC = () => {
     <Container>
       <FormContainer>forms</FormContainer>
       <ChartsContainer>
-        chart goes here
         <CurveChart />
       </ChartsContainer>
     </Container>

@@ -6,8 +6,8 @@
     "dev": "bin/parcel serve index.html"
   },
   "dependencies": {
-    "@types/ndarray": "^1.0.7",
-    "ndarray": "^1.0.19",
+    "@types/ndarray": "1.0.7",
+    "ndarray": "1.0.19",
     "us-zcta-counties": "^0.0.2"
   },
   "devDependencies": {
