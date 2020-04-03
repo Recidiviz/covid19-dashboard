@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 // this function comes from Justine, adapted from python model
 function simulateOneDay({
   x,
