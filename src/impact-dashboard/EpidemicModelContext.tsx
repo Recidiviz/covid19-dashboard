@@ -6,10 +6,7 @@ const {
 
 type Action = { type: "update"; payload: EpidemicModelState };
 type Dispatch = (action: Action) => void;
-interface EpidemicModelState {
-  stateCode: string; // corresponds to populationAndHospitalData keys
-  countyName?: string;
-  facilityName?: string;
+interface EpidemicModelInputs {
   totalIncarcerated: number;
   rateOfSpreadFactor: number;
   confirmedCases?: number;
@@ -23,6 +20,11 @@ interface EpidemicModelState {
   age75?: number;
   age85?: number;
   ageUnknown?: number;
+}
+interface EpidemicModelState extends EpidemicModelInputs {
+  stateCode: string; // corresponds to populationAndHospitalData keys
+  countyName?: string;
+  facilityName?: string;
 }
 type EpidemicModelProviderProps = { children: React.ReactNode };
 
@@ -93,5 +95,5 @@ export {
   EpidemicModelProvider,
   useEpidemicModelState,
   useEpidemicModelDispatch,
-  EpidemicModelState,
+  EpidemicModelInputs,
 };

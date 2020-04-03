@@ -1,9 +1,8 @@
-// TODO: should this type live somewhere else?
-import { EpidemicModelState } from "../impact-dashboard/EpidemicModelContext";
+import { EpidemicModelInputs } from "../impact-dashboard/EpidemicModelContext";
 import { getAllValues, getColView } from "./matrixUtils";
 import { ageGroupIndex, getCurveProjections, seirIndex } from "./seir";
 
-export function calculateCurves(inputs: EpidemicModelState) {
+export function calculateCurves(inputs: EpidemicModelInputs) {
   const {
     age0,
     age20,
@@ -61,8 +60,6 @@ export function estimatePeakHospitalUse(inputs: {
     usePopulationSubsets: false,
     totalIncarcerated: incarceratedPopulation,
     rateOfSpreadFactor: R0,
-    // TODO: we shouldn't need this
-    stateCode: "N/A",
   });
   const bedsRequiredPerDay = curves.hospitalized;
   const peakRequirement = Math.max(...bedsRequiredPerDay);
