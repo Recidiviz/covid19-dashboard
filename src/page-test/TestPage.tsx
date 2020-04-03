@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
+import ImpactDashboard from "../impact-dashboard";
 import NewsFeed from "../news-feed-events/NewsFeed";
 import {
   FakeNewsFeedEvents,
@@ -52,6 +53,10 @@ const TestPage: React.FC = () => {
         and save, and your textarea text should be preserved. This tests React
         hot loading.
       </p>
+      <h2>Test of impact dashboard</h2>
+      <div>
+        <ImpactDashboard />
+      </div>
       <textarea defaultValue="edit me! then edit TestPage.tsx!" />
       <Title>Test page</Title>
       <p>

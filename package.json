@@ -9,6 +9,7 @@
   "dependencies": {
     "@hot-loader/react-dom": "16.13.0",
     "@types/d3": "5.7.2",
+    "@types/ndarray": "1.0.7",
     "@types/node": "12.12.31",
     "@types/react": "16.9.26",
     "@types/react-dom": "16.9.5",
@@ -30,6 +31,7 @@
     "eslint-plugin-simple-import-sort": "5.0.2",
     "husky": "4.2.3",
     "lint-staged": "10.0.9",
+    "ndarray": "1.0.19",
     "parcel": "1.12.4",
     "prettier": "2.0.2",
     "react": "16.13.1",

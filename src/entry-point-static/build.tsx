@@ -1,5 +1,6 @@
 import React from "react";
 (global as any).React = React;
+(global as any).self = global;
 
 import chalk from "chalk";
 import fs from "fs";

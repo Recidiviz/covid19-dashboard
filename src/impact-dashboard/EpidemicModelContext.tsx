@@ -4,15 +4,13 @@ const {
   populationAndHospitalData,
 } = require("../page-overview/assets/dataSource") as any;
 
-type Action = { type: "update"; payload: State };
+type Action = { type: "update"; payload: EpidemicModelState };
 type Dispatch = (action: Action) => void;
-interface State {
-  stateCode: string; // corresponds to populationAndHospitalData keys
-  countyName?: string;
-  facilityName?: string;
+interface EpidemicModelInputs {
   totalIncarcerated: number;
-  infectionRate: number;
+  rateOfSpreadFactor: number;
   confirmedCases?: number;
+  usePopulationSubsets: boolean;
   staff?: number;
   age0?: number;
   age20?: number;
@@ -21,18 +19,27 @@ interface State {
   age65?: number;
   age75?: number;
   age85?: number;
+  ageUnknown?: number;
+}
+interface EpidemicModelState extends EpidemicModelInputs {
+  stateCode: string; // corresponds to populationAndHospitalData keys
+  countyName?: string;
+  facilityName?: string;
 }
 type EpidemicModelProviderProps = { children: React.ReactNode };
 
-const EpidemicModelStateContext = React.createContext<State | undefined>(
-  undefined,
-);
+const EpidemicModelStateContext = React.createContext<
+  EpidemicModelState | undefined
+>(undefined);
 
 const EpidemicModelDispatchContext = React.createContext<Dispatch | undefined>(
   undefined,
 );
 
-function epidemicModelReducer(state: State, action: Action): State {
+function epidemicModelReducer(
+  state: EpidemicModelState,
+  action: Action,
+): EpidemicModelState {
   switch (action.type) {
     case "update":
       // the desired user flow is to fill out a form, review the entries,
@@ -47,7 +54,8 @@ function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
   const [state, dispatch] = React.useReducer(epidemicModelReducer, {
     stateCode: "US",
     totalIncarcerated: populationAndHospitalData.US.incarceratedPopulation,
-    infectionRate: 3.7,
+    rateOfSpreadFactor: 3.7,
+    usePopulationSubsets: false,
   });
 
   return (
@@ -87,4 +95,5 @@ export {
   EpidemicModelProvider,
   useEpidemicModelState,
   useEpidemicModelDispatch,
+  EpidemicModelInputs,
 };
