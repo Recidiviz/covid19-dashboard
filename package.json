@@ -64,6 +64,9 @@
       "bash -c tsc",
       "eslint --cache --fix",
       "prettier --write"
+    ],
+    "*.sh": [
+      "shellcheck"
     ]
   }
 }
