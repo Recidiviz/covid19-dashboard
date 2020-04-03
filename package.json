@@ -54,13 +54,16 @@
     }
   },
   "lint-staged": {
-    "!(*.d.)ts": [
+    "!(*.d).ts": [
       "false -- Please use .tsx instead of .ts!"
+    ],
+    "*.js": [
+      "false -- Please use .tsx with `// @ts-nocheck` instead of .js!"
     ],
     "*.{html,json,md}": [
       "prettier --write"
     ],
-    "*.{d.ts,js,tsx}": [
+    "*.{d.ts,tsx}": [
       "bash -c tsc",
       "eslint --cache --fix",
       "prettier --write"
