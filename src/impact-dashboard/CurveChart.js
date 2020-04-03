@@ -93,7 +93,7 @@ export default function CurveChart({ curveData, hospitalBeds }) {
       {
         orient: "left",
         baseline: false,
-        tickFormat: d3.format(",.0f"),
+        tickFormat: format(",.0f"),
       },
       {
         orient: "bottom",
