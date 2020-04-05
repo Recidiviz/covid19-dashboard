@@ -2,7 +2,8 @@
   "build": {
     "env": {
       "CLIENT_EMAIL": "@client_email",
-      "PRIVATE_KEY": "@private_key"
+      "PRIVATE_KEY": "@private_key",
+      "SHEET_ID": "@sheet_id"
     }
   }
 }
