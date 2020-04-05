@@ -6,6 +6,8 @@ const CLIENT_EMAIL = process.env.CLIENT_EMAIL
 const PRIVATE_KEY = process.env.PRIVATE_KEY
 const SHEET_ID = process.env.SHEET_ID
 
+console.log(process.env)
+
 export interface FormEntry {
   email: string
   summary: string
