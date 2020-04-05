@@ -6,8 +6,6 @@ const CLIENT_EMAIL = process.env.CLIENT_EMAIL
 const PRIVATE_KEY = process.env.PRIVATE_KEY
 const SHEET_ID = process.env.SHEET_ID
 
-console.log(process.env)
-
 export interface FormEntry {
   email: string
   summary: string
@@ -28,12 +26,18 @@ class GoogleSheet {
   }
 
   async init() {
-    await this.sheet.useServiceAccountAuth({
-      client_email: CLIENT_EMAIL,
-      private_key: PRIVATE_KEY,
-    })
+    console.log(process.env)
 
-    this.initialized = true
+    try {
+      await this.sheet.useServiceAccountAuth({
+        client_email: CLIENT_EMAIL,
+        private_key: PRIVATE_KEY,
+      })
+
+      this.initialized = true
+    } catch (e) {
+      console.log('[ERROR] ', e)
+    }
   }
 
   async addRow(entry: FormEntry) {
