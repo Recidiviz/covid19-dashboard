@@ -12,6 +12,8 @@
     "noEmit": true
   },
   "include": [
-    "src"
+    "src",
+    "api",
+    "@types"
   ]
 }

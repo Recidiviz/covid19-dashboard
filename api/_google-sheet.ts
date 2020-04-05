@@ -24,6 +24,7 @@ class GoogleSheet {
 
   constructor() {
     this.sheet = new GoogleSpreadsheet(SHEET_ID)
+    this.initialized = false
   }
 
   async init() {
