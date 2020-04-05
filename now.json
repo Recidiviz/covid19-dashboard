@@ -1,0 +1,8 @@
+{
+  "build": {
+    "env": {
+      "CLIENT_EMAIL": "@client_email",
+      "PRIVATE_KEY": "@private_key"
+    }
+  }
+}
