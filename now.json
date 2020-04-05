@@ -2,7 +2,6 @@
   "env": {
     "CLIENT_EMAIL": "@client_email",
     "PRIVATE_KEY": "@private_key",
-    "SHEET_ID": "@sheet_id",
-    "CONFIG": "@config"
+    "SHEET_ID": "@sheet_id"
   }
 }
