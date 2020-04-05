@@ -26,8 +26,6 @@ class GoogleSheet {
   }
 
   async init() {
-    console.log('VARS: ', CLIENT_EMAIL, PRIVATE_KEY, SHEET_ID)
-
     try {
       await this.sheet.useServiceAccountAuth({
         client_email: CLIENT_EMAIL,
@@ -36,7 +34,8 @@ class GoogleSheet {
 
       this.initialized = true
     } catch (e) {
-      console.log('[ERROR] ', e)
+      console.log('[ERROR] \n ', e)
+      throw e
     }
   }
 
