@@ -10,23 +10,19 @@ interface Props {
 const CurveChartContainer: React.FC<Props> = ({ markColors }) => {
   const modelData = useEpidemicModelState();
 
-  return (
-    <>
-      {modelData.countyLevelDataLoading ? (
-        <div>Loading...</div>
-      ) : (
-        <CurveChart
-          curveData={calculateCurves(modelData)}
-          hospitalBeds={
-            modelData.countyLevelData
-              ?.get(modelData.stateCode)
-              // we don't show this until data is loaded so nothing should be undefined
-              ?.get(modelData.countyName as string)?.hospitalBeds as number
-          }
-          markColors={markColors}
-        />
-      )}
-    </>
+  return modelData.countyLevelDataLoading ? (
+    <div>Loading...</div>
+  ) : (
+    <CurveChart
+      curveData={calculateCurves(modelData)}
+      hospitalBeds={
+        modelData.countyLevelData
+          ?.get(modelData.stateCode)
+          // we don't show this until data is loaded so nothing should be undefined
+          ?.get(modelData.countyName as string)?.hospitalBeds as number
+      }
+      markColors={markColors}
+    />
   );
 };
 

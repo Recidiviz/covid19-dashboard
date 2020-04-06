@@ -41,13 +41,13 @@ interface EpidemicModelInputs extends ModelInputsUpdate {
 interface MetadataUpdate {
   countyLevelData?: CountyLevelData;
   countyLevelDataLoading?: boolean;
+  countyLevelDataFailed?: boolean;
   countyName?: string;
   facilityName?: string;
   stateCode?: string;
 }
 // some fields are required to display a sensible UI, define them here
 interface Metadata extends MetadataUpdate {
-  countyLevelDataLoading: boolean;
   stateCode: string;
 }
 
@@ -90,54 +90,64 @@ function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
 
   // fetch from external datasource
   React.useEffect(() => {
-    fetch(
-      "https://docs.google.com/spreadsheets/d/e/2PACX-1vSeEO7JySaN21_Cxa7ON_x" +
-        "UHDM-EEOFSMIjOAoLf6YOXBurMRXZYPFi7x_aOe-0awqDcL4KZTK1NhVI/pub?gid=" +
-        "1836987932&single=true&output=csv",
-    ).then(async (response) => {
-      let rawCSV = await response.text();
-      // the first line is not the header row so we need to strip it
-      rawCSV = rawCSV.substring(rawCSV.indexOf("\n") + 1);
+    async function effect() {
+      try {
+        const response = await fetch(
+          "https://docs.google.com/spreadsheets/d/e/2PACX-1vSeEO7JySaN21_Cxa7ON_x" +
+            "UHDM-EEOFSMIjOAoLf6YOXBurMRXZYPFi7x_aOe-0awqDcL4KZTK1NhVI/pub?gid=" +
+            "1836987932&single=true&output=csv",
+        );
+        let rawCSV = await response.text();
+        // the first line is not the header row so we need to strip it
+        rawCSV = rawCSV.substring(rawCSV.indexOf("\n") + 1);
 
-      const parsedArray = csvParse(rawCSV, (row) => {
-        const transformedRow = autoType(row);
-        // autotype won't catch formatted thousands and percentages,
-        // so run them through numeral
-        Object.entries(transformedRow).forEach(([key, value]) => {
-          if (value && typeof value === "string") {
-            const transformedValue = numeral(value).value();
-            transformedRow[key] =
-              transformedValue === null ? value : transformedValue;
-          }
+        const parsedArray = csvParse(rawCSV, (row) => {
+          const transformedRow = autoType(row);
+          // autotype won't catch formatted thousands and percentages,
+          // so run them through numeral
+          Object.entries(transformedRow).forEach(([key, value]) => {
+            if (value && typeof value === "string") {
+              const transformedValue = numeral(value).value();
+              transformedRow[key] =
+                transformedValue === null ? value : transformedValue;
+            }
+          });
+
+          return transformedRow;
+        })
+          // rows without County are known to be junk
+          .filter((row) => !!row.County);
+
+        const nestedStateCounty = rollup(
+          parsedArray,
+          // there will only ever be one row object per county
+          (v: object[]) => camelcaseKeys(v[0]),
+          (d: DSVRowAny) => d.State as string,
+          (d: DSVRowAny) => d.County as string,
+          // some wrong/outdated typedefs for d3 are making typescript sad
+          // but this should check out
+        ) as CountyLevelData;
+
+        dispatch({
+          type: "update",
+          payload: {
+            countyLevelData: nestedStateCounty,
+            stateCode: "US Total",
+            countyName: "Total",
+            totalIncarcerated: nestedStateCounty.get("US Total")?.get("Total")
+              ?.totalIncarceratedPopulation,
+            countyLevelDataLoading: false,
+          },
         });
-
-        return transformedRow;
-      })
-        // rows without County are known to be junk
-        .filter((row) => !!row.County);
-
-      const nestedStateCounty = rollup(
-        parsedArray,
-        // there will only ever be one row object per county
-        (v: object[]) => camelcaseKeys(v[0]),
-        (d: DSVRowAny) => d.State as string,
-        (d: DSVRowAny) => d.County as string,
-        // some wrong/outdated typedefs for d3 are making typescript sad
-        // but this should check out
-      ) as CountyLevelData;
-
-      dispatch({
-        type: "update",
-        payload: {
-          countyLevelData: nestedStateCounty,
-          stateCode: "US Total",
-          countyName: "Total",
-          totalIncarcerated: nestedStateCounty.get("US Total")?.get("Total")
-            ?.totalIncarceratedPopulation,
-          countyLevelDataLoading: false,
-        },
-      });
-    });
+      } catch (error) {
+        console.error(error);
+        dispatch({
+          type: "update",
+          payload: { countyLevelDataFailed: true },
+        });
+      }
+    }
+    effect();
   }, []);
 
   return (
