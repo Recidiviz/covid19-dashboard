@@ -1,8 +1,10 @@
 // @ts-nocheck
-
 import { curveCatmullRom, format } from "d3";
 import ResponsiveXYFrame from "semiotic/lib/ResponsiveXYFrame";
 import styled from "styled-components";
+
+import Colors from "../design-system/Colors";
+import { MarkColors } from "./ChartArea";
 
 const ChartContainer = styled.div`
   .frame {
@@ -12,28 +14,28 @@ const ChartContainer = styled.div`
     letter-spacing: 0;
   }
 
-  .axis-baseline {
-    stroke: #ddd;
+  .axis-baseline,
+  .tick {
+    stroke: #467472;
   }
 
-  .tick,
-  .axis-tick path {
-    stroke: #ddd;
+  .tick {
+    stroke-opacity: 0.2;
+  }
+
+  .axis-baseline {
+    stroke-width: 2px;
+  }
+
+  .axis-title text,
+  .axis-label {
+    fill: #00413e;
+    font-weight: 400;
+    opacity: 0.7;
   }
 
   .axis-label {
-    fill: #858f8b;
-  }
-
-  .tooltip-content {
-    background: white;
-    position: relative;
-    border: 1px solid #ddd;
-    color: black;
-    padding: 10px;
-    z-index: 100;
-    transform: translateX(-50%) translateY(5px);
-    min-width: 120px;
+    font-size: 10px;
   }
 
   .threshold-annotation {
@@ -42,64 +44,124 @@ const ChartContainer = styled.div`
       stroke-linecap: round;
     }
   }
+
+  circle.frame-hover {
+    display: none;
+  }
 `;
 
-export default function CurveChart({ curveData, hospitalBeds }) {
-  const lines = Object.entries(curveData).map(([bucket, values]) => ({
-    title: bucket,
-    key: bucket,
-    coordinates: values.map((count, index) => ({
-      count,
-      days: index + 1,
-    })),
-  }));
+const triangleSize = "7";
+const TooltipContainer = styled.div`
+  background: ${Colors.forest};
+  color: #fff;
+  font-family: "Rubik", sans-serif;
+  min-width: 120px;
+  padding: 12px;
+  position: relative;
+  transform: translateX(-50%) translateY(calc(-100% - ${2 * triangleSize}px));
+  z-index: 100;
 
-  // make sure the Y axis includes hospital beds threshold
-  const maxCurvePeak = lines.reduce(
-    (highestPeak, { coordinates }) =>
-      Math.max(
-        highestPeak,
-        coordinates.reduce(
-          (linePeak, { count }) => Math.max(linePeak, count),
-          0,
-        ),
-      ),
-    0,
-  );
-  const yMax = Math.ceil(Math.max(hospitalBeds, maxCurvePeak) / 1000) * 1000;
+  &::after {
+    border-left: ${triangleSize}px solid transparent;
+    border-right: ${triangleSize}px solid transparent;
+    border-top: ${triangleSize}px solid ${Colors.forest};
+    bottom: -${triangleSize}px;
+    content: "";
+    display: block;
+    height: 0;
+    left: calc(50% - ${triangleSize}px);
+    position: absolute;
+    width: 0;
+  }
+`;
 
-  // TODO: factor colors out to variables somewhere?
-  // also these are not totally final
-  const colors = {
-    exposed: "#00413e",
-    infectious: "#de5558",
-    hospitalized: "#65d4ff",
-    hospitalBeds: "#de5558",
+const TooltipTitle = styled.div`
+  font-size: 9px;
+  font-weight: bold;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+`;
+
+const TooltipDatalist = styled.ul``;
+const TooltipDatum = styled.li`
+  opacity: 0.8;
+`;
+
+const formatThousands = format(",.0f");
+
+interface TooltipProps {
+  count: number;
+  days: number;
+  parentLine: {
+    title: string;
+    [propName: string]: any;
   };
+  [propName: string]: any;
+}
+
+const Tooltip: React.FC<TooltipProps> = ({
+  count,
+  days,
+  parentLine: { title },
+}) => {
+  return (
+    <TooltipContainer>
+      <TooltipTitle>{title}</TooltipTitle>
+      <TooltipDatalist>
+        <TooltipDatum>Days: {days}</TooltipDatum>
+        <TooltipDatum>People: {formatThousands(count)}</TooltipDatum>
+      </TooltipDatalist>
+    </TooltipContainer>
+  );
+};
+
+interface CurveChartProps {
+  curveData: {
+    [propName: string]: number[];
+  };
+  hospitalBeds: number;
+  markColors: MarkColors;
+}
+
+const CurveChart: React.FC<CurveChartProps> = ({
+  curveData,
+  hospitalBeds,
+  markColors,
+}) => {
   const frameProps = {
-    lines,
+    lines: Object.entries(curveData).map(([bucket, values]) => ({
+      title: bucket,
+      key: bucket,
+      coordinates: values.map((count, index) => ({
+        count,
+        days: index + 1,
+      })),
+    })),
     lineType: { type: "area", interpolator: curveCatmullRom },
     xAccessor: "days",
     yAccessor: "count",
     responsiveWidth: true,
     size: [450, 450],
-    yExtent: [0, yMax],
-    margin: { left: 80, bottom: 90, right: 10, top: 40 },
+    yExtent: { extent: [0], includeAnnotations: true },
+    margin: { left: 60, bottom: 60, right: 10, top: 0 },
     lineStyle: ({ key }) => ({
-      stroke: colors[key],
+      stroke: markColors[key],
       strokeWidth: 1,
-      fill: colors[key],
+      fill: markColors[key],
       fillOpacity: 0.1,
     }),
     axes: [
       {
         orient: "left",
         baseline: false,
-        tickFormat: format(",.0f"),
+        tickFormat: formatThousands,
       },
       {
         orient: "bottom",
         tickLineGenerator: () => null,
+        label: "Days",
       },
     ],
     annotations: [
@@ -107,11 +169,17 @@ export default function CurveChart({ curveData, hospitalBeds }) {
         type: "y",
         className: "threshold-annotation",
         count: hospitalBeds,
-        color: colors.hospitalBeds,
+        color: markColors.hospitalBeds,
         note: { label: "Hospital Beds", lineType: null, dy: 1, dx: 0 },
         disable: ["connector"],
       },
     ],
+    hoverAnnotation: true,
+    tooltipContent: Tooltip,
+    // these two options place the hover targets along the line
+    // (rather in the center of the area) but keep them invisible
+    showLinePoints: "top",
+    pointStyle: { display: "none" },
   };
 
   return (
@@ -119,4 +187,6 @@ export default function CurveChart({ curveData, hospitalBeds }) {
       <ResponsiveXYFrame {...frameProps} />
     </ChartContainer>
   );
-}
+};
+
+export default CurveChart;

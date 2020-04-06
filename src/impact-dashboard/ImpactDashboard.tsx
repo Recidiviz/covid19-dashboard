@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import CurveChart from "./CurveChartContainer";
+import ChartArea from "./ChartArea";
 
 const Container = styled.div`
   display: flex;
@@ -24,7 +24,7 @@ const ImpactDashboard: React.FC = () => {
     <Container>
       <FormContainer>forms</FormContainer>
       <ChartsContainer>
-        <CurveChart />
+        <ChartArea />
       </ChartsContainer>
     </Container>
   );
