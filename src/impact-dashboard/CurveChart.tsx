@@ -1,10 +1,10 @@
 // @ts-nocheck
-
 import { curveCatmullRom, format } from "d3";
 import ResponsiveXYFrame from "semiotic/lib/ResponsiveXYFrame";
 import styled from "styled-components";
 
-import colors from "../design-system/colors";
+import ColorTheme from "../design-system/ColorTheme";
+import { MarkColors } from "./ChartArea";
 
 const ChartContainer = styled.div`
   .frame {
@@ -52,7 +52,7 @@ const ChartContainer = styled.div`
 
 const triangleSize = "7";
 const TooltipContainer = styled.div`
-  background: ${colors.forest};
+  background: ${ColorTheme.forest};
   color: #fff;
   font-family: "Rubik", sans-serif;
   min-width: 120px;
@@ -64,7 +64,7 @@ const TooltipContainer = styled.div`
   &::after {
     border-left: ${triangleSize}px solid transparent;
     border-right: ${triangleSize}px solid transparent;
-    border-top: ${triangleSize}px solid ${colors.forest};
+    border-top: ${triangleSize}px solid ${ColorTheme.forest};
     bottom: -${triangleSize}px;
     content: "";
     display: block;
@@ -91,7 +91,21 @@ const TooltipDatum = styled.li`
 
 const formatThousands = format(",.0f");
 
-function Tooltip({ count, days, parentLine: { title } }) {
+interface TooltipProps {
+  count: number;
+  days: number;
+  parentLine: {
+    title: string;
+    [propName: string]: any;
+  };
+  [propName: string]: any;
+}
+
+const Tooltip: React.FC<TooltipProps> = ({
+  count,
+  days,
+  parentLine: { title },
+}) => {
   return (
     <TooltipContainer>
       <TooltipTitle>{title}</TooltipTitle>
@@ -101,9 +115,21 @@ function Tooltip({ count, days, parentLine: { title } }) {
       </TooltipDatalist>
     </TooltipContainer>
   );
+};
+
+interface ChartProps {
+  curveData: {
+    [propName: string]: number[];
+  };
+  hospitalBeds: number;
+  markColors: MarkColors;
 }
 
-export default function CurveChart({ curveData, hospitalBeds, markColors }) {
+const CurveChart: React.FC<ChartProps> = ({
+  curveData,
+  hospitalBeds,
+  markColors,
+}) => {
   const frameProps = {
     lines: Object.entries(curveData).map(([bucket, values]) => ({
       title: bucket,
@@ -161,4 +187,6 @@ export default function CurveChart({ curveData, hospitalBeds, markColors }) {
       <ResponsiveXYFrame {...frameProps} />
     </ChartContainer>
   );
-}
+};
+
+export default CurveChart;

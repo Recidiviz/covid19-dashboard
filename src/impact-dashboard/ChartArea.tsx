@@ -1,10 +1,10 @@
 import styled from "styled-components";
 
-import colors from "../design-system/colors";
+import ColorTheme from "../design-system/ColorTheme";
 import CurveChart from "./CurveChartContainer";
 import CurveChartLegend from "./CurveChartLegend";
 
-type MarkColors = {
+export type MarkColors = {
   exposed: string;
   infectious: string;
   hospitalized: string;
@@ -26,10 +26,10 @@ const LegendContainer = styled.div`
 
 const ChartArea: React.FC = () => {
   const markColors = {
-    exposed: colors.green,
-    infectious: colors.red,
-    hospitalized: colors.lightBlue,
-    hospitalBeds: colors.red,
+    exposed: ColorTheme.green,
+    infectious: ColorTheme.red,
+    hospitalized: ColorTheme.lightBlue,
+    hospitalBeds: ColorTheme.red,
   };
   return (
     <Container>
@@ -44,4 +44,3 @@ const ChartArea: React.FC = () => {
 };
 
 export default ChartArea;
-export { MarkColors };
