@@ -3,7 +3,7 @@ import { curveCatmullRom, format } from "d3";
 import ResponsiveXYFrame from "semiotic/lib/ResponsiveXYFrame";
 import styled from "styled-components";
 
-import ColorTheme from "../design-system/ColorTheme";
+import Colors from "../design-system/Colors";
 import { MarkColors } from "./ChartArea";
 
 const ChartContainer = styled.div`
@@ -52,7 +52,7 @@ const ChartContainer = styled.div`
 
 const triangleSize = "7";
 const TooltipContainer = styled.div`
-  background: ${ColorTheme.forest};
+  background: ${Colors.forest};
   color: #fff;
   font-family: "Rubik", sans-serif;
   min-width: 120px;
@@ -64,7 +64,7 @@ const TooltipContainer = styled.div`
   &::after {
     border-left: ${triangleSize}px solid transparent;
     border-right: ${triangleSize}px solid transparent;
-    border-top: ${triangleSize}px solid ${ColorTheme.forest};
+    border-top: ${triangleSize}px solid ${Colors.forest};
     bottom: -${triangleSize}px;
     content: "";
     display: block;

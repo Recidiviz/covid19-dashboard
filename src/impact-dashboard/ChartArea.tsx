@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import ColorTheme from "../design-system/ColorTheme";
+import Colors from "../design-system/Colors";
 import CurveChart from "./CurveChartContainer";
 import CurveChartLegend from "./CurveChartLegend";
 
@@ -26,10 +26,10 @@ const LegendContainer = styled.div`
 
 const ChartArea: React.FC = () => {
   const markColors = {
-    exposed: ColorTheme.green,
-    infectious: ColorTheme.red,
-    hospitalized: ColorTheme.lightBlue,
-    hospitalBeds: ColorTheme.red,
+    exposed: Colors.green,
+    infectious: Colors.red,
+    hospitalized: Colors.lightBlue,
+    hospitalBeds: Colors.red,
   };
   return (
     <Container>
