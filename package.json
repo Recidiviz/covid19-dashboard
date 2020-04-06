@@ -32,6 +32,7 @@
     "eslint-plugin-react": "7.19.0",
     "eslint-plugin-react-hooks": "3.0.0",
     "eslint-plugin-simple-import-sort": "5.0.2",
+    "fetch": "^1.1.0",
     "google-spreadsheet": "^3.0.10",
     "husky": "4.2.3",
     "lint-staged": "10.0.9",
@@ -44,6 +45,7 @@
     "react-hot-loader": "4.12.20",
     "react-is": "16.13.1",
     "react-router-dom": "5.1.2",
+    "regenerator-runtime": "^0.13.5",
     "resize-observer-polyfill": "^1.5.1",
     "semiotic": "1.20.5",
     "styled-components": "5.0.1",
@@ -71,5 +73,8 @@
       "eslint --cache --fix",
       "prettier --write"
     ]
-  }
+  },
+  "browserslist": [
+    "last 1 Chrome versions"
+  ]
 }

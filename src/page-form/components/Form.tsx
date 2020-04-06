@@ -32,11 +32,15 @@ const Form: React.FC<{}> = () => {
     setFormValues({ ...formValues, [field]: value });
   }
 
-  function submitForm() {
+  async function submitForm() {
     setIsSubmitting(true);
+    console.log("sending form values ", formValues);
+    const resp = await fetch(`${window.location.origin}/api/submit-form`, {
+      method: "POST",
+      body: JSON.stringify(formValues),
+    });
     setIsSubmitting(false);
     setHasSubmitted(true);
-    console.log(formValues);
   }
 
   return (

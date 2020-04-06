@@ -5,6 +5,7 @@ module.exports = async (req: NowRequest, res: NowResponse) => {
   if (!googleSheet.initialized) {
     await googleSheet.init()
   }
+  console.log(req.body)
 
   // await googleSheet.addRow(req.body as FormEntry)
   res.json({
