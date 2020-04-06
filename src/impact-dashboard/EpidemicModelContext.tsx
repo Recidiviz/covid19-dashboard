@@ -13,14 +13,12 @@ type CountyLevelRecord = {
 
 type CountyLevelData = Map<string, Map<string, CountyLevelRecord>>;
 
-type Action = { type: "update"; payload: EpidemicModelState };
+type Action = { type: "update"; payload: EpidemicModelUpdate };
 type Dispatch = (action: Action) => void;
-interface EpidemicModelInputs {
-  totalIncarcerated?: number;
-  rateOfSpreadFactor: number;
-  confirmedCases?: number;
-  usePopulationSubsets?: boolean;
-  staff?: number;
+
+// any field that we can update via reducer should be here,
+// and should probably be optional
+interface ModelInputsUpdate {
   age0?: number;
   age20?: number;
   age45?: number;
@@ -29,14 +27,34 @@ interface EpidemicModelInputs {
   age75?: number;
   age85?: number;
   ageUnknown?: number;
+  confirmedCases?: number;
+  rateOfSpreadFactor?: number;
+  staff?: number;
+  totalIncarcerated?: number;
+  usePopulationSubsets?: boolean;
 }
-interface EpidemicModelState extends EpidemicModelInputs {
-  stateCode: string; // corresponds to populationAndHospitalData keys
-  countyName: string;
-  facilityName?: string;
+// some fields are required for calculations, define them here
+interface EpidemicModelInputs extends ModelInputsUpdate {
+  rateOfSpreadFactor: number;
+  usePopulationSubsets: boolean;
+}
+
+interface MetadataUpdate {
   countyLevelData?: CountyLevelData;
   countyLevelDataLoading?: boolean;
+  countyName?: string;
+  facilityName?: string;
+  stateCode?: string;
 }
+// some fields are required to display a sensible UI, define them here
+interface Metadata extends MetadataUpdate {
+  countyLevelDataLoading: boolean;
+  stateCode: string;
+}
+
+type EpidemicModelUpdate = ModelInputsUpdate & MetadataUpdate;
+
+type EpidemicModelState = EpidemicModelInputs & Metadata;
 
 type EpidemicModelProviderProps = { children: React.ReactNode };
 
@@ -119,7 +137,6 @@ function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
           totalIncarcerated: nestedStateCounty.get("US Total")?.get("Total")
             ?.totalIncarceratedPopulation,
           countyLevelDataLoading: false,
-          rateOfSpreadFactor: 3.7,
         },
       });
     });

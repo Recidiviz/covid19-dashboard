@@ -20,8 +20,8 @@ const CurveChartContainer: React.FC<Props> = ({ markColors }) => {
           hospitalBeds={
             modelData.countyLevelData
               ?.get(modelData.stateCode)
-              // we don't show this until data is loaded so it will always be a number
-              ?.get(modelData.countyName)?.hospitalBeds as number
+              // we don't show this until data is loaded so nothing should be undefined
+              ?.get(modelData.countyName as string)?.hospitalBeds as number
           }
           markColors={markColors}
         />
