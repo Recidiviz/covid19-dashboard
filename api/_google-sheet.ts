@@ -32,7 +32,7 @@ class GoogleSheet {
 
     let private_key = PRIVATE_KEY
     if (process.env.env !== 'dev') {
-      private_key = private_key!.replace(new RegExp("\\\\n", "\g"), "\n")
+      private_key = private_key!.replace(/\\n/g, "\n")
     }
 
     const result = await this.sheet.useServiceAccountAuth({
