@@ -62,16 +62,16 @@ const TooltipContainer = styled.div`
   z-index: 100;
 
   &::after {
-    content: "";
-    display: block;
-    width: 0;
-    height: 0;
     border-left: ${triangleSize}px solid transparent;
     border-right: ${triangleSize}px solid transparent;
-    position: absolute;
     border-top: ${triangleSize}px solid ${colors.forest};
     bottom: -${triangleSize}px;
+    content: "";
+    display: block;
+    height: 0;
     left: calc(50% - ${triangleSize}px);
+    position: absolute;
+    width: 0;
   }
 `;
 
