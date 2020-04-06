@@ -117,7 +117,7 @@ const Tooltip: React.FC<TooltipProps> = ({
   );
 };
 
-interface ChartProps {
+interface CurveChartProps {
   curveData: {
     [propName: string]: number[];
   };
@@ -125,7 +125,7 @@ interface ChartProps {
   markColors: MarkColors;
 }
 
-const CurveChart: React.FC<ChartProps> = ({
+const CurveChart: React.FC<CurveChartProps> = ({
   curveData,
   hospitalBeds,
   markColors,
