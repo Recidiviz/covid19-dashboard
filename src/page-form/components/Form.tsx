@@ -27,7 +27,6 @@ const Form: React.FC<{}> = () => {
     date: new Date(),
   });
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
 
   function handleFormChange(field: string, value: string | Date) {
     setFormValues({ ...formValues, [field]: value });
@@ -51,7 +50,6 @@ const Form: React.FC<{}> = () => {
       );
     }
     setIsSubmitting(false);
-    setHasSubmitted(true);
   }
 
   return (
@@ -119,11 +117,7 @@ const Form: React.FC<{}> = () => {
         value={formValues.additionalInfo}
         onChange={(e) => handleFormChange("additionalInfo", e.target.value)}
       />
-      <Button
-        loading={isSubmitting}
-        label={hasSubmitted ? "Sent!" : "Send"}
-        onClick={submitForm}
-      />
+      <Button loading={isSubmitting} label="Send" onClick={submitForm} />
     </div>
   );
 };
