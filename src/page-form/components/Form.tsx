@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import zcta from "us-zcta-counties";
 
 import Button from "./Button";
+import DatePicker from "./DatePicker";
 import Select from "./Select";
 import TextArea from "./TextArea";
 import TextInput from "./TextInput";
@@ -9,7 +10,7 @@ import TextInput from "./TextInput";
 interface FormValues {
   email?: string;
   feedback?: string;
-  date?: string;
+  date?: Date;
   action?: string;
   state?: string;
   county?: string;
@@ -22,11 +23,12 @@ const states = zcta.getStates();
 const Form: React.FC<{}> = () => {
   const [formValues, setFormValues] = useState<FormValues>({
     state: states[0],
+    date: new Date(),
   });
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
 
-  function handleFormChange(field: string, value: string) {
+  function handleFormChange(field: string, value: string | Date) {
     setFormValues({ ...formValues, [field]: value });
   }
 
@@ -51,11 +53,9 @@ const Form: React.FC<{}> = () => {
         onChange={(e) => handleFormChange("feedback", e.target.value)}
         value={formValues.feedback}
       />
-      <TextInput
-        label="when did this occur"
-        placeholder="Date..."
-        onChange={(e) => handleFormChange("date", e.target.value)}
-        value={formValues.date}
+      <DatePicker
+        date={formValues.date}
+        setDate={(date: Date) => handleFormChange("date", date)}
       />
       <TextInput
         label="action taken"

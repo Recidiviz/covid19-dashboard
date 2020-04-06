@@ -24,8 +24,9 @@ const FormPage: React.FC = () => {
       <FormSection>
         <h1>It takes a village.</h1>
         <h2>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua.{" "}
+          Thank you for taking the time to contribute. Each submission is
+          carefully reviewed, and when accepted, will appear on the site after a
+          few days.
         </h2>
       </FormSection>
       <FormSection>
