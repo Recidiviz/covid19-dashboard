@@ -1,16 +1,25 @@
+import camelcaseKeys from "camelcase-keys";
+import { autoType, csvParse, DSVRowAny } from "d3";
+import { rollup } from "d3-array";
+import numeral from "numeral";
 import React from "react";
 
-const {
-  populationAndHospitalData,
-} = require("../page-overview/assets/dataSource") as any;
+type CountyLevelRecord = {
+  hospitalBeds: number;
+  totalIncarceratedPopulation: number;
+  totalIncarceratedCasesToDate: number;
+  [propName: string]: any;
+};
+
+type CountyLevelData = Map<string, Map<string, CountyLevelRecord>>;
 
 type Action = { type: "update"; payload: EpidemicModelState };
 type Dispatch = (action: Action) => void;
 interface EpidemicModelInputs {
-  totalIncarcerated: number;
+  totalIncarcerated?: number;
   rateOfSpreadFactor: number;
   confirmedCases?: number;
-  usePopulationSubsets: boolean;
+  usePopulationSubsets?: boolean;
   staff?: number;
   age0?: number;
   age20?: number;
@@ -23,9 +32,12 @@ interface EpidemicModelInputs {
 }
 interface EpidemicModelState extends EpidemicModelInputs {
   stateCode: string; // corresponds to populationAndHospitalData keys
-  countyName?: string;
+  countyName: string;
   facilityName?: string;
+  countyLevelData?: CountyLevelData;
+  countyLevelDataLoading?: boolean;
 }
+
 type EpidemicModelProviderProps = { children: React.ReactNode };
 
 const EpidemicModelStateContext = React.createContext<
@@ -52,11 +64,66 @@ function epidemicModelReducer(
 
 function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
   const [state, dispatch] = React.useReducer(epidemicModelReducer, {
-    stateCode: "US",
-    totalIncarcerated: populationAndHospitalData.US.incarceratedPopulation,
+    stateCode: "US Total",
+    countyName: "Total",
+    countyLevelDataLoading: true,
     rateOfSpreadFactor: 3.7,
     usePopulationSubsets: false,
   });
+
+  // fetch from external datasource
+  React.useEffect(() => {
+    fetch(
+      "https://docs.google.com/spreadsheets/d/e/2PACX-1vSeEO7JySaN21_Cxa7ON_x" +
+        "UHDM-EEOFSMIjOAoLf6YOXBurMRXZYPFi7x_aOe-0awqDcL4KZTK1NhVI/pub?gid=" +
+        "1836987932&single=true&output=csv",
+    ).then(async (response) => {
+      let rawCSV = await response.text();
+      // the first line is not the header row so we need to strip it
+      rawCSV = rawCSV.substring(rawCSV.indexOf("\n") + 1);
+
+      const parsedArray = csvParse(rawCSV, (row) => {
+        const transformedRow = autoType(row);
+        // autotype won't catch formatted thousands and percentages,
+        // so run them through numeral
+        Object.entries(transformedRow).forEach(([key, value]) => {
+          if (value && typeof value === "string") {
+            const transformedValue = numeral(value).value();
+            transformedRow[key] =
+              transformedValue === null ? value : transformedValue;
+          }
+        });
+
+        return transformedRow;
+      })
+        // rows without County are known to be junk
+        .filter((row) => !!row.County);
+
+      const nestedStateCounty = rollup(
+        parsedArray,
+        // there will only ever be one row object per county
+        // TODO: calculate confirmed cases
+        (v: object[]) => camelcaseKeys(v[0]),
+        (d: DSVRowAny) => d.State as string,
+        (d: DSVRowAny) => d.County as string,
+        // some wrong/outdated typedefs for d3 are making typescript sad
+        // but this should check out
+      ) as CountyLevelData;
+
+      dispatch({
+        type: "update",
+        payload: {
+          countyLevelData: nestedStateCounty,
+          stateCode: "US Total",
+          countyName: "Total",
+          totalIncarcerated: nestedStateCounty.get("US Total")?.get("Total")
+            ?.totalIncarceratedPopulation,
+          countyLevelDataLoading: false,
+          rateOfSpreadFactor: 3.7,
+        },
+      });
+    });
+  }, []);
 
   return (
     <EpidemicModelStateContext.Provider value={state}>
