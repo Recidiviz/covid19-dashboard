@@ -4,6 +4,8 @@ import { curveCatmullRom, format } from "d3";
 import ResponsiveXYFrame from "semiotic/lib/ResponsiveXYFrame";
 import styled from "styled-components";
 
+import colors from "../design-system/colors";
+
 const ChartContainer = styled.div`
   .frame {
     font-family: "Poppins", sans-serif;
@@ -36,24 +38,70 @@ const ChartContainer = styled.div`
     font-size: 10px;
   }
 
-  .tooltip-content {
-    background: white;
-    position: relative;
-    border: 1px solid #ddd;
-    color: black;
-    padding: 10px;
-    z-index: 100;
-    transform: translateX(-50%) translateY(5px);
-    min-width: 120px;
-  }
-
   .threshold-annotation {
     .subject {
       stroke-dasharray: 1 3;
       stroke-linecap: round;
     }
   }
+
+  circle.frame-hover {
+    display: none;
+  }
 `;
+
+const triangleSize = "7";
+const TooltipContainer = styled.div`
+  background: ${colors.forest};
+  color: #fff;
+  font-family: "Rubik", sans-serif;
+  min-width: 120px;
+  padding: 12px;
+  position: relative;
+  transform: translateX(-50%) translateY(calc(-100% - ${2 * triangleSize}px));
+  z-index: 100;
+
+  &::after {
+    content: "";
+    display: block;
+    width: 0;
+    height: 0;
+    border-left: ${triangleSize}px solid transparent;
+    border-right: ${triangleSize}px solid transparent;
+    position: absolute;
+    border-top: ${triangleSize}px solid ${colors.forest};
+    bottom: -${triangleSize}px;
+    left: calc(50% - ${triangleSize}px);
+  }
+`;
+
+const TooltipTitle = styled.div`
+  font-size: 9px;
+  font-weight: bold;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+`;
+
+const TooltipDatalist = styled.ul``;
+const TooltipDatum = styled.li`
+  opacity: 0.8;
+`;
+
+const formatThousands = format(",.0f");
+
+function Tooltip({ count, days, parentLine: { title } }) {
+  return (
+    <TooltipContainer>
+      <TooltipTitle>{title}</TooltipTitle>
+      <TooltipDatalist>
+        <TooltipDatum>Days: {days}</TooltipDatum>
+        <TooltipDatum>People: {formatThousands(count)}</TooltipDatum>
+      </TooltipDatalist>
+    </TooltipContainer>
+  );
+}
 
 export default function CurveChart({ curveData, hospitalBeds, markColors }) {
   const frameProps = {
@@ -82,7 +130,7 @@ export default function CurveChart({ curveData, hospitalBeds, markColors }) {
       {
         orient: "left",
         baseline: false,
-        tickFormat: format(",.0f"),
+        tickFormat: formatThousands,
       },
       {
         orient: "bottom",
@@ -100,6 +148,12 @@ export default function CurveChart({ curveData, hospitalBeds, markColors }) {
         disable: ["connector"],
       },
     ],
+    hoverAnnotation: true,
+    tooltipContent: Tooltip,
+    // these two options place the hover targets along the line
+    // (rather in the center of the area) but keep them invisible
+    showLinePoints: "top",
+    pointStyle: { display: "none" },
   };
 
   return (
