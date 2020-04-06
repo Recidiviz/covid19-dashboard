@@ -6,5 +6,11 @@ declare module "google-spreadsheet" {
       private_key?: string;
     });
     addRow(row: string[]);
+    loadInfo();
+
+    spreadsheetId: string;
+    title: string;
+    locale: string;
+    timezone: string;
   }
 }

@@ -30,24 +30,19 @@ class GoogleSheet {
       return
     }
 
-    try {
-      let private_key = PRIVATE_KEY
-      console.log('Private key ', private_key)
-      if (process.env.env !== 'dev') {
-        private_key = private_key!.replace(new RegExp("\\\\n", "\g"), "\n")
-        console.log('private key after stripping ', private_key)
-      }
-
-      await this.sheet.useServiceAccountAuth({
-        client_email: CLIENT_EMAIL,
-        private_key: PRIVATE_KEY,
-      })
-
-      this.initialized = true
-    } catch (e) {
-      console.log('[ERROR] \n ', e)
-      throw e
+    let private_key = PRIVATE_KEY
+    if (process.env.env !== 'dev') {
+      private_key = private_key!.replace(new RegExp("\\\\n", "\g"), "\n")
     }
+
+    const result = await this.sheet.useServiceAccountAuth({
+      client_email: CLIENT_EMAIL,
+      private_key: PRIVATE_KEY,
+    })
+    await this.sheet.loadInfo()
+
+    this.initialized = true
+    console.log('Title of google spreadsheet: ', await this.sheet.title)
   }
 
   async addRow(entry: FormEntry) {
