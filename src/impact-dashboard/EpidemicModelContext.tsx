@@ -7,7 +7,6 @@ import React from "react";
 type CountyLevelRecord = {
   hospitalBeds: number;
   totalIncarceratedPopulation: number;
-  totalIncarceratedCasesToDate: number;
   [propName: string]: any;
 };
 
@@ -120,7 +119,6 @@ function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
       const nestedStateCounty = rollup(
         parsedArray,
         // there will only ever be one row object per county
-        // TODO: calculate confirmed cases
         (v: object[]) => camelcaseKeys(v[0]),
         (d: DSVRowAny) => d.State as string,
         (d: DSVRowAny) => d.County as string,
