@@ -35,14 +35,13 @@ class GoogleSheet {
       private_key = private_key!.replace(/\\n/g, "\n")
     }
 
-    const result = await this.sheet.useServiceAccountAuth({
+    await this.sheet.useServiceAccountAuth({
       client_email: CLIENT_EMAIL,
       private_key: PRIVATE_KEY,
     })
     await this.sheet.loadInfo()
 
     this.initialized = true
-    console.log('Title of google spreadsheet: ', await this.sheet.title)
   }
 
   async addRow(entry: FormEntry) {
