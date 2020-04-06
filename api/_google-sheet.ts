@@ -26,7 +26,16 @@ class GoogleSheet {
   }
 
   async init() {
+    if (!PRIVATE_KEY || !CLIENT_EMAIL) {
+      return
+    }
+
     try {
+      let private_key = PRIVATE_KEY
+      if (process.env.env !== 'dev') {
+        private_key = private_key!.replace(new RegExp("\\\\n", "\g"), "\n")
+      }
+
       await this.sheet.useServiceAccountAuth({
         client_email: CLIENT_EMAIL,
         private_key: PRIVATE_KEY,
