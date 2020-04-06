@@ -164,6 +164,19 @@ export const GlobalStyles = createGlobalStyle`
     line-height: 1.5;
     font-weight: normal;
   }
+
+  .toast-success {
+    padding: 16px;
+    background: white;
+    display: flex;
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+  }
+
+  .toast-success button, .toast-warn button {
+    margin-left: 8px;
+  }
 `;
 
 export const ContainerTint1 = styled.div`

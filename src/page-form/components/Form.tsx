@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 import zcta from "us-zcta-counties";
 
 import Button from "./Button";
@@ -35,10 +36,20 @@ const Form: React.FC<{}> = () => {
   async function submitForm() {
     setIsSubmitting(true);
     console.log("sending form values ", formValues);
-    const resp = await fetch(`${window.location.origin}/api/submit-form`, {
-      method: "POST",
-      body: JSON.stringify(formValues),
-    });
+    try {
+      await fetch(`${window.location.origin}/api/submit-form`, {
+        method: "POST",
+        body: JSON.stringify(formValues),
+      });
+      toast.success("Form submitted! Thank you for your contribution!", {
+        className: "toast-success",
+      });
+    } catch (e) {
+      toast.warn(
+        "There was a problem submitting this form. Please try again.",
+        { className: "toast-warn" },
+      );
+    }
     setIsSubmitting(false);
     setHasSubmitted(true);
   }
