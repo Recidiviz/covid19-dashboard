@@ -3,10 +3,12 @@ import FormPage from "../page-form/FormPage";
 import GetInvolvedPage from "../page-get-involved/GetInvolvedPage";
 import OverviewPage from "../page-overview/OverviewPage";
 import TestPage from "../page-test/TestPage";
+import VerificationNeeded from "../verification-needed/VerificationNeeded";
 
 export interface PageInfo {
   path: string;
   title: string;
+  isPrivate: boolean;
   contents: React.ReactNode;
 }
 
@@ -18,26 +20,31 @@ const PageList: PageInfo[] = [
   {
     path: "/",
     title: getPageTitle(),
+    isPrivate: false,
     contents: <OverviewPage />,
   },
   {
     path: "/about",
     title: getPageTitle("About"),
+    isPrivate: false,
     contents: <AboutPage />,
   },
   {
     path: "/get-involved",
     title: getPageTitle("Get Involved"),
+    isPrivate: false,
     contents: <GetInvolvedPage />,
   },
   {
     path: "/contribute",
     title: getPageTitle("Contribute"),
+    isPrivate: true,
     contents: <FormPage />,
   },
   {
     path: "/test-page",
     title: getPageTitle("Test Page"),
+    isPrivate: true,
     contents: <TestPage />,
   },
 ];
