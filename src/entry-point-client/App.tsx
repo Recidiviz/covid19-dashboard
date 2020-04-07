@@ -4,11 +4,11 @@ import { Redirect, Route, Switch } from "react-router-dom";
 import { GlobalStyles } from "../styles";
 import PageList from "./PageList";
 import WindowTitle from "./WindowTitle";
-import PrivateRoute from "../private-route/PrivateRoute";
-import Loading from "../loading-spinner/Loading";
-import VerificationNeeded from "../verification-needed/VerificationNeeded";
+import PrivateRoute from "../auth/PrivateRoute";
+import Loading from "../design-system/Loading";
+import VerificationNeeded from "../page-verification-needed/VerificationNeeded";
 
-import { useAuth0 } from "../react-auth0-spa";
+import { useAuth0 } from "../auth/react-auth0-spa";
 
 const App: React.FC = () => {
   const { loading, user } = useAuth0();

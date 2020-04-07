@@ -5,10 +5,6 @@
 # rather than matching a pattern. This helps makes it easier for us to know when
 # it's okay to remove lines from this file.
 
-# Secrets
-auth_config.json
-auth_config*.json
-
 # Custom
 /bin/**
 
