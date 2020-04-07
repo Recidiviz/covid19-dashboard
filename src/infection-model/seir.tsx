@@ -232,7 +232,7 @@ function getCurveProjections(inputs: SimulationInputs & CurveProjectionInputs) {
     [ageGroupIndex.__length, seirIndex.__length],
   );
 
-  // initially everyone is either susceptible or infected
+  // initially everyone is either susceptible, exposed, or infected
   zip(ageGroupPopulations, ageGroupInitiallyInfected).forEach(
     ([pop, cases], index) => {
       const exposed = cases * ratioExposedToInfected;
