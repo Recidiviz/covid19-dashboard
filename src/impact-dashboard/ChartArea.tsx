@@ -7,6 +7,7 @@ import CurveChartLegend from "./CurveChartLegend";
 export type MarkColors = {
   exposed: string;
   infectious: string;
+  fatalities: string;
   hospitalized: string;
   hospitalBeds: string;
 };
@@ -27,9 +28,10 @@ const LegendContainer = styled.div`
 const ChartArea: React.FC = () => {
   const markColors = {
     exposed: Colors.green,
-    infectious: Colors.red,
+    fatalities: Colors.black,
     hospitalized: Colors.lightBlue,
     hospitalBeds: Colors.red,
+    infectious: Colors.red,
   };
   return (
     <Container>

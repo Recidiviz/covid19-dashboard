@@ -80,8 +80,9 @@ export function calculateCurves(inputs: EpidemicModelInputs) {
 
   return {
     exposed: combinePopulations(seirIndex.exposed),
-    infectious: combinePopulations(seirIndex.infectious),
+    fatalities: combinePopulations(seirIndex.fatalities),
     hospitalized: combinePopulations(seirIndex.hospitalized),
+    infectious: combinePopulations(seirIndex.infectious),
   };
 }
 
