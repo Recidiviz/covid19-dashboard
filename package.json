@@ -4,6 +4,13 @@
     "build": "parcel build index.html && echo && parcel build --target node src/entry-point-static/build.tsx && node src/entry-point-static/fixSourceMap.tsx && echo && node --enable-source-maps dist/build.js && rm -f dist/build.js dist/build.js.map",
     "clean": "rm -rf dist && rm -rf .cache",
     "dev": "parcel serve index.html",
+    "lint-all-check": "npm-run-all -s --continue-on-error lint-tsc-check lint-eslint-check lint-prettier-check",
+    "lint-all-fix": "npm-run-all -s lint-eslint-fix lint-prettier-fix",
+    "lint-eslint-check": "eslint --ignore-path .gitignore '**/*.{js,ts,tsx}'",
+    "lint-eslint-fix": "eslint --fix --ignore-path .gitignore '**/*.{js,ts,tsx}'",
+    "lint-prettier-check": "prettier --check --ignore-path .gitignore .",
+    "lint-prettier-fix": "prettier --write --ignore-path .gitignore .",
+    "lint-tsc-check": "tsc",
     "postinstall": "touch node_modules/.bin/.keep"
   },
   "dependencies": {
@@ -39,6 +46,7 @@
     "husky": "4.2.3",
     "lint-staged": "10.0.9",
     "ndarray": "1.0.19",
+    "npm-run-all": "4.1.5",
     "numeral": "2.0.6",
     "parcel": "1.12.4",
     "prettier": "2.0.2",
