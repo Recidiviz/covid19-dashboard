@@ -18,17 +18,26 @@ type Dispatch = (action: Action) => void;
 // any field that we can update via reducer should be here,
 // and should probably be optional
 interface ModelInputsUpdate {
-  age0?: number;
-  age20?: number;
-  age45?: number;
-  age55?: number;
-  age65?: number;
-  age75?: number;
-  age85?: number;
-  ageUnknown?: number;
+  age0Cases?: number;
+  age0Population?: number;
+  age20Cases?: number;
+  age20Population?: number;
+  age45Cases?: number;
+  age45Population?: number;
+  age55Cases?: number;
+  age55Population?: number;
+  age65Cases?: number;
+  age65Population?: number;
+  age75Cases?: number;
+  age75Population?: number;
+  age85Cases?: number;
+  age85Population?: number;
+  ageUnknownCases?: number;
+  ageUnknownPopulation?: number;
   confirmedCases?: number;
   rateOfSpreadFactor?: number;
-  staff?: number;
+  staffCases?: number;
+  staffPopulation?: number;
   totalIncarcerated?: number;
   usePopulationSubsets?: boolean;
 }

@@ -1,4 +1,4 @@
-import { sum } from "d3";
+import { sum, zip } from "d3-array";
 import ndarray from "ndarray";
 
 import {
@@ -15,7 +15,7 @@ interface SimulationInputs {
 interface CurveProjectionInputs {
   ageGroupPopulations: number[];
   numDays: number;
-  initiallyInfected: number;
+  ageGroupInitiallyInfected: number[];
 }
 
 interface SingleDayInputs {
@@ -138,15 +138,11 @@ function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
 
 function getCurveProjections(inputs: SimulationInputs & CurveProjectionInputs) {
   let {
+    ageGroupInitiallyInfected,
     ageGroupPopulations,
-    rateOfSpreadFactor,
     numDays,
-    initiallyInfected,
+    rateOfSpreadFactor,
   } = inputs;
-
-  // this number can't be zero;
-  // if it's missing, substitute a conservative assumption
-  initiallyInfected = initiallyInfected || 1;
 
   const ageGroupFatalityRates = [];
   ageGroupFatalityRates[ageGroupIndex.ageUnknown] = 0.026;
@@ -167,21 +163,12 @@ function getCurveProjections(inputs: SimulationInputs & CurveProjectionInputs) {
     [ageGroupIndex.__length, seirIndex.__length],
   );
 
-  // initially everyone is susceptible
-  ageGroupPopulations.forEach((pop, index) => {
-    singleDayState.set(index, seirIndex.susceptible, pop);
-  });
-  // anyone initially infected is moved from susceptible of unknown age
-  // TODO: what if this value is zero? how do we fall back?
-  singleDayState.set(
-    ageGroupIndex.ageUnknown,
-    seirIndex.infectious,
-    initiallyInfected,
-  );
-  singleDayState.set(
-    ageGroupIndex.ageUnknown,
-    seirIndex.susceptible,
-    singleDayState.get(0, seirIndex.susceptible) - initiallyInfected,
+  // initially everyone is either susceptible or infected
+  zip(ageGroupPopulations, ageGroupInitiallyInfected).forEach(
+    ([pop, cases], index) => {
+      singleDayState.set(index, seirIndex.susceptible, pop - cases);
+      singleDayState.set(index, seirIndex.infectious, cases);
+    },
   );
 
   const dailyIncarceratedProjections = [];
