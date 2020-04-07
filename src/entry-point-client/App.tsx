@@ -19,10 +19,10 @@ const App: React.FC = () => {
 
   const redirectIfUnverified = (userObject, contents) => {
     if (userObject && !userObject.email_verified) {
-      return <Redirect to="/verify" />
+      return <Redirect to="/verify" />;
     }
     return contents;
-  }
+  };
 
   return (
     <>
@@ -34,23 +34,23 @@ const App: React.FC = () => {
         </Route>
 
         {PageList.map(({ path, title, isPrivate, contents }) => {
-            if (!isPrivate) {
-              return (
-                <Route key={path} path={path} exact>
-                  <WindowTitle>{title}</WindowTitle>
-                  {redirectIfUnverified(user, contents)}
-                </Route>
-              );
-            }
+          if (!isPrivate) {
+            return (
+              <Route key={path} path={path} exact>
+                <WindowTitle>{title}</WindowTitle>
+                {redirectIfUnverified(user, contents)}
+              </Route>
+            );
+          }
 
-            if (isPrivate) {
-              return (
-                <PrivateRoute key={path} path={path} exact>
-                  <WindowTitle>{title}</WindowTitle>
-                  {redirectIfUnverified(user, contents)}
-                </PrivateRoute>
-              );
-            }
+          if (isPrivate) {
+            return (
+              <PrivateRoute key={path} path={path} exact>
+                <WindowTitle>{title}</WindowTitle>
+                {redirectIfUnverified(user, contents)}
+              </PrivateRoute>
+            );
+          }
         })}
       </Switch>
     </>

@@ -34,18 +34,31 @@ const VerificationNeeded: React.FC = () => {
                 Almost There
               </h1>
               <p className="leading-7 text-base sm:text-lg my-6">
-                Look for a verification email in your inbox and click the link in that email.
-                After you verify your email, click the button below and you will be able to reach
-                the home page.
+                Look for a verification email in your inbox and click the link
+                in that email. After you verify your email, click the button
+                below and you will be able to reach the home page.
               </p>
               <ButtonWrapper className="leading-7 text-base sm:text-lg my-6">
-                <StyledButton label="Get started" onClick={() => refreshAndNavigateAway()}>Get started</StyledButton>
+                <StyledButton
+                  label="Get started"
+                  onClick={() => refreshAndNavigateAway()}
+                >
+                  Get started
+                </StyledButton>
               </ButtonWrapper>
               <p className="leading-7 text-base sm:text-lg my-6">
-                If you have reached this page by mistake, please try to log in again.
+                If you have reached this page by mistake, please try to log in
+                again.
               </p>
               <p className="leading-7 text-base sm:text-lg">
-                If you are still having trouble, please email <a href="mailto:covid@recidiviz.org?Subject=Trouble%20logging%20in" target="_top">covid@recidiviz.org</a>.
+                If you are still having trouble, please email{" "}
+                <a
+                  href="mailto:covid@recidiviz.org?Subject=Trouble%20logging%20in"
+                  target="_top"
+                >
+                  covid@recidiviz.org
+                </a>
+                .
               </p>
             </div>
           </main>
@@ -53,6 +66,6 @@ const VerificationNeeded: React.FC = () => {
       </div>
     </div>
   );
-}
+};
 
 export default VerificationNeeded;

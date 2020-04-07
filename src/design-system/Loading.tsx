@@ -2,8 +2,8 @@ import { GlobalStyles } from "../styles";
 import BounceLoader from "react-spinners/BounceLoader";
 
 const override = {
-  display: 'block',
-  margin: '0 auto',
+  display: "block",
+  margin: "0 auto",
   position: "fixed",
   top: "50%",
   left: "50%",
@@ -15,14 +15,10 @@ const Loading: React.FC = () => {
     <>
       <GlobalStyles />
       <div>
-        <BounceLoader
-          css={override}
-          size={60}
-          color={"#005450"}
-        />
+        <BounceLoader css={override} size={60} color={"#005450"} />
       </div>
     </>
   );
-}
+};
 
 export default Loading;

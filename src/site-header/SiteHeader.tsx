@@ -33,7 +33,9 @@ const SiteHeader: React.FC = () => {
               <button onClick={() => loginWithRedirect({})}>Log In</button>
             )}
 
-            {isAuthenticated && <button onClick={() => logout()}>Log Out</button>}
+            {isAuthenticated && (
+              <button onClick={() => logout()}>Log Out</button>
+            )}
           </div>
         </div>
         {/* <!-- End Nav Items and Social Links --> */}

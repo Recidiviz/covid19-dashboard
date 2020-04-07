@@ -20,8 +20,8 @@ export const VerificationNeededPage: PageInfo = {
   path: "/verify",
   title: getPageTitle("Verification Needed"),
   isPrivate: false,
-  contents: <VerificationNeeded />
-}
+  contents: <VerificationNeeded />,
+};
 
 const PageList: PageInfo[] = [
   {
