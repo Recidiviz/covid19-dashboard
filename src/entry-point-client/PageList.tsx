@@ -16,6 +16,13 @@ function getPageTitle(...parts: string[]) {
   return [...parts, "COVID-19 Dashboard"].join(" • ");
 }
 
+export const VerificationNeededPage: PageInfo = {
+  path: "/verify",
+  title: getPageTitle("Verification Needed"),
+  isPrivate: false,
+  contents: <VerificationNeeded />
+}
+
 const PageList: PageInfo[] = [
   {
     path: "/",
