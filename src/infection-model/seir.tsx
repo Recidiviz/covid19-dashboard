@@ -135,10 +135,8 @@ function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
         ) -
         alpha * exposed;
 
-      susceptibleDelta = -(
-        (betaCells * totalInfectious * susceptible) /
-        totalPopulation
-      );
+      susceptibleDelta =
+        0 - (betaCells * totalInfectious * susceptible) / totalPopulation;
     } else {
       exposedDelta =
         Math.min(
@@ -150,12 +148,12 @@ function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
         ) -
         alpha * exposed;
 
-      susceptibleDelta = -(
+      susceptibleDelta =
+        0 -
         (facilityCellsPct * betaCells * totalInfectious * susceptible) /
           totalPopulation -
         (facilityDormitoryPct * betaDorms * totalInfectious * susceptible) /
-          totalPopulation
-      );
+          totalPopulation;
     }
   }
 
@@ -220,6 +218,7 @@ function getCurveProjections(inputs: SimulationInputs & CurveProjectionInputs) {
       (rateOfSpreadDorms - rateOfSpreadDormsAdjustment);
 
   const ratioExposedToInfected = 0.487804878;
+  const totalPopulation = sum(ageGroupPopulations);
 
   // initialize the base daily state with just susceptible and infected pops.
   // each age group is a single row
@@ -233,8 +232,9 @@ function getCurveProjections(inputs: SimulationInputs & CurveProjectionInputs) {
   zip(ageGroupPopulations, ageGroupInitiallyInfected).forEach(
     ([pop, cases], index) => {
       const exposed = cases * ratioExposedToInfected;
-      singleDayState.set(index, seirIndex.susceptible, pop - cases - exposed);
+      singleDayState.set(index, seirIndex.exposed, exposed);
       singleDayState.set(index, seirIndex.infectious, cases);
+      singleDayState.set(index, seirIndex.susceptible, pop - cases - exposed);
     },
   );
 
@@ -252,7 +252,7 @@ function getCurveProjections(inputs: SimulationInputs & CurveProjectionInputs) {
     ageGroupFatalityRates.forEach((rate, rowIndex) => {
       const projectionForAgeGroup = simulateOneDay({
         priorSimulation: getAllValues(getRowView(singleDayState, rowIndex)),
-        totalPopulation: sum(ageGroupPopulations),
+        totalPopulation,
         totalInfectious,
         rateOfSpreadCells,
         rateOfSpreadDorms,

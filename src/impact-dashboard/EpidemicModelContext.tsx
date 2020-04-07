@@ -48,6 +48,8 @@ interface ModelInputsUpdate {
 interface EpidemicModelInputs extends ModelInputsUpdate {
   rateOfSpreadFactor: RateOfSpread;
   usePopulationSubsets: boolean;
+  facilityDormitoryPct: number;
+  facilityOccupancyPct: number;
 }
 
 interface MetadataUpdate {

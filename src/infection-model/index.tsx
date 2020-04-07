@@ -64,9 +64,8 @@ export function calculateCurves(inputs: EpidemicModelInputs) {
   const curveData = getCurveProjections({
     ageGroupPopulations,
     ageGroupInitiallyInfected,
-    // TODO: the context should probably handle this
-    facilityDormitoryPct: facilityDormitoryPct || 0,
-    facilityOccupancyPct: facilityOccupancyPct || 100,
+    facilityDormitoryPct,
+    facilityOccupancyPct,
     numDays,
     rateOfSpreadFactor,
   });
