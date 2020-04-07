@@ -1,7 +1,6 @@
 import styled from "styled-components";
 
 import SiteHeader from "../site-header/SiteHeader";
-import { GlobalStyles } from "../styles";
 
 const VerificationNeeded: React.FC = () => {
   const refreshAndNavigateAway = () => {
@@ -40,10 +39,7 @@ const VerificationNeeded: React.FC = () => {
                 below and you will be able to reach the home page.
               </p>
               <ButtonWrapper className="leading-7 text-base sm:text-lg my-6">
-                <StyledButton
-                  label="Get started"
-                  onClick={() => refreshAndNavigateAway()}
-                >
+                <StyledButton onClick={() => refreshAndNavigateAway()}>
                   Get started
                 </StyledButton>
               </ButtonWrapper>

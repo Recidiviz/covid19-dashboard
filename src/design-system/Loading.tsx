@@ -16,7 +16,8 @@ const Loading: React.FC = () => {
     <>
       <GlobalStyles />
       <div>
-        <BounceLoader css={override} size={60} color={"#005450"} />
+        {/* BounceLoader's type definition might be wrong. */}
+        <BounceLoader css={override as any} size={60} color={"#005450"} />
       </div>
     </>
   );

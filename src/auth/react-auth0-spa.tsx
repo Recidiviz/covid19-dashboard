@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import createAuth0Client from "@auth0/auth0-spa-js";
 import React, { useContext, useEffect, useState } from "react";
 

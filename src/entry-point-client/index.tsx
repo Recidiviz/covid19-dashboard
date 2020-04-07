@@ -13,7 +13,7 @@ import history from "./history";
 
 // A function that routes the user to the right place
 // after login
-const onRedirectCallback = (appState) => {
+const onRedirectCallback = (appState: any) => {
   history.push(
     appState && appState.targetUrl
       ? appState.targetUrl
@@ -27,7 +27,7 @@ let element = (
     client_id={config.clientId}
     audience={config.audience}
     redirect_uri={window.location.origin}
-    onRedirectCallback={onRedirectCallback}
+    onRedirectCallback={onRedirectCallback as any}
   >
     <Router history={history}>
       <App />

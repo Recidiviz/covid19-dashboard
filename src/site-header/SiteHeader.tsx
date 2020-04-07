@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth0 } from "../auth/react-auth0-spa";
 
 const SiteHeader: React.FC = () => {
-  const { isAuthenticated, loginWithRedirect, logout } = useAuth0();
+  const { isAuthenticated, loginWithRedirect, logout } = (useAuth0 as any)();
 
   return (
     <nav className="font-semibold font-display text-sm">

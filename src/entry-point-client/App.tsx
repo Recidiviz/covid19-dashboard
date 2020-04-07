@@ -10,13 +10,13 @@ import PageList from "./PageList";
 import WindowTitle from "./WindowTitle";
 
 const App: React.FC = () => {
-  const { loading, user } = useAuth0();
+  const { loading, user } = (useAuth0 as any)();
 
   if (loading) {
     return <Loading />;
   }
 
-  const redirectIfUnverified = (userObject, contents) => {
+  const redirectIfUnverified = (userObject: any, contents: any) => {
     if (userObject && !userObject.email_verified) {
       return <Redirect to="/verify" />;
     }
@@ -40,9 +40,7 @@ const App: React.FC = () => {
                 {redirectIfUnverified(user, contents)}
               </Route>
             );
-          }
-
-          if (isPrivate) {
+          } else {
             return (
               <PrivateRoute key={path} path={path} exact>
                 <WindowTitle>{title}</WindowTitle>

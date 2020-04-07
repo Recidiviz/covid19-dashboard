@@ -6,15 +6,15 @@ import chalk from "chalk";
 import fs from "fs";
 import path from "path";
 
-import {
-  PageList,
+import PageList, {
+  PageInfo,
   VerificationNeededPage,
 } from "../entry-point-client/PageList";
 import generatePageContent from "./generatePageContent";
 
 console.log(chalk.blueBright("Rendering React statically into HTML files:"));
 
-const generatePage = (template, pageInfo) => {
+const generatePage = (template: string, pageInfo: PageInfo) => {
   let dirPath = path.join("dist", pageInfo.path);
   let filePath = path.join(dirPath, "index.html");
 
