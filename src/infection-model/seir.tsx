@@ -219,6 +219,8 @@ function getCurveProjections(inputs: SimulationInputs & CurveProjectionInputs) {
     (1 - facilityOccupancyPct) *
       (rateOfSpreadDorms - rateOfSpreadDormsAdjustment);
 
+  const ratioExposedToInfected = 0.487804878;
+
   // initialize the base daily state with just susceptible and infected pops.
   // each age group is a single row
   // each SEIR bucket is a single column
@@ -230,7 +232,8 @@ function getCurveProjections(inputs: SimulationInputs & CurveProjectionInputs) {
   // initially everyone is either susceptible or infected
   zip(ageGroupPopulations, ageGroupInitiallyInfected).forEach(
     ([pop, cases], index) => {
-      singleDayState.set(index, seirIndex.susceptible, pop - cases);
+      const exposed = cases * ratioExposedToInfected;
+      singleDayState.set(index, seirIndex.susceptible, pop - cases - exposed);
       singleDayState.set(index, seirIndex.infectious, cases);
     },
   );
