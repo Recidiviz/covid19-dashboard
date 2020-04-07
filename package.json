@@ -1,12 +1,14 @@
 {
   "private": true,
   "scripts": {
-    "build": "parcel build index.html && echo && parcel build --target node src/entry-point-static/build.tsx && echo && node dist/build.js && rm -f dist/build.js dist/build.js.map",
+    "build": "parcel build index.html && echo && parcel build --target node src/entry-point-static/build.tsx && node src/entry-point-static/fixSourceMap.tsx && echo && node --enable-source-maps dist/build.js && rm -f dist/build.js dist/build.js.map",
     "clean": "rm -rf dist && rm -rf .cache",
     "dev": "parcel serve index.html",
     "postinstall": "touch node_modules/.bin/.keep"
   },
   "dependencies": {
+    "@auth0/auth0-spa-js": "^1.6.5",
+    "@babel/runtime": "^7.9.2",
     "@hot-loader/react-dom": "16.13.0",
     "@types/d3": "5.7.2",
     "@types/ndarray": "1.0.7",
@@ -19,6 +21,7 @@
     "@typescript-eslint/eslint-plugin": "2.25.0",
     "@typescript-eslint/parser": "2.25.0",
     "babel-plugin-styled-components": "1.10.7",
+    "babel-polyfill": "^6.26.0",
     "chalk": "3.0.0",
     "d3": "5.15.0",
     "date-fns": "2.11.1",
@@ -39,6 +42,7 @@
     "react-hot-loader": "4.12.20",
     "react-is": "16.13.1",
     "react-router-dom": "5.1.2",
+    "react-spinners": "^0.8.1",
     "resize-observer-polyfill": "^1.5.1",
     "semiotic": "1.20.5",
     "styled-components": "5.0.1",
@@ -68,5 +72,8 @@
       "eslint --cache --fix",
       "prettier --write"
     ]
+  },
+  "devDependencies": {
+    "@babel/plugin-transform-runtime": "^7.9.0"
   }
 }
