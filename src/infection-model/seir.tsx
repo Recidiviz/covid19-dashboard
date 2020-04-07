@@ -60,8 +60,6 @@ enum ageGroupIndex {
 // model constants
 // days from virus exposure to infectious/contagious state
 const dIncubation = 2;
-// days from virus exposure to symptoms
-const dSymptoms = 5.1;
 // days in infectious period
 const dInfectious = 4.1;
 // days from end of infectious period to end of virus
@@ -75,7 +73,7 @@ const dHospitalFatality = 8.3;
 // probability case will be severe enough for the hospital
 const pSevereCase = 0.26;
 // factor for inferring exposure based on confirmed cases
-const ratioExposedToInfected = dIncubation / dSymptoms;
+const ratioExposedToInfected = dIncubation / dInfectious;
 
 function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
   const {
