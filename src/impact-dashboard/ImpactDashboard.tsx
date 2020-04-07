@@ -1,6 +1,7 @@
 import styled from "styled-components";
 
 import ChartArea from "./ChartArea";
+import { useEpidemicModelState } from "./EpidemicModelContext";
 
 const Container = styled.div`
   display: flex;
@@ -19,13 +20,24 @@ const ChartsContainer = styled.div`
   margin: 0 15px;
 `;
 
+const ErrorMessage = styled.div`
+  margin: 10px;
+`;
+
 const ImpactDashboard: React.FC = () => {
+  const { countyLevelDataFailed } = useEpidemicModelState();
   return (
     <Container>
-      <FormContainer>forms</FormContainer>
-      <ChartsContainer>
-        <ChartArea />
-      </ChartsContainer>
+      {countyLevelDataFailed ? (
+        <ErrorMessage>Error: unable to load data!</ErrorMessage>
+      ) : (
+        <>
+          <FormContainer>forms</FormContainer>
+          <ChartsContainer>
+            <ChartArea />
+          </ChartsContainer>
+        </>
+      )}
     </Container>
   );
 };

@@ -43,15 +43,15 @@ const TestPage: React.FC = () => {
 
   return (
     <div>
+      <h2>Test of impact dashboard</h2>
+      <div>
+        <ImpactDashboard />
+      </div>
       <h2>Test of news feed with fake data:</h2>
       <NewsFeed events={FakeNewsFeedEvents} />
       <h2>Test of news feed with data pulled from spreadsheet:</h2>
 
       {fetchedNewsFeed}
-      <h2>Test of impact dashboard</h2>
-      <div>
-        <ImpactDashboard />
-      </div>
       <p>
         You can type in this textarea and make edits in src/test/TestPage.tsx
         and save, and your textarea text should be preserved. This tests React
