@@ -1,3 +1,5 @@
+import { zip } from "d3-array";
+
 import { EpidemicModelInputs } from "../impact-dashboard/EpidemicModelContext";
 import { getAllValues, getColView } from "./matrixUtils";
 import { ageGroupIndex, getCurveProjections, seirIndex } from "./seir";
@@ -42,10 +44,19 @@ export function calculateCurves(inputs: EpidemicModelInputs) {
     numDays,
     rateOfSpreadFactor,
   });
+
+  // for these curves we combine incarcerated and staff
+  function combinePopulations(columnIndex: number) {
+    return zip(
+      getAllValues(getColView(curveData.incarcerated, columnIndex)),
+      getAllValues(getColView(curveData.staff, columnIndex)),
+    ).map(([incarcerated, staff]) => incarcerated + staff);
+  }
+
   return {
-    exposed: getAllValues(getColView(curveData, seirIndex.exposed)),
-    infectious: getAllValues(getColView(curveData, seirIndex.infectious)),
-    hospitalized: getAllValues(getColView(curveData, seirIndex.hospitalized)),
+    exposed: combinePopulations(seirIndex.exposed),
+    infectious: combinePopulations(seirIndex.infectious),
+    hospitalized: combinePopulations(seirIndex.hospitalized),
   };
 }
 

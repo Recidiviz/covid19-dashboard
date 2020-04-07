@@ -184,10 +184,12 @@ function getCurveProjections(inputs: SimulationInputs & CurveProjectionInputs) {
     singleDayState.get(0, seirIndex.susceptible) - initiallyInfected,
   );
 
-  const dailySEIRProjections = [];
+  const dailyIncarceratedProjections = [];
+  const dailyStaffProjections = [];
   let day = 0;
   while (day < numDays) {
-    const currentDayProjections = [];
+    const currentDayIncarceratedProjections = [];
+    const currentDayStaffProjections = [];
     // each day's projection needs the sum of all infectious projections so far
     const totalInfectious = sum(
       getAllValues(getColView(singleDayState, seirIndex.infectious)),
@@ -206,19 +208,29 @@ function getCurveProjections(inputs: SimulationInputs & CurveProjectionInputs) {
 
     // sum up each column to get the total daily projection for each SEIR bucket
     for (let colIndex = 0; colIndex < singleDayState.shape[1]; colIndex++) {
-      currentDayProjections.push(
-        sum(getAllValues(getColView(singleDayState, colIndex))),
+      const incarceratedValues = getAllValues(
+        getColView(singleDayState, colIndex),
       );
+      const [staffCount] = incarceratedValues.splice(ageGroupIndex.staff, 1);
+      currentDayIncarceratedProjections.push(sum(incarceratedValues));
+      currentDayStaffProjections.push(staffCount);
     }
 
     // push this day's data to a flat list of daily projections,
     // which we will build a new matrix from
-    dailySEIRProjections.push(...currentDayProjections);
+    dailyIncarceratedProjections.push(...currentDayIncarceratedProjections);
+    dailyStaffProjections.push(...currentDayStaffProjections);
     day++;
   }
 
   // this will produce a matrix with row = day and col = SEIR bucket
-  return ndarray(dailySEIRProjections, [numDays, seirIndex.__length]);
+  return {
+    incarcerated: ndarray(dailyIncarceratedProjections, [
+      numDays,
+      seirIndex.__length,
+    ]),
+    staff: ndarray(dailyStaffProjections, [numDays, seirIndex.__length]),
+  };
 }
 
 export { ageGroupIndex, getCurveProjections, seirIndex };
