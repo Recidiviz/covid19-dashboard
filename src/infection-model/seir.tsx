@@ -57,6 +57,26 @@ enum ageGroupIndex {
   __length,
 }
 
+// model constants
+// days from virus exposure to infectious/contagious state
+const dIncubation = 2;
+// days from virus exposure to symptoms
+const dSymptoms = 5.1;
+// days in infectious period
+const dInfectious = 4.1;
+// days from end of infectious period to end of virus
+const dRecoveryMild = 9.9;
+// days from end of infectious period to hospital admission
+const dHospitalLag = 2.9;
+// days from hospital admission to hospital release (non-fatality scenario)
+const dHospitalRecovery = 22;
+// days from hospital admission to deceased (fatality scenario)
+const dHospitalFatality = 8.3;
+// probability case will be severe enough for the hospital
+const pSevereCase = 0.26;
+// factor for inferring exposure based on confirmed cases
+const ratioExposedToInfected = dIncubation / dSymptoms;
+
 function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
   const {
     facilityDormitoryPct,
@@ -68,21 +88,6 @@ function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
     totalInfectious,
     totalPopulation,
   } = inputs;
-  // default constants
-  // days from virus exposure to infectious/contagious state
-  const dIncubation = 2;
-  // days in infectious period
-  const dInfectious = 4.1;
-  // days from end of infectious period to end of virus
-  const dRecoveryMild = 9.9;
-  // days from end of infectious period to hospital admission
-  const dHospitalLag = 2.9;
-  // days from hospital admission to hospital release (non-fatality scenario)
-  const dHospitalRecovery = 22;
-  // days from hospital admission to deceased (fatality scenario)
-  const dHospitalFatality = 8.3;
-  // probability case will be severe enough for the hospital
-  const pSevereCase = 0.26;
 
   const alpha = 1 / dIncubation;
   const betaCells = rateOfSpreadCells / dInfectious;
@@ -217,7 +222,6 @@ function getCurveProjections(inputs: SimulationInputs & CurveProjectionInputs) {
     (1 - facilityOccupancyPct) *
       (rateOfSpreadDorms - rateOfSpreadDormsAdjustment);
 
-  const ratioExposedToInfected = 0.487804878;
   const totalPopulation = sum(ageGroupPopulations);
 
   // initialize the base daily state with just susceptible and infected pops.
