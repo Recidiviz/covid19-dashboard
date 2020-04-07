@@ -6,13 +6,15 @@ import chalk from "chalk";
 import fs from "fs";
 import path from "path";
 
-import PageList from "../entry-point-client/PageList";
+import PageList, {
+  PageInfo,
+  VerificationNeededPage,
+} from "../entry-point-client/PageList";
 import generatePageContent from "./generatePageContent";
 
 console.log(chalk.blueBright("Rendering React statically into HTML files:"));
 
-let template = fs.readFileSync("dist/index.html", "utf-8");
-for (let pageInfo of PageList) {
+const generatePage = (template: string, pageInfo: PageInfo) => {
   let dirPath = path.join("dist", pageInfo.path);
   let filePath = path.join(dirPath, "index.html");
 
@@ -21,4 +23,11 @@ for (let pageInfo of PageList) {
   let html = generatePageContent(template, pageInfo);
   fs.mkdirSync(dirPath, { recursive: true });
   fs.writeFileSync(filePath, html);
+};
+
+let template = fs.readFileSync("dist/index.html", "utf-8");
+for (let pageInfo of PageList) {
+  generatePage(template, pageInfo);
 }
+
+generatePage(template, VerificationNeededPage);
