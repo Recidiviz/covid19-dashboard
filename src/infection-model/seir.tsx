@@ -1,6 +1,7 @@
-import { sum } from "d3";
+import { sum, zip } from "d3-array";
 import ndarray from "ndarray";
 
+import { RateOfSpread } from "../impact-dashboard/EpidemicModelContext";
 import {
   getAllValues,
   getColView,
@@ -9,13 +10,15 @@ import {
 } from "./matrixUtils";
 
 interface SimulationInputs {
-  rateOfSpreadFactor: number;
+  facilityDormitoryPct: number;
 }
 
 interface CurveProjectionInputs {
   ageGroupPopulations: number[];
   numDays: number;
-  initiallyInfected: number;
+  ageGroupInitiallyInfected: number[];
+  facilityOccupancyPct: number;
+  rateOfSpreadFactor: RateOfSpread;
 }
 
 interface SingleDayInputs {
@@ -23,6 +26,9 @@ interface SingleDayInputs {
   priorSimulation: number[];
   totalInfectious: number;
   pFatalityRate: number;
+  rateOfSpreadCells: number;
+  rateOfSpreadDorms: number;
+  simulateStaff: boolean;
 }
 
 enum seirIndex {
@@ -51,35 +57,44 @@ enum ageGroupIndex {
   __length,
 }
 
+// model constants
+// days from virus exposure to infectious/contagious state
+const dIncubation = 2;
+// days in infectious period
+const dInfectious = 4.1;
+// days from end of infectious period to end of virus
+const dRecoveryMild = 9.9;
+// days from end of infectious period to hospital admission
+const dHospitalLag = 2.9;
+// days from hospital admission to hospital release (non-fatality scenario)
+const dHospitalRecovery = 22;
+// days from hospital admission to deceased (fatality scenario)
+const dHospitalFatality = 8.3;
+// probability case will be severe enough for the hospital
+const pSevereCase = 0.26;
+// factor for inferring exposure based on confirmed cases
+const ratioExposedToInfected = dIncubation / dInfectious;
+
 function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
   const {
-    priorSimulation,
-    totalPopulation,
-    rateOfSpreadFactor,
-    totalInfectious,
+    facilityDormitoryPct,
     pFatalityRate,
+    priorSimulation,
+    rateOfSpreadCells,
+    rateOfSpreadDorms,
+    simulateStaff,
+    totalInfectious,
+    totalPopulation,
   } = inputs;
-  // default constants
-  // D_incubation: [float] days from virus exposure to infectious/contagious state
-  const dIncubation = 2;
-  // D_infectious: [float] days in infectious period
-  const dInfectious = 4.1;
-  // D_recovery_mild: [float] days from end of infectious period to end of virus
-  const dRecoveryMild = 9.9;
-  // D_hospital_lag: [float] days from end of infectious period to hospital admission
-  const dHospitalLag = 2.9;
-  // D_hospital_recovery: [integer] days from hospital admission to hospital release (non-fatality scenario)
-  const dHospitalRecovery = 22;
-  // D_hospital_fatality: [float] days from hospital admission to deceased (fatality scenario)
-  const dHospitalFatality = 8.3;
-  // P_severe_case: [float] probability case will be severe enough for the hospital
-  const pSevereCase = 0.26;
 
   const alpha = 1 / dIncubation;
-  const beta = rateOfSpreadFactor / dInfectious;
+  const betaCells = rateOfSpreadCells / dInfectious;
+  const betaDorms = rateOfSpreadDorms / dInfectious;
   const gamma = 1 / dInfectious;
 
   const pMildCase = 1 - pSevereCase;
+
+  const facilityCellsPct = 1 - facilityDormitoryPct;
 
   const [
     susceptible,
@@ -93,7 +108,9 @@ function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
     fatalities,
   ] = priorSimulation;
 
-  // Compute the deltas from the bottom of the tree up, additions to the leaf nodes are subtracted from their parent node as people flow from the root to the leaves of the tree
+  // Compute the deltas from the bottom of the tree up, additions to the
+  // leaf nodes are subtracted from their parent node as people flow
+  // from the root to the leaves of the tree
   const mildRecoveredData = mild / dRecoveryMild;
   const fatalitiesDelta =
     ((pFatalityRate / pSevereCase) * hospitalized) / dHospitalFatality;
@@ -113,14 +130,34 @@ function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
     exposedDelta = 0;
     susceptibleDelta = 0;
   } else {
-    exposedDelta =
-      Math.min(
-        susceptible,
-        (beta * totalInfectious * susceptible) / totalPopulation,
-      ) -
-      alpha * exposed;
-    susceptibleDelta =
-      (-beta * totalInfectious * susceptible) / totalPopulation;
+    if (simulateStaff) {
+      exposedDelta =
+        Math.min(
+          susceptible,
+          (betaCells * totalInfectious * susceptible) / totalPopulation,
+        ) -
+        alpha * exposed;
+
+      susceptibleDelta =
+        0 - (betaCells * totalInfectious * susceptible) / totalPopulation;
+    } else {
+      exposedDelta =
+        Math.min(
+          susceptible,
+          (facilityCellsPct * betaCells * totalInfectious * susceptible) /
+            totalPopulation +
+            (facilityDormitoryPct * betaDorms * totalInfectious * susceptible) /
+              totalPopulation,
+        ) -
+        alpha * exposed;
+
+      susceptibleDelta =
+        0 -
+        (facilityCellsPct * betaCells * totalInfectious * susceptible) /
+          totalPopulation -
+        (facilityDormitoryPct * betaDorms * totalInfectious * susceptible) /
+          totalPopulation;
+    }
   }
 
   return [
@@ -136,17 +173,27 @@ function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
   ];
 }
 
+enum R0Cells {
+  low = 2.4,
+  moderate = 3,
+  high = 3.7,
+}
+
+enum R0Dorms {
+  low = 3,
+  moderate = 5,
+  high = 7,
+}
+
 function getCurveProjections(inputs: SimulationInputs & CurveProjectionInputs) {
   let {
+    ageGroupInitiallyInfected,
     ageGroupPopulations,
-    rateOfSpreadFactor,
+    facilityDormitoryPct,
+    facilityOccupancyPct,
     numDays,
-    initiallyInfected,
+    rateOfSpreadFactor,
   } = inputs;
-
-  // this number can't be zero;
-  // if it's missing, substitute a conservative assumption
-  initiallyInfected = initiallyInfected || 1;
 
   const ageGroupFatalityRates = [];
   ageGroupFatalityRates[ageGroupIndex.ageUnknown] = 0.026;
@@ -159,6 +206,22 @@ function getCurveProjections(inputs: SimulationInputs & CurveProjectionInputs) {
   ageGroupFatalityRates[ageGroupIndex.age85] = 0.1885;
   ageGroupFatalityRates[ageGroupIndex.staff] = 0.026;
 
+  // calculate R0 adjusted for housing type and capacity
+  let rateOfSpreadCells = R0Cells[rateOfSpreadFactor];
+  const rateOfSpreadCellsAdjustment = 0.8; // magic constant
+  rateOfSpreadCells =
+    rateOfSpreadCells -
+    (1 - facilityOccupancyPct) *
+      (rateOfSpreadCells - rateOfSpreadCellsAdjustment);
+  let rateOfSpreadDorms = R0Dorms[rateOfSpreadFactor];
+  const rateOfSpreadDormsAdjustment = 1.7; // magic constant
+  rateOfSpreadDorms =
+    rateOfSpreadDorms -
+    (1 - facilityOccupancyPct) *
+      (rateOfSpreadDorms - rateOfSpreadDormsAdjustment);
+
+  const totalPopulation = sum(ageGroupPopulations);
+
   // initialize the base daily state with just susceptible and infected pops.
   // each age group is a single row
   // each SEIR bucket is a single column
@@ -167,27 +230,22 @@ function getCurveProjections(inputs: SimulationInputs & CurveProjectionInputs) {
     [ageGroupIndex.__length, seirIndex.__length],
   );
 
-  // initially everyone is susceptible
-  ageGroupPopulations.forEach((pop, index) => {
-    singleDayState.set(index, seirIndex.susceptible, pop);
-  });
-  // anyone initially infected is moved from susceptible of unknown age
-  // TODO: what if this value is zero? how do we fall back?
-  singleDayState.set(
-    ageGroupIndex.ageUnknown,
-    seirIndex.infectious,
-    initiallyInfected,
-  );
-  singleDayState.set(
-    ageGroupIndex.ageUnknown,
-    seirIndex.susceptible,
-    singleDayState.get(0, seirIndex.susceptible) - initiallyInfected,
+  // initially everyone is either susceptible, exposed, or infected
+  zip(ageGroupPopulations, ageGroupInitiallyInfected).forEach(
+    ([pop, cases], index) => {
+      const exposed = cases * ratioExposedToInfected;
+      singleDayState.set(index, seirIndex.exposed, exposed);
+      singleDayState.set(index, seirIndex.infectious, cases);
+      singleDayState.set(index, seirIndex.susceptible, pop - cases - exposed);
+    },
   );
 
-  const dailySEIRProjections = [];
+  const dailyIncarceratedProjections = [];
+  const dailyStaffProjections = [];
   let day = 0;
   while (day < numDays) {
-    const currentDayProjections = [];
+    const currentDayIncarceratedProjections = [];
+    const currentDayStaffProjections = [];
     // each day's projection needs the sum of all infectious projections so far
     const totalInfectious = sum(
       getAllValues(getColView(singleDayState, seirIndex.infectious)),
@@ -196,29 +254,42 @@ function getCurveProjections(inputs: SimulationInputs & CurveProjectionInputs) {
     ageGroupFatalityRates.forEach((rate, rowIndex) => {
       const projectionForAgeGroup = simulateOneDay({
         priorSimulation: getAllValues(getRowView(singleDayState, rowIndex)),
-        totalPopulation: sum(ageGroupPopulations),
+        totalPopulation,
         totalInfectious,
-        rateOfSpreadFactor,
+        rateOfSpreadCells,
+        rateOfSpreadDorms,
         pFatalityRate: rate,
+        facilityDormitoryPct,
+        simulateStaff: rowIndex === ageGroupIndex.staff,
       });
       setRowValues(singleDayState, rowIndex, projectionForAgeGroup);
     });
 
     // sum up each column to get the total daily projection for each SEIR bucket
     for (let colIndex = 0; colIndex < singleDayState.shape[1]; colIndex++) {
-      currentDayProjections.push(
-        sum(getAllValues(getColView(singleDayState, colIndex))),
+      const incarceratedValues = getAllValues(
+        getColView(singleDayState, colIndex),
       );
+      const [staffCount] = incarceratedValues.splice(ageGroupIndex.staff, 1);
+      currentDayIncarceratedProjections.push(sum(incarceratedValues));
+      currentDayStaffProjections.push(staffCount);
     }
 
     // push this day's data to a flat list of daily projections,
     // which we will build a new matrix from
-    dailySEIRProjections.push(...currentDayProjections);
+    dailyIncarceratedProjections.push(...currentDayIncarceratedProjections);
+    dailyStaffProjections.push(...currentDayStaffProjections);
     day++;
   }
 
   // this will produce a matrix with row = day and col = SEIR bucket
-  return ndarray(dailySEIRProjections, [numDays, seirIndex.__length]);
+  return {
+    incarcerated: ndarray(dailyIncarceratedProjections, [
+      numDays,
+      seirIndex.__length,
+    ]),
+    staff: ndarray(dailyStaffProjections, [numDays, seirIndex.__length]),
+  };
 }
 
 export { ageGroupIndex, getCurveProjections, seirIndex };
