@@ -5,6 +5,8 @@ import { useAuth0 } from "../auth/react-auth0-spa";
 const SiteHeader: React.FC = () => {
   const { isAuthenticated, loginWithRedirect, logout } = (useAuth0 as any)();
 
+  const logoutWithRedirect = () => logout({ returnTo: window.location.origin });
+
   return (
     <nav className="font-semibold font-display text-sm">
       <div className="flex justify-between h-16 flex-wrap">
@@ -35,7 +37,7 @@ const SiteHeader: React.FC = () => {
             )}
 
             {isAuthenticated && (
-              <button onClick={() => logout()}>Log Out</button>
+              <button onClick={() => logoutWithRedirect()}>Log Out</button>
             )}
           </div>
         </div>
