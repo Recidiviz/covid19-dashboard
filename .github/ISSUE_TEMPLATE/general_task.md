@@ -1,10 +1,9 @@
 ---
 name: General task
 about: Track a general task that needs to be completed
-title: ''
-labels: ''
-assignees: ''
-
+title: ""
+labels: ""
+assignees: ""
 ---
 
 **What needs to be done? Why does it need to be done?**
