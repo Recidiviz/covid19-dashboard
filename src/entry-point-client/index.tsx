@@ -1,4 +1,4 @@
-import "@babel/polyfill";
+import "regenerator-runtime/runtime";
 
 import React from "react";
 (window as any).React = React;
