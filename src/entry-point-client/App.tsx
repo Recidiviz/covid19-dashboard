@@ -1,14 +1,13 @@
 import { hot } from "react-hot-loader";
 import { Redirect, Route, Switch } from "react-router-dom";
 
+import PrivateRoute from "../auth/PrivateRoute";
+import { useAuth0 } from "../auth/react-auth0-spa";
+import Loading from "../design-system/Loading";
+import VerificationNeeded from "../page-verification-needed/VerificationNeeded";
 import { GlobalStyles } from "../styles";
 import PageList from "./PageList";
 import WindowTitle from "./WindowTitle";
-import PrivateRoute from "../auth/PrivateRoute";
-import Loading from "../design-system/Loading";
-import VerificationNeeded from "../page-verification-needed/VerificationNeeded";
-
-import { useAuth0 } from "../auth/react-auth0-spa";
 
 const App: React.FC = () => {
   const { loading, user } = useAuth0();

@@ -1,6 +1,7 @@
-import { GlobalStyles } from "../styles";
 import styled from "styled-components";
+
 import SiteHeader from "../site-header/SiteHeader";
+import { GlobalStyles } from "../styles";
 
 const VerificationNeeded: React.FC = () => {
   const refreshAndNavigateAway = () => {

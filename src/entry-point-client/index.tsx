@@ -6,10 +6,9 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { Router } from "react-router-dom";
 
-import App from "./App";
-
-import { Auth0Provider } from "../auth/react-auth0-spa";
 import config from "../auth/auth_config.json";
+import { Auth0Provider } from "../auth/react-auth0-spa";
+import App from "./App";
 import history from "./history";
 
 // A function that routes the user to the right place

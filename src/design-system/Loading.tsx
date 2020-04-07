@@ -1,5 +1,6 @@
-import { GlobalStyles } from "../styles";
 import BounceLoader from "react-spinners/BounceLoader";
+
+import { GlobalStyles } from "../styles";
 
 const override = {
   display: "block",
