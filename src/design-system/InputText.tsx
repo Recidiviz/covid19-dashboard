@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import { Label } from "./form-styles";
+import TextLabel from "./TextLabel";
 
 const Input = styled.input`
   padding: 16px;
@@ -31,10 +31,10 @@ interface Props {
   type?: string;
 }
 
-const TextInput: React.FC<Props> = (props) => {
+const InputText: React.FC<Props> = (props) => {
   return (
     <TextInputContainer>
-      <Label>{props.label}</Label>
+      <TextLabel>{props.label}</TextLabel>
       <Input
         type={props.type || "text"}
         defaultValue={props.defaultValue}
@@ -47,4 +47,4 @@ const TextInput: React.FC<Props> = (props) => {
   );
 };
 
-export default TextInput;
+export default InputText;

@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-export const Label = styled.span`
+const TextLabel = styled.span`
   text-transform: uppercase;
   font-size: 12px;
   font-weight: 100;
@@ -8,3 +8,5 @@ export const Label = styled.span`
   letter-spacing: 2px;
   color: #00413e;
 `;
+
+export default TextLabel;

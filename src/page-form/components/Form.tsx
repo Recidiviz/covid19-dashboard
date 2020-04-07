@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import zcta from "us-zcta-counties";
 
-import Button from "./Button";
-import Select from "./Select";
-import TextArea from "./TextArea";
-import TextInput from "./TextInput";
+import InputButton from "../../design-system/InputButton";
+import InputSelect from "../../design-system/InputSelect";
+import InputText from "../../design-system/InputText";
+import InputTextArea from "../../design-system/InputTextArea";
 
 interface FormValues {
   email?: string;
@@ -30,32 +30,32 @@ const Form: React.FC = () => {
 
   return (
     <div>
-      <TextInput
+      <InputText
         label="email"
         placeholder="Your email here..."
         onChange={(e) => handleFormChange("email", e.target.value)}
         value={formValues.email}
       />
-      <TextInput
+      <InputText
         label="feedback"
         placeholder="Your feedback here..."
         onChange={(e) => handleFormChange("feedback", e.target.value)}
         value={formValues.feedback}
       />
-      <TextInput
+      <InputText
         label="when did this occur"
         placeholder="Date..."
         onChange={(e) => handleFormChange("date", e.target.value)}
         value={formValues.date}
       />
-      <TextInput
+      <InputText
         label="action taken"
         placeholder="What was done?"
         onChange={(e) => handleFormChange("action", e.target.value)}
         value={formValues.action}
       />
       <div style={{ display: "flex", width: "100%" }}>
-        <Select
+        <InputSelect
           label="state"
           value={formValues.state}
           onChange={(e) => handleFormChange("state", e.target.value)}
@@ -65,8 +65,8 @@ const Form: React.FC = () => {
               {state}
             </option>
           ))}
-        </Select>
-        <Select
+        </InputSelect>
+        <InputSelect
           label="county"
           value={formValues.county}
           onChange={(e) => handleFormChange("county", e.target.value)}
@@ -81,22 +81,22 @@ const Form: React.FC = () => {
           ) : (
             <option>Please select a state first.</option>
           )}
-        </Select>
+        </InputSelect>
       </div>
-      <TextInput
+      <InputText
         value={formValues.source}
         label="source"
         defaultValue="https://"
         placeholder="What was done?"
         onChange={(e) => handleFormChange("source", e.target.value)}
       />
-      <TextArea
+      <InputTextArea
         label="additional information"
         value={formValues.additionalInfo}
         placeholder=""
         onChange={(e) => handleFormChange("additionalInfo", e.target.value)}
       />
-      <Button label="Send" />
+      <InputButton label="Send" />
     </div>
   );
 };

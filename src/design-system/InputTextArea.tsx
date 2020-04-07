@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import { Label } from "./form-styles";
+import TextLabel from "./TextLabel";
 
 interface Props {
   label?: string;
@@ -28,10 +28,10 @@ const TextAreaContainer = styled.div`
   flex-direction: column;
 `;
 
-const TextArea: React.FC<Props> = (props) => {
+const InputTextArea: React.FC<Props> = (props) => {
   return (
     <TextAreaContainer>
-      <Label>{props.label}</Label>
+      <TextLabel>{props.label}</TextLabel>
       <TextAreaInput
         onChange={props.onChange}
         value={props.value}
@@ -42,4 +42,4 @@ const TextArea: React.FC<Props> = (props) => {
   );
 };
 
-export default TextArea;
+export default InputTextArea;

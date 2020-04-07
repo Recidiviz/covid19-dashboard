@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import { Label } from "./form-styles";
+import TextLabel from "./TextLabel";
 
 interface Props {
   value?: string;
@@ -35,10 +35,10 @@ const SelectInput = styled.select`
   color: #00413e;
 `;
 
-const Select: React.FC<Props> = (props) => {
+const InputSelect: React.FC<Props> = (props) => {
   return (
     <SelectContainer>
-      <Label>{props.label}</Label>
+      <TextLabel>{props.label}</TextLabel>
       <SelectInput
         disabled={props.disabled}
         onChange={props.onChange}
@@ -51,4 +51,4 @@ const Select: React.FC<Props> = (props) => {
   );
 };
 
-export default Select;
+export default InputSelect;
