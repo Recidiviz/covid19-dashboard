@@ -5,7 +5,7 @@ import { GlobalStyles } from "../styles";
 import PageList from "./PageList";
 import WindowTitle from "./WindowTitle";
 
-const x: string = 1;
+const x = 1;
 
 const App: React.FC = () => {
   return (
