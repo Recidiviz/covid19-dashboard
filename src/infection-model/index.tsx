@@ -23,6 +23,8 @@ export function calculateCurves(inputs: EpidemicModelInputs) {
     ageUnknownCases,
     ageUnknownPopulation,
     confirmedCases,
+    facilityDormitoryPct,
+    facilityOccupancyPct,
     rateOfSpreadFactor,
     staffCases,
     staffPopulation,
@@ -62,6 +64,9 @@ export function calculateCurves(inputs: EpidemicModelInputs) {
   const curveData = getCurveProjections({
     ageGroupPopulations,
     ageGroupInitiallyInfected,
+    // TODO: the context should probably handle this
+    facilityDormitoryPct: facilityDormitoryPct || 0,
+    facilityOccupancyPct: facilityOccupancyPct || 100,
     numDays,
     rateOfSpreadFactor,
   });
@@ -81,21 +86,9 @@ export function calculateCurves(inputs: EpidemicModelInputs) {
   };
 }
 
-export function estimatePeakHospitalUse(inputs: {
-  incarceratedPopulation: number;
-  R0: number;
-  hospitalBedCapacity: number;
-}) {
-  const { incarceratedPopulation, R0, hospitalBedCapacity } = inputs;
-
-  const curves = calculateCurves({
-    usePopulationSubsets: false,
-    totalIncarcerated: incarceratedPopulation,
-    rateOfSpreadFactor: R0,
-  });
-  const bedsRequiredPerDay = curves.hospitalized;
-  const peakRequirement = Math.max(...bedsRequiredPerDay);
-  const peakUtilization = peakRequirement / hospitalBedCapacity;
-  const peakDay = bedsRequiredPerDay.indexOf(peakRequirement) + 1;
-  return { peakUtilization, peakDay };
+export function estimatePeakHospitalUse() {
+  // TODO: this function is now broken by the latest model updates
+  //  and the feature it powers is being rethought and possibly removed;
+  // come back and fix this or trash it
+  return {};
 }

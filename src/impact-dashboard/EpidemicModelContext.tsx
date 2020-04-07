@@ -15,6 +15,7 @@ type CountyLevelData = Map<string, Map<string, CountyLevelRecord>>;
 type Action = { type: "update"; payload: EpidemicModelUpdate };
 type Dispatch = (action: Action) => void;
 
+export type RateOfSpread = "low" | "moderate" | "high";
 // any field that we can update via reducer should be here,
 // and should probably be optional
 interface ModelInputsUpdate {
@@ -35,7 +36,9 @@ interface ModelInputsUpdate {
   ageUnknownCases?: number;
   ageUnknownPopulation?: number;
   confirmedCases?: number;
-  rateOfSpreadFactor?: number;
+  facilityDormitoryPct?: number;
+  facilityOccupancyPct?: number;
+  rateOfSpreadFactor?: RateOfSpread;
   staffCases?: number;
   staffPopulation?: number;
   totalIncarcerated?: number;
@@ -43,7 +46,7 @@ interface ModelInputsUpdate {
 }
 // some fields are required for calculations, define them here
 interface EpidemicModelInputs extends ModelInputsUpdate {
-  rateOfSpreadFactor: number;
+  rateOfSpreadFactor: RateOfSpread;
   usePopulationSubsets: boolean;
 }
 
@@ -93,8 +96,10 @@ function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
     stateCode: "US Total",
     countyName: "Total",
     countyLevelDataLoading: true,
-    rateOfSpreadFactor: 3.7,
+    rateOfSpreadFactor: "high",
     usePopulationSubsets: false,
+    facilityOccupancyPct: 1,
+    facilityDormitoryPct: 0.15,
   });
 
   // fetch from external datasource

@@ -1,6 +1,7 @@
 import { sum, zip } from "d3-array";
 import ndarray from "ndarray";
 
+import { RateOfSpread } from "../impact-dashboard/EpidemicModelContext";
 import {
   getAllValues,
   getColView,
@@ -9,13 +10,15 @@ import {
 } from "./matrixUtils";
 
 interface SimulationInputs {
-  rateOfSpreadFactor: number;
+  facilityDormitoryPct: number;
 }
 
 interface CurveProjectionInputs {
   ageGroupPopulations: number[];
   numDays: number;
   ageGroupInitiallyInfected: number[];
+  facilityOccupancyPct: number;
+  rateOfSpreadFactor: RateOfSpread;
 }
 
 interface SingleDayInputs {
@@ -23,6 +26,9 @@ interface SingleDayInputs {
   priorSimulation: number[];
   totalInfectious: number;
   pFatalityRate: number;
+  rateOfSpreadCells: number;
+  rateOfSpreadDorms: number;
+  simulateStaff: boolean;
 }
 
 enum seirIndex {
@@ -53,33 +59,39 @@ enum ageGroupIndex {
 
 function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
   const {
-    priorSimulation,
-    totalPopulation,
-    rateOfSpreadFactor,
-    totalInfectious,
+    facilityDormitoryPct,
     pFatalityRate,
+    priorSimulation,
+    rateOfSpreadCells,
+    rateOfSpreadDorms,
+    simulateStaff,
+    totalInfectious,
+    totalPopulation,
   } = inputs;
   // default constants
-  // D_incubation: [float] days from virus exposure to infectious/contagious state
+  // days from virus exposure to infectious/contagious state
   const dIncubation = 2;
-  // D_infectious: [float] days in infectious period
+  // days in infectious period
   const dInfectious = 4.1;
-  // D_recovery_mild: [float] days from end of infectious period to end of virus
+  // days from end of infectious period to end of virus
   const dRecoveryMild = 9.9;
-  // D_hospital_lag: [float] days from end of infectious period to hospital admission
+  // days from end of infectious period to hospital admission
   const dHospitalLag = 2.9;
-  // D_hospital_recovery: [integer] days from hospital admission to hospital release (non-fatality scenario)
+  // days from hospital admission to hospital release (non-fatality scenario)
   const dHospitalRecovery = 22;
-  // D_hospital_fatality: [float] days from hospital admission to deceased (fatality scenario)
+  // days from hospital admission to deceased (fatality scenario)
   const dHospitalFatality = 8.3;
-  // P_severe_case: [float] probability case will be severe enough for the hospital
+  // probability case will be severe enough for the hospital
   const pSevereCase = 0.26;
 
   const alpha = 1 / dIncubation;
-  const beta = rateOfSpreadFactor / dInfectious;
+  const betaCells = rateOfSpreadCells / dInfectious;
+  const betaDorms = rateOfSpreadDorms / dInfectious;
   const gamma = 1 / dInfectious;
 
   const pMildCase = 1 - pSevereCase;
+
+  const facilityCellsPct = 1 - facilityDormitoryPct;
 
   const [
     susceptible,
@@ -93,7 +105,9 @@ function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
     fatalities,
   ] = priorSimulation;
 
-  // Compute the deltas from the bottom of the tree up, additions to the leaf nodes are subtracted from their parent node as people flow from the root to the leaves of the tree
+  // Compute the deltas from the bottom of the tree up, additions to the
+  // leaf nodes are subtracted from their parent node as people flow
+  // from the root to the leaves of the tree
   const mildRecoveredData = mild / dRecoveryMild;
   const fatalitiesDelta =
     ((pFatalityRate / pSevereCase) * hospitalized) / dHospitalFatality;
@@ -113,14 +127,36 @@ function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
     exposedDelta = 0;
     susceptibleDelta = 0;
   } else {
-    exposedDelta =
-      Math.min(
-        susceptible,
-        (beta * totalInfectious * susceptible) / totalPopulation,
-      ) -
-      alpha * exposed;
-    susceptibleDelta =
-      (-beta * totalInfectious * susceptible) / totalPopulation;
+    if (simulateStaff) {
+      exposedDelta =
+        Math.min(
+          susceptible,
+          (betaCells * totalInfectious * susceptible) / totalPopulation,
+        ) -
+        alpha * exposed;
+
+      susceptibleDelta = -(
+        (betaCells * totalInfectious * susceptible) /
+        totalPopulation
+      );
+    } else {
+      exposedDelta =
+        Math.min(
+          susceptible,
+          (facilityCellsPct * betaCells * totalInfectious * susceptible) /
+            totalPopulation +
+            (facilityDormitoryPct * betaDorms * totalInfectious * susceptible) /
+              totalPopulation,
+        ) -
+        alpha * exposed;
+
+      susceptibleDelta = -(
+        (facilityCellsPct * betaCells * totalInfectious * susceptible) /
+          totalPopulation -
+        (facilityDormitoryPct * betaDorms * totalInfectious * susceptible) /
+          totalPopulation
+      );
+    }
   }
 
   return [
@@ -136,10 +172,24 @@ function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
   ];
 }
 
+enum R0Cells {
+  low = 2.4,
+  moderate = 3,
+  high = 3.7,
+}
+
+enum R0Dorms {
+  low = 3,
+  moderate = 5,
+  high = 7,
+}
+
 function getCurveProjections(inputs: SimulationInputs & CurveProjectionInputs) {
   let {
     ageGroupInitiallyInfected,
     ageGroupPopulations,
+    facilityDormitoryPct,
+    facilityOccupancyPct,
     numDays,
     rateOfSpreadFactor,
   } = inputs;
@@ -154,6 +204,20 @@ function getCurveProjections(inputs: SimulationInputs & CurveProjectionInputs) {
   ageGroupFatalityRates[ageGroupIndex.age75] = 0.074;
   ageGroupFatalityRates[ageGroupIndex.age85] = 0.1885;
   ageGroupFatalityRates[ageGroupIndex.staff] = 0.026;
+
+  // calculate R0 adjusted for housing type and capacity
+  let rateOfSpreadCells = R0Cells[rateOfSpreadFactor];
+  const rateOfSpreadCellsAdjustment = 0.8; // magic constant
+  rateOfSpreadCells =
+    rateOfSpreadCells -
+    (1 - facilityOccupancyPct) *
+      (rateOfSpreadCells - rateOfSpreadCellsAdjustment);
+  let rateOfSpreadDorms = R0Dorms[rateOfSpreadFactor];
+  const rateOfSpreadDormsAdjustment = 1.7; // magic constant
+  rateOfSpreadDorms =
+    rateOfSpreadDorms -
+    (1 - facilityOccupancyPct) *
+      (rateOfSpreadDorms - rateOfSpreadDormsAdjustment);
 
   // initialize the base daily state with just susceptible and infected pops.
   // each age group is a single row
@@ -187,8 +251,11 @@ function getCurveProjections(inputs: SimulationInputs & CurveProjectionInputs) {
         priorSimulation: getAllValues(getRowView(singleDayState, rowIndex)),
         totalPopulation: sum(ageGroupPopulations),
         totalInfectious,
-        rateOfSpreadFactor,
+        rateOfSpreadCells,
+        rateOfSpreadDorms,
         pFatalityRate: rate,
+        facilityDormitoryPct,
+        simulateStaff: rowIndex === ageGroupIndex.staff,
       });
       setRowValues(singleDayState, rowIndex, projectionForAgeGroup);
     });
