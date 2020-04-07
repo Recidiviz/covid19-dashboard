@@ -7,8 +7,8 @@ on:
   pull_request:
 
 jobs:
-  lint-check:
-    name: yarn lint-check
+  lint-all-check:
+    name: yarn lint-all-check
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v1
@@ -36,4 +36,4 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - run: yarn install
-      - run: yarn run lint-check
+      - run: yarn run lint-all-check
