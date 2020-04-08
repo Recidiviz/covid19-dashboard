@@ -4,6 +4,7 @@ const Colors = {
   forest: "#005450",
   lightBlue: "#33B6FF",
   red: "#FF464A",
+  grey: "#D2DBDB",
 };
 
 export default Colors;
