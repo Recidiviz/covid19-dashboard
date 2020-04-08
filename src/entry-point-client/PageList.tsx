@@ -43,12 +43,6 @@ const PageList: PageInfo[] = [
     contents: <GetInvolvedPage />,
   },
   {
-    path: "/contribute",
-    title: getPageTitle("Contribute"),
-    isPrivate: true,
-    contents: <FormPage />,
-  },
-  {
     path: "/test-page",
     title: getPageTitle("Test Page"),
     isPrivate: true,
