@@ -1,4 +1,4 @@
-import { isEqual } from "lodash";
+import { isEqual as isGenerallyEqual } from "lodash";
 import queryString from "query-string";
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
@@ -15,8 +15,26 @@ interface UseQueryParamsOutput {
   replaceValues: (newValues: QueryParams) => void;
 }
 
+// Just supports depth of 1 right now - if we need to check nested query params, please update this function.
+function isEqual(
+  currentValues: QueryParams,
+  nextValues: QueryParams,
+  validKeys?: string[],
+) {
+  if (!validKeys) {
+    return isGenerallyEqual(currentValues, nextValues);
+  }
+  return validKeys.every((key) => {
+    return currentValues[key] === nextValues[key];
+  });
+}
+
 // A basic hook for fetching query param values and setting query param values
-const useQueryParams = (defaultValues: QueryParams): UseQueryParamsOutput => {
+// Optionally pass in an array of valid keys if you want to be strict about your set of query parameters
+const useQueryParams = (
+  defaultValues: QueryParams,
+  validKeys?: string[],
+): UseQueryParamsOutput => {
   const history = useHistory();
 
   const defaultQueryParams = queryString.parse(
@@ -32,9 +50,11 @@ const useQueryParams = (defaultValues: QueryParams): UseQueryParamsOutput => {
 
   // If values have been updated, also set the query params
   useEffect(() => {
-    const currentQuery = queryString.parse(history.location.search);
+    const currentQuery = queryString.parse(
+      history.location.search,
+    ) as QueryParams;
 
-    if (!isEqual(currentQuery, values)) {
+    if (!isEqual(currentQuery, values, validKeys)) {
       const newLocation = {
         ...history.location,
         search: queryString.stringify(values),
@@ -52,7 +72,7 @@ const useQueryParams = (defaultValues: QueryParams): UseQueryParamsOutput => {
   useEffect(() => {
     const nextValues = queryString.parse(location.search) as QueryParams;
 
-    if (!isEqual(values, nextValues)) {
+    if (!isEqual(values, nextValues, validKeys)) {
       setValues(nextValues);
     }
   }, [history.location.search]);
