@@ -31,12 +31,6 @@ const PageList: PageInfo[] = [
     contents: <OverviewPage />,
   },
   {
-    path: "/about",
-    title: getPageTitle("About"),
-    isPrivate: false,
-    contents: <AboutPage />,
-  },
-  {
     path: "/get-involved",
     title: getPageTitle("Get Involved"),
     isPrivate: false,

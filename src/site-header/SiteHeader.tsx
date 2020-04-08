@@ -22,9 +22,6 @@ const SiteHeader: React.FC = () => {
         </div>
         {/* <!-- Nav Items and Social Links --> */}
         <div className="flex items-center justify-between">
-          <Link to="/about" className="mr-4 px-1 pt-1 font-medium text-green">
-            About
-          </Link>
           <Link
             to="/get-involved"
             className="mx-4 px-1 pt-1 font-medium text-green"
