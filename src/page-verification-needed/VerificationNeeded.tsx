@@ -20,6 +20,7 @@ const ButtonWrapper = styled.div`
 
 const VerificationNeeded: React.FC = () => {
   const refreshAndNavigateAway = () => {
+    console.log("Navigting...");
     window.location.href = "/";
   };
 
