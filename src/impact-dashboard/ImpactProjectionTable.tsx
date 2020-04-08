@@ -25,7 +25,6 @@ const Table = styled.table`
   letter-spacing: 0;
   text-align: center;
   width: 100%;
-  max-width: 600px;
 
   th,
   td {
