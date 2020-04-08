@@ -23,18 +23,18 @@ const TextInputContainer = styled.div`
 `;
 
 interface Props {
-  label: string;
+  type?: string;
+  label?: string;
   placeholder?: string;
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   defaultValue?: string;
-  type?: string;
 }
 
 const InputText: React.FC<Props> = (props) => {
   return (
     <TextInputContainer>
-      <TextLabel>{props.label}</TextLabel>
+      {props.label ?? <TextLabel>{props.label}</TextLabel>}
       <Input
         type={props.type || "text"}
         defaultValue={props.defaultValue}
@@ -43,6 +43,7 @@ const InputText: React.FC<Props> = (props) => {
         onChange={props.onChange}
         name={props.label}
       />
+      {props.children}
     </TextInputContainer>
   );
 };

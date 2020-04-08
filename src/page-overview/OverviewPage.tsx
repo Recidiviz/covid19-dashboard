@@ -1,10 +1,10 @@
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
+import InputTextNumeric from "../design-system/InputTextNumeric";
 import ImpactDashboard from "../impact-dashboard";
 import SiteHeader from "../site-header/SiteHeader";
 
-const OverviewPageDiv = styled.div``;
 const Headline = styled.h1`
   color: ${Colors.forest};
   font-size: 36px;
@@ -12,6 +12,8 @@ const Headline = styled.h1`
   margin-top: 30px;
   text-align: center;
 `;
+
+const OverviewPageDiv = styled.div``;
 
 const OverviewPage: React.FC = () => {
   return (

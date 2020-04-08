@@ -49,6 +49,9 @@
     // very noisy with Prettier violations that get autocorrected anyway.
     "prettier/prettier": "off",
 
+    // Quotes and apostrophes are more readable when not escaped.
+    "react/no-unescaped-entities": "off",
+
     // We use TypeScript props interfaces, which is mostly redundant with prop
     // types.
     "react/prop-types": "off",
