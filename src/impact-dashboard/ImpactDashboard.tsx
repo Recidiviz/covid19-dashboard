@@ -68,18 +68,10 @@ const LocaleInformation: React.FC = () => {
 
   return (
     <LocaleInformationDiv>
-      <InputSelect label="Type of system" value="" onChange={() => undefined}>
-        <option value="" disabled>
-          Choose an option
-        </option>
-        <option value="federal">Federal Prison</option>
-        <option value="state">State Prison</option>
-        <option value="county">County Jail</option>
-      </InputSelect>
-      <InputSelect label="State" onChange={() => undefined}>
-        <option value="" disabled>
-          Choose an option
-        </option>
+      <InputSelect label="State" value="us" onChange={() => undefined}>
+        <option value="us">US Total</option>
+        <option value="al">Alabama</option>
+        <option value="ak">Alaska</option>
       </InputSelect>
       <InputSelect label="County" onChange={() => undefined}>
         <option value="" disabled>
