@@ -2,26 +2,26 @@ import styled from "styled-components";
 
 import SiteHeader from "../site-header/SiteHeader";
 
+const StyledButton = styled.button`
+  background: #00615c;
+  font-size: 16px;
+  border-radius: 12px;
+  color: white;
+  font-family: "Poppins", sans-serif;
+  height: 48px;
+  width: 200px;
+  outline: none;
+`;
+
+const ButtonWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+
 const VerificationNeeded: React.FC = () => {
   const refreshAndNavigateAway = () => {
     window.location.href = "/";
   };
-
-  const StyledButton = styled.button`
-    background: #00615c;
-    font-size: 16px;
-    border-radius: 12px;
-    color: white;
-    font-family: "Poppins", sans-serif;
-    height: 48px;
-    width: 200px;
-    outline: none;
-  `;
-
-  const ButtonWrapper = styled.div`
-    display: flex;
-    justify-content: center;
-  `;
 
   return (
     <div>
