@@ -78,8 +78,7 @@ function getPeakHospitalized(data: ndarray, hospitalBeds: number): PeakData {
 
 const ImpactProjectionTableContainer: React.FC = () => {
   const modelData = useEpidemicModelState();
-  // TODO: real number for this
-  const hospitalBeds = 12345;
+  const { hospitalBeds } = modelData;
   // TODO: could this be stored on the context instead for reuse?
   const { incarcerated, staff } = calculateCurves(modelData);
   const incarceratedData: TableRow[] = [
@@ -104,8 +103,6 @@ const ImpactProjectionTableContainer: React.FC = () => {
     buildTableRowFromCurves(incarcerated, "Deceased", getFatalitiesForDay),
   );
   const staffData: TableRow[] = [
-    // TODO: should this be "infected" not including exposed instead?
-    // Alternatively should it be called "Cases"?
     buildTableRowFromCurves(staff, "Infected", countCasesForDay),
     Object.assign(
       buildTableRowFromCurves(staff, "Unable to work", countUnableToWorkForDay),
