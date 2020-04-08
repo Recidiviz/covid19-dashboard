@@ -1,8 +1,5 @@
-import AboutPage from "../page-about/AboutPage";
-import FormPage from "../page-form/FormPage";
 import GetInvolvedPage from "../page-get-involved/GetInvolvedPage";
 import OverviewPage from "../page-overview/OverviewPage";
-import TestPage from "../page-test/TestPage";
 import VerificationNeeded from "../page-verification-needed/VerificationNeeded";
 
 export interface PageInfo {
