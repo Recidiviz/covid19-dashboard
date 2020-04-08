@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@auth0/auth0-spa-js": "^1.6.5",
+    "@babel/preset-env": "^7.9.5",
     "@babel/runtime": "^7.9.2",
     "@hot-loader/react-dom": "16.13.0",
     "@popperjs/core": "2.2.1",
@@ -99,17 +100,5 @@
   "devDependencies": {
     "@babel/plugin-transform-runtime": "^7.9.0"
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version",
-      "ie 11"
-    ]
-  }
+  "browserslist": ">0.2%, not dead, not op_mini all, ie 11"
 }
