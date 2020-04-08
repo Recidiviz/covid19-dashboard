@@ -82,6 +82,7 @@ const LocaleInformation: React.FC = () => {
   const [model, updateModel, resetModel] = useModel();
 
   const [stateList, updateStateList] = useState([{ value: "US Total" }]);
+  const [countyList, updateCountyList] = useState([{ value: "Total" }]);
 
   useEffect(() => {
     if (typeof model.countyLevelData !== "undefined") {
@@ -91,6 +92,21 @@ const LocaleInformation: React.FC = () => {
       updateStateList(newStateList);
     }
   }, [model.countyLevelData]);
+
+  useEffect(() => {
+    const countyLevelData = model.countyLevelData;
+    const stateCode = model.stateCode;
+    if (countyLevelData !== undefined && stateCode !== undefined) {
+      // TODO: TS is complaining about things being undefined
+      // despite the above checks; replace these assertions
+      // with proper type guards
+      const keys = countyLevelData?.get(stateCode)?.keys();
+      const newCountyList = Array.from(
+        keys as Iterable<string>,
+      ).map((value) => ({ value }));
+      updateCountyList(newCountyList);
+    }
+  }, [model.countyLevelData, model.stateCode]);
 
   return (
     <LocaleInformationDiv>
@@ -107,10 +123,18 @@ const LocaleInformation: React.FC = () => {
           </option>
         ))}
       </InputSelect>
-      <InputSelect label="County" onChange={() => undefined}>
-        <option value="" disabled>
-          Choose an option
-        </option>
+      <InputSelect
+        label="County"
+        value={model.countyName}
+        onChange={(event) => {
+          resetModel(model.stateCode, event.target.value);
+        }}
+      >
+        {countyList.map(({ value }) => (
+          <option key={value} value={value}>
+            {value}
+          </option>
+        ))}
       </InputSelect>
       <InputTextNumeric
         type="number"
