@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
@@ -53,7 +54,21 @@ function useModel() {
     dispatch({ type: "update", payload: update });
   }
 
-  return [model, updateModel] as [typeof model, typeof updateModel];
+  function resetModel(stateCode?: string, countyName?: string) {
+    dispatch({
+      type: "reset",
+      payload: Object.assign(
+        { dataSource: model.countyLevelData },
+        { stateCode, countyName },
+      ),
+    });
+  }
+
+  return [model, updateModel, resetModel] as [
+    typeof model,
+    typeof updateModel,
+    typeof resetModel,
+  ];
 }
 
 /* Locale Information */
@@ -64,19 +79,62 @@ const LocaleInformationDiv = styled.div`
 `;
 
 const LocaleInformation: React.FC = () => {
-  const [model, updateModel] = useModel();
+  const [model, updateModel, resetModel] = useModel();
+
+  const [stateList, updateStateList] = useState([{ value: "US Total" }]);
+  const [countyList, updateCountyList] = useState([{ value: "Total" }]);
+
+  useEffect(() => {
+    if (typeof model.countyLevelData !== "undefined") {
+      const newStateList = Array.from(
+        model.countyLevelData.keys(),
+      ).map((key) => ({ value: key }));
+      updateStateList(newStateList);
+    }
+  }, [model.countyLevelData]);
+
+  useEffect(() => {
+    const countyLevelData = model.countyLevelData;
+    const stateCode = model.stateCode;
+    if (countyLevelData !== undefined && stateCode !== undefined) {
+      // TODO: TS is complaining about things being undefined
+      // despite the above checks; replace these assertions
+      // with proper type guards
+      const keys = countyLevelData?.get(stateCode)?.keys();
+      const newCountyList = Array.from(
+        keys as Iterable<string>,
+      ).map((value) => ({ value }));
+      updateCountyList(newCountyList);
+    }
+  }, [model.countyLevelData, model.stateCode]);
 
   return (
     <LocaleInformationDiv>
-      <InputSelect label="State" value="us" onChange={() => undefined}>
-        <option value="us">US Total</option>
-        <option value="al">Alabama</option>
-        <option value="ak">Alaska</option>
+      <InputSelect
+        label="State"
+        value={model.stateCode}
+        onChange={(event) => {
+          resetModel(event.target.value);
+        }}
+      >
+        {stateList.map(({ value }) => (
+          <option key={value} value={value}>
+            {value}
+          </option>
+        ))}
       </InputSelect>
-      <InputSelect label="County" onChange={() => undefined}>
-        <option value="" disabled>
-          Choose an option
-        </option>
+      <InputSelect
+        label="County"
+        value={model.countyName}
+        onChange={(event) => {
+          resetModel(model.stateCode, event.target.value);
+        }}
+      >
+        {countyList.map(({ value }) => (
+          <option key={value} value={value}>
+            {value}
+          </option>
+        ))}
       </InputSelect>
       <InputTextNumeric
         type="number"

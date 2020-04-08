@@ -13,10 +13,23 @@ type CountyLevelRecord = {
 
 type CountyLevelData = Map<string, Map<string, CountyLevelRecord>>;
 
-type Action = { type: "update"; payload: EpidemicModelUpdate };
+type Action =
+  | { type: "update"; payload: EpidemicModelUpdate }
+  | {
+      type: "reset";
+      payload: {
+        dataSource?: CountyLevelData;
+        stateCode?: string;
+        countyName?: string;
+      };
+    };
 type Dispatch = (action: Action) => void;
 
-export type RateOfSpread = "low" | "moderate" | "high";
+export enum RateOfSpread {
+  low = "low",
+  moderate = "moderate",
+  high = "high",
+}
 // any field that we can update via reducer should be here,
 // and should probably be optional
 interface ModelInputsUpdate {
@@ -82,6 +95,49 @@ const EpidemicModelDispatchContext = React.createContext<Dispatch | undefined>(
   undefined,
 );
 
+interface ResetPayload {
+  dataSource?: CountyLevelData;
+  stateCode?: string;
+  countyName?: string;
+}
+
+function getResetState(payload: ResetPayload): EpidemicModelState {
+  const { dataSource, stateCode = "US Total", countyName = "Total" } = payload;
+  // some defaults can (indeed, must) bet set even without external data
+  const resetBase = {
+    countyLevelData: dataSource,
+    stateCode,
+    countyName: countyName,
+    rateOfSpreadFactor: RateOfSpread.high,
+    // in the current UI we are always using age brackets
+    // TODO: maybe this field is no longer needed?
+    usePopulationSubsets: true,
+    facilityOccupancyPct: 1,
+    facilityDormitoryPct: 0.15,
+    hospitalBeds: 0,
+    countyLevelDataLoading: true,
+  };
+  let seedData = {};
+  if (typeof dataSource !== "undefined") {
+    seedData = {
+      countyLevelDataLoading: false,
+      totalIncarcerated: dataSource.get(stateCode)?.get(countyName)
+        ?.totalIncarceratedPopulation,
+      hospitalBeds: dataSource.get(stateCode)?.get(countyName)?.hospitalBeds,
+      ageUnknownPopulation: dataSource.get(stateCode)?.get(countyName)
+        ?.totalIncarceratedPopulation,
+      ageUnknownCases: dataSource.get(stateCode)?.get(countyName)
+        ?.estimatedIncarceratedCases,
+      confirmedCases: dataSource.get(stateCode)?.get(countyName)
+        ?.estimatedIncarceratedCases,
+      staffCases: 0,
+      staffPopulation: 0,
+    };
+  }
+
+  return Object.assign({}, resetBase, seedData);
+}
+
 function epidemicModelReducer(
   state: EpidemicModelState,
   action: Action,
@@ -93,6 +149,9 @@ function epidemicModelReducer(
       // action and merge the whole object into previous state.
       // it's not very granular but it doesn't need to be at the moment
       return Object.assign({}, state, action.payload);
+    case "reset":
+      console.log(action.payload);
+      return getResetState(action.payload);
   }
 }
 
@@ -100,16 +159,10 @@ function epidemicModelReducer(
 const caseReportingRate = 0.14;
 
 function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
-  const [state, dispatch] = React.useReducer(epidemicModelReducer, {
-    stateCode: "US Total",
-    countyName: "Total",
-    countyLevelDataLoading: true,
-    rateOfSpreadFactor: "high",
-    usePopulationSubsets: false,
-    facilityOccupancyPct: 1,
-    facilityDormitoryPct: 0.15,
-    hospitalBeds: 0,
-  });
+  const [state, dispatch] = React.useReducer(
+    epidemicModelReducer,
+    getResetState({}),
+  );
 
   // fetch from external datasource
   React.useEffect(() => {
@@ -146,10 +199,12 @@ function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
               state: row.State || "",
               hospitalBeds: numeral(row["Hospital Beds"]).value() || 0,
               totalIncarceratedPopulation,
-              estimatedIncarceratedCases: totalPopulation
-                ? (totalIncarceratedPopulation / totalPopulation) *
-                  estimatedTotalCases
-                : 0,
+              estimatedIncarceratedCases: Math.round(
+                totalPopulation
+                  ? (totalIncarceratedPopulation / totalPopulation) *
+                      estimatedTotalCases
+                  : 0,
+              ),
             };
           },
         )
@@ -167,19 +222,8 @@ function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
         ) as CountyLevelData;
 
         dispatch({
-          type: "update",
-          payload: {
-            countyLevelData: nestedStateCounty,
-            stateCode: "US Total",
-            countyName: "Total",
-            totalIncarcerated: nestedStateCounty.get("US Total")?.get("Total")
-              ?.totalIncarceratedPopulation,
-            hospitalBeds: nestedStateCounty.get("US Total")?.get("Total")
-              ?.hospitalBeds,
-            confirmedCases: nestedStateCounty.get("US Total")?.get("Total")
-              ?.estimatedIncarceratedCases,
-            countyLevelDataLoading: false,
-          },
+          type: "reset",
+          payload: { dataSource: nestedStateCounty },
         });
       } catch (error) {
         console.error(error);
