@@ -43,6 +43,7 @@
     "eslint-plugin-react": "7.19.0",
     "eslint-plugin-react-hooks": "3.0.0",
     "eslint-plugin-simple-import-sort": "5.0.2",
+    "hex-alpha": "^1.0.2",
     "husky": "4.2.3",
     "lint-staged": "10.0.9",
     "ndarray": "1.0.19",

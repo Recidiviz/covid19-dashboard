@@ -1,9 +1,17 @@
 import styled from "styled-components";
 
+import Colors from "../design-system/Colors";
 import ImpactDashboard from "../impact-dashboard";
 import SiteHeader from "../site-header/SiteHeader";
 
 const OverviewPageDiv = styled.div``;
+const Headline = styled.h1`
+  color: ${Colors.forest};
+  font-size: 36px;
+  margin-bottom: 72px;
+  margin-top: 30px;
+  text-align: center;
+`;
 
 const OverviewPage: React.FC = () => {
   return (
@@ -12,6 +20,9 @@ const OverviewPage: React.FC = () => {
         <div className="max-w-screen-xl px-4 mx-auto">
           <SiteHeader />
           <main className="my-6">
+            <Headline>
+              Customize the COVID-19 Incarceration Model for your facilities
+            </Headline>
             <ImpactDashboard />
           </main>
         </div>
