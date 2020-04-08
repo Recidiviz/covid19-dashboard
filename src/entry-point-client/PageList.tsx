@@ -42,12 +42,6 @@ const PageList: PageInfo[] = [
     isPrivate: false,
     contents: <GetInvolvedPage />,
   },
-  {
-    path: "/test-page",
-    title: getPageTitle("Test Page"),
-    isPrivate: true,
-    contents: <TestPage />,
-  },
 ];
 
 export default PageList;
