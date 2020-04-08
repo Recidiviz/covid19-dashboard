@@ -33,6 +33,17 @@ function buildTableRowFromCurves(
   };
 }
 
+function countEverHospitalizedForDay(data: ndarray, day: number) {
+  // includes people who are currently hospitalized or were previously
+  const everHospitalized = [
+    seirIndex.hospitalized,
+    seirIndex.severeRecovered,
+    seirIndex.fatalities,
+  ];
+  const row = getAllValues(getRowView(data, day));
+  return Math.round(sum(row.filter((d, i) => everHospitalized.includes(i))));
+}
+
 // row = day and col = SEIR bucket
 function countCasesForDay(data: ndarray, day: number): number {
   const row = getAllValues(getRowView(data, day));
@@ -68,12 +79,26 @@ type PeakData = {
 function getPeakHospitalized(data: ndarray, hospitalBeds: number): PeakData {
   const hospitalized = getAllValues(getColView(data, seirIndex.hospitalized));
   const peakHospitalized = Math.max(...hospitalized);
+  const daysUntil50Pct = hospitalized.findIndex(
+    (val) => val / hospitalBeds > 0.5,
+  );
   return {
     peakDay: hospitalized.indexOf(peakHospitalized) + 1,
     peakPct: peakHospitalized / hospitalBeds,
-    daysUntil50Pct:
-      hospitalized.find((val) => val / hospitalBeds > 0.5) || null,
+    daysUntil50Pct: daysUntil50Pct > -1 ? daysUntil50Pct + 1 : null,
   };
+}
+
+function buildHospitalizedRow(data: ndarray): TableRow {
+  const row = buildTableRowFromCurves(
+    data,
+    "In hospital",
+    getHospitalizedForDay,
+  );
+  // overall hospitalized is a different calculation, it's everyone
+  // who was ever hospitalized
+  row.overall = countEverHospitalizedForDay(data, data.shape[0] - 1);
+  return row;
 }
 
 const ImpactProjectionTableContainer: React.FC = () => {
@@ -84,11 +109,8 @@ const ImpactProjectionTableContainer: React.FC = () => {
   const incarceratedData: TableRow[] = [
     buildTableRowFromCurves(incarcerated, "Cases", countCasesForDay),
   ];
-  const incarceratedHospitalized = buildTableRowFromCurves(
-    incarcerated,
-    "In hospital",
-    getHospitalizedForDay,
-  );
+  const incarceratedHospitalized = buildHospitalizedRow(incarcerated);
+
   incarceratedData.push(incarceratedHospitalized);
   incarceratedData.push({
     label: "% of public hospital beds used for incarc. pop.",
@@ -102,13 +124,14 @@ const ImpactProjectionTableContainer: React.FC = () => {
   incarceratedData.push(
     buildTableRowFromCurves(incarcerated, "Deceased", getFatalitiesForDay),
   );
+
   const staffData: TableRow[] = [
     buildTableRowFromCurves(staff, "Infected", countCasesForDay),
     Object.assign(
       buildTableRowFromCurves(staff, "Unable to work", countUnableToWorkForDay),
       { overall: null },
     ),
-    buildTableRowFromCurves(staff, "In hospital", getHospitalizedForDay),
+    buildHospitalizedRow(staff),
     buildTableRowFromCurves(staff, "Deceased", getFatalitiesForDay),
   ];
   const peakStats = getPeakHospitalized(incarcerated, hospitalBeds);
