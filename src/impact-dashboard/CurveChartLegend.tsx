@@ -27,6 +27,7 @@ const CurveChartLegend: React.FC<Props> = ({ markColors }) => {
       <LegendItem color={markColors.exposed}>exposed</LegendItem>
       <LegendItem color={markColors.infectious}>infectious</LegendItem>
       <LegendItem color={markColors.hospitalized}>hospitalized</LegendItem>
+      <LegendItem color={markColors.fatalities}>fatalities</LegendItem>
     </LegendWrapper>
   );
 };

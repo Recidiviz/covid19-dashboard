@@ -75,7 +75,7 @@ const TestPage: React.FC = () => {
       <div>
         <h1> h1 </h1>
         <p> paragraph </p>
-        <body> body </body>
+        <div> div </div>
         <div className="description"> description </div>
         <div className="nav-link">nav-link</div>
         <div className="metric">metric</div>

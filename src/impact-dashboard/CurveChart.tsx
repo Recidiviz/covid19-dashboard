@@ -7,6 +7,8 @@ import Colors from "../design-system/Colors";
 import { MarkColors } from "./ChartArea";
 
 const ChartContainer = styled.div`
+  height: 380px;
+
   .frame {
     font-family: "Poppins", sans-serif;
     font-size: 11px;
@@ -142,6 +144,7 @@ const CurveChart: React.FC<CurveChartProps> = ({
     lineType: { type: "area", interpolator: curveCatmullRom },
     xAccessor: "days",
     yAccessor: "count",
+    responsiveHeight: true,
     responsiveWidth: true,
     size: [450, 450],
     yExtent: { extent: [0], includeAnnotations: true },

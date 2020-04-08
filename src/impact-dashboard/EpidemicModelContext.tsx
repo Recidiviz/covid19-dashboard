@@ -59,10 +59,12 @@ interface MetadataUpdate {
   countyName?: string;
   facilityName?: string;
   stateCode?: string;
+  hospitalBeds?: number;
 }
 // some fields are required to display a sensible UI, define them here
 interface Metadata extends MetadataUpdate {
   stateCode: string;
+  hospitalBeds: number;
 }
 
 type EpidemicModelUpdate = ModelInputsUpdate & MetadataUpdate;
@@ -102,6 +104,7 @@ function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
     usePopulationSubsets: false,
     facilityOccupancyPct: 1,
     facilityDormitoryPct: 0.15,
+    hospitalBeds: 0,
   });
 
   // fetch from external datasource
@@ -152,6 +155,8 @@ function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
             countyName: "Total",
             totalIncarcerated: nestedStateCounty.get("US Total")?.get("Total")
               ?.totalIncarceratedPopulation,
+            hospitalBeds: nestedStateCounty.get("US Total")?.get("Total")
+              ?.hospitalBeds,
             countyLevelDataLoading: false,
           },
         });
