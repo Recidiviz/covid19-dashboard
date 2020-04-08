@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
@@ -53,7 +54,21 @@ function useModel() {
     dispatch({ type: "update", payload: update });
   }
 
-  return [model, updateModel] as [typeof model, typeof updateModel];
+  function resetModel(stateCode?: string, countyName?: string) {
+    dispatch({
+      type: "reset",
+      payload: Object.assign(
+        { dataSource: model.countyLevelData },
+        { stateCode, countyName },
+      ),
+    });
+  }
+
+  return [model, updateModel, resetModel] as [
+    typeof model,
+    typeof updateModel,
+    typeof resetModel,
+  ];
 }
 
 /* Locale Information */
@@ -64,14 +79,33 @@ const LocaleInformationDiv = styled.div`
 `;
 
 const LocaleInformation: React.FC = () => {
-  const [model, updateModel] = useModel();
+  const [model, updateModel, resetModel] = useModel();
+
+  const [stateList, updateStateList] = useState([{ value: "US Total" }]);
+
+  useEffect(() => {
+    if (typeof model.countyLevelData !== "undefined") {
+      const newStateList = Array.from(
+        model.countyLevelData.keys(),
+      ).map((key) => ({ value: key }));
+      updateStateList(newStateList);
+    }
+  }, [model.countyLevelData]);
 
   return (
     <LocaleInformationDiv>
-      <InputSelect label="State" value="us" onChange={() => undefined}>
-        <option value="us">US Total</option>
-        <option value="al">Alabama</option>
-        <option value="ak">Alaska</option>
+      <InputSelect
+        label="State"
+        value={model.stateCode}
+        onChange={(event) => {
+          resetModel(event.target.value);
+        }}
+      >
+        {stateList.map(({ value }) => (
+          <option key={value} value={value}>
+            {value}
+          </option>
+        ))}
       </InputSelect>
       <InputSelect label="County" onChange={() => undefined}>
         <option value="" disabled>

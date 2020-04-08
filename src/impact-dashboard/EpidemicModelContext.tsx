@@ -15,7 +15,14 @@ type CountyLevelData = Map<string, Map<string, CountyLevelRecord>>;
 
 type Action =
   | { type: "update"; payload: EpidemicModelUpdate }
-  | { type: "replace"; payload: EpidemicModelState };
+  | {
+      type: "reset";
+      payload: {
+        dataSource?: CountyLevelData;
+        stateCode?: string;
+        countyName?: string;
+      };
+    };
 type Dispatch = (action: Action) => void;
 
 export enum RateOfSpread {
@@ -88,15 +95,18 @@ const EpidemicModelDispatchContext = React.createContext<Dispatch | undefined>(
   undefined,
 );
 
-function getResetState(
-  dataSource?: CountyLevelData,
-  stateName = "US Total",
-  countyName = "Total",
-): EpidemicModelState {
+interface ResetPayload {
+  dataSource?: CountyLevelData;
+  stateCode?: string;
+  countyName?: string;
+}
+
+function getResetState(payload: ResetPayload): EpidemicModelState {
+  const { dataSource, stateCode = "US Total", countyName = "Total" } = payload;
   // some defaults can (indeed, must) bet set even without external data
   const resetBase = {
     countyLevelData: dataSource,
-    stateCode: stateName,
+    stateCode,
     countyName: countyName,
     rateOfSpreadFactor: RateOfSpread.high,
     // in the current UI we are always using age brackets
@@ -111,14 +121,14 @@ function getResetState(
   if (typeof dataSource !== "undefined") {
     seedData = {
       countyLevelDataLoading: false,
-      totalIncarcerated: dataSource.get(stateName)?.get(countyName)
+      totalIncarcerated: dataSource.get(stateCode)?.get(countyName)
         ?.totalIncarceratedPopulation,
-      hospitalBeds: dataSource.get(stateName)?.get(countyName)?.hospitalBeds,
-      ageUnknownPopulation: dataSource.get(stateName)?.get(countyName)
+      hospitalBeds: dataSource.get(stateCode)?.get(countyName)?.hospitalBeds,
+      ageUnknownPopulation: dataSource.get(stateCode)?.get(countyName)
         ?.totalIncarceratedPopulation,
-      ageUnknownCases: dataSource.get(stateName)?.get(countyName)
+      ageUnknownCases: dataSource.get(stateCode)?.get(countyName)
         ?.estimatedIncarceratedCases,
-      confirmedCases: dataSource.get(stateName)?.get(countyName)
+      confirmedCases: dataSource.get(stateCode)?.get(countyName)
         ?.estimatedIncarceratedCases,
       staffCases: 0,
       staffPopulation: 0,
@@ -139,8 +149,9 @@ function epidemicModelReducer(
       // action and merge the whole object into previous state.
       // it's not very granular but it doesn't need to be at the moment
       return Object.assign({}, state, action.payload);
-    case "replace":
-      return action.payload;
+    case "reset":
+      console.log(action.payload);
+      return getResetState(action.payload);
   }
 }
 
@@ -150,7 +161,7 @@ const caseReportingRate = 0.14;
 function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
   const [state, dispatch] = React.useReducer(
     epidemicModelReducer,
-    getResetState(),
+    getResetState({}),
   );
 
   // fetch from external datasource
@@ -211,8 +222,8 @@ function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
         ) as CountyLevelData;
 
         dispatch({
-          type: "replace",
-          payload: getResetState(nestedStateCounty),
+          type: "reset",
+          payload: { dataSource: nestedStateCounty },
         });
       } catch (error) {
         console.error(error);
