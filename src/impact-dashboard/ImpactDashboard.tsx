@@ -2,6 +2,7 @@ import styled from "styled-components";
 
 import ChartArea from "./ChartArea";
 import { useEpidemicModelState } from "./EpidemicModelContext";
+import ImpactProjectionTable from "./ImpactProjectionTableContainer";
 
 const Container = styled.div`
   display: flex;
@@ -35,6 +36,7 @@ const ImpactDashboard: React.FC = () => {
           <FormContainer>forms</FormContainer>
           <ChartsContainer>
             <ChartArea />
+            <ImpactProjectionTable />
           </ChartsContainer>
         </>
       )}
