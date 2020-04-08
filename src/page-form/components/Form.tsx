@@ -3,8 +3,8 @@ import zcta from "us-zcta-counties";
 
 import InputButton from "../../design-system/InputButton";
 import InputSelect from "../../design-system/InputSelect";
-import InputText from "../../design-system/InputText";
 import InputTextArea from "../../design-system/InputTextArea";
+import InputTextOld from "../../design-system/InputTextOld";
 
 interface FormValues {
   email?: string;
@@ -30,25 +30,25 @@ const Form: React.FC = () => {
 
   return (
     <div>
-      <InputText
+      <InputTextOld
         label="email"
         placeholder="Your email here..."
         onChange={(e) => handleFormChange("email", e.target.value)}
         value={formValues.email}
       />
-      <InputText
+      <InputTextOld
         label="feedback"
         placeholder="Your feedback here..."
         onChange={(e) => handleFormChange("feedback", e.target.value)}
         value={formValues.feedback}
       />
-      <InputText
+      <InputTextOld
         label="when did this occur"
         placeholder="Date..."
         onChange={(e) => handleFormChange("date", e.target.value)}
         value={formValues.date}
       />
-      <InputText
+      <InputTextOld
         label="action taken"
         placeholder="What was done?"
         onChange={(e) => handleFormChange("action", e.target.value)}
@@ -83,7 +83,7 @@ const Form: React.FC = () => {
           )}
         </InputSelect>
       </div>
-      <InputText
+      <InputTextOld
         value={formValues.source}
         label="source"
         defaultValue="https://"

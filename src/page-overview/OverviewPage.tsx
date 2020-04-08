@@ -1,7 +1,6 @@
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
-import InputTextNumeric from "../design-system/InputTextNumeric";
 import ImpactDashboard from "../impact-dashboard";
 import SiteHeader from "../site-header/SiteHeader";
 

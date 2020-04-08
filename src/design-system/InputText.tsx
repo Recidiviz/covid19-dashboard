@@ -1,7 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
-import TextLabel from "./TextLabel";
+import { InputBaseProps, useInputValue } from "./Input";
+import InputLabelAndHelp from "./InputLabelAndHelp";
 
 const Input = styled.input`
   padding: 16px;
@@ -22,28 +23,30 @@ const TextInputContainer = styled.div`
   margin-bottom: 24px;
 `;
 
-interface Props {
-  type?: string;
-  label?: string;
-  placeholder?: string;
-  value?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  defaultValue?: string;
+const VDiv = styled.div`
+  display: flex;
+  flex-direction: row;
+`;
+
+interface Props extends InputBaseProps<string> {
+  type: "text" | "number";
 }
 
 const InputText: React.FC<Props> = (props) => {
+  let inputValue = useInputValue(props);
+
   return (
     <TextInputContainer>
-      {props.label ?? <TextLabel>{props.label}</TextLabel>}
-      <Input
-        type={props.type || "text"}
-        defaultValue={props.defaultValue}
-        value={props.value}
-        placeholder={props.placeholder}
-        onChange={props.onChange}
-        name={props.label}
-      />
-      {props.children}
+      <InputLabelAndHelp label={props.labelAbove} labelHelp={props.labelHelp} />
+      <VDiv>
+        <Input
+          type={props.type}
+          value={inputValue ?? ""}
+          placeholder={props.valuePlaceholder ?? props.labelPlaceholder}
+          onChange={(e) => props.onValueChange(e.target.value)}
+        />
+        {props.children}
+      </VDiv>
     </TextInputContainer>
   );
 };

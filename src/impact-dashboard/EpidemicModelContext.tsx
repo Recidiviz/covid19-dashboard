@@ -67,7 +67,7 @@ interface Metadata extends MetadataUpdate {
   hospitalBeds: number;
 }
 
-type EpidemicModelUpdate = ModelInputsUpdate & MetadataUpdate;
+export type EpidemicModelUpdate = ModelInputsUpdate & MetadataUpdate;
 
 type EpidemicModelState = EpidemicModelInputs & Metadata;
 
