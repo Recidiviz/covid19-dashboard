@@ -3,6 +3,9 @@ import styled from "styled-components";
 
 import TextLabel from "./TextLabel";
 
+// This is the InputText that was used before 4/8.
+// TODO: Migrate uses of InputTextOld to InputText and delete InputTextOld.
+
 const Input = styled.input`
   padding: 16px;
   background: #e0e4e4;

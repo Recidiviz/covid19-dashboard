@@ -19,7 +19,7 @@ const HelpButton = styled.span`
 const HelpButtonWithTooltip: React.FC = (props) => {
   return (
     <Tooltip content={props.children}>
-      <HelpButton>?</HelpButton>;
+      <HelpButton>?</HelpButton>
     </Tooltip>
   );
 };
