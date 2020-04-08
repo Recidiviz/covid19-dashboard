@@ -1,5 +1,4 @@
-import camelcaseKeys from "camelcase-keys";
-import { autoType, csvParse, DSVRowAny } from "d3";
+import { csvParse, DSVRowAny } from "d3";
 import { rollup } from "d3-array";
 import numeral from "numeral";
 import React from "react";
@@ -7,7 +6,9 @@ import React from "react";
 type CountyLevelRecord = {
   hospitalBeds: number;
   totalIncarceratedPopulation: number;
-  [propName: string]: any;
+  estimatedIncarceratedCases: number;
+  county: string;
+  state: string;
 };
 
 type CountyLevelData = Map<string, Map<string, CountyLevelRecord>>;
@@ -95,6 +96,9 @@ function epidemicModelReducer(
   }
 }
 
+// estimated ratio of confirmed cases to actual cases
+const caseReportingRate = 0.14;
+
 function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
   const [state, dispatch] = React.useReducer(epidemicModelReducer, {
     stateCode: "US Total",
@@ -120,29 +124,34 @@ function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
         // the first line is not the header row so we need to strip it
         rawCSV = rawCSV.substring(rawCSV.indexOf("\n") + 1);
 
-        const parsedArray = csvParse(rawCSV, (row) => {
-          const transformedRow = autoType(row);
-          // autotype won't catch formatted thousands and percentages,
-          // so run them through numeral
-          Object.entries(transformedRow).forEach(([key, value]) => {
-            if (value && typeof value === "string") {
-              const transformedValue = numeral(value).value();
-              transformedRow[key] =
-                transformedValue === null ? value : transformedValue;
-            }
-          });
-
-          return transformedRow;
-        })
+        const parsedArray = csvParse(
+          rawCSV,
+          (row): CountyLevelRecord => {
+            // we only need a few columns, which we will explicitly format
+            const totalIncarceratedPopulation = numeral(
+              row["Total Incarcerated Population"],
+            ).value();
+            return {
+              county: row.County || "",
+              state: row.State || "",
+              hospitalBeds: numeral(row["Hospital Beds"]).value(),
+              totalIncarceratedPopulation,
+              estimatedIncarceratedCases:
+                (totalIncarceratedPopulation /
+                  numeral(row["Total Population"]).value()) *
+                (1 / caseReportingRate),
+            };
+          },
+        )
           // rows without County are known to be junk
-          .filter((row) => !!row.County);
+          .filter((row) => row.county !== "");
 
         const nestedStateCounty = rollup(
           parsedArray,
           // there will only ever be one row object per county
-          (v: object[]) => camelcaseKeys(v[0]),
-          (d: DSVRowAny) => d.State as string,
-          (d: DSVRowAny) => d.County as string,
+          (v: object[]) => v[0],
+          (d: DSVRowAny) => d.state as string,
+          (d: DSVRowAny) => d.county as string,
           // some wrong/outdated typedefs for d3 are making typescript sad
           // but this should check out
         ) as CountyLevelData;
@@ -157,6 +166,8 @@ function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
               ?.totalIncarceratedPopulation,
             hospitalBeds: nestedStateCounty.get("US Total")?.get("Total")
               ?.hospitalBeds,
+            confirmedCases: nestedStateCounty.get("US Total")?.get("Total")
+              ?.estimatedIncarceratedCases,
             countyLevelDataLoading: false,
           },
         });
