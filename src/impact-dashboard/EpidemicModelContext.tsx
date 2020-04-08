@@ -131,6 +131,8 @@ function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
             const totalIncarceratedPopulation = numeral(
               row["Total Incarcerated Population"],
             ).value();
+            const estimatedTotalCases =
+              (numeral(row.cases).value() || 0) * (1 / caseReportingRate);
             return {
               county: row.County || "",
               state: row.State || "",
@@ -139,7 +141,7 @@ function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
               estimatedIncarceratedCases:
                 (totalIncarceratedPopulation /
                   numeral(row["Total Population"]).value()) *
-                (1 / caseReportingRate),
+                estimatedTotalCases,
             };
           },
         )
