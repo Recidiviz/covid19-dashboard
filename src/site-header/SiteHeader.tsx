@@ -1,6 +1,37 @@
+import hexAlpha from "hex-alpha";
 import { Link } from "react-router-dom";
+import styled from "styled-components";
 
 import { useAuth0 } from "../auth/react-auth0-spa";
+import Colors from "../design-system/Colors";
+import Logo from "./Logo";
+
+const Nav = styled.nav`
+  align-items: center;
+  border-bottom: 1px solid ${hexAlpha(Colors.forest, 0.1)};
+  display: flex;
+  flex-wrap: wrap;
+  font-family: "Poppins", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  height: 130px;
+  justify-content: space-between;
+`;
+
+const LogoContainer = styled.div`
+  align-items: flex-end;
+  color: ${Colors.red};
+  display: flex;
+  font-family: "Poppins", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+`;
+
+const Subhead = styled.div`
+  margin-left: 1em;
+`;
 
 const SiteHeader: React.FC = () => {
   const { isAuthenticated, loginWithRedirect, logout } = (useAuth0 as any)();
@@ -8,42 +39,33 @@ const SiteHeader: React.FC = () => {
   const logoutWithRedirect = () => logout({ returnTo: window.location.origin });
 
   return (
-    <nav className="font-semibold font-display text-sm">
-      <div className="flex justify-between h-16 flex-wrap">
-        <div className="flex">
-          <Link to="/" className="flex uppercase">
-            <h3 className="inline-flex items-center px-1 pt-1 leading-5">
-              CJ Status •
-            </h3>
-            <h3 className="inline-flex items-center px-1 pt-1 leading-5 text-red">
-              COVID-19 Incarceration Model
-            </h3>
-          </Link>
-        </div>
-        {/* <!-- Nav Items and Social Links --> */}
-        <div className="flex items-center justify-between">
-          <Link to="/about" className="mr-4 px-1 pt-1 font-medium text-green">
-            About
-          </Link>
-          <Link
-            to="/get-involved"
-            className="mx-4 px-1 pt-1 font-medium text-green"
-          >
-            Get Involved
-          </Link>
-          <div className="mx-4 px-1 pt-1 font-medium text-green">
-            {!isAuthenticated && (
-              <button onClick={() => loginWithRedirect({})}>Log In</button>
-            )}
+    <Nav>
+      <Link to="/">
+        <LogoContainer>
+          <Logo />
+          <Subhead>COVID-19 Incarceration Model</Subhead>
+        </LogoContainer>
+      </Link>
+      {/* <!-- Nav Items and Social Links --> */}
+      <div className="flex items-center justify-between">
+        <Link
+          to="/get-involved"
+          className="mx-4 px-1 pt-1 font-medium text-green"
+        >
+          Get Involved
+        </Link>
+        <div className="mx-4 px-1 pt-1 font-medium text-green">
+          {!isAuthenticated && (
+            <button onClick={() => loginWithRedirect({})}>Log In</button>
+          )}
 
-            {isAuthenticated && (
-              <button onClick={() => logoutWithRedirect()}>Log Out</button>
-            )}
-          </div>
+          {isAuthenticated && (
+            <button onClick={() => logoutWithRedirect()}>Log Out</button>
+          )}
         </div>
-        {/* <!-- End Nav Items and Social Links --> */}
       </div>
-    </nav>
+      {/* <!-- End Nav Items and Social Links --> */}
+    </Nav>
   );
 };
 
