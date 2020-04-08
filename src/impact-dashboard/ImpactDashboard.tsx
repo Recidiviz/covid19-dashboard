@@ -1,3 +1,4 @@
+import { pick } from "lodash";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 
@@ -5,9 +6,11 @@ import Colors from "../design-system/Colors";
 import InputSelect from "../design-system/InputSelect";
 import InputTextNumeric from "../design-system/InputTextNumeric";
 import TextLabel from "../design-system/TextLabel";
+import useQueryParams from "../hooks/useQueryParams";
 import ChartArea from "./ChartArea";
 import {
   EpidemicModelUpdate,
+  urlParamKeys,
   useEpidemicModelDispatch,
   useEpidemicModelState,
 } from "./EpidemicModelContext";
@@ -50,7 +53,13 @@ function useModel() {
   const dispatch = useEpidemicModelDispatch();
   const model = useEpidemicModelState();
 
+  const { values, replaceValues } = useQueryParams({});
+
   function updateModel(update: EpidemicModelUpdate) {
+    // on updates, replace the URL state
+    const urlParams = Object.assign({}, values, pick(update, urlParamKeys));
+    replaceValues(urlParams);
+
     dispatch({ type: "update", payload: update });
   }
 

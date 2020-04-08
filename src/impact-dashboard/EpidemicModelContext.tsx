@@ -32,7 +32,9 @@ export enum RateOfSpread {
 }
 // any field that we can update via reducer should be here,
 // and should probably be optional
-interface ModelInputsUpdate {
+
+// fields that we want to store in URL or other persistent store
+interface ModelInputsPersistent {
   age0Cases?: number;
   age0Population?: number;
   age20Cases?: number;
@@ -49,12 +51,16 @@ interface ModelInputsUpdate {
   age85Population?: number;
   ageUnknownCases?: number;
   ageUnknownPopulation?: number;
-  confirmedCases?: number;
   facilityDormitoryPct?: number;
   facilityOccupancyPct?: number;
   rateOfSpreadFactor?: RateOfSpread;
   staffCases?: number;
   staffPopulation?: number;
+}
+
+interface ModelInputsUpdate extends ModelInputsPersistent {
+  // these don't persist because they are auto-populated from external data
+  confirmedCases?: number;
   totalIncarcerated?: number;
   usePopulationSubsets?: boolean;
 }
@@ -66,13 +72,18 @@ interface EpidemicModelInputs extends ModelInputsUpdate {
   facilityOccupancyPct: number;
 }
 
-interface MetadataUpdate {
-  countyLevelData?: CountyLevelData;
-  countyLevelDataLoading?: boolean;
-  countyLevelDataFailed?: boolean;
+interface MetadataPersistent {
+  // fields that we want to store in URL or other persistent store
   countyName?: string;
   facilityName?: string;
   stateCode?: string;
+}
+
+interface MetadataUpdate extends MetadataPersistent {
+  countyLevelData?: CountyLevelData;
+  countyLevelDataLoading?: boolean;
+  countyLevelDataFailed?: boolean;
+  // this is not user input so don't store it
   hospitalBeds?: number;
 }
 // some fields are required to display a sensible UI, define them here
@@ -80,6 +91,37 @@ interface Metadata extends MetadataUpdate {
   stateCode: string;
   hospitalBeds: number;
 }
+
+type EpidemicModelPersistent = ModelInputsPersistent & MetadataPersistent;
+// we have to type all them out here again
+// but at least we can validate that none are illegal
+// TODO: is there a smarter way to get these values?
+export const urlParamKeys: Array<keyof EpidemicModelPersistent> = [
+  "countyName",
+  "facilityName",
+  "stateCode",
+  "age0Cases",
+  "age0Population",
+  "age20Cases",
+  "age20Population",
+  "age45Cases",
+  "age45Population",
+  "age55Cases",
+  "age55Population",
+  "age65Cases",
+  "age65Population",
+  "age75Cases",
+  "age75Population",
+  "age85Cases",
+  "age85Population",
+  "ageUnknownCases",
+  "ageUnknownPopulation",
+  "facilityDormitoryPct",
+  "facilityOccupancyPct",
+  "rateOfSpreadFactor",
+  "staffCases",
+  "staffPopulation",
+];
 
 export type EpidemicModelUpdate = ModelInputsUpdate & MetadataUpdate;
 
@@ -150,7 +192,6 @@ function epidemicModelReducer(
       // it's not very granular but it doesn't need to be at the moment
       return Object.assign({}, state, action.payload);
     case "reset":
-      console.log(action.payload);
       return getResetState(action.payload);
   }
 }
