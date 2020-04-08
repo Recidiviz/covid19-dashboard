@@ -68,11 +68,13 @@ type PeakData = {
 function getPeakHospitalized(data: ndarray, hospitalBeds: number): PeakData {
   const hospitalized = getAllValues(getColView(data, seirIndex.hospitalized));
   const peakHospitalized = Math.max(...hospitalized);
+  const daysUntil50Pct = hospitalized.findIndex(
+    (val) => val / hospitalBeds > 0.5,
+  );
   return {
     peakDay: hospitalized.indexOf(peakHospitalized) + 1,
     peakPct: peakHospitalized / hospitalBeds,
-    daysUntil50Pct:
-      hospitalized.find((val) => val / hospitalBeds > 0.5) || null,
+    daysUntil50Pct: daysUntil50Pct > -1 ? daysUntil50Pct + 1 : null,
   };
 }
 
