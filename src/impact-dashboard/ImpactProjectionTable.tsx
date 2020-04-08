@@ -77,13 +77,13 @@ const LabelCell = styled.td<{ italic?: boolean }>`
   font-style: ${(props) => (props.italic ? "italic" : "inherit")};
 `;
 
-numeral.nullFormat("N/A");
+const naString = "N/A";
 function formatThousands(value: number | null): string {
-  return numeral(value).format("0,0");
+  return value === null ? naString : numeral(value).format("0,0");
 }
 
 function formatPct(value: number | null): string {
-  return numeral(value).format("0.0%");
+  return value === null ? naString : numeral(value).format("0,0.0%");
 }
 
 function makeTableRow(row: TableRow, formatter = formatThousands) {
