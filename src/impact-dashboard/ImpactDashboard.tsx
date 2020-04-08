@@ -53,10 +53,9 @@ function useModel() {
   const dispatch = useEpidemicModelDispatch();
   const model = useEpidemicModelState();
 
-  const { values, replaceValues } = useQueryParams({});
+  const { values, replaceValues, pushValues } = useQueryParams({});
 
   function updateModel(update: EpidemicModelUpdate) {
-    // on updates, replace the URL state
     const urlParams = Object.assign({}, values, pick(update, urlParamKeys));
     replaceValues(urlParams);
 
@@ -64,6 +63,10 @@ function useModel() {
   }
 
   function resetModel(stateCode?: string, countyName?: string) {
+    // TODO: this use of pick() is a degraded type check to make sure
+    // we don't pass any illegal keys to the URL state
+    pushValues(pick({ stateCode, countyName }, urlParamKeys));
+
     dispatch({
       type: "reset",
       payload: Object.assign(
