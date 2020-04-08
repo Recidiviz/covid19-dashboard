@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "target": "es3",
+    "target": "es5",
+    "lib": ["es6"],
     "module": "commonjs",
     "jsx": "preserve",
     "strict": true,
