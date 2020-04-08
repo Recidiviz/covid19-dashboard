@@ -17,8 +17,8 @@ interface Props {
   onChange?: (e: React.ChangeEvent) => void;
 }
 
-const Button: React.FC<Props> = (props) => {
+const InputButton: React.FC<Props> = (props) => {
   return <StyledButton>{props.label}</StyledButton>;
 };
 
-export default Button;
+export default InputButton;
