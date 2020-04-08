@@ -1,5 +1,6 @@
 import { zip } from "d3-array";
 
+import Loading from "../design-system/Loading";
 import { calculateCurves, CurveData } from "../infection-model";
 import { getAllValues, getColView } from "../infection-model/matrixUtils";
 import { seirIndex } from "../infection-model/seir";
@@ -32,7 +33,7 @@ const CurveChartContainer: React.FC<Props> = ({ markColors }) => {
   };
 
   return modelData.countyLevelDataLoading ? (
-    <div>Loading...</div>
+    <Loading />
   ) : (
     <CurveChart
       curveData={curveData}
