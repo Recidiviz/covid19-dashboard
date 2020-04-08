@@ -128,20 +128,28 @@ function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
           rawCSV,
           (row): CountyLevelRecord => {
             // we only need a few columns, which we will explicitly format
-            const totalIncarceratedPopulation = numeral(
-              row["Total Incarcerated Population"],
-            ).value();
-            const estimatedTotalCases =
-              (numeral(row.cases).value() || 0) * (1 / caseReportingRate);
+
+            // defaulting missing numbers to zero will not produce meaningful modeling
+            // but it should at least prevent the UI from breaking;
+            // users can still substitute their own values via form inputs
+            const reportedCases: number = numeral(row.cases).value() || 0;
+            const estimatedTotalCases: number =
+              reportedCases * (1 / caseReportingRate);
+            // TODO: distinguish jail vs prison?
+            const totalIncarceratedPopulation: number =
+              numeral(row["Total Incarcerated Population"]).value() || 0;
+            const totalPopulation: number =
+              numeral(row["Total Population"]).value() || 0;
+
             return {
               county: row.County || "",
               state: row.State || "",
-              hospitalBeds: numeral(row["Hospital Beds"]).value(),
+              hospitalBeds: numeral(row["Hospital Beds"]).value() || 0,
               totalIncarceratedPopulation,
-              estimatedIncarceratedCases:
-                (totalIncarceratedPopulation /
-                  numeral(row["Total Population"]).value()) *
-                estimatedTotalCases,
+              estimatedIncarceratedCases: totalPopulation
+                ? (totalIncarceratedPopulation / totalPopulation) *
+                  estimatedTotalCases
+                : 0,
             };
           },
         )
