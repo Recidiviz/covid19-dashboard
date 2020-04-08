@@ -24,7 +24,10 @@ const Title = styled.h1`
 const TestPage: React.FC = () => {
   // Tests that hooks are supported.
   const [greetingReady, setGreetingReady] = useState<boolean>(false);
-  const [values, setValues, setAction] = useQueryParams({ val1: 1, val2: 2 });
+  const { values, replaceValues, pushValues } = useQueryParams({
+    val1: 1,
+    val2: 2,
+  });
 
   useEffect(() => {
     async function effect() {
@@ -90,20 +93,18 @@ const TestPage: React.FC = () => {
       <div>
         <button
           onClick={() =>
-            setValues({ ...values, val1: (values.val1 as number) + 1 })
+            replaceValues({ ...values, val1: (values.val1 as number) + 1 })
           }
         >
-          Val1: {values.val1}
+          (REPLACE) Val1: {values.val1}
         </button>
         <button
           onClick={() =>
-            setValues({ ...values, val2: (values.val2 as number) + 1 })
+            pushValues({ ...values, val2: (values.val2 as number) + 1 })
           }
         >
-          Val2: {values.val2}
+          (PUSH) Val2: {values.val2}
         </button>
-        <button onClick={() => setAction("push")}>Push History</button>
-        <button onClick={() => setAction("replace")}>Replace History</button>
       </div>
     </div>
   );

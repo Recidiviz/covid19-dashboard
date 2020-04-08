@@ -1,7 +1,7 @@
 import { isEqual } from "lodash";
 import queryString from "query-string";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useHistory } from "react-router-dom";
 
 export interface QueryParams {
   [key: string]: string | number | undefined;
@@ -9,38 +9,41 @@ export interface QueryParams {
 
 export type HistoryAction = "replace" | "push";
 
-// A basic hook for fetching query param values and setting query param values
-const useQueryParams = (
-  defaultValues: QueryParams,
-  defaultAction: HistoryAction = "replace",
-): [
-  QueryParams,
-  Dispatch<SetStateAction<QueryParams>>,
-  Dispatch<SetStateAction<HistoryAction>>,
-] => {
-  const history = useHistory();
-  const location = useLocation();
+interface UseQueryParamsOutput {
+  values: QueryParams;
+  pushValues: (newValues: QueryParams) => void;
+  replaceValues: (newValues: QueryParams) => void;
+}
 
-  const defaultQueryParams = queryString.parse(location.search) as QueryParams;
+// A basic hook for fetching query param values and setting query param values
+const useQueryParams = (defaultValues: QueryParams): UseQueryParamsOutput => {
+  const history = useHistory();
+
+  const defaultQueryParams = queryString.parse(
+    history.location.search,
+  ) as QueryParams;
   const hasExistingURLQueryParams = Object.keys(defaultQueryParams).length > 0;
 
   const initialValues = hasExistingURLQueryParams
     ? defaultQueryParams
     : defaultValues;
   const [values, setValues] = useState<QueryParams>(initialValues);
-  const [action, setAction] = useState<HistoryAction>(defaultAction);
+  const [action, setAction] = useState<HistoryAction>("replace");
 
   // If values have been updated, also set the query params
   useEffect(() => {
-    const currentQuery = queryString.parse(location.search);
+    const currentQuery = queryString.parse(history.location.search);
 
     if (!isEqual(currentQuery, values)) {
-      location.search = queryString.stringify(values);
+      const newLocation = {
+        ...history.location,
+        search: queryString.stringify(values),
+      };
       if (action == "replace") {
-        history.replace(location);
+        history.replace(newLocation);
       }
       if (action == "push") {
-        history.push(location);
+        history.push(newLocation);
       }
     }
   }, [values]);
@@ -54,7 +57,23 @@ const useQueryParams = (
     }
   }, [history.location.search]);
 
-  return [values, setValues, setAction];
+  // replaceValues will replace the current entry on history
+  const replaceValues = (newValues: QueryParams) => {
+    setAction("replace");
+    setValues(newValues);
+  };
+
+  // pushValues will push another url entry onto history
+  const pushValues = (newValues: QueryParams) => {
+    setAction("push");
+    setValues(newValues);
+  };
+
+  return {
+    values,
+    replaceValues,
+    pushValues,
+  };
 };
 
 export default useQueryParams;
