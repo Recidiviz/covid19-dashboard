@@ -54,21 +54,7 @@ function useModel() {
     dispatch({ type: "update", payload: update });
   }
 
-  function resetModel(stateCode?: string, countyName?: string) {
-    dispatch({
-      type: "reset",
-      payload: Object.assign(
-        { dataSource: model.countyLevelData },
-        { stateCode, countyName },
-      ),
-    });
-  }
-
-  return [model, updateModel, resetModel] as [
-    typeof model,
-    typeof updateModel,
-    typeof resetModel,
-  ];
+  return [model, updateModel] as [typeof model, typeof updateModel];
 }
 
 /* Locale Information */
@@ -79,7 +65,7 @@ const LocaleInformationDiv = styled.div`
 `;
 
 const LocaleInformation: React.FC = () => {
-  const [model, updateModel, resetModel] = useModel();
+  const [model, updateModel] = useModel();
 
   const [stateList, updateStateList] = useState([{ value: "US Total" }]);
   const [countyList, updateCountyList] = useState([{ value: "Total" }]);
@@ -114,7 +100,7 @@ const LocaleInformation: React.FC = () => {
         label="State"
         value={model.stateCode}
         onChange={(event) => {
-          resetModel(event.target.value);
+          updateModel({ stateCode: event.target.value });
         }}
       >
         {stateList.map(({ value }) => (
@@ -127,7 +113,10 @@ const LocaleInformation: React.FC = () => {
         label="County"
         value={model.countyName}
         onChange={(event) => {
-          resetModel(model.stateCode, event.target.value);
+          updateModel({
+            stateCode: model.stateCode,
+            countyName: event.target.value,
+          });
         }}
       >
         {countyList.map(({ value }) => (
