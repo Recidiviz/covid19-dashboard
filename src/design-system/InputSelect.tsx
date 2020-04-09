@@ -26,7 +26,7 @@ const SelectInput = styled.select`
   -moz-appearance: none;
   width: 100%;
   border: none;
-  padding: 16px;
+  padding: 18px;
   background: #e0e4e4;
   outline: 0 solid transparent;
   margin-top: 8px;
