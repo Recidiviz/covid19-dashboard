@@ -22,7 +22,7 @@ const OverviewPage: React.FC = () => {
           <SiteHeader />
           <main className="my-6">
             <Headline>
-              Customize the COVID-19 Incarceration Model for your facilities
+              Customize the COVID-19 Incarceration Model for Your Facilities
             </Headline>
             <ImpactDashboard />
           </main>
