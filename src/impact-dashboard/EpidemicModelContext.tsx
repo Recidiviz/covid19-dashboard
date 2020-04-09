@@ -3,9 +3,8 @@ import { rollup } from "d3-array";
 import { mapValues, pick } from "lodash";
 import numeral from "numeral";
 import React, { useEffect } from "react";
-import { useHistory } from "react-router-dom";
 
-import useQueryParams from "../hooks/useQueryParams";
+import useQueryParams, { QueryParams } from "../hooks/useQueryParams";
 
 type CountyLevelRecord = {
   hospitalBeds: number;
@@ -144,6 +143,8 @@ function getLocaleData(
   countyName: string,
 ) {
   return {
+    stateCode,
+    countyName,
     countyLevelData: dataSource,
     countyLevelDataLoading: false,
     totalIncarcerated: dataSource.get(stateCode)?.get(countyName)
@@ -185,11 +186,30 @@ function epidemicModelReducer(
       // then submit it all at once; therefore we can just expose a single
       // action and merge the whole object into previous state.
       // it's not very granular but it doesn't need to be at the moment
-      return Object.assign({}, state, action.payload);
+
+      // change in state or county triggers a bigger reset
+      let updates = { ...action.payload };
+      let { stateCode, countyName, countyLevelData } = updates;
+
+      countyLevelData = countyLevelData || state.countyLevelData;
+      if (countyLevelData) {
+        if (stateCode) {
+          countyName = countyName || "Total";
+        } else if (countyName) {
+          stateCode = state.stateCode;
+        }
+        if (stateCode && countyName) {
+          return Object.assign(
+            getResetBase(stateCode, countyName),
+            getLocaleData(countyLevelData, stateCode, countyName),
+          );
+        }
+      }
+      return Object.assign({}, state, updates);
   }
 }
 
-function sanitizeQueryParams(rawQueryParams) {
+function sanitizeQueryParams(rawQueryParams: QueryParams) {
   return mapValues(pick(rawQueryParams, urlParamKeys), (value) => {
     // most of these are numbers but some are strings
     const n = numeral(value).value();
@@ -201,99 +221,131 @@ function sanitizeQueryParams(rawQueryParams) {
 const caseReportingRate = 0.14;
 
 function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
-  const { values: rawQueryParams } = useQueryParams({});
+  const {
+    values: rawQueryParams,
+    replaceValues: replaceHistoryState,
+  } = useQueryParams({});
 
   const [state, dispatch] = React.useReducer(
     epidemicModelReducer,
     getResetBase(),
   );
 
-  // const history = useHistory;
-
-  // useEffect(() => {
-  //   updateStateFromQueryParams();
-  // }, []);
+  useEffect(
+    () => {
+      // leave state alone until we are done loading data
+      if (state.countyLevelDataLoading) {
+        return;
+      }
+      replaceHistoryState(pick(state, urlParamKeys));
+    },
+    // replaceHistoryState changes on every render so must be excluded
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [state],
+  );
 
   // fetch from external datasource
-  React.useEffect(() => {
-    async function effect() {
-      try {
-        const response = await fetch(
-          "https://docs.google.com/spreadsheets/d/e/2PACX-1vSeEO7JySaN21_Cxa7ON_x" +
-            "UHDM-EEOFSMIjOAoLf6YOXBurMRXZYPFi7x_aOe-0awqDcL4KZTK1NhVI/pub?gid=" +
-            "1836987932&single=true&output=csv",
-        );
-        let rawCSV = await response.text();
-        // the first line is not the header row so we need to strip it
-        rawCSV = rawCSV.substring(rawCSV.indexOf("\n") + 1);
+  React.useEffect(
+    () => {
+      async function effect() {
+        try {
+          const response = await fetch(
+            "https://docs.google.com/spreadsheets/d/e/2PACX-1vSeEO7JySaN21_Cxa7ON_x" +
+              "UHDM-EEOFSMIjOAoLf6YOXBurMRXZYPFi7x_aOe-0awqDcL4KZTK1NhVI/pub?gid=" +
+              "1836987932&single=true&output=csv",
+          );
+          let rawCSV = await response.text();
+          // the first line is not the header row so we need to strip it
+          rawCSV = rawCSV.substring(rawCSV.indexOf("\n") + 1);
 
-        const parsedArray = csvParse(
-          rawCSV,
-          (row): CountyLevelRecord => {
-            // we only need a few columns, which we will explicitly format
+          const parsedArray = csvParse(
+            rawCSV,
+            (row): CountyLevelRecord => {
+              // we only need a few columns, which we will explicitly format
 
-            // defaulting missing numbers to zero will not produce meaningful modeling
-            // but it should at least prevent the UI from breaking;
-            // users can still substitute their own values via form inputs
-            const reportedCases: number = numeral(row.cases).value() || 0;
-            const estimatedTotalCases: number =
-              reportedCases * (1 / caseReportingRate);
-            // TODO: distinguish jail vs prison?
-            const totalIncarceratedPopulation: number =
-              numeral(row["Total Incarcerated Population"]).value() || 0;
-            const totalPopulation: number =
-              numeral(row["Total Population"]).value() || 0;
+              // defaulting missing numbers to zero will not produce meaningful modeling
+              // but it should at least prevent the UI from breaking;
+              // users can still substitute their own values via form inputs
+              const reportedCases: number = numeral(row.cases).value() || 0;
+              const estimatedTotalCases: number =
+                reportedCases * (1 / caseReportingRate);
+              // TODO: distinguish jail vs prison?
+              const totalIncarceratedPopulation: number =
+                numeral(row["Total Incarcerated Population"]).value() || 0;
+              const totalPopulation: number =
+                numeral(row["Total Population"]).value() || 0;
 
-            return {
-              county: row.County || "",
-              state: row.State || "",
-              hospitalBeds: numeral(row["Hospital Beds"]).value() || 0,
-              totalIncarceratedPopulation,
-              estimatedIncarceratedCases: Math.round(
-                totalPopulation
-                  ? (totalIncarceratedPopulation / totalPopulation) *
-                      estimatedTotalCases
-                  : 0,
+              return {
+                county: row.County || "",
+                state: row.State || "",
+                hospitalBeds: numeral(row["Hospital Beds"]).value() || 0,
+                totalIncarceratedPopulation,
+                estimatedIncarceratedCases: Math.round(
+                  totalPopulation
+                    ? (totalIncarceratedPopulation / totalPopulation) *
+                        estimatedTotalCases
+                    : 0,
+                ),
+              };
+            },
+          )
+            // rows without County are known to be junk
+            .filter((row) => row.county !== "");
+
+          const nestedStateCounty = rollup(
+            parsedArray,
+            // there will only ever be one row object per county
+            (v: object[]) => v[0],
+            (d: DSVRowAny) => d.state as string,
+            (d: DSVRowAny) => d.county as string,
+            // some wrong/outdated typedefs for d3 are making typescript sad
+            // but this should check out
+          ) as CountyLevelData;
+
+          let {
+            stateCode: savedStateCode,
+            countyName: savedCountyName,
+            ...otherParams
+          } = rawQueryParams;
+          // state or county changes trigger a state reset
+          // so we have to run them separately
+          let { stateCode, countyName } = state;
+          if (savedStateCode) {
+            stateCode = savedStateCode as string;
+            if (savedCountyName) {
+              countyName = savedCountyName as string;
+            }
+          }
+          dispatch({
+            type: "update",
+            payload: {
+              countyLevelData: nestedStateCounty,
+              countyLevelDataLoading: false,
+              ...getLocaleData(
+                nestedStateCounty,
+                stateCode,
+                countyName as string,
               ),
-            };
-          },
-        )
-          // rows without County are known to be junk
-          .filter((row) => row.county !== "");
-
-        const nestedStateCounty = rollup(
-          parsedArray,
-          // there will only ever be one row object per county
-          (v: object[]) => v[0],
-          (d: DSVRowAny) => d.state as string,
-          (d: DSVRowAny) => d.county as string,
-          // some wrong/outdated typedefs for d3 are making typescript sad
-          // but this should check out
-        ) as CountyLevelData;
-
-        dispatch({
-          type: "update",
-          payload: {
-            countyLevelData: nestedStateCounty,
-            countyLevelDataLoading: false,
-            ...getLocaleData(
-              nestedStateCounty,
-              rawQueryParams.stateCode || state.stateCode,
-              rawQueryParams.countyName || "Total",
-            ),
-            ...sanitizeQueryParams(rawQueryParams),
-          },
-        });
-      } catch (error) {
-        console.error(error);
-        dispatch({
-          type: "update",
-          payload: { countyLevelDataFailed: true },
-        });
+            },
+          });
+          dispatch({
+            type: "update",
+            payload: sanitizeQueryParams(otherParams) as EpidemicModelUpdate,
+          });
+        } catch (error) {
+          console.error(error);
+          dispatch({
+            type: "update",
+            payload: { countyLevelDataFailed: true },
+          });
+        }
       }
-    }
-    effect();
-  }, []);
+      effect();
+    },
+    // we only want to run this once, on initial mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
 
   return (
     <EpidemicModelStateContext.Provider value={state}>

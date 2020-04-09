@@ -1,4 +1,3 @@
-import { pick } from "lodash";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 
@@ -6,11 +5,9 @@ import Colors from "../design-system/Colors";
 import InputSelect from "../design-system/InputSelect";
 import InputTextNumeric from "../design-system/InputTextNumeric";
 import TextLabel from "../design-system/TextLabel";
-import useQueryParams from "../hooks/useQueryParams";
 import ChartArea from "./ChartArea";
 import {
   EpidemicModelUpdate,
-  urlParamKeys,
   useEpidemicModelDispatch,
   useEpidemicModelState,
 } from "./EpidemicModelContext";
@@ -53,34 +50,11 @@ function useModel() {
   const dispatch = useEpidemicModelDispatch();
   const model = useEpidemicModelState();
 
-  const { values, replaceValues, pushValues } = useQueryParams({});
-
   function updateModel(update: EpidemicModelUpdate) {
-    const urlParams = Object.assign({}, values, pick(update, urlParamKeys));
-    replaceValues(urlParams);
-
     dispatch({ type: "update", payload: update });
   }
 
-  function resetModel(stateCode?: string, countyName?: string) {
-    // TODO: this use of pick() is a degraded type check to make sure
-    // we don't pass any illegal keys to the URL state
-    pushValues(pick({ stateCode, countyName }, urlParamKeys));
-
-    dispatch({
-      type: "reset",
-      payload: Object.assign(
-        { dataSource: model.countyLevelData },
-        { stateCode, countyName },
-      ),
-    });
-  }
-
-  return [model, updateModel, resetModel] as [
-    typeof model,
-    typeof updateModel,
-    typeof resetModel,
-  ];
+  return [model, updateModel] as [typeof model, typeof updateModel];
 }
 
 /* Locale Information */
@@ -91,7 +65,7 @@ const LocaleInformationDiv = styled.div`
 `;
 
 const LocaleInformation: React.FC = () => {
-  const [model, updateModel, resetModel] = useModel();
+  const [model, updateModel] = useModel();
 
   const [stateList, updateStateList] = useState([{ value: "US Total" }]);
   const [countyList, updateCountyList] = useState([{ value: "Total" }]);
@@ -126,7 +100,7 @@ const LocaleInformation: React.FC = () => {
         label="State"
         value={model.stateCode}
         onChange={(event) => {
-          resetModel(event.target.value);
+          updateModel({ stateCode: event.target.value });
         }}
       >
         {stateList.map(({ value }) => (
@@ -139,7 +113,10 @@ const LocaleInformation: React.FC = () => {
         label="County"
         value={model.countyName}
         onChange={(event) => {
-          resetModel(model.stateCode, event.target.value);
+          updateModel({
+            stateCode: model.stateCode,
+            countyName: event.target.value,
+          });
         }}
       >
         {countyList.map(({ value }) => (
