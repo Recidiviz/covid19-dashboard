@@ -86,7 +86,7 @@
     "*.js": [
       "false -- Please use .tsx with `// @ts-nocheck` instead of .js!"
     ],
-    "*.{html,json,md}": [
+    "*.{html,json,md,webmanifest}": [
       "prettier --write"
     ],
     "*.{d.ts,tsx}": [
