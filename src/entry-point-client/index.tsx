@@ -37,7 +37,6 @@ let element = (
 );
 
 let container = document.getElementById("app");
-
 if (process.env.NODE_ENV === "development") {
   ReactDOM.render(element, container);
 } else {
