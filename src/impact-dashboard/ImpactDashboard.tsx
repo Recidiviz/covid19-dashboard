@@ -13,13 +13,13 @@ import {
 } from "./EpidemicModelContext";
 import ImpactProjectionTable from "./ImpactProjectionTableContainer";
 
+const FormGrid = styled.div`
+  width: 100%;
+`;
+
 /* Shared components */
 
-const Table: React.FC = (props) => (
-  <table>
-    <tbody>{props.children}</tbody>
-  </table>
-);
+const Table: React.FC = (props) => <FormGrid>{props.children}</FormGrid>;
 
 const SectionHeader = styled.header`
   font-family: Poppins;
@@ -44,6 +44,7 @@ const Description = styled.p`
   font-weight: normal;
   font-size: 11px;
   line-height: 16px;
+  margin: 10px 0 20px 0;
 `;
 
 function useModel() {
@@ -62,6 +63,12 @@ function useModel() {
 const LocaleInformationDiv = styled.div`
   display: flex;
   flex-direction: row;
+  margin-bottom: 24px;
+  align-items: flex-end;
+`;
+
+const LocaleInputDiv = styled.div`
+  flex: 0 1 auto;
 `;
 
 const LocaleInformation: React.FC = () => {
@@ -96,58 +103,86 @@ const LocaleInformation: React.FC = () => {
 
   return (
     <LocaleInformationDiv>
-      <InputSelect
-        label="State"
-        value={model.stateCode}
-        onChange={(event) => {
-          updateModel({ stateCode: event.target.value });
-        }}
-      >
-        {stateList.map(({ value }) => (
-          <option key={value} value={value}>
-            {value}
-          </option>
-        ))}
-      </InputSelect>
-      <InputSelect
-        label="County"
-        value={model.countyName}
-        onChange={(event) => {
-          updateModel({
-            stateCode: model.stateCode,
-            countyName: event.target.value,
-          });
-        }}
-      >
-        {countyList.map(({ value }) => (
-          <option key={value} value={value}>
-            {value}
-          </option>
-        ))}
-      </InputSelect>
-      <InputTextNumeric
-        type="number"
-        labelAbove="Confirmed case count"
-        labelHelp="Based on NYTimes data. Replace with your most up-to-date data."
-        valueEntered={model.confirmedCases}
-        onValueChange={(value) => updateModel({ confirmedCases: value })}
-      />
+      <LocaleInputDiv>
+        <InputSelect
+          label="State"
+          value={model.stateCode}
+          onChange={(event) => {
+            updateModel({ stateCode: event.target.value });
+          }}
+        >
+          {stateList.map(({ value }) => (
+            <option key={value} value={value}>
+              {value}
+            </option>
+          ))}
+        </InputSelect>
+      </LocaleInputDiv>
+      <LocaleInputDiv>
+        <InputSelect
+          label="County"
+          value={model.countyName}
+          onChange={(event) => {
+            updateModel({
+              stateCode: model.stateCode,
+              countyName: event.target.value,
+            });
+          }}
+        >
+          {countyList.map(({ value }) => (
+            <option key={value} value={value}>
+              {value}
+            </option>
+          ))}
+        </InputSelect>
+      </LocaleInputDiv>
+      <LocaleInputDiv>
+        <InputTextNumeric
+          type="number"
+          labelAbove="Confirmed case count"
+          labelHelp="Based on NYTimes data. Replace with your most up-to-date data."
+          valueEntered={model.confirmedCases}
+          onValueChange={(value) => updateModel({ confirmedCases: value })}
+        />
+      </LocaleInputDiv>
     </LocaleInformationDiv>
   );
 };
 
 /* Facility Customization */
 
+const FormRowWrapper = styled.div<{ labelsOnly?: boolean }>`
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  ${(props) => !props.labelsOnly && "margin-bottom: 24px;"}
+`;
+
+const LabelCell = styled.div`
+  box-sizing: border-box;
+  width: 22%;
+  flex: 0 0 auto;
+  padding: 0 8px;
+  align-self: center;
+`;
+
+const InputCell = styled.div<{ grow?: boolean }>`
+  box-sizing: border-box;
+  width: 39%;
+  flex: ${(props) => (props.grow ? 1 : 0)} 0 auto;
+  padding: 0 8px;
+`;
+
 const FormHeaderRow: React.FC = () => (
-  <tr>
-    <td />
-    <td>
+  <FormRowWrapper labelsOnly>
+    <LabelCell />
+    <InputCell>
       <TextLabel>Current Cases</TextLabel>
-    </td>
-    <td>
+    </InputCell>
+    <InputCell>
       <TextLabel>Total Population</TextLabel>
-    </td>
-  </tr>
+    </InputCell>
+  </FormRowWrapper>
 );
 
 interface FormRowProps {
@@ -160,25 +195,25 @@ const FormRow: React.FC<FormRowProps> = (props) => {
   const [model, updateModel] = useModel();
 
   return (
-    <tr>
-      <td>
+    <FormRowWrapper>
+      <LabelCell>
         <TextLabel>{props.label}</TextLabel>
-      </td>
-      <td>
+      </LabelCell>
+      <InputCell>
         <InputTextNumeric
           type="number"
           valueEntered={model[props.leftKey] as number}
           onValueChange={(value) => updateModel({ [props.leftKey]: value })}
         />
-      </td>
-      <td>
+      </InputCell>
+      <InputCell>
         <InputTextNumeric
           type="number"
           valueEntered={model[props.rightKey] as number}
           onValueChange={(value) => updateModel({ [props.rightKey]: value })}
         />
-      </td>
-    </tr>
+      </InputCell>
+    </FormRowWrapper>
   );
 };
 
@@ -186,39 +221,36 @@ const BottomRow: React.FC = () => {
   const [model, updateModel] = useModel();
 
   return (
-    <tr>
-      <td>
+    <FormRowWrapper>
+      <InputCell grow>
         <InputTextNumeric
           type="percent"
-          labelAbove="Capacity"
+          labelAbove="Capacity (%)"
           labelHelp="Enter population as a percent of facility built capacity."
           valueEntered={model.facilityOccupancyPct}
           onValueChange={(value) =>
             updateModel({ facilityOccupancyPct: value })
           }
         />
-      </td>
-      <td>
+      </InputCell>
+      <InputCell grow>
         <InputTextNumeric
           type="percent"
-          labelAbove="Bunk-Style Housing"
+          labelAbove="Bunk-Style Housing (%)"
           labelHelp="Enter the percent of facility in dormitory bunk style housing."
           valueEntered={model.facilityDormitoryPct as number}
           onValueChange={(value) =>
             updateModel({ facilityDormitoryPct: value })
           }
         />
-      </td>
-    </tr>
+      </InputCell>
+    </FormRowWrapper>
   );
 };
 
 const FacilityInformationDiv = styled.div`
   border-right: 1px solid ${Colors.grey};
-  flex: 1 0 auto;
   padding-right: 25px;
-  min-width: 250px;
-  max-width: 600px;
 `;
 
 const FacilityInformation: React.FC = () => {
@@ -307,6 +339,11 @@ const ImpactDashboardVDiv = styled.div`
   flex-wrap: wrap;
 `;
 
+const FormColumn = styled.div`
+  flex: 1 0 auto;
+  width: 350px;
+`;
+
 const ImpactDashboard: React.FC = () => {
   const { countyLevelDataFailed } = useEpidemicModelState();
   return (
@@ -319,10 +356,10 @@ const ImpactDashboard: React.FC = () => {
           <LocaleInformation />
           <SectionHeader>Facility Customization</SectionHeader>
           <ImpactDashboardVDiv>
-            <div>
+            <FormColumn>
               <SubsectionHeader>Facility Information</SubsectionHeader>
               <FacilityInformation />
-            </div>
+            </FormColumn>
             <ChartsContainer>
               <ChartArea />
               <ImpactProjectionTable />

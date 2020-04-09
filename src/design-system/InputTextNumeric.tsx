@@ -42,9 +42,7 @@ const InputTextNumeric: React.FC<Props> = (props) => {
         props.labelPlaceholder ??
         (props.type === "number" ? "Enter number" : "Enter a percentage")
       }
-    >
-      {props.type === "percent" && <>%</>}
-    </InputText>
+    />
   );
 };
 

@@ -18,7 +18,6 @@ const SelectContainer = styled.div`
   flex-grow: 1;
   flex-basis: 50%;
   margin-right: 8px;
-  margin-bottom: 24px;
 `;
 
 const SelectInput = styled.select`
