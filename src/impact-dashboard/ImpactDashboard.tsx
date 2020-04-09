@@ -173,14 +173,18 @@ const InputCell = styled.div<{ grow?: boolean }>`
   padding: 0 8px;
 `;
 
-const FormHeaderRow: React.FC = () => (
+interface FormHeaderRowProps {
+  label: string;
+}
+
+const FormHeaderRow: React.FC<FormHeaderRowProps> = (props) => (
   <FormRowWrapper labelsOnly>
     <LabelCell />
     <InputCell>
       <TextLabel>Current Cases</TextLabel>
     </InputCell>
     <InputCell>
-      <TextLabel>Total Population</TextLabel>
+      <TextLabel>{props.label}</TextLabel>
     </InputCell>
   </FormRowWrapper>
 );
@@ -264,14 +268,14 @@ const FacilityInformation: React.FC = () => {
       </Description>
       <div>
         <Table>
-          <FormHeaderRow />
+          <FormHeaderRow label="Staff Population" />
           <FormRow
             label="Facility Staff"
             leftKey="staffCases"
             rightKey="staffPopulation"
           />
           <tr />
-          <FormHeaderRow />
+          <FormHeaderRow label="Total Population" />
           <FormRow
             label="Ages Unknown"
             leftKey="ageUnknownCases"
