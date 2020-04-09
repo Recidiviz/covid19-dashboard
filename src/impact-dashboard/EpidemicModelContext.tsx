@@ -213,7 +213,7 @@ function sanitizeQueryParams(rawQueryParams: QueryParams) {
   return mapValues(pick(rawQueryParams, urlParamKeys), (value) => {
     // most of these are numbers but some are strings
     const n = numeral(value).value();
-    return n != null ? n : "" + value;
+    return n != null ? n : value?.toString();
   });
 }
 
