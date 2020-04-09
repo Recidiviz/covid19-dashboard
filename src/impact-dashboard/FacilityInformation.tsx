@@ -9,6 +9,10 @@ import useModel from "./useModel";
 
 const FacilityInformationDiv = styled.div``;
 
+const LabelRow = styled(FormGridRow)`
+  margin-bottom: 0;
+`;
+
 const LabelCell: React.FC = (props) => (
   <FormGridCell width={22} vAlign="center">
     {props.children}
@@ -24,7 +28,7 @@ interface FormHeaderRowProps {
 }
 
 const FormHeaderRow: React.FC<FormHeaderRowProps> = (props) => (
-  <FormGridRow labelsOnly>
+  <LabelRow>
     <LabelCell />
     <InputCell>
       <TextLabel>Current Cases</TextLabel>
@@ -32,7 +36,7 @@ const FormHeaderRow: React.FC<FormHeaderRowProps> = (props) => (
     <InputCell>
       <TextLabel>{props.label}</TextLabel>
     </InputCell>
-  </FormGridRow>
+  </LabelRow>
 );
 
 interface FormRowProps {

@@ -4,11 +4,11 @@ export const FormGrid = styled.div`
   width: 100%;
 `;
 
-export const FormGridRow = styled.div<{ labelsOnly?: boolean }>`
+export const FormGridRow = styled.div`
   display: flex;
   flex-direction: row;
   align-items: flex-end;
-  ${(props) => !props.labelsOnly && "margin-bottom: 24px;"}
+  margin-bottom: 16px;
 `;
 
 export const FormGridCell = styled.div<{ width?: number; vAlign?: string }>`
