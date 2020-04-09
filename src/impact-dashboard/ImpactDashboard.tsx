@@ -63,6 +63,12 @@ function useModel() {
 const LocaleInformationDiv = styled.div`
   display: flex;
   flex-direction: row;
+  margin-bottom: 24px;
+  align-items: flex-end;
+`;
+
+const LocaleInputDiv = styled.div`
+  flex: 0 1 auto;
 `;
 
 const LocaleInformation: React.FC = () => {
@@ -97,42 +103,48 @@ const LocaleInformation: React.FC = () => {
 
   return (
     <LocaleInformationDiv>
-      <InputSelect
-        label="State"
-        value={model.stateCode}
-        onChange={(event) => {
-          updateModel({ stateCode: event.target.value });
-        }}
-      >
-        {stateList.map(({ value }) => (
-          <option key={value} value={value}>
-            {value}
-          </option>
-        ))}
-      </InputSelect>
-      <InputSelect
-        label="County"
-        value={model.countyName}
-        onChange={(event) => {
-          updateModel({
-            stateCode: model.stateCode,
-            countyName: event.target.value,
-          });
-        }}
-      >
-        {countyList.map(({ value }) => (
-          <option key={value} value={value}>
-            {value}
-          </option>
-        ))}
-      </InputSelect>
-      <InputTextNumeric
-        type="number"
-        labelAbove="Confirmed case count"
-        labelHelp="Based on NYTimes data. Replace with your most up-to-date data."
-        valueEntered={model.confirmedCases}
-        onValueChange={(value) => updateModel({ confirmedCases: value })}
-      />
+      <LocaleInputDiv>
+        <InputSelect
+          label="State"
+          value={model.stateCode}
+          onChange={(event) => {
+            updateModel({ stateCode: event.target.value });
+          }}
+        >
+          {stateList.map(({ value }) => (
+            <option key={value} value={value}>
+              {value}
+            </option>
+          ))}
+        </InputSelect>
+      </LocaleInputDiv>
+      <LocaleInputDiv>
+        <InputSelect
+          label="County"
+          value={model.countyName}
+          onChange={(event) => {
+            updateModel({
+              stateCode: model.stateCode,
+              countyName: event.target.value,
+            });
+          }}
+        >
+          {countyList.map(({ value }) => (
+            <option key={value} value={value}>
+              {value}
+            </option>
+          ))}
+        </InputSelect>
+      </LocaleInputDiv>
+      <LocaleInputDiv>
+        <InputTextNumeric
+          type="number"
+          labelAbove="Confirmed case count"
+          labelHelp="Based on NYTimes data. Replace with your most up-to-date data."
+          valueEntered={model.confirmedCases}
+          onValueChange={(value) => updateModel({ confirmedCases: value })}
+        />
+      </LocaleInputDiv>
     </LocaleInformationDiv>
   );
 };
