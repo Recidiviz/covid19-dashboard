@@ -13,12 +13,20 @@ import {
 } from "./EpidemicModelContext";
 import ImpactProjectionTable from "./ImpactProjectionTableContainer";
 
+const FormTable = styled.table`
+  width: 100%;
+`;
+
+const FormTableCell = styled.td`
+  padding: 0 8px;
+`;
+
 /* Shared components */
 
 const Table: React.FC = (props) => (
-  <table>
+  <FormTable>
     <tbody>{props.children}</tbody>
-  </table>
+  </FormTable>
 );
 
 const SectionHeader = styled.header`
@@ -44,6 +52,7 @@ const Description = styled.p`
   font-weight: normal;
   font-size: 11px;
   line-height: 16px;
+  margin: 10px 0 20px 0;
 `;
 
 function useModel() {
@@ -141,12 +150,12 @@ const LocaleInformation: React.FC = () => {
 const FormHeaderRow: React.FC = () => (
   <tr>
     <td />
-    <td>
+    <FormTableCell>
       <TextLabel>Current Cases</TextLabel>
-    </td>
-    <td>
+    </FormTableCell>
+    <FormTableCell>
       <TextLabel>Total Population</TextLabel>
-    </td>
+    </FormTableCell>
   </tr>
 );
 
@@ -161,23 +170,23 @@ const FormRow: React.FC<FormRowProps> = (props) => {
 
   return (
     <tr>
-      <td>
+      <FormTableCell>
         <TextLabel>{props.label}</TextLabel>
-      </td>
-      <td>
+      </FormTableCell>
+      <FormTableCell>
         <InputTextNumeric
           type="number"
           valueEntered={model[props.leftKey] as number}
           onValueChange={(value) => updateModel({ [props.leftKey]: value })}
         />
-      </td>
-      <td>
+      </FormTableCell>
+      <FormTableCell>
         <InputTextNumeric
           type="number"
           valueEntered={model[props.rightKey] as number}
           onValueChange={(value) => updateModel({ [props.rightKey]: value })}
         />
-      </td>
+      </FormTableCell>
     </tr>
   );
 };
@@ -187,28 +196,28 @@ const BottomRow: React.FC = () => {
 
   return (
     <tr>
-      <td>
+      <FormTableCell>
         <InputTextNumeric
           type="percent"
-          labelAbove="Capacity"
+          labelAbove="Capacity (%)"
           labelHelp="Enter population as a percent of facility built capacity."
           valueEntered={model.facilityOccupancyPct}
           onValueChange={(value) =>
             updateModel({ facilityOccupancyPct: value })
           }
         />
-      </td>
-      <td>
+      </FormTableCell>
+      <FormTableCell>
         <InputTextNumeric
           type="percent"
-          labelAbove="Bunk-Style Housing"
+          labelAbove="Bunk-Style Housing (%)"
           labelHelp="Enter the percent of facility in dormitory bunk style housing."
           valueEntered={model.facilityDormitoryPct as number}
           onValueChange={(value) =>
             updateModel({ facilityDormitoryPct: value })
           }
         />
-      </td>
+      </FormTableCell>
     </tr>
   );
 };
