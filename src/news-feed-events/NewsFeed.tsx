@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import DateMMMD from "../design-system/DateMMMD";
+import { DateMMMD } from "../design-system/DateFormats";
 import { Spacer } from "../design-system/Spacer";
 import NewsFeedEvent from "./NewsFeedEvent";
 
