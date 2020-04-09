@@ -13,21 +13,13 @@ import {
 } from "./EpidemicModelContext";
 import ImpactProjectionTable from "./ImpactProjectionTableContainer";
 
-const FormTable = styled.table`
+const FormGrid = styled.div`
   width: 100%;
-`;
-
-const FormTableCell = styled.td`
-  padding: 0 8px;
 `;
 
 /* Shared components */
 
-const Table: React.FC = (props) => (
-  <FormTable>
-    <tbody>{props.children}</tbody>
-  </FormTable>
-);
+const Table: React.FC = (props) => <FormGrid>{props.children}</FormGrid>;
 
 const SectionHeader = styled.header`
   font-family: Poppins;
@@ -147,16 +139,38 @@ const LocaleInformation: React.FC = () => {
 
 /* Facility Customization */
 
+const FormRowWrapper = styled.div<{ labelsOnly?: boolean }>`
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  ${(props) => !props.labelsOnly && "margin-bottom: 24px;"}
+`;
+
+const LabelCell = styled.div`
+  box-sizing: border-box;
+  width: 22%;
+  flex: 0 0 auto;
+  padding: 0 8px;
+  align-self: center;
+`;
+
+const InputCell = styled.div<{ grow?: boolean }>`
+  box-sizing: border-box;
+  width: 39%;
+  flex: ${(props) => (props.grow ? 1 : 0)} 0 auto;
+  padding: 0 8px;
+`;
+
 const FormHeaderRow: React.FC = () => (
-  <tr>
-    <td />
-    <FormTableCell>
+  <FormRowWrapper labelsOnly>
+    <LabelCell />
+    <InputCell>
       <TextLabel>Current Cases</TextLabel>
-    </FormTableCell>
-    <FormTableCell>
+    </InputCell>
+    <InputCell>
       <TextLabel>Total Population</TextLabel>
-    </FormTableCell>
-  </tr>
+    </InputCell>
+  </FormRowWrapper>
 );
 
 interface FormRowProps {
@@ -169,25 +183,25 @@ const FormRow: React.FC<FormRowProps> = (props) => {
   const [model, updateModel] = useModel();
 
   return (
-    <tr>
-      <FormTableCell>
+    <FormRowWrapper>
+      <LabelCell>
         <TextLabel>{props.label}</TextLabel>
-      </FormTableCell>
-      <FormTableCell>
+      </LabelCell>
+      <InputCell>
         <InputTextNumeric
           type="number"
           valueEntered={model[props.leftKey] as number}
           onValueChange={(value) => updateModel({ [props.leftKey]: value })}
         />
-      </FormTableCell>
-      <FormTableCell>
+      </InputCell>
+      <InputCell>
         <InputTextNumeric
           type="number"
           valueEntered={model[props.rightKey] as number}
           onValueChange={(value) => updateModel({ [props.rightKey]: value })}
         />
-      </FormTableCell>
-    </tr>
+      </InputCell>
+    </FormRowWrapper>
   );
 };
 
@@ -195,8 +209,8 @@ const BottomRow: React.FC = () => {
   const [model, updateModel] = useModel();
 
   return (
-    <tr>
-      <FormTableCell>
+    <FormRowWrapper>
+      <InputCell grow>
         <InputTextNumeric
           type="percent"
           labelAbove="Capacity (%)"
@@ -206,8 +220,8 @@ const BottomRow: React.FC = () => {
             updateModel({ facilityOccupancyPct: value })
           }
         />
-      </FormTableCell>
-      <FormTableCell>
+      </InputCell>
+      <InputCell grow>
         <InputTextNumeric
           type="percent"
           labelAbove="Bunk-Style Housing (%)"
@@ -217,17 +231,14 @@ const BottomRow: React.FC = () => {
             updateModel({ facilityDormitoryPct: value })
           }
         />
-      </FormTableCell>
-    </tr>
+      </InputCell>
+    </FormRowWrapper>
   );
 };
 
 const FacilityInformationDiv = styled.div`
   border-right: 1px solid ${Colors.grey};
-  flex: 1 0 auto;
   padding-right: 25px;
-  min-width: 250px;
-  max-width: 600px;
 `;
 
 const FacilityInformation: React.FC = () => {
@@ -316,6 +327,11 @@ const ImpactDashboardVDiv = styled.div`
   flex-wrap: wrap;
 `;
 
+const FormColumn = styled.div`
+  flex: 1 0 auto;
+  width: 350px;
+`;
+
 const ImpactDashboard: React.FC = () => {
   const { countyLevelDataFailed } = useEpidemicModelState();
   return (
@@ -328,10 +344,10 @@ const ImpactDashboard: React.FC = () => {
           <LocaleInformation />
           <SectionHeader>Facility Customization</SectionHeader>
           <ImpactDashboardVDiv>
-            <div>
+            <FormColumn>
               <SubsectionHeader>Facility Information</SubsectionHeader>
               <FacilityInformation />
-            </div>
+            </FormColumn>
             <ChartsContainer>
               <ChartArea />
               <ImpactProjectionTable />

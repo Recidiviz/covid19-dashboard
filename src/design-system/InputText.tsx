@@ -16,12 +16,12 @@ const Input = styled.input`
   color: #00413e;
   margin-top: 8px;
   flex: 1 1 auto;
+  width: 100%;
 `;
 
 const TextInputContainer = styled.div`
   display: flex;
   flex-direction: column;
-  margin-bottom: 24px;
 `;
 
 const VDiv = styled.div`
