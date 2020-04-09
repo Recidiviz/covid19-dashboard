@@ -1,7 +1,11 @@
 import { csvParse, DSVRowAny } from "d3";
 import { rollup } from "d3-array";
+import { mapValues, pick } from "lodash";
 import numeral from "numeral";
-import React from "react";
+import React, { useEffect } from "react";
+import { useHistory } from "react-router-dom";
+
+import useQueryParams from "../hooks/useQueryParams";
 
 type CountyLevelRecord = {
   hospitalBeds: number;
@@ -13,16 +17,7 @@ type CountyLevelRecord = {
 
 type CountyLevelData = Map<string, Map<string, CountyLevelRecord>>;
 
-type Action =
-  | { type: "update"; payload: EpidemicModelUpdate }
-  | {
-      type: "reset";
-      payload: {
-        dataSource?: CountyLevelData;
-        stateCode?: string;
-        countyName?: string;
-      };
-    };
+type Action = { type: "update"; payload: EpidemicModelUpdate };
 type Dispatch = (action: Action) => void;
 
 export enum RateOfSpread {
@@ -143,13 +138,32 @@ interface ResetPayload {
   countyName?: string;
 }
 
-function getResetState(payload: ResetPayload): EpidemicModelState {
-  const { dataSource, stateCode = "US Total", countyName = "Total" } = payload;
-  // some defaults can (indeed, must) bet set even without external data
-  const resetBase = {
+function getLocaleData(
+  dataSource: CountyLevelData,
+  stateCode: string,
+  countyName: string,
+) {
+  return {
     countyLevelData: dataSource,
+    countyLevelDataLoading: false,
+    totalIncarcerated: dataSource.get(stateCode)?.get(countyName)
+      ?.totalIncarceratedPopulation,
+    hospitalBeds: dataSource.get(stateCode)?.get(countyName)?.hospitalBeds,
+    ageUnknownPopulation: dataSource.get(stateCode)?.get(countyName)
+      ?.totalIncarceratedPopulation,
+    ageUnknownCases: dataSource.get(stateCode)?.get(countyName)
+      ?.estimatedIncarceratedCases,
+    confirmedCases: dataSource.get(stateCode)?.get(countyName)
+      ?.estimatedIncarceratedCases,
+    staffCases: 0,
+    staffPopulation: 0,
+  };
+}
+
+function getResetBase(stateCode = "US Total", countyName = "Total") {
+  return {
     stateCode,
-    countyName: countyName,
+    countyName,
     rateOfSpreadFactor: RateOfSpread.high,
     // in the current UI we are always using age brackets
     // TODO: maybe this field is no longer needed?
@@ -159,25 +173,6 @@ function getResetState(payload: ResetPayload): EpidemicModelState {
     hospitalBeds: 0,
     countyLevelDataLoading: true,
   };
-  let seedData = {};
-  if (typeof dataSource !== "undefined") {
-    seedData = {
-      countyLevelDataLoading: false,
-      totalIncarcerated: dataSource.get(stateCode)?.get(countyName)
-        ?.totalIncarceratedPopulation,
-      hospitalBeds: dataSource.get(stateCode)?.get(countyName)?.hospitalBeds,
-      ageUnknownPopulation: dataSource.get(stateCode)?.get(countyName)
-        ?.totalIncarceratedPopulation,
-      ageUnknownCases: dataSource.get(stateCode)?.get(countyName)
-        ?.estimatedIncarceratedCases,
-      confirmedCases: dataSource.get(stateCode)?.get(countyName)
-        ?.estimatedIncarceratedCases,
-      staffCases: 0,
-      staffPopulation: 0,
-    };
-  }
-
-  return Object.assign({}, resetBase, seedData);
 }
 
 function epidemicModelReducer(
@@ -191,19 +186,33 @@ function epidemicModelReducer(
       // action and merge the whole object into previous state.
       // it's not very granular but it doesn't need to be at the moment
       return Object.assign({}, state, action.payload);
-    case "reset":
-      return getResetState(action.payload);
   }
+}
+
+function sanitizeQueryParams(rawQueryParams) {
+  return mapValues(pick(rawQueryParams, urlParamKeys), (value) => {
+    // most of these are numbers but some are strings
+    const n = numeral(value).value();
+    return n != null ? n : "" + value;
+  });
 }
 
 // estimated ratio of confirmed cases to actual cases
 const caseReportingRate = 0.14;
 
 function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
+  const { values: rawQueryParams } = useQueryParams({});
+
   const [state, dispatch] = React.useReducer(
     epidemicModelReducer,
-    getResetState({}),
+    getResetBase(),
   );
+
+  // const history = useHistory;
+
+  // useEffect(() => {
+  //   updateStateFromQueryParams();
+  // }, []);
 
   // fetch from external datasource
   React.useEffect(() => {
@@ -263,8 +272,17 @@ function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
         ) as CountyLevelData;
 
         dispatch({
-          type: "reset",
-          payload: { dataSource: nestedStateCounty },
+          type: "update",
+          payload: {
+            countyLevelData: nestedStateCounty,
+            countyLevelDataLoading: false,
+            ...getLocaleData(
+              nestedStateCounty,
+              rawQueryParams.stateCode || state.stateCode,
+              rawQueryParams.countyName || "Total",
+            ),
+            ...sanitizeQueryParams(rawQueryParams),
+          },
         });
       } catch (error) {
         console.error(error);
