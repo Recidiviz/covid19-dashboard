@@ -13,6 +13,12 @@ firebase login
 
 ### Start the functions
 
+Install `nvm` if you don't have it already: https://github.com/nvm-sh/nvm#installing-and-updating
+
+Run `nvm use`. If you get an error, you may need to install the configured node version using the `nvm` command in the
+error.
+
+
 ```
 cd functions
 yarn install
