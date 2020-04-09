@@ -1,46 +1,30 @@
 import styled from "styled-components";
 
-import Colors from "../design-system/Colors";
 import InputTextNumeric from "../design-system/InputTextNumeric";
 import TextLabel from "../design-system/TextLabel";
 import Description from "./Description";
 import { EpidemicModelUpdate } from "./EpidemicModelContext";
-import FormGrid from "./FormGrid";
+import { FormGrid, FormGridCell, FormGridRow } from "./FormGrid";
 import useModel from "./useModel";
 
-const FacilityInformationDiv = styled.div`
-  border-right: 1px solid ${Colors.grey};
-  padding-right: 25px;
-`;
+const FacilityInformationDiv = styled.div``;
 
-const FormRowWrapper = styled.div<{ labelsOnly?: boolean }>`
-  display: flex;
-  flex-direction: row;
-  align-items: flex-end;
-  ${(props) => !props.labelsOnly && "margin-bottom: 24px;"}
-`;
+const LabelCell: React.FC = (props) => (
+  <FormGridCell width={22} vAlign="center">
+    {props.children}
+  </FormGridCell>
+);
 
-const LabelCell = styled.div`
-  box-sizing: border-box;
-  width: 22%;
-  flex: 0 0 auto;
-  padding: 0 8px;
-  align-self: center;
-`;
-
-const InputCell = styled.div<{ grow?: boolean }>`
-  box-sizing: border-box;
-  width: 39%;
-  flex: ${(props) => (props.grow ? 1 : 0)} 0 auto;
-  padding: 0 8px;
-`;
+const InputCell: React.FC = (props) => (
+  <FormGridCell width={39}>{props.children}</FormGridCell>
+);
 
 interface FormHeaderRowProps {
   label: string;
 }
 
 const FormHeaderRow: React.FC<FormHeaderRowProps> = (props) => (
-  <FormRowWrapper labelsOnly>
+  <FormGridRow labelsOnly>
     <LabelCell />
     <InputCell>
       <TextLabel>Current Cases</TextLabel>
@@ -48,7 +32,7 @@ const FormHeaderRow: React.FC<FormHeaderRowProps> = (props) => (
     <InputCell>
       <TextLabel>{props.label}</TextLabel>
     </InputCell>
-  </FormRowWrapper>
+  </FormGridRow>
 );
 
 interface FormRowProps {
@@ -61,7 +45,7 @@ const FormRow: React.FC<FormRowProps> = (props) => {
   const [model, updateModel] = useModel();
 
   return (
-    <FormRowWrapper>
+    <FormGridRow>
       <LabelCell>
         <TextLabel>{props.label}</TextLabel>
       </LabelCell>
@@ -79,7 +63,7 @@ const FormRow: React.FC<FormRowProps> = (props) => {
           onValueChange={(value) => updateModel({ [props.rightKey]: value })}
         />
       </InputCell>
-    </FormRowWrapper>
+    </FormGridRow>
   );
 };
 
@@ -87,8 +71,8 @@ const BottomRow: React.FC = () => {
   const [model, updateModel] = useModel();
 
   return (
-    <FormRowWrapper>
-      <InputCell grow>
+    <FormGridRow>
+      <FormGridCell>
         <InputTextNumeric
           type="percent"
           labelAbove="Capacity (%)"
@@ -98,8 +82,8 @@ const BottomRow: React.FC = () => {
             updateModel({ facilityOccupancyPct: value })
           }
         />
-      </InputCell>
-      <InputCell grow>
+      </FormGridCell>
+      <FormGridCell>
         <InputTextNumeric
           type="percent"
           labelAbove="Bunk-Style Housing (%)"
@@ -109,8 +93,8 @@ const BottomRow: React.FC = () => {
             updateModel({ facilityDormitoryPct: value })
           }
         />
-      </InputCell>
-    </FormRowWrapper>
+      </FormGridCell>
+    </FormGridRow>
   );
 };
 

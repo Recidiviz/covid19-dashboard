@@ -1,10 +1,14 @@
 import styled from "styled-components";
 
+import Colors from "../design-system/Colors";
 import ChartArea from "./ChartArea";
 import { useEpidemicModelState } from "./EpidemicModelContext";
 import FacilityInformation from "./FacilityInformation";
 import ImpactProjectionTable from "./ImpactProjectionTableContainer";
 import LocaleInformation from "./LocaleInformation";
+import MitigationInformation from "./MitigationInformation";
+
+const borderStyle = `1px solid ${Colors.grey}`;
 
 const SectionHeader = styled.header`
   font-family: Poppins;
@@ -39,11 +43,21 @@ const ImpactDashboardVDiv = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  margin-bottom: 30px;
 `;
 
 const FormColumn = styled.div`
+  box-sizing: border-box;
   flex: 1 0 auto;
   width: 350px;
+  border-right: ${borderStyle};
+  padding-bottom: 30px;
+  padding-right: 25px;
+`;
+
+const HorizontalDivider = styled.hr`
+  border-top: ${borderStyle};
+  margin: 40px 0;
 `;
 
 const ImpactDashboard: React.FC = () => {
@@ -61,6 +75,9 @@ const ImpactDashboard: React.FC = () => {
             <FormColumn>
               <SubsectionHeader>Facility Information</SubsectionHeader>
               <FacilityInformation />
+              <HorizontalDivider />
+              <SubsectionHeader>Mitigation Information</SubsectionHeader>
+              <MitigationInformation />
             </FormColumn>
             <ChartsContainer>
               <ChartArea />
