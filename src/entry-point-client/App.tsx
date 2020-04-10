@@ -1,7 +1,7 @@
 import { hot } from "react-hot-loader";
 import { Redirect, Route, Switch } from "react-router-dom";
 
-import PrivateRoute from "../auth/PrivateRoute";
+import AuthWall from "../auth/AuthWall";
 import { useAuth0 } from "../auth/react-auth0-spa";
 import Loading from "../design-system/Loading";
 import { GlobalStyles } from "../styles";
@@ -37,10 +37,10 @@ const App: React.FC = () => {
           } else {
             return (
               <Route key={path} path={path} exact>
-                <PrivateRoute>
+                <AuthWall>
                   <WindowTitle>{title}</WindowTitle>
                   {redirectIfUnverified(user, contents)}
-                </PrivateRoute>
+                </AuthWall>
               </Route>
             );
           }

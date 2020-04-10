@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 
 import { useAuth0 } from "./react-auth0-spa";
 
-const PrivateRoute: React.FC = (props) => {
+const AuthWall: React.FC = (props) => {
   const location = useLocation();
   const { loading, isAuthenticated, loginWithRedirect } = useAuth0() as any;
 
@@ -24,4 +24,4 @@ const PrivateRoute: React.FC = (props) => {
   return <>{inner}</>;
 };
 
-export default PrivateRoute;
+export default AuthWall;
