@@ -14,16 +14,9 @@ const AuthWall: React.FC = (props) => {
   } = useAuth0() as any;
 
   useEffect(() => {
-    if (loading || isAuthenticated) {
-      return;
-    }
+    if (loading || isAuthenticated) return;
 
-    const fn = async () => {
-      await loginWithRedirect({
-        appState: { targetUrl: location.pathname },
-      });
-    };
-    fn();
+    loginWithRedirect({ appState: { targetUrl: location.pathname } });
   }, [loading, isAuthenticated, loginWithRedirect, location.pathname]);
 
   if (loading) {
@@ -34,9 +27,12 @@ const AuthWall: React.FC = (props) => {
     return <Redirect to="/verify" />;
   }
 
-  let inner = isAuthenticated === true ? props.children : null;
+  // We could be here if loginWithRedirect hasn't completed yet.
+  if (!isAuthenticated) {
+    return <Loading />;
+  }
 
-  return <>{inner}</>;
+  return <>{props.children}</>;
 };
 
 export default AuthWall;
