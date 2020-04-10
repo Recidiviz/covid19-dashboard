@@ -119,7 +119,8 @@ const FacilityInformation: React.FC = () => {
             leftKey="staffCases"
             rightKey="staffPopulation"
           />
-          <tr />
+          {/* empty row for spacing */}
+          <FormGridRow />
           <FormHeaderRow label="Total Population" />
           <FormRow
             label="Ages Unknown"

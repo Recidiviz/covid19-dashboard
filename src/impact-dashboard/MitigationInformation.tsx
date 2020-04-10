@@ -103,15 +103,13 @@ const MitigationInformation: React.FC = () => {
       </Description>
       <FormGrid>
         {mutableReleases?.map(({ date, count }, index) => (
-          <>
-            <Row
-              key={index}
-              date={date}
-              count={count}
-              index={index}
-              updateRelease={updateRelease}
-            />
-          </>
+          <Row
+            key={index}
+            date={date}
+            count={count}
+            index={index}
+            updateRelease={updateRelease}
+          />
         ))}
       </FormGrid>
       <ButtonAdd onClick={addEmptyRelease}>
