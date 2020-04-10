@@ -1,10 +1,10 @@
 import { isEqual as isGenerallyEqual } from "lodash";
-import queryString from "query-string";
+import qs from "qs";
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 
 export interface QueryParams {
-  [key: string]: string | number | undefined;
+  [key: string]: any;
 }
 
 export type HistoryAction = "replace" | "push";
@@ -37,9 +37,7 @@ const useQueryParams = (
 ): UseQueryParamsOutput => {
   const history = useHistory();
 
-  const defaultQueryParams = queryString.parse(
-    history.location.search,
-  ) as QueryParams;
+  const defaultQueryParams = qs.parse(history.location.search) as QueryParams;
   const hasExistingURLQueryParams = Object.keys(defaultQueryParams).length > 0;
 
   const initialValues = hasExistingURLQueryParams
@@ -50,14 +48,12 @@ const useQueryParams = (
 
   // If values have been updated, also set the query params
   useEffect(() => {
-    const currentQuery = queryString.parse(
-      history.location.search,
-    ) as QueryParams;
+    const currentQuery = qs.parse(history.location.search) as QueryParams;
 
     if (!isEqual(currentQuery, values, validKeys)) {
       const newLocation = {
         ...history.location,
-        search: queryString.stringify(values),
+        search: qs.stringify(values),
       };
       if (action == "replace") {
         history.replace(newLocation);
@@ -70,7 +66,7 @@ const useQueryParams = (
 
   // If the query params in the url changes, also set the values
   useEffect(() => {
-    const nextValues = queryString.parse(location.search) as QueryParams;
+    const nextValues = qs.parse(location.search) as QueryParams;
 
     if (!isEqual(values, nextValues, validKeys)) {
       setValues(nextValues);
