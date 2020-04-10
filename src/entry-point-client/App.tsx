@@ -3,17 +3,12 @@ import { Redirect, Route, Switch } from "react-router-dom";
 
 import AuthWall from "../auth/AuthWall";
 import { useAuth0 } from "../auth/react-auth0-spa";
-import Loading from "../design-system/Loading";
 import { GlobalStyles } from "../styles";
 import PageList from "./PageList";
 import WindowTitle from "./WindowTitle";
 
 const App: React.FC = () => {
-  const { loading, user } = (useAuth0 as any)();
-
-  if (loading) {
-    return <Loading />;
-  }
+  const { user } = (useAuth0 as any)();
 
   const redirectIfUnverified = (userObject: any, contents: any) => {
     if (userObject && !userObject.email_verified) {
@@ -31,7 +26,7 @@ const App: React.FC = () => {
             return (
               <Route key={path} path={path} exact>
                 <WindowTitle>{title}</WindowTitle>
-                {redirectIfUnverified(user, contents)}
+                {contents}
               </Route>
             );
           } else {

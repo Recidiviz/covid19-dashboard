@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
+import Loading from "../design-system/Loading";
 import { useAuth0 } from "./react-auth0-spa";
 
 const AuthWall: React.FC = (props) => {
@@ -11,6 +12,7 @@ const AuthWall: React.FC = (props) => {
     if (loading || isAuthenticated) {
       return;
     }
+
     const fn = async () => {
       await loginWithRedirect({
         appState: { targetUrl: location.pathname },
@@ -18,6 +20,10 @@ const AuthWall: React.FC = (props) => {
     };
     fn();
   }, [loading, isAuthenticated, loginWithRedirect, location.pathname]);
+
+  if (loading) {
+    return <Loading />;
+  }
 
   let inner = isAuthenticated === true ? props.children : null;
 
