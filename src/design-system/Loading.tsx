@@ -1,25 +1,22 @@
-import { css } from "@emotion/core";
+import React from "react";
 import BounceLoader from "react-spinners/BounceLoader";
+import styled from "styled-components";
 
-import { GlobalStyles } from "../styles";
+import Colors from "./Colors";
 
-const override = css`
-  display: block;
-  margin: 0 auto;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  -ms-transform: translateX(-50%) translateY(-50%);
-  -webkit-transform: translate(-50%, -50%);
-  transform: translate(-50%, -50%);
+const LoadingContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
 `;
 
 const Loading: React.FC = () => {
   return (
-    <>
-      <GlobalStyles />
-      <BounceLoader css={override} size={60} color={"#005450"} />
-    </>
+    <LoadingContainer>
+      <BounceLoader size={60} color={Colors.forest} />
+    </LoadingContainer>
   );
 };
 
