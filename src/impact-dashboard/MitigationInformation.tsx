@@ -3,13 +3,12 @@ import { useState } from "react";
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
-import InputText from "../design-system/InputText";
+import InputDate from "../design-system/InputDate";
 import InputTextNumeric from "../design-system/InputTextNumeric";
 import Description from "./Description";
 import { FormGrid, FormGridCell, FormGridRow } from "./FormGrid";
 
-// TODO: date should be a date
-type PlannedRelease = { date?: string; count?: number };
+type PlannedRelease = { date?: Date; count?: number };
 type PlannedReleases = PlannedRelease[];
 type ReleaseUpdate = {
   index: number;
@@ -40,8 +39,8 @@ const ButtonAdd = styled.button`
 
 const Row: React.FC<RowProps> = ({ date, count, index, updateRelease }) => (
   <FormGridRow>
-    <FormGridCell>
-      <InputText
+    <FormGridCell width={50}>
+      <InputDate
         labelAbove={index === 0 ? "Release date" : undefined}
         labelHelp={
           index === 0
@@ -49,14 +48,13 @@ const Row: React.FC<RowProps> = ({ date, count, index, updateRelease }) => (
                population below (e.g., early releases to supervision).`
             : undefined
         }
-        type="text"
         valueEntered={date}
         onValueChange={(value) =>
           updateRelease({ index, update: { date: value } })
         }
       />
     </FormGridCell>
-    <FormGridCell>
+    <FormGridCell width={50}>
       <InputTextNumeric
         labelAbove={index === 0 ? "Number released" : undefined}
         labelHelp={

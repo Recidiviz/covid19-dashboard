@@ -73,10 +73,10 @@ const ImpactDashboard: React.FC = () => {
           <SectionHeader>Facility Customization</SectionHeader>
           <ImpactDashboardVDiv>
             <FormColumn>
-              <SubsectionHeader>Facility Information</SubsectionHeader>
+              <SubsectionHeader>Facility Population</SubsectionHeader>
               <FacilityInformation />
               <HorizontalDivider />
-              <SubsectionHeader>Mitigation Information</SubsectionHeader>
+              <SubsectionHeader>COVID-19 Mitigation Efforts</SubsectionHeader>
               <MitigationInformation />
             </FormColumn>
             <ChartsContainer>
