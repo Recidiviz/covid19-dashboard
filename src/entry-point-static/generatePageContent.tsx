@@ -10,7 +10,7 @@ export default function generatePageContent(
   { title, path }: PageInfo,
 ) {
   let styleSheet = new ServerStyleSheet();
-  let contentHtml = ReactDOMServer.renderToString(
+  ReactDOMServer.renderToString(
     styleSheet.collectStyles(
       <StaticRouter location={path}>
         <App />
@@ -22,7 +22,7 @@ export default function generatePageContent(
   [
     ["TITLE PLACEHOLDER", title],
     ["<style></style>", stylesHtml],
-    ["CONTENT PLACEHOLDER", contentHtml],
+    ["CONTENT PLACEHOLDER", ""],
   ].map(([toFind, toReplace]) => {
     if (template.indexOf(toFind) === -1) {
       console.error(
