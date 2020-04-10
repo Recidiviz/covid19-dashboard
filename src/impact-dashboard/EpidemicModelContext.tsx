@@ -16,6 +16,9 @@ type CountyLevelRecord = {
 
 type CountyLevelData = Map<string, Map<string, CountyLevelRecord>>;
 
+export type PlannedRelease = { date?: Date; count?: number };
+export type PlannedReleases = PlannedRelease[];
+
 type Action = { type: "update"; payload: EpidemicModelUpdate };
 type Dispatch = (action: Action) => void;
 
@@ -50,6 +53,7 @@ interface ModelInputsPersistent {
   rateOfSpreadFactor?: RateOfSpread;
   staffCases?: number;
   staffPopulation?: number;
+  plannedReleases?: PlannedReleases;
 }
 
 interface ModelInputsUpdate extends ModelInputsPersistent {
@@ -115,6 +119,7 @@ export const urlParamKeys: Array<keyof EpidemicModelPersistent> = [
   "rateOfSpreadFactor",
   "staffCases",
   "staffPopulation",
+  "plannedReleases",
 ];
 
 export type EpidemicModelUpdate = ModelInputsUpdate & MetadataUpdate;
@@ -211,9 +216,9 @@ function epidemicModelReducer(
 
 function sanitizeQueryParams(rawQueryParams: QueryParams) {
   return mapValues(pick(rawQueryParams, urlParamKeys), (value) => {
-    // most of these are numbers but some are strings
+    // convert numeric values back to numbers
     const n = numeral(value).value();
-    return n != null ? n : value?.toString();
+    return n != null ? n : value;
   });
 }
 
@@ -330,7 +335,7 @@ function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
           });
           dispatch({
             type: "update",
-            payload: sanitizeQueryParams(otherParams) as EpidemicModelUpdate,
+            payload: sanitizeQueryParams(otherParams),
           });
         } catch (error) {
           console.error(error);

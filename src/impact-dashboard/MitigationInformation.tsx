@@ -1,15 +1,14 @@
 import { cloneDeep } from "lodash";
-import { useState } from "react";
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
 import InputDate from "../design-system/InputDate";
 import InputTextNumeric from "../design-system/InputTextNumeric";
 import Description from "./Description";
+import { PlannedRelease, PlannedReleases } from "./EpidemicModelContext";
 import { FormGrid, FormGridCell, FormGridRow } from "./FormGrid";
+import useModel from "./useModel";
 
-type PlannedRelease = { date?: Date; count?: number };
-type PlannedReleases = PlannedRelease[];
 type ReleaseUpdate = {
   index: number;
   update: PlannedRelease;
@@ -73,11 +72,14 @@ const Row: React.FC<RowProps> = ({ date, count, index, updateRelease }) => (
 );
 
 const MitigationInformation: React.FC = () => {
-  // TODO: temporary state for development. add this to context
-  // all updates should be happen on the mutable copy of state,
-  // which will replace the state after user input
-  const [releases, updateReleases] = useState<PlannedReleases>([{}]);
-  const mutableReleases = cloneDeep(releases);
+  const [{ plannedReleases = [{}] }, updateModel] = useModel();
+  // all updates should be happen on this mutable copy,
+  // which will replace the model state after user input
+  const mutableReleases = cloneDeep(plannedReleases);
+
+  const updateReleases = (newValue: PlannedReleases): void => {
+    updateModel({ plannedReleases: newValue });
+  };
 
   const updateRelease = (opts: ReleaseUpdate): void => {
     const { index, update } = opts;
@@ -100,7 +102,7 @@ const MitigationInformation: React.FC = () => {
         releases to supervision).
       </Description>
       <FormGrid>
-        {mutableReleases.map(({ date, count }, index) => (
+        {mutableReleases?.map(({ date, count }, index) => (
           <>
             <Row
               key={index}
