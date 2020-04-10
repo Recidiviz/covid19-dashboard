@@ -1,12 +1,10 @@
-// @ts-nocheck
-
 import React, { useEffect } from "react";
 import { Route } from "react-router-dom";
 
 import { useAuth0 } from "./react-auth0-spa";
 
-const PrivateRoute = ({ component: Component, path, ...rest }: any) => {
-  const { loading, isAuthenticated, loginWithRedirect } = useAuth0();
+const PrivateRoute = ({ children, path, ...rest }: any) => {
+  const { loading, isAuthenticated, loginWithRedirect } = useAuth0() as any;
 
   useEffect(() => {
     if (loading || isAuthenticated) {
@@ -20,10 +18,13 @@ const PrivateRoute = ({ component: Component, path, ...rest }: any) => {
     fn();
   }, [loading, isAuthenticated, loginWithRedirect, path]);
 
-  const render = (props) =>
-    isAuthenticated === true ? <Component {...props} /> : null;
+  let inner = isAuthenticated === true ? children : null;
 
-  return <Route path={path} render={render} {...rest} />;
+  return (
+    <Route path={path} {...rest}>
+      {inner}
+    </Route>
+  );
 };
 
 export default PrivateRoute;
