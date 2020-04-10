@@ -43,3 +43,7 @@ if (process.env.NODE_ENV === "development") {
 } else {
   ReactDOM.hydrate(element, container);
 }
+
+// If the user is using a browser so old that the JS causes a syntax error, in
+// index.html we redirect to the "unsupported browser" page.
+(window as any).appLoaded = true;
