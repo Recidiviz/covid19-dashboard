@@ -29,6 +29,7 @@ export function calculateCurves(inputs: EpidemicModelInputs): CurveData {
     confirmedCases,
     facilityDormitoryPct,
     facilityOccupancyPct,
+    plannedReleases,
     rateOfSpreadFactor,
     staffCases,
     staffPopulation,
@@ -71,6 +72,7 @@ export function calculateCurves(inputs: EpidemicModelInputs): CurveData {
     facilityDormitoryPct,
     facilityOccupancyPct,
     numDays,
+    plannedReleases,
     rateOfSpreadFactor,
   });
 }
