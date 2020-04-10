@@ -1,5 +1,6 @@
 import GetInvolvedPage from "../page-get-involved/GetInvolvedPage";
 import OverviewPage from "../page-overview/OverviewPage";
+import UnsupportedBrowserPage from "../page-unsupported-browser/UnsupportedBrowserPage";
 import VerificationNeeded from "../page-verification-needed/VerificationNeeded";
 
 export interface PageInfo {
@@ -25,6 +26,12 @@ const PageList: PageInfo[] = [
     title: getPageTitle("Get Involved"),
     isPrivate: false,
     contents: <GetInvolvedPage />,
+  },
+  {
+    path: "/unsupported-browser",
+    title: getPageTitle("Unsupported Browser"),
+    isPrivate: false,
+    contents: <UnsupportedBrowserPage />,
   },
   {
     path: "/verify",

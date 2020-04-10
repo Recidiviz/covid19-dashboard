@@ -55,6 +55,15 @@
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="src/entry-point-client/index.tsx"></script>
+
+    <!--
+      Redirect if src/entry-point-client/index.tsx doesn't load properly.
+      The variable `window.appLoaded` is set at the bottom of index.tsx.
+     -->
+    <script>
+      if (location.pathname === "/" && !window.appLoaded)
+        location.href = "/unsupported-browser";
+    </script>
     <link
       href="https://fonts.googleapis.com/css?family=Libre+Baskerville|Poppins|Rubik:300,400&display=swap"
       rel="stylesheet"
