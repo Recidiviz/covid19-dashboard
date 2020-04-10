@@ -1,9 +1,10 @@
 import React, { useEffect } from "react";
-import { Route } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 import { useAuth0 } from "./react-auth0-spa";
 
-const PrivateRoute = ({ children, path, ...rest }: any) => {
+const PrivateRoute: React.FC = (props) => {
+  const location = useLocation();
   const { loading, isAuthenticated, loginWithRedirect } = useAuth0() as any;
 
   useEffect(() => {
@@ -12,19 +13,15 @@ const PrivateRoute = ({ children, path, ...rest }: any) => {
     }
     const fn = async () => {
       await loginWithRedirect({
-        appState: { targetUrl: window.location.pathname },
+        appState: { targetUrl: location.pathname },
       });
     };
     fn();
-  }, [loading, isAuthenticated, loginWithRedirect, path]);
+  }, [loading, isAuthenticated, loginWithRedirect, location.pathname]);
 
-  let inner = isAuthenticated === true ? children : null;
+  let inner = isAuthenticated === true ? props.children : null;
 
-  return (
-    <Route path={path} {...rest}>
-      {inner}
-    </Route>
-  );
+  return <>{inner}</>;
 };
 
 export default PrivateRoute;

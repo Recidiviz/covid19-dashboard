@@ -36,10 +36,12 @@ const App: React.FC = () => {
             );
           } else {
             return (
-              <PrivateRoute key={path} path={path} exact>
-                <WindowTitle>{title}</WindowTitle>
-                {redirectIfUnverified(user, contents)}
-              </PrivateRoute>
+              <Route key={path} path={path} exact>
+                <PrivateRoute>
+                  <WindowTitle>{title}</WindowTitle>
+                  {redirectIfUnverified(user, contents)}
+                </PrivateRoute>
+              </Route>
             );
           }
         })}
