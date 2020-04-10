@@ -218,7 +218,15 @@ function epidemicModelReducer(
 
     case "insert_saved_state":
       // insert any saved data via a separate action to bypass the reset logic in the `update` action
-      return Object.assign({}, state, action.payload);
+      let { stateCode, countyName, countyLevelData } = action.payload;
+      countyLevelData = countyLevelData || state.countyLevelData;
+
+      return Object.assign(
+        {},
+        state,
+        action.payload,
+        stateCode && countyName ? getLocaleData(countyLevelData, stateCode, countyName) : {}
+      );
   }
 }
 
