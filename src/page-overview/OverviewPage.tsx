@@ -1,3 +1,4 @@
+import { isIE } from "react-device-detect";
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
@@ -15,6 +16,16 @@ const Headline = styled.h1`
 const OverviewPageDiv = styled.div``;
 
 const OverviewPage: React.FC = () => {
+  // detect IE and display a message
+  if (isIE)
+    return (
+      <div>
+        {" "}
+        <h3>Unfortunately, IE is not supported</h3>
+        <p>Please use a different browser or email us at</p>
+      </div>
+    );
+
   return (
     <OverviewPageDiv>
       <div className="font-body text-green min-h-screen tracking-normal w-full">
