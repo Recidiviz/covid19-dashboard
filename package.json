@@ -6,10 +6,10 @@
     "dev": "parcel serve index.html",
     "lint-all-check": "npm-run-all -s --continue-on-error lint-tsc-check lint-eslint-check lint-prettier-check",
     "lint-all-fix": "npm-run-all -s lint-eslint-fix lint-prettier-fix",
-    "lint-eslint-check": "eslint --ignore-path .gitignore '**/*.{js,ts,tsx}'",
-    "lint-eslint-fix": "eslint --fix --ignore-path .gitignore '**/*.{js,ts,tsx}'",
-    "lint-prettier-check": "prettier --check --ignore-path .gitignore .",
-    "lint-prettier-fix": "prettier --write --ignore-path .gitignore .",
+    "lint-eslint-check": "eslint --ignore-path .gitignore 'src/**/*.{js,ts,tsx}'",
+    "lint-eslint-fix": "eslint --fix --ignore-path .gitignore 'src/**/*.{js,ts,tsx}'",
+    "lint-prettier-check": "prettier --check --ignore-path .gitignore src",
+    "lint-prettier-fix": "prettier --write --ignore-path .gitignore src",
     "lint-tsc-check": "tsc",
     "postinstall": "touch node_modules/.bin/.keep"
   },
@@ -86,7 +86,7 @@
     "*.js": [
       "false -- Please use .tsx with `// @ts-nocheck` instead of .js!"
     ],
-    "*.{html,json,md}": [
+    "*.{html,json,md,webmanifest}": [
       "prettier --write"
     ],
     "*.{d.ts,tsx}": [

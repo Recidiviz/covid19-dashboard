@@ -1,0 +1,9 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow users to only access their own data
+    match /model_inputs/{userId}/{documents=**} {
+      allow read, write: if request.auth.uid == userId
+    }
+  }
+}

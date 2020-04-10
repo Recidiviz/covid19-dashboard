@@ -1,9 +1,11 @@
 // @ts-nocheck
 import { curveCatmullRom, format } from "d3";
+import { add } from "date-fns";
 import ResponsiveXYFrame from "semiotic/lib/ResponsiveXYFrame";
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
+import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import { MarkColors } from "./ChartArea";
 
 const ChartContainer = styled.div`
@@ -108,11 +110,15 @@ const Tooltip: React.FC<TooltipProps> = ({
   days,
   parentLine: { title },
 }) => {
+  const displayDate = add(new Date(), { days: days - 1 });
+
   return (
     <TooltipContainer>
       <TooltipTitle>{title}</TooltipTitle>
       <TooltipDatalist>
-        <TooltipDatum>Days: {days}</TooltipDatum>
+        <TooltipDatum>
+          <DateMMMMdyyyy date={displayDate} />
+        </TooltipDatum>
         <TooltipDatum>People: {formatThousands(count)}</TooltipDatum>
       </TooltipDatalist>
     </TooltipContainer>
