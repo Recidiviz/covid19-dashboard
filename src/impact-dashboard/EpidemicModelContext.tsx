@@ -17,7 +17,10 @@ type CountyLevelRecord = {
 
 type CountyLevelData = Map<string, Map<string, CountyLevelRecord>>;
 
-type Action = { type: "update" | "insert_saved_state"; payload: EpidemicModelUpdate };
+type Action = {
+  type: "update" | "insert_saved_state";
+  payload: EpidemicModelUpdate;
+};
 type Dispatch = (action: Action) => void;
 
 export enum RateOfSpread {
@@ -182,6 +185,8 @@ function epidemicModelReducer(
   state: EpidemicModelState,
   action: Action,
 ): EpidemicModelState {
+  let stateCode, countyName, countyLevelData;
+
   switch (action.type) {
     case "update":
       // the desired user flow is to fill out a form, review the entries,
@@ -192,11 +197,12 @@ function epidemicModelReducer(
       // change in state or county triggers a bigger reset
       let updates = { ...action.payload };
 
-      let { stateCode, countyName, countyLevelData } = updates;
+      ({ stateCode, countyName, countyLevelData } = updates);
 
       countyLevelData = countyLevelData || state.countyLevelData;
+      const stateInitialized =
+        updates.stateInitialized || state.stateInitialized;
 
-      let newState;
       if (countyLevelData) {
         if (stateCode) {
           countyName = countyName || "Total";
@@ -204,28 +210,28 @@ function epidemicModelReducer(
           stateCode = state.stateCode;
         }
         if (stateCode && countyName) {
-          newState = Object.assign(
+          return Object.assign(
             getResetBase(stateCode, countyName),
             getLocaleData(countyLevelData, stateCode, countyName),
+            { stateInitialized },
           );
         }
       }
 
-      newState = newState || Object.assign({}, state, updates);
-      newState.stateInitialized = newState.stateInitialized || state.stateInitialized;
-
-      return newState;
+      return Object.assign({}, state, updates, { stateInitialized });
 
     case "insert_saved_state":
       // insert any saved data via a separate action to bypass the reset logic in the `update` action
-      let { stateCode, countyName, countyLevelData } = action.payload;
+      ({ stateCode, countyName, countyLevelData } = action.payload);
       countyLevelData = countyLevelData || state.countyLevelData;
 
       return Object.assign(
         {},
         state,
         action.payload,
-        stateCode && countyName ? getLocaleData(countyLevelData, stateCode, countyName) : {}
+        countyLevelData && stateCode && countyName
+          ? getLocaleData(countyLevelData, stateCode, countyName)
+          : {},
       );
   }
 }

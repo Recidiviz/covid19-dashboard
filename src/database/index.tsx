@@ -1,12 +1,14 @@
-import * as firebase from "firebase";
+// the core Firebase SDK must be imported before other Firebase modules
+// eslint-disable-next-line simple-import-sort/sort
+import * as firebase from "firebase/app";
 import "firebase/auth";
-import "firebase/database";
+import "firebase/firestore";
 import { pickBy } from "lodash";
 
 import createAuth0Client from "@auth0/auth0-spa-js";
 
 import config from "../auth/auth_config.json";
-import { EpidemicModelUpdate } from '../impact-dashboard/EpidemicModelContext';
+import { EpidemicModelUpdate } from "../impact-dashboard/EpidemicModelContext";
 
 // As long as there is just one Auth0 config, this endpoint will work with any environment (local, prod, etc.).
 const tokenExchangeEndpoint =
@@ -15,7 +17,7 @@ const modelInputsCollectionId = "model_inputs";
 
 // Note: None of these are secrets.
 let firebaseConfig = {
-  apiKey: "AIzaSyDbZSkjnfP7mt4W_aDqMKHJizsiQB1yCEw",
+  apiKey: "AIzaSyDdCp7P-oncmuRpMtpxdb5M0nXq6U3qU7A",
   authDomain: "c19-backend.firebaseapp.com",
   databaseURL: "https://c19-backend.firebaseio.com",
   projectId: "c19-backend",
@@ -60,9 +62,7 @@ const getInputModelsDocRef = async () => {
   await authenticate();
 
   if (!firebase.auth().currentUser) {
-    throw new Error(
-      "Firebase user unexpectedly not set",
-    );
+    throw new Error("Firebase user unexpectedly not set");
   }
 
   const db = firebase.firestore();
@@ -72,7 +72,9 @@ const getInputModelsDocRef = async () => {
 };
 
 // TODO: Guard against the possibility of autosaves completing out of order.
-export const saveState = async (persistedState: object): Promise<void> => {
+export const saveState = async (
+  persistedState: EpidemicModelUpdate,
+): Promise<void> => {
   try {
     const docRef = await getInputModelsDocRef();
 
