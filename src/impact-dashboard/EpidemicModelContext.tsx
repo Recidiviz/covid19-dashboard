@@ -91,7 +91,8 @@ interface Metadata extends MetadataUpdate {
   hospitalBeds: number;
 }
 
-type EpidemicModelPersistent = ModelInputsPersistent & MetadataPersistent;
+export type EpidemicModelPersistent = ModelInputsPersistent &
+  MetadataPersistent;
 // we have to type all them out here again
 // but at least we can validate that none are illegal
 // TODO: is there a smarter way to get these values?
@@ -365,7 +366,7 @@ function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
             otherParams,
           ) as EpidemicModelUpdate;
           if (size(preexistingState) === 0) {
-            preexistingState = await getSavedState();
+            preexistingState = (await getSavedState()) || {};
           }
 
           // dispatch the saved state last so it's not overwritten in local state

@@ -8,7 +8,7 @@ import { pickBy } from "lodash";
 import createAuth0Client from "@auth0/auth0-spa-js";
 
 import config from "../auth/auth_config.json";
-import { EpidemicModelUpdate } from "../impact-dashboard/EpidemicModelContext";
+import { EpidemicModelPersistent } from "../impact-dashboard/EpidemicModelContext";
 
 // As long as there is just one Auth0 config, this endpoint will work with any environment (local, prod, etc.).
 const tokenExchangeEndpoint =
@@ -73,7 +73,7 @@ const getInputModelsDocRef = async () => {
 
 // TODO: Guard against the possibility of autosaves completing out of order.
 export const saveState = async (
-  persistedState: EpidemicModelUpdate,
+  persistedState: EpidemicModelPersistent,
 ): Promise<void> => {
   try {
     const docRef = await getInputModelsDocRef();
@@ -93,15 +93,15 @@ export const saveState = async (
   }
 };
 
-export const getSavedState = async (): Promise<EpidemicModelUpdate> => {
+export const getSavedState = async (): Promise<EpidemicModelPersistent | null> => {
   try {
     const docRef = await getInputModelsDocRef();
 
-    if (!docRef) return {};
+    if (!docRef) return null;
 
     const doc = await docRef.get();
 
-    if (!doc.exists) return {};
+    if (!doc.exists) return null;
 
     const data = doc.data();
 
@@ -112,6 +112,6 @@ export const getSavedState = async (): Promise<EpidemicModelUpdate> => {
     );
     console.error(error);
 
-    return {};
+    return null;
   }
 };
