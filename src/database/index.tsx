@@ -82,10 +82,8 @@ export const saveState = async (
 
     docRef.set({
       timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-      inputs: {
-        // keys set to undefined aren't useful to store
-        0: pickBy(persistedState, (value) => value !== undefined),
-      },
+
+      inputs: pickBy(persistedState, (value) => value !== undefined),
     });
   } catch (error) {
     console.error("Encountered error while attempting to save:");
@@ -105,7 +103,7 @@ export const getSavedState = async (): Promise<EpidemicModelPersistent | null> =
 
     const data = doc.data();
 
-    return !data || !data.inputs || !data.inputs[0] ? null : data.inputs[0];
+    return !data || !data.inputs ? null : data.inputs;
   } catch (error) {
     console.error(
       "Encountered error while attempting to retrieve saved state:",
