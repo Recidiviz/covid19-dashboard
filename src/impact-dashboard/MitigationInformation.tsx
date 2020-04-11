@@ -58,7 +58,7 @@ const Row: React.FC<RowProps> = ({ date, count, index, updateRelease }) => (
         labelAbove={index === 0 ? "Number released" : undefined}
         labelHelp={
           index === 0
-            ? "Enter the number of incarcerated you plan to release."
+            ? "Enter the number of incarcerated people you plan to release."
             : undefined
         }
         type="number"
