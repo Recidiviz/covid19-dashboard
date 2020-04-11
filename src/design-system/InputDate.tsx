@@ -1,5 +1,11 @@
+// Parcel cannot import CSS for server-side rendering; this is a known and unresolved bug
+// (https://github.com/parcel-bundler/parcel/issues/1015)
+// so we have to duplicate the styles manually to work around this problem
+// and import the "nostyle" version of the package below
+import "./InputDate.css";
+
 import hexAlpha from "hex-alpha";
-import DatePicker from "react-date-picker";
+import DatePicker from "react-date-picker/dist/entry.nostyle";
 import styled from "styled-components";
 
 import Colors from "./Colors";
