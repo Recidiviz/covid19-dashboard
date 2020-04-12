@@ -17,10 +17,7 @@ type CountyLevelRecord = {
 
 type CountyLevelData = Map<string, Map<string, CountyLevelRecord>>;
 
-type Action = {
-  type: "update" | "insert_saved_state";
-  payload: EpidemicModelUpdate;
-};
+type Action = { type: "update"; payload: EpidemicModelUpdate };
 type Dispatch = (action: Action) => void;
 
 export enum RateOfSpread {
@@ -186,8 +183,6 @@ function epidemicModelReducer(
   state: EpidemicModelState,
   action: Action,
 ): EpidemicModelState {
-  let stateCode, countyName, countyLevelData;
-
   switch (action.type) {
     case "update":
       // the desired user flow is to fill out a form, review the entries,
@@ -198,7 +193,7 @@ function epidemicModelReducer(
       // change in state or county triggers a bigger reset
       let updates = { ...action.payload };
 
-      ({ stateCode, countyName, countyLevelData } = updates);
+      let { stateCode, countyName, countyLevelData } = updates;
 
       countyLevelData = countyLevelData || state.countyLevelData;
       const stateInitialized =
@@ -220,20 +215,6 @@ function epidemicModelReducer(
       }
 
       return Object.assign({}, state, updates, { stateInitialized });
-
-    case "insert_saved_state":
-      // insert any saved data via a separate action to bypass the reset logic in the `update` action
-      ({ stateCode, countyName, countyLevelData } = action.payload);
-      countyLevelData = countyLevelData || state.countyLevelData;
-
-      return Object.assign(
-        {},
-        state,
-        action.payload,
-        countyLevelData && stateCode && countyName
-          ? getLocaleData(countyLevelData, stateCode, countyName)
-          : {},
-      );
   }
 }
 
@@ -334,11 +315,20 @@ function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
             // but this should check out
           ) as CountyLevelData;
 
+          const stateFromQueryParams =
+            rawQueryParams && size(rawQueryParams) > 0;
+
+          // app state in query params supersedes app state in the database
+          const preexistingState = stateFromQueryParams
+            ? rawQueryParams
+            : (await getSavedState()) || {};
+
           let {
             stateCode: savedStateCode,
             countyName: savedCountyName,
             ...otherParams
-          } = rawQueryParams;
+          } = preexistingState;
+
           // state or county changes trigger a state reset
           // so we have to run them separately
           let { stateCode, countyName } = state;
@@ -361,21 +351,12 @@ function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
             },
           });
 
-          // state in query params supersedes state in the database
-          let preexistingState = sanitizeQueryParams(
-            otherParams,
-          ) as EpidemicModelUpdate;
-          if (size(preexistingState) === 0) {
-            preexistingState = (await getSavedState()) || {};
-          }
-
-          // dispatch the saved state last so it's not overwritten in local state
-          if (preexistingState) {
-            dispatch({
-              type: "insert_saved_state",
-              payload: preexistingState,
-            });
-          }
+          dispatch({
+            type: "update",
+            payload: (stateFromQueryParams
+              ? sanitizeQueryParams(otherParams as QueryParams)
+              : otherParams) as EpidemicModelUpdate,
+          });
 
           dispatch({
             type: "update",
