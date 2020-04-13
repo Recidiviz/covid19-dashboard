@@ -93,9 +93,12 @@ const InputDate: React.FC<InputBaseProps<Date>> = (props) => {
         onChange={(value) =>
           value instanceof Date
             ? onValueChange(value)
-            : // if for some reason this is set to return a range of dates,
+            : Array.isArray(value)
+            ? // if for some reason this is set to return a range of dates,
               // ignore the end date
               onValueChange(value[0])
+            : // could be null if value was deleted
+              onValueChange(value)
         }
         value={inputValue}
         yearPlaceholder="yyyy"
