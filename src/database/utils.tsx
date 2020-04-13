@@ -1,21 +1,27 @@
-import { mapValues } from "lodash";
+import mapObject from "map-obj";
 
 import { EpidemicModelPersistent } from "../impact-dashboard/EpidemicModelContext";
 
 const undefinedString = "undefined";
 
 export const prepareForStorage = (state: EpidemicModelPersistent): object => {
-  return mapValues(state, (value) => {
-    if (value === undefinedString) {
-      throw new Error(`The string '${undefinedString}' cannot be persisted`);
-    }
+  return mapObject(
+    state,
+    (key, value) => {
+      if (value === undefinedString) {
+        throw new Error(`The string '${undefinedString}' cannot be persisted`);
+      }
 
-    return value === undefined ? undefinedString : value;
-  });
+      return [key, value === undefined ? undefinedString : value];
+    },
+    { deep: true },
+  );
 };
 
 export const prepareFromStorage = (state: object): EpidemicModelPersistent => {
-  return mapValues(state, (value) =>
-    value === undefinedString ? undefined : value,
+  return mapObject(
+    state,
+    (key, value) => [key, value === undefinedString ? undefined : value],
+    { deep: true },
   );
 };
