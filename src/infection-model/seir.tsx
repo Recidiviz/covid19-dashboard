@@ -295,8 +295,7 @@ function getCurveProjections(inputs: SimulationInputs & CurveProjectionInputs) {
   const dailyStaffProjections = [...initialStaffProjections];
 
   let day = 0;
-  // we've already included today so knock one off
-  while (day < numDays - 1) {
+  while (day < numDays) {
     // each day's projection needs the sum of all infectious projections so far
     const totalInfectious = sum(
       getAllValues(getColView(singleDayState, seirIndex.infectious)),
@@ -343,10 +342,10 @@ function getCurveProjections(inputs: SimulationInputs & CurveProjectionInputs) {
   // this will produce a matrix with row = day and col = SEIR bucket
   return {
     incarcerated: ndarray(dailyIncarceratedProjections, [
-      numDays,
+      numDays + 1,
       seirIndex.__length,
     ]),
-    staff: ndarray(dailyStaffProjections, [numDays, seirIndex.__length]),
+    staff: ndarray(dailyStaffProjections, [numDays + 1, seirIndex.__length]),
   };
 }
 
