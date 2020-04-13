@@ -1,3 +1,6 @@
+# IDEs
+.idea/
+
 # Common OS files
 .DS_Store
 

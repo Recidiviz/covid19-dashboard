@@ -6,10 +6,7 @@ import chalk from "chalk";
 import fs from "fs";
 import path from "path";
 
-import PageList, {
-  PageInfo,
-  VerificationNeededPage,
-} from "../entry-point-client/PageList";
+import PageList, { PageInfo } from "../entry-point-client/PageList";
 import generatePageContent from "./generatePageContent";
 
 console.log(chalk.blueBright("Rendering React statically into HTML files:"));
@@ -29,5 +26,3 @@ let template = fs.readFileSync("dist/index.html", "utf-8");
 for (let pageInfo of PageList) {
   generatePage(template, pageInfo);
 }
-
-generatePage(template, VerificationNeededPage);

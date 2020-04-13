@@ -1,10 +1,11 @@
 import { csvParse, DSVRowAny } from "d3";
 import { rollup } from "d3-array";
 import parseJSON from "date-fns/parseJSON";
-import { mapValues, pick } from "lodash";
+import { mapValues, pick, size } from "lodash";
 import numeral from "numeral";
 import React, { useEffect } from "react";
 
+import { getSavedState, saveState } from "../database";
 import useQueryParams, { QueryParams } from "../hooks/useQueryParams";
 
 type CountyLevelRecord = {
@@ -82,6 +83,7 @@ interface MetadataUpdate extends MetadataPersistent {
   countyLevelData?: CountyLevelData;
   countyLevelDataLoading?: boolean;
   countyLevelDataFailed?: boolean;
+  stateInitialized?: boolean;
   // this is not user input so don't store it
   hospitalBeds?: number;
 }
@@ -91,11 +93,12 @@ interface Metadata extends MetadataUpdate {
   hospitalBeds: number;
 }
 
-type EpidemicModelPersistent = ModelInputsPersistent & MetadataPersistent;
+export type EpidemicModelPersistent = ModelInputsPersistent &
+  MetadataPersistent;
 // we have to type all them out here again
 // but at least we can validate that none are illegal
 // TODO: is there a smarter way to get these values?
-export const urlParamKeys: Array<keyof EpidemicModelPersistent> = [
+export const persistedKeys: Array<keyof EpidemicModelPersistent> = [
   "countyName",
   "facilityName",
   "stateCode",
@@ -195,9 +198,13 @@ function epidemicModelReducer(
 
       // change in state or county triggers a bigger reset
       let updates = { ...action.payload };
+
       let { stateCode, countyName, countyLevelData } = updates;
 
       countyLevelData = countyLevelData || state.countyLevelData;
+      const stateInitialized =
+        updates.stateInitialized || state.stateInitialized;
+
       if (countyLevelData) {
         if (stateCode) {
           countyName = countyName || "Total";
@@ -208,16 +215,20 @@ function epidemicModelReducer(
           return Object.assign(
             getResetBase(stateCode, countyName),
             getLocaleData(countyLevelData, stateCode, countyName),
+            { stateInitialized },
           );
         }
       }
-      return Object.assign({}, state, updates);
+
+      return Object.assign({}, state, updates, { stateInitialized });
   }
 }
 
 function sanitizeQueryParams(rawQueryParams: QueryParams) {
-  return mapValues(pick(rawQueryParams, urlParamKeys), (value, key) => {
-    // convert numeric values back to numbers
+  return mapValues(pick(rawQueryParams, persistedKeys), (value, key) => {
+    if (value === undefined) return value;
+
+    // most of these are numbers but some are strings
     const n = numeral(value).value();
     let sanitizedValue = n != null ? n : value;
 
@@ -257,7 +268,11 @@ function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
       if (state.countyLevelDataLoading) {
         return;
       }
-      replaceHistoryState(pick(state, urlParamKeys));
+
+      const persistedState = pick(state, persistedKeys);
+      replaceHistoryState(persistedState);
+
+      if (state.stateInitialized) saveState(persistedState);
     },
     // replaceHistoryState changes on every render so must be excluded
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -322,11 +337,20 @@ function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
             // but this should check out
           ) as CountyLevelData;
 
+          const stateFromQueryParams =
+            rawQueryParams && size(rawQueryParams) > 0;
+
+          // app state in query params supersedes app state in the database
+          const preexistingState = stateFromQueryParams
+            ? rawQueryParams
+            : (await getSavedState()) || {};
+
           let {
             stateCode: savedStateCode,
             countyName: savedCountyName,
             ...otherParams
-          } = rawQueryParams;
+          } = preexistingState;
+
           // state or county changes trigger a state reset
           // so we have to run them separately
           let { stateCode, countyName } = state;
@@ -348,9 +372,17 @@ function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
               ),
             },
           });
+
           dispatch({
             type: "update",
-            payload: sanitizeQueryParams(otherParams),
+            payload: (stateFromQueryParams
+              ? sanitizeQueryParams(otherParams as QueryParams)
+              : otherParams) as EpidemicModelUpdate,
+          });
+
+          dispatch({
+            type: "update",
+            payload: { stateInitialized: true },
           });
         } catch (error) {
           console.error(error);

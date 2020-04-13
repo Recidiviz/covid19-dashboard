@@ -1,5 +1,6 @@
 import GetInvolvedPage from "../page-get-involved/GetInvolvedPage";
 import OverviewPage from "../page-overview/OverviewPage";
+import UnsupportedBrowserPage from "../page-unsupported-browser/UnsupportedBrowserPage";
 import VerificationNeeded from "../page-verification-needed/VerificationNeeded";
 
 export interface PageInfo {
@@ -13,13 +14,6 @@ function getPageTitle(...parts: string[]) {
   return [...parts, "COVID-19 Dashboard"].join(" • ");
 }
 
-export const VerificationNeededPage: PageInfo = {
-  path: "/verify",
-  title: getPageTitle("Verification Needed"),
-  isPrivate: false,
-  contents: <VerificationNeeded />,
-};
-
 const PageList: PageInfo[] = [
   {
     path: "/",
@@ -32,6 +26,18 @@ const PageList: PageInfo[] = [
     title: getPageTitle("Get Involved"),
     isPrivate: false,
     contents: <GetInvolvedPage />,
+  },
+  {
+    path: "/unsupported-browser",
+    title: getPageTitle("Unsupported Browser"),
+    isPrivate: false,
+    contents: <UnsupportedBrowserPage />,
+  },
+  {
+    path: "/verify",
+    title: getPageTitle("Verification Needed"),
+    isPrivate: false,
+    contents: <VerificationNeeded />,
   },
 ];
 
