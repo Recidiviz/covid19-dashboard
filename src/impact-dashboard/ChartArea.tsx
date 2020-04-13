@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import Colors from "../design-system/Colors";
+import Colors, { darken } from "../design-system/Colors";
 import CurveChart from "./CurveChartContainer";
 import CurveChartLegend from "./CurveChartLegend";
 
@@ -30,7 +30,7 @@ const ChartArea: React.FC = () => {
     exposed: Colors.green,
     fatalities: Colors.black,
     hospitalized: Colors.lightBlue,
-    hospitalBeds: Colors.red,
+    hospitalBeds: darken(Colors.lightBlue, 20),
     infectious: Colors.red,
   };
   return (
