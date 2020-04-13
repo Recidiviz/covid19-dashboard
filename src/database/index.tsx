@@ -3,7 +3,7 @@
 import * as firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
-import { pickBy } from "lodash";
+import { mapValues } from "lodash";
 
 import createAuth0Client from "@auth0/auth0-spa-js";
 
@@ -83,7 +83,8 @@ export const saveState = async (
     docRef.set({
       timestamp: firebase.firestore.FieldValue.serverTimestamp(),
 
-      inputs: pickBy(persistedState, (value) => value !== undefined),
+      // `undefined` can't be serialized to JSON and thus can't be stored in Firestore
+      inputs: mapValues(persistedState, (value) => value || null),
     });
   } catch (error) {
     console.error("Encountered error while attempting to save:");
@@ -103,7 +104,7 @@ export const getSavedState = async (): Promise<EpidemicModelPersistent | null> =
 
     const data = doc.data();
 
-    return !data || !data.inputs ? null : data.inputs;
+    return !data || !data.inputs ? null : mapValues(data.inputs, (value) => value || undefined);
   } catch (error) {
     console.error(
       "Encountered error while attempting to retrieve saved state:",

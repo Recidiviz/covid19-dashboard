@@ -1,4 +1,4 @@
-import { isEqual as isGenerallyEqual } from "lodash";
+import { isEqual as isGenerallyEqual, mapValues } from "lodash";
 import queryString from "query-string";
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
@@ -29,6 +29,16 @@ function isEqual(
   });
 }
 
+const stringify = (values) => {
+  // `undefined` keys would not be included in the query string
+  return queryString.stringify(mapValues(values, (value) => value || null));
+};
+
+const parse = (searchString) => {
+  // `undefined` keys are stringified as `null`
+  return mapValues(queryString.parse(searchString), (value) => value || undefined);
+};
+
 // A basic hook for fetching query param values and setting query param values
 // Optionally pass in an array of valid keys if you want to be strict about your set of query parameters
 const useQueryParams = (
@@ -37,7 +47,7 @@ const useQueryParams = (
 ): UseQueryParamsOutput => {
   const history = useHistory();
 
-  const defaultQueryParams = queryString.parse(
+  const defaultQueryParams = parse(
     history.location.search,
   ) as QueryParams;
   const hasExistingURLQueryParams = Object.keys(defaultQueryParams).length > 0;
@@ -50,14 +60,14 @@ const useQueryParams = (
 
   // If values have been updated, also set the query params
   useEffect(() => {
-    const currentQuery = queryString.parse(
+    const currentQuery = parse(
       history.location.search,
     ) as QueryParams;
 
     if (!isEqual(currentQuery, values, validKeys)) {
       const newLocation = {
         ...history.location,
-        search: queryString.stringify(values),
+        search: stringify(values),
       };
       if (action == "replace") {
         history.replace(newLocation);
@@ -70,7 +80,7 @@ const useQueryParams = (
 
   // If the query params in the url changes, also set the values
   useEffect(() => {
-    const nextValues = queryString.parse(location.search) as QueryParams;
+    const nextValues = parse(location.search) as QueryParams;
 
     if (!isEqual(values, nextValues, validKeys)) {
       setValues(nextValues);

@@ -220,6 +220,8 @@ function epidemicModelReducer(
 
 function sanitizeQueryParams(rawQueryParams: QueryParams) {
   return mapValues(pick(rawQueryParams, persistedKeys), (value) => {
+    if (value === undefined) return value;
+
     // most of these are numbers but some are strings
     const n = numeral(value).value();
     return n != null ? n : value?.toString();
