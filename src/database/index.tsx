@@ -3,12 +3,12 @@
 import * as firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
-import { mapValues } from "lodash";
 
 import createAuth0Client from "@auth0/auth0-spa-js";
 
 import config from "../auth/auth_config.json";
 import { EpidemicModelPersistent } from "../impact-dashboard/EpidemicModelContext";
+import { prepareForStorage, prepareFromStorage } from "./utils";
 
 // As long as there is just one Auth0 config, this endpoint will work with any environment (local, prod, etc.).
 const tokenExchangeEndpoint =
@@ -82,9 +82,7 @@ export const saveState = async (
 
     docRef.set({
       timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-
-      // `undefined` can't be serialized to JSON and thus can't be stored in Firestore
-      inputs: mapValues(persistedState, (value) => value || null),
+      inputs: prepareForStorage(persistedState),
     });
   } catch (error) {
     console.error("Encountered error while attempting to save:");
@@ -104,7 +102,7 @@ export const getSavedState = async (): Promise<EpidemicModelPersistent | null> =
 
     const data = doc.data();
 
-    return !data || !data.inputs ? null : mapValues(data.inputs, (value) => value || undefined);
+    return !data || !data.inputs ? null : prepareFromStorage(data.inputs);
   } catch (error) {
     console.error(
       "Encountered error while attempting to retrieve saved state:",

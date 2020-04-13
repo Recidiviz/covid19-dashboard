@@ -1,7 +1,10 @@
-import { isEqual as isGenerallyEqual, mapValues } from "lodash";
+import { isEqual as isGenerallyEqual } from "lodash";
 import queryString from "query-string";
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
+
+import { prepareForStorage, prepareFromStorage } from "../database/utils";
+import { EpidemicModelPersistent } from "../impact-dashboard/EpidemicModelContext";
 
 export interface QueryParams {
   [key: string]: string | number | undefined;
@@ -29,15 +32,11 @@ function isEqual(
   });
 }
 
-const stringify = (values) => {
-  // `undefined` keys would not be included in the query string
-  return queryString.stringify(mapValues(values, (value) => value || null));
-};
+const stringify = (values: EpidemicModelPersistent): string =>
+  queryString.stringify(prepareForStorage(values));
 
-const parse = (searchString) => {
-  // `undefined` keys are stringified as `null`
-  return mapValues(queryString.parse(searchString), (value) => value || undefined);
-};
+const parse = (searchString: string): EpidemicModelPersistent =>
+  prepareFromStorage(queryString.parse(searchString));
 
 // A basic hook for fetching query param values and setting query param values
 // Optionally pass in an array of valid keys if you want to be strict about your set of query parameters
@@ -47,9 +46,7 @@ const useQueryParams = (
 ): UseQueryParamsOutput => {
   const history = useHistory();
 
-  const defaultQueryParams = parse(
-    history.location.search,
-  ) as QueryParams;
+  const defaultQueryParams = parse(history.location.search) as QueryParams;
   const hasExistingURLQueryParams = Object.keys(defaultQueryParams).length > 0;
 
   const initialValues = hasExistingURLQueryParams
@@ -60,9 +57,7 @@ const useQueryParams = (
 
   // If values have been updated, also set the query params
   useEffect(() => {
-    const currentQuery = parse(
-      history.location.search,
-    ) as QueryParams;
+    const currentQuery = parse(history.location.search) as QueryParams;
 
     if (!isEqual(currentQuery, values, validKeys)) {
       const newLocation = {
