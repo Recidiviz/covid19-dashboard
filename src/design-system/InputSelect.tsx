@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
+import { StyledInput } from "./Input";
 import TextLabel from "./TextLabel";
 
 interface Props {
@@ -20,32 +21,24 @@ const SelectContainer = styled.div`
   margin-right: 8px;
 `;
 
-const SelectInput = styled.select`
+const StyledSelect = styled(StyledInput)`
   -webkit-appearance: none;
   -moz-appearance: none;
-  width: 100%;
-  border: none;
-  padding: 18px;
-  background: #e0e4e4;
-  outline: 0 solid transparent;
-  margin-top: 8px;
-  border-radius: 2px;
-  font-size: 16px;
-  color: #00413e;
 `;
 
 const InputSelect: React.FC<Props> = (props) => {
   return (
     <SelectContainer>
       <TextLabel>{props.label}</TextLabel>
-      <SelectInput
+      <StyledSelect
+        as="select"
         disabled={props.disabled}
         onChange={props.onChange}
         value={props.value}
         name={props.label}
       >
         {props.children}
-      </SelectInput>
+      </StyledSelect>
     </SelectContainer>
   );
 };

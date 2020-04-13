@@ -1,23 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
-import { InputBaseProps, useInputValue } from "./Input";
+import { InputBaseProps, StyledInput, useInputValue } from "./Input";
 import InputLabelAndHelp from "./InputLabelAndHelp";
-
-const Input = styled.input`
-  padding: 16px;
-  background: #e0e4e4;
-  outline: 0 solid transparent;
-  box-shadow: none;
-  border: none;
-  font-size: 16px;
-  border-radius: 2px;
-  font-family: "Rubik", sans-serif;
-  color: #00413e;
-  margin-top: 8px;
-  flex: 1 1 auto;
-  width: 100%;
-`;
 
 const TextInputContainer = styled.div`
   display: flex;
@@ -40,7 +25,7 @@ const InputText: React.FC<Props> = (props) => {
     <TextInputContainer>
       <InputLabelAndHelp label={props.labelAbove} labelHelp={props.labelHelp} />
       <VDiv>
-        <Input
+        <StyledInput
           type={props.type}
           value={inputValue ?? ""}
           placeholder={props.valuePlaceholder ?? props.labelPlaceholder}
