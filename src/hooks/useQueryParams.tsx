@@ -1,5 +1,5 @@
 import { isEqual as isGenerallyEqual } from "lodash";
-import queryString from "query-string";
+import qs from "qs";
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 
@@ -7,7 +7,7 @@ import { prepareForStorage, prepareFromStorage } from "../database/utils";
 import { EpidemicModelPersistent } from "../impact-dashboard/EpidemicModelContext";
 
 export interface QueryParams {
-  [key: string]: string | number | undefined;
+  [key: string]: any;
 }
 
 export type HistoryAction = "replace" | "push";
@@ -33,10 +33,10 @@ function isEqual(
 }
 
 const stringify = (values: EpidemicModelPersistent): string =>
-  queryString.stringify(prepareForStorage(values));
+  qs.stringify(prepareForStorage(values));
 
 const parse = (searchString: string): EpidemicModelPersistent =>
-  prepareFromStorage(queryString.parse(searchString));
+  prepareFromStorage(qs.parse(searchString));
 
 // A basic hook for fetching query param values and setting query param values
 // Optionally pass in an array of valid keys if you want to be strict about your set of query parameters

@@ -1,7 +1,12 @@
 import { sum, zip } from "d3-array";
+import addDays from "date-fns/addDays";
+import differenceInCalendarDays from "date-fns/differenceInCalendarDays";
 import ndarray from "ndarray";
 
-import { RateOfSpread } from "../impact-dashboard/EpidemicModelContext";
+import {
+  PlannedReleases,
+  RateOfSpread,
+} from "../impact-dashboard/EpidemicModelContext";
 import {
   getAllValues,
   getColView,
@@ -19,16 +24,19 @@ interface CurveProjectionInputs {
   ageGroupInitiallyInfected: number[];
   facilityOccupancyPct: number;
   rateOfSpreadFactor: RateOfSpread;
+  plannedReleases?: PlannedReleases;
 }
 
 interface SingleDayInputs {
-  totalPopulation: number;
-  priorSimulation: number[];
-  totalInfectious: number;
   pFatalityRate: number;
+  populationAdjustment: number;
+  priorSimulation: number[];
   rateOfSpreadCells: number;
   rateOfSpreadDorms: number;
   simulateStaff: boolean;
+  totalInfectious: number;
+  totalPopulation: number;
+  totalSusceptibleIncarcerated: number;
 }
 
 enum seirIndex {
@@ -85,6 +93,8 @@ function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
     simulateStaff,
     totalInfectious,
     totalPopulation,
+    populationAdjustment,
+    totalSusceptibleIncarcerated,
   } = inputs;
 
   const alpha = 1 / dIncubation;
@@ -96,7 +106,7 @@ function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
 
   const facilityCellsPct = 1 - facilityDormitoryPct;
 
-  const [
+  let [
     susceptible,
     exposed,
     infectious,
@@ -141,6 +151,12 @@ function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
       susceptibleDelta =
         0 - (betaCells * totalInfectious * susceptible) / totalPopulation;
     } else {
+      // incarcerated population adjustments affect susceptibility and exposure
+      // for the incarcerated, but not staff
+
+      susceptible += totalSusceptibleIncarcerated
+        ? populationAdjustment * (susceptible / totalSusceptibleIncarcerated)
+        : 0;
       exposedDelta =
         Math.min(
           susceptible,
@@ -192,6 +208,7 @@ function getCurveProjections(inputs: SimulationInputs & CurveProjectionInputs) {
     facilityDormitoryPct,
     facilityOccupancyPct,
     numDays,
+    plannedReleases,
     rateOfSpreadFactor,
   } = inputs;
 
@@ -220,7 +237,7 @@ function getCurveProjections(inputs: SimulationInputs & CurveProjectionInputs) {
     (1 - facilityOccupancyPct) *
       (rateOfSpreadDorms - rateOfSpreadDormsAdjustment);
 
-  const totalPopulation = sum(ageGroupPopulations);
+  let totalPopulation = sum(ageGroupPopulations);
 
   // initialize the base daily state with just susceptible and infected pops.
   // each age group is a single row
@@ -240,6 +257,20 @@ function getCurveProjections(inputs: SimulationInputs & CurveProjectionInputs) {
     },
   );
 
+  // index expected population adjustments by day
+  // we currently don't include today so index everything relative to tomorrow
+  const tomorrow = addDays(Date.now(), 1);
+  const expectedPopulationChanges = Array(numDays).fill(0);
+  plannedReleases?.forEach(({ date, count }) => {
+    // skip incomplete records
+    if (!count || date === undefined) {
+      return;
+    }
+    const dateIndex = differenceInCalendarDays(date, tomorrow);
+    if (dateIndex < expectedPopulationChanges.length) {
+      expectedPopulationChanges[dateIndex] -= count;
+    }
+  });
   const dailyIncarceratedProjections = [];
   const dailyStaffProjections = [];
   let day = 0;
@@ -250,19 +281,27 @@ function getCurveProjections(inputs: SimulationInputs & CurveProjectionInputs) {
     const totalInfectious = sum(
       getAllValues(getColView(singleDayState, seirIndex.infectious)),
     );
+    const totalSusceptibleIncarcerated = sum(
+      getAllValues(getColView(singleDayState, seirIndex.susceptible)).filter(
+        (v, i) => i !== ageGroupIndex.staff,
+      ),
+    );
+
     // update the age group SEIR matrix in place for this day
-    ageGroupFatalityRates.forEach((rate, rowIndex) => {
+    ageGroupFatalityRates.forEach((rate, ageGroup) => {
       const projectionForAgeGroup = simulateOneDay({
-        priorSimulation: getAllValues(getRowView(singleDayState, rowIndex)),
+        priorSimulation: getAllValues(getRowView(singleDayState, ageGroup)),
         totalPopulation,
         totalInfectious,
         rateOfSpreadCells,
         rateOfSpreadDorms,
         pFatalityRate: rate,
         facilityDormitoryPct,
-        simulateStaff: rowIndex === ageGroupIndex.staff,
+        simulateStaff: ageGroup === ageGroupIndex.staff,
+        populationAdjustment: expectedPopulationChanges[day],
+        totalSusceptibleIncarcerated,
       });
-      setRowValues(singleDayState, rowIndex, projectionForAgeGroup);
+      setRowValues(singleDayState, ageGroup, projectionForAgeGroup);
     });
 
     // sum up each column to get the total daily projection for each SEIR bucket
@@ -279,6 +318,10 @@ function getCurveProjections(inputs: SimulationInputs & CurveProjectionInputs) {
     // which we will build a new matrix from
     dailyIncarceratedProjections.push(...currentDayIncarceratedProjections);
     dailyStaffProjections.push(...currentDayStaffProjections);
+
+    // update total population for next day to account for any adjustments made
+    totalPopulation += expectedPopulationChanges[day];
+
     day++;
   }
 

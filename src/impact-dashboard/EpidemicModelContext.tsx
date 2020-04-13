@@ -1,5 +1,6 @@
 import { csvParse, DSVRowAny } from "d3";
 import { rollup } from "d3-array";
+import parseJSON from "date-fns/parseJSON";
 import { mapValues, pick, size } from "lodash";
 import numeral from "numeral";
 import React, { useEffect } from "react";
@@ -16,6 +17,9 @@ type CountyLevelRecord = {
 };
 
 type CountyLevelData = Map<string, Map<string, CountyLevelRecord>>;
+
+export type PlannedRelease = { date?: Date; count?: number };
+export type PlannedReleases = PlannedRelease[];
 
 type Action = { type: "update"; payload: EpidemicModelUpdate };
 type Dispatch = (action: Action) => void;
@@ -51,6 +55,7 @@ interface ModelInputsPersistent {
   rateOfSpreadFactor?: RateOfSpread;
   staffCases?: number;
   staffPopulation?: number;
+  plannedReleases?: PlannedReleases;
 }
 
 interface ModelInputsUpdate extends ModelInputsPersistent {
@@ -118,6 +123,7 @@ export const persistedKeys: Array<keyof EpidemicModelPersistent> = [
   "rateOfSpreadFactor",
   "staffCases",
   "staffPopulation",
+  "plannedReleases",
 ];
 
 export type EpidemicModelUpdate = ModelInputsUpdate & MetadataUpdate;
@@ -219,12 +225,26 @@ function epidemicModelReducer(
 }
 
 function sanitizeQueryParams(rawQueryParams: QueryParams) {
-  return mapValues(pick(rawQueryParams, persistedKeys), (value) => {
+  return mapValues(pick(rawQueryParams, persistedKeys), (value, key) => {
     if (value === undefined) return value;
 
     // most of these are numbers but some are strings
     const n = numeral(value).value();
-    return n != null ? n : value?.toString();
+    let sanitizedValue = n != null ? n : value;
+
+    // planned release dates are serialized to strings; deserialize
+    if (key === "plannedReleases") {
+      sanitizedValue = (sanitizedValue as Array<{
+        date?: string;
+        count?: number;
+      }>).map(({ date, count }) => {
+        return {
+          count,
+          date: date ? parseJSON(date) : undefined,
+        };
+      });
+    }
+    return sanitizedValue;
   });
 }
 
