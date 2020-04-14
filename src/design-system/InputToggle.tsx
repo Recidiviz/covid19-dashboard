@@ -61,9 +61,7 @@ const InputToggle: React.FC<Props> = (props) => {
 
   return (
     <ToggleContainer>
-      <Label toggled={toggled} htmlFor="InputToggle">
-        {label}
-      </Label>
+      <Label toggled={toggled}>{label}</Label>
       <ToggleInput
         id="ToggleInput"
         type="checkbox"
