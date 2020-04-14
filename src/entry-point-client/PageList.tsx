@@ -1,8 +1,8 @@
 import GetInvolvedPage from "../page-get-involved/GetInvolvedPage";
+import MultiFacilityPage from "../page-multi-facility/MultiFacilityPage";
 import OverviewPage from "../page-overview/OverviewPage";
 import UnsupportedBrowserPage from "../page-unsupported-browser/UnsupportedBrowserPage";
 import VerificationNeeded from "../page-verification-needed/VerificationNeeded";
-import MultiFacilityPage from "../page-multi-facility/MultiFacilityPage";
 
 export interface PageInfo {
   path: string;
