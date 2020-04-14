@@ -8,7 +8,10 @@ export function darken(color: string, amount: number) {
 
 const Colors = {
   black: "#000",
+  slate: "#e9ebeb",
   forest: "#005450",
+  teal: "#25b894",
+  darkTeal: "#759f9e",
   gray: "#E0E4E4",
   green: "#006C67",
   lightBlue: "#33B6FF",
