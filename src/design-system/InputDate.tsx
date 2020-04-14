@@ -43,7 +43,7 @@ const InputContainer = styled.div`
         &:enabled {
           &:hover,
           &:focus {
-            background: ${hexAlpha(Colors.grey, 0.5)};
+            background: ${hexAlpha(Colors.paleGreen, 0.5)};
           }
         }
       }
@@ -51,7 +51,7 @@ const InputContainer = styled.div`
 
     &__tile {
       &:hover {
-        background: ${hexAlpha(Colors.grey, 0.5)};
+        background: ${hexAlpha(Colors.paleGreen, 0.5)};
       }
       &--hasActive {
         background: ${hexAlpha(Colors.green, 0.3)};

@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
+import Colors from "./Colors";
+import { StyledInput } from "./Input";
 import TextLabel from "./TextLabel";
 
 interface Props {
@@ -20,32 +22,46 @@ const SelectContainer = styled.div`
   margin-right: 8px;
 `;
 
-const SelectInput = styled.select`
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  width: 100%;
-  border: none;
-  padding: 18px;
-  background: #e0e4e4;
-  outline: 0 solid transparent;
-  margin-top: 8px;
-  border-radius: 2px;
-  font-size: 16px;
-  color: #00413e;
+const caretSize = 5;
+const SelectWrapper = styled.div`
+  position: relative;
+
+  &::after {
+    border-left: ${caretSize}px solid transparent;
+    border-right: ${caretSize}px solid transparent;
+    border-top: ${caretSize}px solid ${Colors.forest};
+    content: "";
+    display: inline-block;
+    height: 0;
+    pointer-events: none;
+    position: absolute;
+    right: 8px;
+    top: calc(50% + ${caretSize / 2}px);
+    width: 0;
+  }
+`;
+
+const StyledSelect = styled(StyledInput)`
+  appearance: none;
+  padding-right: ${caretSize * 2 + 16}px;
+  text-overflow: ellipsis;
 `;
 
 const InputSelect: React.FC<Props> = (props) => {
   return (
     <SelectContainer>
       <TextLabel>{props.label}</TextLabel>
-      <SelectInput
-        disabled={props.disabled}
-        onChange={props.onChange}
-        value={props.value}
-        name={props.label}
-      >
-        {props.children}
-      </SelectInput>
+      <SelectWrapper>
+        <StyledSelect
+          as="select"
+          disabled={props.disabled}
+          onChange={props.onChange}
+          value={props.value}
+          name={props.label}
+        >
+          {props.children}
+        </StyledSelect>
+      </SelectWrapper>
     </SelectContainer>
   );
 };

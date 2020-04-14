@@ -1,4 +1,7 @@
 import { useEffect, useState } from "react";
+import styled from "styled-components";
+
+import Colors from "./Colors";
 
 export interface InputLabelProps {
   labelAbove?: string;
@@ -35,3 +38,19 @@ export function useInputValue<T>(props: InputValueProps<T>) {
 }
 
 export type InputBaseProps<T> = InputLabelProps & InputValueProps<T>;
+
+export const StyledInput = styled.input`
+  background: ${Colors.gray};
+  border-radius: 2px;
+  border: none;
+  box-shadow: none;
+  box-sizing: border-box;
+  color: ${Colors.forest};
+  flex: 1 1 auto;
+  font: 16px/1.2 "Rubik", sans-serif;
+  height: 48px;
+  margin-top: 8px;
+  outline: 0 solid transparent;
+  padding: 0 16px;
+  width: 100%;
+`;
