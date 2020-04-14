@@ -8,11 +8,12 @@ export function darken(color: string, amount: number) {
 
 const Colors = {
   black: "#000",
-  green: "#006C67",
   forest: "#005450",
+  gray: "#E0E4E4",
+  green: "#006C67",
   lightBlue: "#33B6FF",
+  paleGreen: "#D2DBDB",
   red: "#FF464A",
-  grey: "#D2DBDB",
 };
 
 export default Colors;

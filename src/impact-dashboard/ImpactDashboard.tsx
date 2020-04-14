@@ -8,7 +8,7 @@ import ImpactProjectionTable from "./ImpactProjectionTableContainer";
 import LocaleInformation from "./LocaleInformation";
 import MitigationInformation from "./MitigationInformation";
 
-const borderStyle = `1px solid ${Colors.grey}`;
+const borderStyle = `1px solid ${Colors.paleGreen}`;
 
 const SectionHeader = styled.header`
   font-family: Poppins;

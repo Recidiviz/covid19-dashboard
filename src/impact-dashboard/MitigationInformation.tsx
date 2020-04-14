@@ -24,7 +24,7 @@ type RowProps = PlannedRelease & {
   updateRelease: (opts: ReleaseUpdate) => void;
 };
 
-const rateOfSpreadDisplayText = {
+const rateOfSpreadDisplayText: { [key in RateOfSpread]: string } = {
   low:
     "Low – we've reduced unnecessary interpersonal contact and quarantined at-risk groups",
   moderate:
