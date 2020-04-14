@@ -2,6 +2,7 @@ import GetInvolvedPage from "../page-get-involved/GetInvolvedPage";
 import OverviewPage from "../page-overview/OverviewPage";
 import UnsupportedBrowserPage from "../page-unsupported-browser/UnsupportedBrowserPage";
 import VerificationNeeded from "../page-verification-needed/VerificationNeeded";
+import MultiFacilityPage from "../page-multi-facility/MultiFacilityPage";
 
 export interface PageInfo {
   path: string;
@@ -38,6 +39,12 @@ const PageList: PageInfo[] = [
     title: getPageTitle("Verification Needed"),
     isPrivate: false,
     contents: <VerificationNeeded />,
+  },
+  {
+    path: "/multi-facility",
+    title: getPageTitle(),
+    isPrivate: true,
+    contents: <MultiFacilityPage />,
   },
 ];
 
