@@ -25,6 +25,7 @@ const SubsectionHeader = styled.header`
   font-weight: 600;
   font-size: 14px;
   line-height: 16px;
+  margin-bottom: 12px;
 `;
 
 /* Charts */
