@@ -1,5 +1,5 @@
 import { uniqueId } from "lodash";
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 
 import Colors from "./Colors";
@@ -57,8 +57,8 @@ const ToggleButton = styled.span<{ toggled?: boolean }>`
 `;
 
 const InputToggle: React.FC<Props> = (props) => {
+  const [inputId] = useState(uniqueId("ToggleInput_"));
   const { toggled, onChange } = props;
-  const inputId = uniqueId("ToggleInput_");
   const label = toggled ? "On" : "Off";
 
   return (
