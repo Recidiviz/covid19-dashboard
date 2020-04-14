@@ -10,8 +10,7 @@ const MultiFacilityPage: React.FC = () => {
       <div className="font-body text-green min-h-screen tracking-normal w-full">
         <div className="max-w-screen-xl px-4 mx-auto">
           <SiteHeader />
-          <main className="my-6">
-          </main>
+          <main className="my-6" />
         </div>
       </div>
     </MultiFacilityPageDiv>
