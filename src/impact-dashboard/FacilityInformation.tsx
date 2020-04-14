@@ -152,7 +152,7 @@ const FacilityInformation: React.FC = () => {
               <InputTextNumeric
                 key="occupancy"
                 type="percent"
-                labelAbove="Occupancy rate (%)"
+                labelAbove="Occupancy rate"
                 labelHelp="Enter occupancy rate as a percent of capacity."
                 valueEntered={model.facilityOccupancyPct}
                 onValueChange={(value) =>
@@ -162,7 +162,7 @@ const FacilityInformation: React.FC = () => {
               <InputTextNumeric
                 key="bunks"
                 type="percent"
-                labelAbove="Bunk-Style Housing (%)"
+                labelAbove="Bunk-Style Housing"
                 labelHelp="Enter the percent of facility in dormitory bunk style housing."
                 valueEntered={model.facilityDormitoryPct as number}
                 onValueChange={(value) =>
