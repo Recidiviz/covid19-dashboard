@@ -18,9 +18,9 @@ function buildTableRowFromCurves(
   calculator: Function,
 ): TableRow {
   const [week1, week2, week3, overall] = [
-    6,
-    13,
-    20,
+    7,
+    14,
+    21,
     data.shape[0] - 1,
   ].map((day) => calculator(data, day));
 

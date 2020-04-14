@@ -110,7 +110,7 @@ const Tooltip: React.FC<TooltipProps> = ({
   days,
   parentLine: { title },
 }) => {
-  const displayDate = add(new Date(), { days: days - 1 });
+  const displayDate = add(new Date(), { days });
 
   return (
     <TooltipContainer>
@@ -144,7 +144,7 @@ const CurveChart: React.FC<CurveChartProps> = ({
       key: bucket,
       coordinates: values.map((count, index) => ({
         count,
-        days: index + 1,
+        days: index,
       })),
     })),
     lineType: { type: "area", interpolator: curveCatmullRom },
