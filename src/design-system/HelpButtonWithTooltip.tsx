@@ -5,7 +5,7 @@ import Tooltip from "./Tooltip";
 
 const HelpButton = styled.span<{ muted?: boolean }>`
   background: ${(props) =>
-    props.muted ? `${Colors.sageGreen};` : `${Colors.forest};`}
+    props.muted ? `${Colors.darkTeal};` : `${Colors.forest};`}
   color: white;
   border-radius: ${(props) => (props.muted ? "9px;" : "14px")}
   line-height: ${(props) => (props.muted ? "7px;" : "12px")}

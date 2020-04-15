@@ -26,6 +26,7 @@ const TooltipContentsDiv = styled.div`
   min-height: 20px;
   padding: 5px;
   margin-left: 5px;
+  z-index: 100;
 `;
 
 const TooltipArrowDiv = styled.div`

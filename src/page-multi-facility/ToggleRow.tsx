@@ -1,7 +1,9 @@
+import React, { useState } from "react";
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
 import HelpButtonWithTooltip from "../design-system/HelpButtonWithTooltip";
+import InputToggle from "../design-system/InputToggle";
 
 interface Props {
   text?: React.ReactNode;
@@ -13,10 +15,12 @@ const borderStyle = `1px solid ${Colors.paleGreen}`;
 const ToggleRowContainer = styled.div`
   display: flex;
   border-bottom: ${borderStyle};
-  justify-content: flex-start;
+  justify-content: space-between;
   width: 200px;
   padding: 10px 5px 10px 0;
 `;
+
+const TextContainer = styled.div``;
 
 const Text = styled.span`
   color: ${Colors.forest};
@@ -27,16 +31,20 @@ const Text = styled.span`
 `;
 
 const ToggleRow: React.FC<Props> = (props) => {
+  const [toggled, setToggled] = useState(false);
   if (!props.text && !props.textHelp) {
     return null;
   }
 
   return (
     <ToggleRowContainer>
-      <Text>{props.text}</Text>
-      {props.textHelp && (
-        <HelpButtonWithTooltip muted>{props.textHelp}</HelpButtonWithTooltip>
-      )}
+      <TextContainer>
+        <Text>{props.text}</Text>
+        {props.textHelp && (
+          <HelpButtonWithTooltip muted>{props.textHelp}</HelpButtonWithTooltip>
+        )}
+      </TextContainer>
+      <InputToggle toggled={toggled} onChange={() => setToggled(!toggled)} />
     </ToggleRowContainer>
   );
 };
