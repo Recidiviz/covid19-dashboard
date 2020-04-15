@@ -1,4 +1,5 @@
 import GetInvolvedPage from "../page-get-involved/GetInvolvedPage";
+import ModelInspectionPage from "../page-model-inspection/";
 import MultiFacilityPage from "../page-multi-facility/MultiFacilityPage";
 import OverviewPage from "../page-overview/OverviewPage";
 import UnsupportedBrowserPage from "../page-unsupported-browser/UnsupportedBrowserPage";
@@ -45,6 +46,12 @@ const PageList: PageInfo[] = [
     title: getPageTitle(),
     isPrivate: true,
     contents: <MultiFacilityPage />,
+  },
+  {
+    path: "/inspect-model",
+    title: getPageTitle("Inspect epidemic model output"),
+    isPrivate: true,
+    contents: <ModelInspectionPage />,
   },
 ];
 

@@ -36,6 +36,7 @@
     "babel-plugin-styled-components": "1.10.7",
     "camelcase-keys": "^6.2.2",
     "chalk": "3.0.0",
+    "change-case": "4.1.1",
     "core-js": "3.6.4",
     "d3": "5.15.0",
     "d3-array": "2.4.0",
