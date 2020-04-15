@@ -41,7 +41,7 @@ const ToggleRow: React.FC<Props> = (props) => {
       <TextContainer>
         <Text>{props.text}</Text>
         {props.textHelp && (
-          <HelpButtonWithTooltip muted>{props.textHelp}</HelpButtonWithTooltip>
+          <HelpButtonWithTooltip softened>{props.textHelp}</HelpButtonWithTooltip>
         )}
       </TextContainer>
       <InputToggle toggled={toggled} onChange={() => setToggled(!toggled)} />
