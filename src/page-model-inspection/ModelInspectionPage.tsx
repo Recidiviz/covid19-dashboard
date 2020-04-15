@@ -5,6 +5,7 @@ import { useEpidemicModelState } from "../impact-dashboard/EpidemicModelContext"
 import FacilityInformation from "../impact-dashboard/FacilityInformation";
 import LocaleInformation from "../impact-dashboard/LocaleInformation";
 import MitigationInformation from "../impact-dashboard/MitigationInformation";
+import ModelInspectionTable from "./ModelInspectionTableContainer";
 import ModelOutputChartArea from "./ModelOutputChartArea";
 
 const borderStyle = `1px solid ${Colors.paleGreen}`;
@@ -83,6 +84,7 @@ const ModelInspectionPage: React.FC = () => {
               <ModelOutputChartArea />
             </ChartsContainer>
           </ImpactDashboardVDiv>
+          <ModelInspectionTable />
         </>
       )}
     </div>

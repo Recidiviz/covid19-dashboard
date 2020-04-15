@@ -10,7 +10,7 @@ import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import { getMarkColor } from "./helpers";
 
 const ChartContainer = styled.div`
-  height: 700px;
+  height: 850px;
 
   .frame {
     font-family: "Poppins", sans-serif;
@@ -55,7 +55,7 @@ const ChartContainer = styled.div`
   }
 `;
 
-const triangleSize = "7";
+const triangleSize = 7;
 const TooltipContainer = styled.div`
   background: ${Colors.forest};
   color: #fff;
