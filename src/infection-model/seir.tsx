@@ -1,5 +1,4 @@
-import { sum, zip } from "d3-array";
-import addDays from "date-fns/addDays";
+import { range, sum, zip } from "d3-array";
 import differenceInCalendarDays from "date-fns/differenceInCalendarDays";
 import ndarray from "ndarray";
 
@@ -18,7 +17,7 @@ interface SimulationInputs {
   facilityDormitoryPct: number;
 }
 
-interface CurveProjectionInputs {
+export interface CurveProjectionInputs extends SimulationInputs {
   ageGroupPopulations: number[];
   numDays: number;
   ageGroupInitiallyInfected: number[];
@@ -39,7 +38,7 @@ interface SingleDayInputs {
   totalSusceptibleIncarcerated: number;
 }
 
-enum seirIndex {
+export enum seirIndex {
   susceptible,
   exposed,
   infectious,
@@ -57,7 +56,7 @@ export const seirIndexList = Object.keys(seirIndex)
   // these should all be numbers anyway but this extra cast makes typescript happy
   .map((k) => parseInt(seirIndex[k as any]));
 
-enum ageGroupIndex {
+export enum ageGroupIndex {
   ageUnknown,
   age0,
   age20,
@@ -206,20 +205,7 @@ enum R0Dorms {
   high = 7,
 }
 
-function getTotalsBreakdown(singleDay: ndarray) {
-  const currentDayIncarceratedProjections = [];
-  const currentDayStaffProjections = [];
-  // sum up each column to get the total daily projection for each SEIR bucket
-  for (let colIndex = 0; colIndex < singleDay.shape[1]; colIndex++) {
-    const incarceratedValues = getAllValues(getColView(singleDay, colIndex));
-    const [staffCount] = incarceratedValues.splice(ageGroupIndex.staff, 1);
-    currentDayIncarceratedProjections.push(sum(incarceratedValues));
-    currentDayStaffProjections.push(staffCount);
-  }
-  return { currentDayIncarceratedProjections, currentDayStaffProjections };
-}
-
-function getCurveProjections(inputs: SimulationInputs & CurveProjectionInputs) {
+export function getAllBracketCurves(inputs: CurveProjectionInputs) {
   let {
     ageGroupInitiallyInfected,
     ageGroupPopulations,
@@ -229,6 +215,27 @@ function getCurveProjections(inputs: SimulationInputs & CurveProjectionInputs) {
     plannedReleases,
     rateOfSpreadFactor,
   } = inputs;
+
+  // 3d array. D1 = SEIR compartment. D2 = day. D3 = age bracket
+  const projectionGrid = ndarray(
+    new Array(seirIndexList.length * numDays + 1 * ageGroupIndex.__length).fill(
+      0,
+    ),
+    [seirIndexList.length, numDays + 1, ageGroupIndex.__length],
+  );
+
+  const updateProjectionDay = (day: number, data: ndarray) => {
+    range(data.shape[0]).forEach((bracket) => {
+      range(data.shape[1]).forEach((compartment) => {
+        projectionGrid.set(
+          compartment,
+          day,
+          bracket,
+          data.get(bracket, compartment),
+        );
+      });
+    });
+  };
 
   const ageGroupFatalityRates = [];
   ageGroupFatalityRates[ageGroupIndex.ageUnknown] = 0.026;
@@ -276,31 +283,24 @@ function getCurveProjections(inputs: SimulationInputs & CurveProjectionInputs) {
   );
 
   // index expected population adjustments by day;
-  // start with tomorrow since these are future releases
-  const tomorrow = addDays(Date.now(), 1);
-  const expectedPopulationChanges = Array(numDays).fill(0);
+  const today = Date.now();
+  const expectedPopulationChanges = Array(numDays + 1).fill(0);
   plannedReleases?.forEach(({ date, count }) => {
     // skip incomplete records
     if (!count || date === undefined) {
       return;
     }
-    const dateIndex = differenceInCalendarDays(date, tomorrow);
+    const dateIndex = differenceInCalendarDays(date, today);
     if (dateIndex < expectedPopulationChanges.length) {
       expectedPopulationChanges[dateIndex] -= count;
     }
   });
 
   // initialize the projections with today's data
-  const {
-    currentDayIncarceratedProjections: initialIncarceratedProjections,
-    currentDayStaffProjections: initialStaffProjections,
-  } = getTotalsBreakdown(singleDayState);
+  updateProjectionDay(0, singleDayState);
 
-  const dailyIncarceratedProjections = [...initialIncarceratedProjections];
-  const dailyStaffProjections = [...initialStaffProjections];
-
-  let day = 0;
-  while (day < numDays) {
+  let day = 1;
+  while (day <= numDays) {
     // each day's projection needs the sum of all infectious projections so far
     const totalInfectious = sum(
       getAllValues(getColView(singleDayState, seirIndex.infectious)),
@@ -328,15 +328,7 @@ function getCurveProjections(inputs: SimulationInputs & CurveProjectionInputs) {
       setRowValues(singleDayState, ageGroup, projectionForAgeGroup);
     });
 
-    const {
-      currentDayIncarceratedProjections,
-      currentDayStaffProjections,
-    } = getTotalsBreakdown(singleDayState);
-
-    // push this day's data to a flat list of daily projections,
-    // which we will build a new matrix from
-    dailyIncarceratedProjections.push(...currentDayIncarceratedProjections);
-    dailyStaffProjections.push(...currentDayStaffProjections);
+    updateProjectionDay(day, singleDayState);
 
     // update total population for next day to account for any adjustments made
     totalPopulation += expectedPopulationChanges[day];
@@ -344,14 +336,5 @@ function getCurveProjections(inputs: SimulationInputs & CurveProjectionInputs) {
     day++;
   }
 
-  // this will produce a matrix with row = day and col = SEIR bucket
-  return {
-    incarcerated: ndarray(dailyIncarceratedProjections, [
-      numDays + 1,
-      seirIndex.__length,
-    ]),
-    staff: ndarray(dailyStaffProjections, [numDays + 1, seirIndex.__length]),
-  };
+  return projectionGrid;
 }
-
-export { ageGroupIndex, getCurveProjections, seirIndex };

@@ -1,14 +1,19 @@
+import { range, sum } from "d3-array";
 import ndarray from "ndarray";
 
 import { EpidemicModelInputs } from "../impact-dashboard/EpidemicModelContext";
-import { ageGroupIndex, getCurveProjections } from "./seir";
+import {
+  ageGroupIndex,
+  CurveProjectionInputs,
+  getAllBracketCurves,
+} from "./seir";
 
 export type CurveData = {
   incarcerated: ndarray;
   staff: ndarray;
 };
 
-export function calculateCurves(inputs: EpidemicModelInputs): CurveData {
+function prepareCurveData(inputs: EpidemicModelInputs): CurveProjectionInputs {
   const {
     age0Cases,
     age0Population,
@@ -66,7 +71,7 @@ export function calculateCurves(inputs: EpidemicModelInputs): CurveData {
     ageGroupInitiallyInfected[ageGroupIndex.ageUnknown] = confirmedCases || 0;
   }
 
-  return getCurveProjections({
+  return {
     ageGroupPopulations,
     ageGroupInitiallyInfected,
     facilityDormitoryPct,
@@ -74,7 +79,51 @@ export function calculateCurves(inputs: EpidemicModelInputs): CurveData {
     numDays,
     plannedReleases,
     rateOfSpreadFactor,
-  });
+  };
+}
+
+export function calculateCurves(inputs: EpidemicModelInputs): CurveData {
+  const projectionGrid = getAllBracketCurves(prepareCurveData(inputs));
+  console.log(projectionGrid);
+
+  // these will each produce a matrix with row = day and col = SEIR bucket,
+  // collapsing all age brackets into a single sum
+  const incarcerated = ndarray(
+    new Array(projectionGrid.shape[0] * projectionGrid.shape[1]),
+    [projectionGrid.shape[1], projectionGrid.shape[0]],
+  );
+  const staff = ndarray(
+    new Array(projectionGrid.shape[0] * projectionGrid.shape[1]),
+    [projectionGrid.shape[1], projectionGrid.shape[0]],
+  );
+
+  range(projectionGrid.shape[0]).forEach((compartment) =>
+    range(projectionGrid.shape[1]).forEach((day) => {
+      incarcerated.set(
+        day,
+        compartment,
+        sum(
+          range(projectionGrid.shape[2])
+            .filter((i) => i !== ageGroupIndex.staff)
+            .map((bracket) => projectionGrid.get(compartment, day, bracket)),
+        ),
+      );
+      staff.set(
+        day,
+        compartment,
+        projectionGrid.get(compartment, day, ageGroupIndex.staff),
+      );
+    }),
+  );
+
+  return {
+    incarcerated,
+    staff,
+  };
+}
+
+export function calculateAllCurves(inputs: EpidemicModelInputs) {
+  return getAllBracketCurves(prepareCurveData(inputs));
 }
 
 export function estimatePeakHospitalUse() {
