@@ -14,12 +14,12 @@ const MultiFacilityPage: React.FC = () => {
           <SiteHeader />
           <main className="my-6">
             <ToggleRow
-              text="Daily Reports"
-              textHelp="Tooltip help Lorem ipsum dolor sit amet, consectetur adipiscing elit"
+              label="Daily Reports"
+              labelHelp="Tooltip help Lorem ipsum dolor sit amet, consectetur adipiscing elit"
             />
             <ToggleRow
-              text="Data Sharing"
-              textHelp="Tooltip help Lorem ipsum dolor sit amet, consectetur adipiscing elit"
+              label="Data Sharing"
+              labelHelp="Tooltip help Lorem ipsum dolor sit amet, consectetur adipiscing elit"
             />
           </main>
         </div>
