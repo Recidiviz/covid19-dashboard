@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 
 import InputToggle from "../design-system/InputToggle";
+import Modal from "../design-system/Modal";
 import SiteHeader from "../site-header/SiteHeader";
 
 const MultiFacilityPageDiv = styled.div``;
@@ -19,6 +20,7 @@ const MultiFacilityPage: React.FC = () => {
               toggled={toggled}
               onChange={() => setToggled(!toggled)}
             />
+            <Modal modalTitle="Add Facility" trigger="Add Facilities" />
           </main>
         </div>
       </div>
