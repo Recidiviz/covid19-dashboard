@@ -35,9 +35,11 @@ function buildTableRowFromCurves(
 
 function countEverHospitalizedForDay(data: ndarray, day: number) {
   // includes people who are currently hospitalized or were previously
+  // TODO: how can we distinguish recovered people based on whether they were hospitalized?
   const everHospitalized = [
     seirIndex.hospitalized,
-    seirIndex.severeRecovered,
+    seirIndex.icu,
+    seirIndex.hospitalRecovery,
     seirIndex.fatalities,
   ];
   const row = getAllValues(getRowView(data, day));
@@ -51,6 +53,7 @@ function countCasesForDay(data: ndarray, day: number): number {
   return Math.round(sum(row.filter((d, i) => !notCases.includes(i))));
 }
 
+// TODO: needs to include several categories now
 function getHospitalizedForDay(data: ndarray, day: number): number {
   return Math.round(data.get(day, seirIndex.hospitalized));
 }
@@ -61,8 +64,8 @@ function getFatalitiesForDay(data: ndarray, day: number): number {
 
 function countUnableToWorkForDay(data: ndarray, day: number): number {
   const unableToWork = [
-    seirIndex.mild,
-    seirIndex.severe,
+    seirIndex.icu,
+    seirIndex.hospitalRecovery,
     seirIndex.hospitalized,
     seirIndex.fatalities,
   ];
@@ -76,6 +79,7 @@ type PeakData = {
   daysUntil50Pct: number | null;
 };
 
+// TODO: needs to account for multiple hospital buckets
 function getPeakHospitalized(data: ndarray, hospitalBeds: number): PeakData {
   const hospitalized = getAllValues(getColView(data, seirIndex.hospitalized));
   const peakHospitalized = Math.max(...hospitalized);
