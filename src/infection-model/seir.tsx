@@ -48,7 +48,8 @@ export enum seirIndex {
   icu,
   hospitalRecovery,
   fatalities,
-  recovered,
+  recoveredMild,
+  recoveredHospitalized,
   __length,
 }
 
@@ -126,12 +127,16 @@ function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
   const icu = priorSimulation[seirIndex.icu];
   const hospitalRecovery = priorSimulation[seirIndex.hospitalRecovery];
   const fatalities = priorSimulation[seirIndex.fatalities];
-  const recovered = priorSimulation[seirIndex.recovered];
+  const recoveredMild = priorSimulation[seirIndex.recoveredMild];
+  const recoveredHospitalized =
+    priorSimulation[seirIndex.recoveredHospitalized];
 
-  const recoveredDelta =
+  const recoveredMildDelta =
     rExposedToRecovered * exposed +
     rInfectiousToRecovered * infectious +
-    rQuarantinedToRecovered * quarantined +
+    rQuarantinedToRecovered * quarantined;
+
+  const recoveredHospitalizedDelta =
     rHospitalizedToRecovered * hospitalized +
     rHospitalRecoveryToRecovered * hospitalRecovery;
 
@@ -204,7 +209,9 @@ function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
   newDay[seirIndex.icu] = icu + icuDelta;
   newDay[seirIndex.hospitalRecovery] = hospitalRecovery + hospitalRecoveryDelta;
   newDay[seirIndex.fatalities] = fatalities + fatalitiesDelta;
-  newDay[seirIndex.recovered] = recovered + recoveredDelta;
+  newDay[seirIndex.recoveredMild] = recoveredMild + recoveredMildDelta;
+  newDay[seirIndex.recoveredHospitalized] =
+    recoveredHospitalized + recoveredHospitalizedDelta;
 
   return newDay;
 }
@@ -283,7 +290,7 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
 
   // initialize the base daily state with just susceptible and infected pops.
   // each age group is a single row
-  // each SEIR bucket is a single column
+  // each SEIR compartment is a single column
   const singleDayState = ndarray(
     Array(ageGroupIndex.__length * seirIndex.__length).fill(0),
     [ageGroupIndex.__length, seirIndex.__length],
