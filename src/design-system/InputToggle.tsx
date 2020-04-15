@@ -17,10 +17,11 @@ const ToggleContainer = styled.div`
 const Label = styled.label<{ toggled?: boolean }>`
   align-self: center;
   color: ${(props) => (props.toggled ? Colors.teal : Colors.darkTeal)};
-  font-size: 14px;
+  font-size: 12px;
   font-family: "Poppins", sans-serif;
   min-width: 50px;
   padding: 0 1em;
+  text-align: right;
 `;
 
 const ToggleInput = styled.input`
@@ -31,29 +32,31 @@ const ToggleInput = styled.input`
 
 const ToggleButtonContainer = styled.label<{ toggled?: boolean }>`
   align-items: center;
+  align-self: flex-end;
   background: ${(props) => (props.toggled ? Colors.teal : Colors.darkTeal)};
-  border-radius: 20px;
+  border-radius: 10px;
   cursor: pointer;
   display: flex;
-  height: 26px;
+  height: 15px;
   justify-content: space-between;
   position: relative;
   transition: background-color 0.2s;
-  width: 48px;
+  width: 22px;
 `;
 
 const ToggleButton = styled.span<{ toggled?: boolean }>`
   background: ${Colors.slate};
+  align-self: center;
   border-radius: 50%;
   content: "";
   cursor: pointer;
-  height: 15px;
-  left: ${(props) => (props.toggled ? "calc(100% - 5px)" : "5px")};
+  height: 10px;
+  left: ${(props) => (props.toggled ? "calc(100% - 3px)" : "3px")};
   position: absolute;
-  top: 5px;
+  top: 2px;
   transition: 0.2s;
   ${(props) => (props.toggled ? `transform: translateX(-100%);` : null)}
-  width: 15px
+  width: 10px
 `;
 
 const InputToggle: React.FC<Props> = (props) => {
