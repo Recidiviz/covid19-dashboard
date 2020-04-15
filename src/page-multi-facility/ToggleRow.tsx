@@ -25,7 +25,7 @@ const TextContainer = styled.div``;
 const Text = styled.span`
   color: ${Colors.forest};
   font-family: "Rubik", sans-serif;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 100;
   padding-right: 5px;
 `;

@@ -7,13 +7,13 @@ const HelpButton = styled.span<{ muted?: boolean }>`
   background: ${(props) =>
     props.muted ? `${Colors.darkTeal};` : `${Colors.forest};`}
   color: white;
-  border-radius: ${(props) => (props.muted ? "9px;" : "14px;")}
-  line-height: ${(props) => (props.muted ? "7px;" : "12px;")}
-  width: ${(props) => (props.muted ? "9px;" : "16px;")}
-  height: ${(props) => (props.muted ? "9px;" : "16px;")}
+  border-radius: ${(props) => (props.muted ? "11px;" : "14px;")}
+  line-height: ${(props) => (props.muted ? "10px;" : "12px;")}
+  width: ${(props) => (props.muted ? "12px;" : "16px;")}
+  height: ${(props) => (props.muted ? "12px;" : "16px;")}
   display: inline-block;
   text-align: center;
-  font-size: ${(props) => (props.muted ? "6px;" : "9px;")}
+  font-size: ${(props) => (props.muted ? "9px;" : "9px;")}
   align-self: center;
   padding: 2px;
 `;
