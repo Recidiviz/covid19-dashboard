@@ -147,6 +147,7 @@ const CurveChart: React.FC<CurveChartProps> = ({
         days: index,
       })),
     })),
+    renderKey: (d, i) => d.key || i,
     lineType: { type: "area", interpolator: curveCatmullRom },
     xAccessor: "days",
     yAccessor: "count",
