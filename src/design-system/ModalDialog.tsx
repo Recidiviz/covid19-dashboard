@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import styled from "styled-components";
 
 import Colors from "./Colors";
-import closeIcon from "./icons/ic_close.svg";
+import ModalTitle, { TitleProps } from "./ModalTitle";
 
 const BackgroundAside = styled.aside`
   align-items: center;
@@ -28,14 +28,6 @@ const ModalContainer = styled.div`
   position: static;
 `;
 
-const ModalTitleContainer = styled.div`
-  display: inline-block;
-  font-size: 14px;
-  font-family: "Poppins", sans-serif;
-  padding-bottom: 20px;
-  width: 100%;
-`;
-
 const ModalContentContainer = styled.div`
   align-items: flex-end;
   border-top: 0.5px solid ${Colors.darkGray};
@@ -43,25 +35,14 @@ const ModalContentContainer = styled.div`
   flex: 1 1;
 `;
 
-const CloseButtonImg = styled.img`
-  display: inline-block;
-  height: 20px;
-  padding: 0 1em;
-  float: right;
-`;
-
 interface Props {
   numSteps?: number;
-  title?: string;
+  title?: TitleProps["title"];
   open?: boolean;
   closeModal: (e: React.MouseEvent<HTMLElement>) => void;
   children?: React.ReactElement<any>;
 }
 
-interface TitleProps {
-  title?: string;
-  closeModal: (e: React.MouseEvent<HTMLElement>) => void;
-}
 const isOutsideModal = (
   event: React.MouseEvent<HTMLElement>,
   element: HTMLDivElement | null,
@@ -69,21 +50,6 @@ const isOutsideModal = (
   event.target instanceof HTMLElement &&
   element &&
   !element.contains(event.target);
-
-export const ModalTitle: React.FC<TitleProps> = (props) => {
-  const { title, closeModal } = props;
-  return (
-    <ModalTitleContainer>
-      {title}
-      <CloseButtonImg
-        onClick={closeModal}
-        src={closeIcon}
-        alt="close button"
-        role="button"
-      />
-    </ModalTitleContainer>
-  );
-};
 
 const ModalDialog: React.FC<Props> = (props) => {
   const { title, open, closeModal, children } = props;

@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import Colors from "./Colors";
 import ModalDialog from "./ModalDialog";
+import { TitleProps } from "./ModalTitle";
 
 const ModalContainer = styled.div``;
 
@@ -16,7 +17,7 @@ const ModalTrigger = styled.button`
 `;
 
 interface Props {
-  modalTitle?: string;
+  modalTitle?: TitleProps["title"];
   trigger?: string | React.ReactElement<any>;
   children?: any;
 }
