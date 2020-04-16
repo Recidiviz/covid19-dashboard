@@ -37,7 +37,9 @@ const ModalTitleContainer = styled.div`
 `;
 
 const ModalContentContainer = styled.div`
+  align-items: flex-end;
   border-top: 0.5px solid ${Colors.darkGray};
+  display: flex;
   flex: 1 1;
 `;
 
@@ -56,6 +58,10 @@ interface Props {
   children?: React.ReactElement<any>;
 }
 
+interface TitleProps {
+  title?: string;
+  onClick: (e: React.MouseEvent<HTMLElement>) => void;
+}
 const isOutsideModal = (
   event: React.MouseEvent<HTMLElement>,
   element: HTMLDivElement | null,
@@ -63,6 +69,21 @@ const isOutsideModal = (
   event.target instanceof HTMLElement &&
   element &&
   !element.contains(event.target);
+
+export const ModalTitle: React.FC<TitleProps> = (props) => {
+  const { title, onClick } = props;
+  return (
+    <ModalTitleContainer>
+      {title}
+      <CloseButtonImg
+        onClick={onClick}
+        src={closeIcon}
+        alt="close button"
+        role="button"
+      />
+    </ModalTitleContainer>
+  );
+};
 
 const ModalDialog: React.FC<Props> = (props) => {
   const { title, open, onClick, children } = props;
@@ -79,15 +100,7 @@ const ModalDialog: React.FC<Props> = (props) => {
   return ReactDOM.createPortal(
     <BackgroundAside onClick={handleOnClick}>
       <ModalContainer ref={ref}>
-        <ModalTitleContainer>
-          {title}
-          <CloseButtonImg
-            onClick={onClick}
-            src={closeIcon}
-            alt="close button"
-            role="button"
-          />
-        </ModalTitleContainer>
+        <ModalTitle title={title} onClick={onClick} />
         <ModalContentContainer>{children}</ModalContentContainer>
       </ModalContainer>
     </BackgroundAside>,
