@@ -15,19 +15,49 @@ const LegendItem = styled.div`
   margin: 0 1em;
   font-weight: normal;
   padding-bottom: 0.6em;
+  cursor: pointer;
 `;
 
 interface Props {
   markColors: MarkColors;
+  toggleGroup: Function;
+  groupStatus: {
+    [propName: string]: boolean;
+  };
 }
 
-const CurveChartLegend: React.FC<Props> = ({ markColors }) => {
+const CurveChartLegend: React.FC<Props> = ({
+  markColors,
+  toggleGroup,
+  groupStatus,
+}) => {
+  () => alert("hello");
   return (
     <LegendWrapper>
-      <LegendItem color={markColors.exposed}>exposed</LegendItem>
-      <LegendItem color={markColors.infectious}>infectious</LegendItem>
-      <LegendItem color={markColors.hospitalized}>hospitalized</LegendItem>
-      <LegendItem color={markColors.fatalities}>fatalities</LegendItem>
+      <LegendItem
+        onClick={() => toggleGroup("exposed")}
+        color={markColors.exposed}
+      >
+        exposed
+      </LegendItem>
+      <LegendItem
+        onClick={() => toggleGroup("infectious")}
+        color={markColors.infectious}
+      >
+        infectious
+      </LegendItem>
+      <LegendItem
+        onClick={() => toggleGroup("hospitalized")}
+        color={markColors.hospitalized}
+      >
+        hospitalized
+      </LegendItem>
+      <LegendItem
+        onClick={() => toggleGroup("fatalities")}
+        color={markColors.fatalities}
+      >
+        fatalities
+      </LegendItem>
     </LegendWrapper>
   );
 };

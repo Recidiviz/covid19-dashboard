@@ -1,3 +1,4 @@
+import { useState } from "react";
 import styled from "styled-components";
 
 import Colors, { darken } from "../design-system/Colors";
@@ -12,6 +13,10 @@ export type MarkColors = {
   hospitalBeds: string;
 };
 
+interface GroupStatusProps {
+  [propName: string]: boolean;
+}
+
 const Container = styled.div``;
 
 const LegendAndActions = styled.div`
@@ -25,7 +30,7 @@ const LegendContainer = styled.div`
   flex: 0 0 auto;
 `;
 
-const ChartArea: React.FC = () => {
+const ChartArea: React.FC<GroupStatusProps> = () => {
   const markColors = {
     exposed: Colors.green,
     fatalities: Colors.black,
@@ -33,14 +38,30 @@ const ChartArea: React.FC = () => {
     hospitalBeds: darken(Colors.lightBlue, 20),
     infectious: Colors.red,
   };
+
+  const [groupStatus, setGroupStatus] = useState({
+    exposed: true,
+    fatalities: true,
+    hospitalized: true,
+    infectious: true,
+  });
+
+  const toggleGroup = (groupName: keyof typeof groupStatus) => {
+    setGroupStatus({ ...groupStatus, [groupName]: !groupStatus[groupName] });
+  };
+
   return (
     <Container>
       <LegendAndActions>
         <LegendContainer>
-          <CurveChartLegend markColors={markColors} />
+          <CurveChartLegend
+            markColors={markColors}
+            toggleGroup={toggleGroup}
+            groupStatus={groupStatus}
+          />
         </LegendContainer>
       </LegendAndActions>
-      <CurveChart markColors={markColors} />
+      <CurveChart markColors={markColors} groupStatus={groupStatus} />
     </Container>
   );
 };
