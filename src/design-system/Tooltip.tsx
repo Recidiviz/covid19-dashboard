@@ -12,6 +12,7 @@ const ArrowLength = "4px";
 const TooltipReferenceDiv = styled.div`
   display: inline-block;
   cursor: pointer;
+  align-self: center;
 `;
 
 // Mostly taken from:
@@ -24,6 +25,8 @@ const TooltipContentsDiv = styled.div`
   min-width: 20px;
   min-height: 20px;
   padding: 5px;
+  margin-left: 5px;
+  z-index: 100;
 `;
 
 const TooltipArrowDiv = styled.div`
