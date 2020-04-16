@@ -6,7 +6,7 @@ import ModalDialog from "./ModalDialog";
 
 const ModalContainer = styled.div``;
 
-const ModalTrigger = styled.h1`
+const ModalTrigger = styled.button`
   color: ${Colors.green};
   cursor: pointer;
   font-family: 'Libre Baskerville', serif;
@@ -31,7 +31,7 @@ const Modal: React.FC<Props> = (props) => {
       <ModalDialog
         title={modalTitle}
         open={open}
-        onClick={() => setOpen(false)}
+        closeModal={() => setOpen(false)}
       >
         {children}
       </ModalDialog>

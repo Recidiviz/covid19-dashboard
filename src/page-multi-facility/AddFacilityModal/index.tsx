@@ -32,19 +32,17 @@ const AddFacilityModal: React.FC = () => {
   return (
     <EpidemicModelProvider>
       <AddFacilityModalContainer>
-        <div className="flex-1 pl-8">
-          <Modal modalTitle="Add Facility" trigger="+ Add Facilities">
-            {(activeStep === 1) && <LocaleInformationPage />}
-            <ModalFooter>
-              <ModalSteps activeStep={activeStep} numSteps={numSteps} />
-              <InputButton
-                styles={{ width: "80px" }}
-                label="Next"
-                onClick={handleButtonClick}
-              />
-            </ModalFooter>
-          </Modal>
-        </div>
+        <Modal modalTitle="Add Facility" trigger="+ Add Facilities">
+          {(activeStep === 1) && <LocaleInformationPage />}
+          <ModalFooter>
+            <ModalSteps activeStep={activeStep} numSteps={numSteps} />
+            <InputButton
+              styles={{ width: "80px" }}
+              label="Next"
+              onClick={handleButtonClick}
+            />
+          </ModalFooter>
+        </Modal>
       </AddFacilityModalContainer>
     </EpidemicModelProvider>
   );

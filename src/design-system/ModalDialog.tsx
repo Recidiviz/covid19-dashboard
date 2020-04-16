@@ -55,13 +55,13 @@ interface Props {
   numSteps?: number;
   title?: string;
   open?: boolean;
-  onClick: (e: React.MouseEvent<HTMLElement>) => void;
+  closeModal: (e: React.MouseEvent<HTMLElement>) => void;
   children?: React.ReactElement<any>;
 }
 
 interface TitleProps {
   title?: string;
-  onClick: (e: React.MouseEvent<HTMLElement>) => void;
+  closeModal: (e: React.MouseEvent<HTMLElement>) => void;
 }
 const isOutsideModal = (
   event: React.MouseEvent<HTMLElement>,
@@ -72,12 +72,12 @@ const isOutsideModal = (
   !element.contains(event.target);
 
 export const ModalTitle: React.FC<TitleProps> = (props) => {
-  const { title, onClick } = props;
+  const { title, closeModal } = props;
   return (
     <ModalTitleContainer>
       {title}
       <CloseButtonImg
-        onClick={onClick}
+        onClick={closeModal}
         src={closeIcon}
         alt="close button"
         role="button"
@@ -87,21 +87,21 @@ export const ModalTitle: React.FC<TitleProps> = (props) => {
 };
 
 const ModalDialog: React.FC<Props> = (props) => {
-  const { title, open, onClick, children } = props;
+  const { title, open, closeModal, children } = props;
   const ref = useRef<HTMLDivElement>(null);
 
   if (!open) return null;
 
   const handleOnClick = (event: React.MouseEvent<HTMLElement>) => {
     if (isOutsideModal(event, ref.current)) {
-      onClick(event);
+      closeModal(event);
     }
   };
 
   return ReactDOM.createPortal(
     <BackgroundAside onClick={handleOnClick}>
       <ModalContainer ref={ref}>
-        <ModalTitle title={title} onClick={onClick} />
+        <ModalTitle title={title} closeModal={closeModal} />
         <ModalContentContainer>{children}</ModalContentContainer>
       </ModalContainer>
     </BackgroundAside>,

@@ -1,16 +1,20 @@
 import React from "react";
 import styled from "styled-components";
 
-import PromoBoxWithButton from "../design-system/PromoBoxWithButton";
 import SiteHeader from "../site-header/SiteHeader";
 import AddFacilityModal from "./AddFacilityModal/index";
-import ToggleRow from "./ToggleRow";
-
-const LeftColumn = styled.div`
-  width: 300px;
-`;
+import ProjectionsHeader from "./ProjectionsHeader";
+import ScenarioSidebar from "./ScenarioSidebar";
 
 const MultiFacilityPageDiv = styled.div``;
+
+const MultiFacilityImpactDashboard = styled.main.attrs({
+  className: `
+    h-screen
+    flex
+    mt-8
+  `,
+})``;
 
 const MultiFacilityPage: React.FC = () => {
   return (
@@ -18,26 +22,14 @@ const MultiFacilityPage: React.FC = () => {
       <div className="font-body text-green min-h-screen tracking-normal w-full">
         <div className="max-w-screen-xl px-4 mx-auto">
           <SiteHeader />
-          <main className="my-6">
-            <LeftColumn>
-              <ToggleRow
-                label="Daily Reports"
-                labelHelp="Tooltip help Lorem ipsum dolor sit amet, consectetur adipiscing elit"
-              />
-              <ToggleRow
-                label="Data Sharing"
-                labelHelp="Tooltip help Lorem ipsum dolor sit amet, consectetur adipiscing elit"
-              />
-              <PromoBoxWithButton
-                text={
-                  "Turn on 'DailyReports' to receive Lorem ipsum dolor sit amet, consectetur adipiscing elit"
-                }
-              />
-            </LeftColumn>
-            <div className="flex flex-col flex-1 pb-6 py-5">
+          <MultiFacilityImpactDashboard>
+            <ScenarioSidebar />
+            <div className="flex flex-col flex-1 pb-6 pl-8">
               <AddFacilityModal />
+              <ProjectionsHeader />
+              <div>Projections will go here</div>
             </div>
-          </main>
+          </MultiFacilityImpactDashboard>
         </div>
       </div>
     </MultiFacilityPageDiv>
