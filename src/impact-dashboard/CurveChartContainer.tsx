@@ -15,6 +15,7 @@ interface Props {
   groupStatus: Record<string, any>;
 }
 
+// for these curves we combine incarcerated and staff
 function combinePopulations(data: CurveData, columnIndex: number) {
   return zip(
     getAllValues(getColView(data.incarcerated, columnIndex)),
@@ -23,9 +24,9 @@ function combinePopulations(data: CurveData, columnIndex: number) {
 }
 const CurveChartContainer: React.FC<Props> = ({ markColors, groupStatus }) => {
   const modelData = useEpidemicModelState();
-
+  // TODO: could this be stored on the context instead for reuse?
   const projectionData = calculateCurves(modelData);
-
+  // merge and filter the curve data to only what we need for the chart
   const curveData = {
     exposed: combinePopulations(projectionData, seirIndex.exposed),
     fatalities: combinePopulations(projectionData, seirIndex.fatalities),
