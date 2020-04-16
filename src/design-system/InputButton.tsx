@@ -8,8 +8,7 @@ const StyledButton = styled.button<Props>`
   color: white;
   font-family: "Poppins", sans-serif;
   height: 48px;
-  width: ${(props) =>
-    props.styles && props.styles.width ? props.styles.width : "200px"};
+  width: ${(props) => props.styles?.width || "200px"};
   outline: none;
 `;
 
