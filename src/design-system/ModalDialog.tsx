@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import ReactDOM from "react-dom";
 import styled from "styled-components";
 
@@ -20,6 +20,8 @@ const ModalContainer = styled.div`
   align-self: center;
   background-color: ${Colors.slate};
   border-radius: 5px;
+  display: flex;
+  flex-direction: column;
   height: 90vh;
   width: 65vw;
   padding: 35px;
@@ -27,12 +29,16 @@ const ModalContainer = styled.div`
 `;
 
 const ModalTitleContainer = styled.div`
-  border-bottom: 0.5px solid #c8d3d3;
   display: inline-block;
   font-size: 14px;
   font-family: "Poppins", sans-serif;
   padding-bottom: 20px;
   width: 100%;
+`;
+
+const ModalContentContainer = styled.div`
+  border-top: 0.5px solid ${Colors.darkGray};
+  flex: 1 1;
 `;
 
 const CloseButtonImg = styled.img`
@@ -43,30 +49,46 @@ const CloseButtonImg = styled.img`
 `;
 
 interface Props {
+  numSteps?: number;
   title?: string;
   open?: boolean;
-  onClose?: (e: React.MouseEvent<HTMLElement>) => void;
+  onClick: (e: React.MouseEvent<HTMLElement>) => void;
   children?: React.ReactElement<any>;
 }
 
+const isOutsideModal = (
+  event: React.MouseEvent<HTMLElement>,
+  element: HTMLDivElement | null,
+) =>
+  event.target instanceof HTMLElement &&
+  element &&
+  !element.contains(event.target);
+
 const ModalDialog: React.FC<Props> = (props) => {
-  const { title, open, onClose, children } = props;
+  const { title, open, onClick, children } = props;
+  const ref = useRef<HTMLDivElement>(null);
 
   if (!open) return null;
 
+  const handleOnClick = (event: React.MouseEvent<HTMLElement>) => {
+    if (isOutsideModal(event, ref.current)) {
+      onClick(event);
+    }
+  };
+
   return ReactDOM.createPortal(
-    <BackgroundAside onClick={onClose}>
-      <ModalContainer>
+    <BackgroundAside onClick={handleOnClick}>
+      <ModalContainer ref={ref}>
         <ModalTitleContainer>
           {title}
           <CloseButtonImg
-            onClick={onClose}
+            onClick={onClick}
             src={closeIcon}
             alt="close button"
             role="button"
           />
         </ModalTitleContainer>
-        {children}
+        <ModalContentContainer>{children}</ModalContentContainer>
       </ModalContainer>
     </BackgroundAside>,
     document.getElementById("app") as HTMLElement,

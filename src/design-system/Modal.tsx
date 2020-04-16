@@ -15,7 +15,7 @@ const ModalTrigger = styled.div`
 interface Props {
   modalTitle?: string;
   trigger?: string | React.ReactElement<any>;
-  children?: React.ReactElement<any>;
+  children?: any;
 }
 
 const Modal: React.FC<Props> = (props) => {
@@ -28,7 +28,7 @@ const Modal: React.FC<Props> = (props) => {
       <ModalDialog
         title={modalTitle}
         open={open}
-        onClose={() => setOpen(false)}
+        onClick={() => setOpen(false)}
       >
         {children}
       </ModalDialog>
