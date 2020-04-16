@@ -7,7 +7,7 @@ interface Props {
   text?: string;
 }
 
-const StyledButton = styled.div`
+const DismissButton = styled.div`
   font-weight: 500;
   cursor: pointer;
   padding-top: 10px;
@@ -28,16 +28,12 @@ const PromoBox = styled.div`
 const PromoBoxWithButton: React.FC<Props> = (props) => {
   const [dismissed, setDismissed] = useState(false);
 
-  const handleClick = () => {
-    dismissed ? true : setDismissed(true);
-  };
-
-  if (dismissed) return null;
+  if (dismissed || !props.text) return null;
 
   return (
     <PromoBox>
       {props.text}
-      <StyledButton onClick={() => handleClick()}>Dismiss</StyledButton>
+      <DismissButton onClick={() => setDismissed(true)}>Dismiss</DismissButton>
     </PromoBox>
   );
 };
