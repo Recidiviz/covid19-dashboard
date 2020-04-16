@@ -6,7 +6,7 @@ import InputButton from "../../design-system/InputButton";
 import Modal from "../../design-system/Modal";
 import ModalSteps from "../../design-system/ModalSteps";
 import { EpidemicModelProvider } from "../../impact-dashboard/EpidemicModelContext";
-import PageOne from "./PageOne";
+import LocaleInformationPage from "./LocaleInformationPage";
 
 const AddFacilityModalContainer = styled.div``;
 
@@ -34,7 +34,7 @@ const AddFacilityModal: React.FC = () => {
       <AddFacilityModalContainer>
         <div className="flex-1 pl-8">
           <Modal modalTitle="Add Facility" trigger="+ Add Facilities">
-            <PageOne />
+            <LocaleInformationPage />
             <ModalFooter>
               <ModalSteps activeStep={activeStep} numSteps={numSteps} />
               <InputButton

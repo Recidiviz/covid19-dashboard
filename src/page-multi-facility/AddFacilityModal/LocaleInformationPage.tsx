@@ -6,7 +6,7 @@ import InputSelect from "../../design-system/InputSelect";
 import { useEpidemicModelState } from "../../impact-dashboard/EpidemicModelContext";
 import LocaleInformation from "../../impact-dashboard/LocaleInformation";
 
-const PageOneContainer = styled.div`
+const LocaleInformationContainer = styled.div`
   width: 100%;
   flex: 1 1;
 `;
@@ -29,20 +29,22 @@ const ErrorMessage = styled.div`
   margin: 10px;
 `;
 
-const PageOne: React.FC = () => {
+const LocaleInformationPage: React.FC = () => {
   const { countyLevelDataFailed } = useEpidemicModelState();
 
-  const systemTypeList = [{ value: "StatePrison" }, { value: "County Jail" }];
+  const systemTypeList = [{ value: "State Prison" }, { value: "County Jail" }];
+  const [systemType, updateSystemType] = useState(systemTypeList[0].value);
 
   return (
-    <PageOneContainer>
+    <LocaleInformationContainer>
       <Header>Locale Information</Header>
       <SystemTypeInputDiv>
         <InputSelect
           label="Type of System"
-          value="State Prison"
+          value={systemType}
           onChange={(event) => {
             console.log("updating type of system", event);
+            updateSystemType(event.target.value)
           }}
         >
           {systemTypeList.map(({ value }) => (
@@ -59,8 +61,8 @@ const PageOne: React.FC = () => {
           <LocaleInformation />
         </>
       )}
-    </PageOneContainer>
+    </LocaleInformationContainer>
   );
 };
 
-export default PageOne;
+export default LocaleInformationPage;
