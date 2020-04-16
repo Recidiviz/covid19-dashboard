@@ -218,10 +218,8 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
 
   // 3d array. D1 = SEIR compartment. D2 = day. D3 = age bracket
   const projectionGrid = ndarray(
-    new Array(seirIndexList.length * numDays + 1 * ageGroupIndex.__length).fill(
-      0,
-    ),
-    [seirIndexList.length, numDays + 1, ageGroupIndex.__length],
+    new Array(seirIndexList.length * numDays * ageGroupIndex.__length).fill(0),
+    [seirIndexList.length, numDays, ageGroupIndex.__length],
   );
 
   const updateProjectionDay = (day: number, data: ndarray) => {
@@ -262,7 +260,7 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
     (1 - facilityOccupancyPct) *
       (rateOfSpreadDorms - rateOfSpreadDormsAdjustment);
 
-  const totalPopulationByDay = new Array(numDays + 1);
+  const totalPopulationByDay = new Array(numDays);
   totalPopulationByDay[0] = sum(ageGroupPopulations);
 
   // initialize the base daily state with just susceptible and infected pops.
@@ -285,7 +283,7 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
 
   // index expected population adjustments by day;
   const today = Date.now();
-  const expectedPopulationChanges = Array(numDays + 1).fill(0);
+  const expectedPopulationChanges = Array(numDays).fill(0);
   plannedReleases?.forEach(({ date, count }) => {
     // skip incomplete records
     if (!count || date === undefined) {
@@ -297,11 +295,11 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
     }
   });
 
-  // initialize the projections with today's data
+  // initialize the output with today's data
+  // and start the projections with tomorrow
   updateProjectionDay(0, singleDayState);
-
   let day = 1;
-  while (day <= numDays) {
+  while (day < numDays) {
     // each day's projection needs the sum of all infectious projections so far
     const totalInfectious = sum(
       getAllValues(getColView(singleDayState, seirIndex.infectious)),
