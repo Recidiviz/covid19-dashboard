@@ -128,7 +128,7 @@ export const persistedKeys: Array<keyof EpidemicModelPersistent> = [
 
 export type EpidemicModelUpdate = ModelInputsUpdate & MetadataUpdate;
 
-type EpidemicModelState = EpidemicModelInputs & Metadata;
+export type EpidemicModelState = EpidemicModelInputs & Metadata;
 
 type EpidemicModelProviderProps = { children: React.ReactNode };
 

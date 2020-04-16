@@ -10,6 +10,7 @@ import CurveChart from "./CurveChart";
 import { useEpidemicModelState } from "./EpidemicModelContext";
 
 interface Props {
+  chartHeight?: number;
   markColors: MarkColors;
   groupStatus: Record<string, any>;
 }
