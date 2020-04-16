@@ -38,25 +38,25 @@ const CurveChartLegend: React.FC<Props> = ({
         onClick={() => toggleGroup("exposed")}
         color={markColors.exposed}
       >
-        {groupStatus["exposed"] ? "exposed" : "exposed"}
+        exposed
       </LegendItem>
       <LegendItem
         onClick={() => toggleGroup("infectious")}
         color={markColors.infectious}
       >
-        {groupStatus["infectious"] ? "infectious" : "infectious"}
+        infectious
       </LegendItem>
       <LegendItem
         onClick={() => toggleGroup("hospitalized")}
         color={markColors.hospitalized}
       >
-        {groupStatus["hospitalized"] ? "hospitalized" : "hospitalized"}
+        hospitalized
       </LegendItem>
       <LegendItem
         onClick={() => toggleGroup("fatalities")}
         color={markColors.fatalities}
       >
-        {groupStatus["fatalities"] ? "fatalities" : "fatalities"}
+        fatalities
       </LegendItem>
     </LegendWrapper>
   );
