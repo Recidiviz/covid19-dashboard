@@ -47,7 +47,7 @@ const LocaleInformationPage: React.FC = () => {
               label="Type of System"
               value={systemType}
               onChange={(event) => {
-                updateSystemType(event.target.value)
+                updateSystemType(event.target.value);
               }}
             >
               {systemTypeList.map(({ value }) => (

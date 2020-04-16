@@ -33,7 +33,7 @@ const AddFacilityModal: React.FC = () => {
     <EpidemicModelProvider>
       <AddFacilityModalContainer>
         <Modal modalTitle="Add Facility" trigger="+ Add Facilities">
-          {(activeStep === 1) && <LocaleInformationPage />}
+          {activeStep === 1 && <LocaleInformationPage />}
           <ModalFooter>
             <ModalSteps activeStep={activeStep} numSteps={numSteps} />
             <InputButton
