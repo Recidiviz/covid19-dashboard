@@ -1,7 +1,11 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { InterpolationFunction } from "styled-components";
 
-const StyledButton = styled.button`
+interface StyleProps {
+  styles: React.CSSProperties;
+}
+
+const StyledButton = styled.button<StyleProps>`
   background: #00615c;
   font-size: 16px;
   border-radius: 12px;
@@ -10,15 +14,21 @@ const StyledButton = styled.button`
   height: 48px;
   width: 200px;
   outline: none;
+  ${(props: StyleProps) => props.styles as InterpolationFunction<StyleProps>};
 `;
 
 interface Props {
   label?: string;
-  onChange?: (e: React.ChangeEvent) => void;
+  styles?: React.CSSProperties;
+  onClick?: (e: React.MouseEvent) => void;
 }
 
 const InputButton: React.FC<Props> = (props) => {
-  return <StyledButton>{props.label}</StyledButton>;
+  return (
+    <StyledButton styles={props.styles || {}} onClick={props.onClick}>
+      {props.label}
+    </StyledButton>
+  );
 };
 
 export default InputButton;
