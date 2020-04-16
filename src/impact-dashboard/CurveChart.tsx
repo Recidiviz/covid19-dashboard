@@ -137,6 +137,7 @@ const CurveChart: React.FC<CurveChartProps> = ({
   curveData,
   hospitalBeds,
   markColors,
+  // toggled,
 }) => {
   const frameProps = {
     lines: Object.entries(curveData).map(([bucket, values]) => ({
