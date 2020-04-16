@@ -16,7 +16,6 @@ const ToggleRowContainer = styled.div`
   display: flex;
   border-bottom: ${borderStyle};
   justify-content: space-between;
-  width: 200px;
   padding: 10px 5px 10px 0;
 `;
 

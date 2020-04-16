@@ -8,9 +8,9 @@ interface Props {
 }
 
 const StyledButton = styled.div`
-  font-weight: 400;
+  font-weight: 500;
   cursor: pointer;
-  padding-top: 5px;
+  padding-top: 10px;
   font-size: 10px;
 `;
 
@@ -23,7 +23,6 @@ const PromoBox = styled.div`
   font-weight: 100;
   margin-top: 16px;
   padding: 16px;
-  width: 200px;
 `;
 
 const PromoBoxWithButton: React.FC<Props> = (props) => {
