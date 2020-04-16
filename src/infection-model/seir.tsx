@@ -313,7 +313,7 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
     );
 
     // slightly counterintuitive perhaps, but we need prior day's
-    // total population to go along with prior days' data
+    // total population to go along with prior day's data
     const totalPopulation = totalPopulationByDay[day - 1];
     // update the age group SEIR matrix in place for this day
     ageGroupFatalityRates.forEach((rate, ageGroup) => {

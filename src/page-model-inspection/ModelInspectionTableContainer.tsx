@@ -55,6 +55,8 @@ const ModelInspectionTableContainer: React.FC = () => {
       ...range(days).map((day) => {
         return (
           totalPopulationByDay[day] -
+          // rounding to shave off any weird artifacts from floating-point arithmetic,
+          // which could make us wind up with NaNs here for some reason
           Math.round(
             sum(
               // off by one because of label row
