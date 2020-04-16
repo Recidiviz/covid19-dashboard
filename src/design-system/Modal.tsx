@@ -31,7 +31,7 @@ const Modal: React.FC<Props> = (props) => {
       <ModalDialog
         title={modalTitle}
         open={open}
-        onClick={() => setOpen(false)}
+        closeModal={() => setOpen(false)}
       >
         {children}
       </ModalDialog>
