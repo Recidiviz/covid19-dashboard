@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 
 import SiteHeader from "../site-header/SiteHeader";
+import AddFacilityModal from "./AddFacilityModal";
 import ProjectionsHeader from "./ProjectionsHeader";
 import ScenarioSidebar from "./ScenarioSidebar";
 
@@ -24,7 +25,7 @@ const MultiFacilityPage: React.FC = () => {
           <MultiFacilityImpactDashboard>
             <ScenarioSidebar />
             <div className="flex flex-col flex-1 pb-6 pl-8">
-              <h1 className="text-3xl leading-none">+ Add Facilities</h1>
+              <AddFacilityModal />
               <ProjectionsHeader />
               <div>Projections will go here</div>
             </div>
