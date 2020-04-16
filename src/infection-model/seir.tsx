@@ -262,7 +262,8 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
     (1 - facilityOccupancyPct) *
       (rateOfSpreadDorms - rateOfSpreadDormsAdjustment);
 
-  let totalPopulation = sum(ageGroupPopulations);
+  const totalPopulationByDay = new Array(numDays + 1);
+  totalPopulationByDay[0] = sum(ageGroupPopulations);
 
   // initialize the base daily state with just susceptible and infected pops.
   // each age group is a single row
@@ -311,6 +312,9 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
       ),
     );
 
+    // slightly counterintuitive perhaps, but we need prior day's
+    // total population to go along with prior days' data
+    const totalPopulation = totalPopulationByDay[day - 1];
     // update the age group SEIR matrix in place for this day
     ageGroupFatalityRates.forEach((rate, ageGroup) => {
       const projectionForAgeGroup = simulateOneDay({
@@ -330,11 +334,13 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
 
     updateProjectionDay(day, singleDayState);
 
-    // update total population for next day to account for any adjustments made
-    totalPopulation += expectedPopulationChanges[day];
+    // update total population for today to account for any adjustments made;
+    // the next day will depend on this
+    totalPopulationByDay[day] =
+      totalPopulation + expectedPopulationChanges[day];
 
     day++;
   }
 
-  return projectionGrid;
+  return { totalPopulationByDay, projectionGrid, expectedPopulationChanges };
 }

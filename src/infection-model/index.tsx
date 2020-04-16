@@ -83,8 +83,7 @@ function prepareCurveData(inputs: EpidemicModelInputs): CurveProjectionInputs {
 }
 
 export function calculateCurves(inputs: EpidemicModelInputs): CurveData {
-  const projectionGrid = getAllBracketCurves(prepareCurveData(inputs));
-  console.log(projectionGrid);
+  const { projectionGrid } = getAllBracketCurves(prepareCurveData(inputs));
 
   // these will each produce a matrix with row = day and col = SEIR bucket,
   // collapsing all age brackets into a single sum

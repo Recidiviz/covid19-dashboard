@@ -1,17 +1,10 @@
 import classNames from "classnames";
-import { range } from "d3-array";
-import flatten from "lodash/flatten";
-import ndarray from "ndarray";
 import numeral from "numeral";
 import { GridCellProps, MultiGrid } from "react-virtualized";
 import AutoSizer from "react-virtualized-auto-sizer";
 import styled from "styled-components";
 
-import { ageGroupIndex, seirIndex } from "../infection-model/seir";
-
-interface Props {
-  data: ndarray;
-}
+import { ageGroupIndex } from "../infection-model/seir";
 
 const padding = 15;
 const Wrapper = styled.div`
@@ -49,49 +42,36 @@ const StyledCell = styled.div`
   }
 `;
 
-const ModelInspectionTable: React.FC<Props> = ({ data }) => {
-  const columnWidths = new Array(data.shape[1]).fill(115);
-  columnWidths.unshift(260);
+interface Props {
+  data: Array<Array<React.ReactText>>;
+  summaryRows: number;
+}
 
-  const rowHeights = new Array(1000).fill(50);
+const ModelInspectionTable: React.FC<Props> = ({ data, summaryRows }) => {
+  const columnWidths = new Array(data[0].length).fill(115);
+  // label column is wider
+  columnWidths[0] = 260;
 
-  const tableData = [
-    // header row
-    [
-      // label cell
-      "Days from today",
-      // header cells
-      ...range(data.shape[1]),
-    ],
-    // data rows
-    ...flatten(
-      range(data.shape[0]).map((compartment) =>
-        range(data.shape[2]).map((bracket) => [
-          // label cell
-          `${seirIndex[compartment]} ${ageGroupIndex[bracket]}`,
-          // data cells
-          ...range(data.shape[1]).map((day) =>
-            numeral(data.get(compartment, day, bracket)).format("0,0.000"),
-          ),
-        ]),
-      ),
-    ),
-  ];
-
-  const Cell = ({ style, rowIndex, columnIndex, key }: GridCellProps) => (
-    <StyledCell
-      key={key}
-      style={style}
-      className={classNames({
-        "label": columnIndex === 0,
-        "header": rowIndex === 0,
-        "shade": rowIndex % 2,
-        "section-start": rowIndex % ageGroupIndex.__length === 1,
-      })}
-    >
-      {tableData[rowIndex][columnIndex]}
-    </StyledCell>
-  );
+  const Cell = ({ style, rowIndex, columnIndex, key }: GridCellProps) => {
+    const cellValue = data[rowIndex][columnIndex];
+    return (
+      <StyledCell
+        key={key}
+        style={style}
+        className={classNames({
+          "label": columnIndex === 0,
+          "header": rowIndex === 0,
+          "shade": rowIndex % 2,
+          "section-start":
+            (rowIndex - summaryRows) % ageGroupIndex.__length === 1,
+        })}
+      >
+        {typeof cellValue === "number"
+          ? numeral(cellValue).format("0,0")
+          : cellValue}
+      </StyledCell>
+    );
+  };
 
   return (
     <AutoSizer>
@@ -99,14 +79,13 @@ const ModelInspectionTable: React.FC<Props> = ({ data }) => {
         <Wrapper>
           <MultiGrid
             cellRenderer={Cell}
-            columnCount={data.shape[1] + 1}
+            columnCount={data[0].length}
             columnWidth={({ index }) => columnWidths[index]}
             fixedColumnCount={1}
             fixedRowCount={1}
             height={800}
-            itemData={tableData}
-            rowCount={data.shape[0] * data.shape[2]}
-            rowHeight={({ index }) => rowHeights[index]}
+            rowCount={data.length}
+            rowHeight={50}
             width={width - padding * 2}
           />
         </Wrapper>
