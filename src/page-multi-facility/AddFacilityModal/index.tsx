@@ -34,7 +34,7 @@ const AddFacilityModal: React.FC = () => {
       <AddFacilityModalContainer>
         <div className="flex-1 pl-8">
           <Modal modalTitle="Add Facility" trigger="+ Add Facilities">
-            <LocaleInformationPage />
+            {(activeStep === 1) && <LocaleInformationPage />}
             <ModalFooter>
               <ModalSteps activeStep={activeStep} numSteps={numSteps} />
               <InputButton

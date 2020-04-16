@@ -12,15 +12,6 @@ const LeftColumn = styled.div`
 
 const MultiFacilityPageDiv = styled.div``;
 
-// <ToggleRow
-//   label="Daily Reports"
-//   labelHelp="Tooltip help Lorem ipsum dolor sit amet, consectetur adipiscing elit"
-// />
-// <ToggleRow
-//   label="Data Sharing"
-//   labelHelp="Tooltip help Lorem ipsum dolor sit amet, consectetur adipiscing elit"
-// />
-
 const MultiFacilityPage: React.FC = () => {
   return (
     <MultiFacilityPageDiv>
@@ -29,6 +20,14 @@ const MultiFacilityPage: React.FC = () => {
           <SiteHeader />
           <main className="my-6">
             <LeftColumn>
+              <ToggleRow
+                label="Daily Reports"
+                labelHelp="Tooltip help Lorem ipsum dolor sit amet, consectetur adipiscing elit"
+              />
+              <ToggleRow
+                label="Data Sharing"
+                labelHelp="Tooltip help Lorem ipsum dolor sit amet, consectetur adipiscing elit"
+              />
               <PromoBoxWithButton
                 text={
                   "Turn on 'DailyReports' to receive Lorem ipsum dolor sit amet, consectetur adipiscing elit"

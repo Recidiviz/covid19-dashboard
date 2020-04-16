@@ -38,26 +38,25 @@ const LocaleInformationPage: React.FC = () => {
   return (
     <LocaleInformationContainer>
       <Header>Locale Information</Header>
-      <SystemTypeInputDiv>
-        <InputSelect
-          label="Type of System"
-          value={systemType}
-          onChange={(event) => {
-            console.log("updating type of system", event);
-            updateSystemType(event.target.value)
-          }}
-        >
-          {systemTypeList.map(({ value }) => (
-            <option key={value} value={value}>
-              {value}
-            </option>
-          ))}
-        </InputSelect>
-      </SystemTypeInputDiv>
       {countyLevelDataFailed ? (
         <ErrorMessage>Error: unable to load data!</ErrorMessage>
       ) : (
         <>
+          <SystemTypeInputDiv>
+            <InputSelect
+              label="Type of System"
+              value={systemType}
+              onChange={(event) => {
+                updateSystemType(event.target.value)
+              }}
+            >
+              {systemTypeList.map(({ value }) => (
+                <option key={value} value={value}>
+                  {value}
+                </option>
+              ))}
+            </InputSelect>
+          </SystemTypeInputDiv>
           <LocaleInformation />
         </>
       )}
