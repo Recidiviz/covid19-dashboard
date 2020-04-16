@@ -1,20 +1,16 @@
 import React from "react";
-import styled, { InterpolationFunction } from "styled-components";
+import styled from "styled-components";
 
-interface StyleProps {
-  styles: React.CSSProperties;
-}
-
-const StyledButton = styled.button<StyleProps>`
+const StyledButton = styled.button<Props>`
   background: #00615c;
   font-size: 16px;
   border-radius: 12px;
   color: white;
   font-family: "Poppins", sans-serif;
   height: 48px;
-  width: 200px;
+  width: ${(props) =>
+    props.styles && props.styles.width ? props.styles.width : "200px"};
   outline: none;
-  ${(props: StyleProps) => props.styles as InterpolationFunction<StyleProps>};
 `;
 
 interface Props {
@@ -25,7 +21,7 @@ interface Props {
 
 const InputButton: React.FC<Props> = (props) => {
   return (
-    <StyledButton styles={props.styles || {}} onClick={props.onClick}>
+    <StyledButton styles={props.styles} onClick={props.onClick}>
       {props.label}
     </StyledButton>
   );
