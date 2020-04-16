@@ -37,7 +37,8 @@ const ModalTitleContainer = styled.div`
 `;
 
 const ModalContentContainer = styled.div`
-  align-items: flex-end;
+  align-items: space-between;
+  flex-direction: column;
   border-top: 0.5px solid ${Colors.darkGray};
   display: flex;
   flex: 1 1;
