@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
+import PromoBoxWithButton from "../design-system/PromoBoxWithButton";
 import SiteHeader from "../site-header/SiteHeader";
 import ToggleRow from "./ToggleRow";
 
@@ -20,6 +21,11 @@ const MultiFacilityPage: React.FC = () => {
             <ToggleRow
               label="Data Sharing"
               labelHelp="Tooltip help Lorem ipsum dolor sit amet, consectetur adipiscing elit"
+            />
+            <PromoBoxWithButton
+              text={
+                "Turn on 'DailyReports' to receive Lorem ipsum dolor sit amet, consectetur adipiscing elit"
+              }
             />
           </main>
         </div>
