@@ -5,7 +5,8 @@ import Colors from "../../design-system/Colors";
 import InputButton from "../../design-system/InputButton";
 import Modal from "../../design-system/Modal";
 import ModalSteps from "../../design-system/ModalSteps";
-import PageOne from "./PageOne"
+import { EpidemicModelProvider } from "../../impact-dashboard/EpidemicModelContext";
+import PageOne from "./PageOne";
 
 const AddFacilityModalContainer = styled.div``;
 
@@ -29,21 +30,23 @@ const AddFacilityModal: React.FC = () => {
   };
 
   return (
-    <AddFacilityModalContainer>
-      <div className="flex-1 pl-8">
-        <Modal modalTitle="Add Facility" trigger="+ Add Facilities">
-          <PageOne />
-          <ModalFooter>
-            <ModalSteps activeStep={activeStep} numSteps={numSteps} />
-            <InputButton
-              styles={{ width: "80px" }}
-              label="Next"
-              onClick={handleButtonClick}
-            />
-          </ModalFooter>
-        </Modal>
-      </div>
-    </AddFacilityModalContainer>
+    <EpidemicModelProvider>
+      <AddFacilityModalContainer>
+        <div className="flex-1 pl-8">
+          <Modal modalTitle="Add Facility" trigger="+ Add Facilities">
+            <PageOne />
+            <ModalFooter>
+              <ModalSteps activeStep={activeStep} numSteps={numSteps} />
+              <InputButton
+                styles={{ width: "80px" }}
+                label="Next"
+                onClick={handleButtonClick}
+              />
+            </ModalFooter>
+          </Modal>
+        </div>
+      </AddFacilityModalContainer>
+    </EpidemicModelProvider>
   );
 };
 

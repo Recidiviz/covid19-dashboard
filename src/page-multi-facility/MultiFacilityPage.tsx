@@ -10,7 +10,6 @@ const LeftColumn = styled.div`
   width: 300px;
 `;
 
-
 const MultiFacilityPageDiv = styled.div``;
 
 // <ToggleRow
@@ -30,7 +29,6 @@ const MultiFacilityPage: React.FC = () => {
           <SiteHeader />
           <main className="my-6">
             <LeftColumn>
-
               <PromoBoxWithButton
                 text={
                   "Turn on 'DailyReports' to receive Lorem ipsum dolor sit amet, consectetur adipiscing elit"
