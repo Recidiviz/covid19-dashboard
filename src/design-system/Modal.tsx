@@ -6,10 +6,13 @@ import ModalDialog from "./ModalDialog";
 
 const ModalContainer = styled.div``;
 
-const ModalTrigger = styled.div`
+const ModalTrigger = styled.h1`
   color: ${Colors.green};
   cursor: pointer;
-  font-size: 14px;
+  font-family: 'Libre Baskerville', serif;
+  font-size: 32px;
+  line-height: 32px
+  letter-spacing: -0.03em
 `;
 
 interface Props {

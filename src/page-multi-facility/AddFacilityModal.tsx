@@ -29,16 +29,18 @@ const AddFacilityModal: React.FC = () => {
 
   return (
     <AddFacilityModalContainer>
-      <Modal modalTitle="Add Facility" trigger="Add Facilities">
-        <ModalFooter>
-          <ModalSteps activeStep={activeStep} numSteps={numSteps} />
-          <InputButton
-            styles={{ width: "80px" }}
-            label="Next"
-            onClick={handleButtonClick}
-          />
-        </ModalFooter>
-      </Modal>
+      <div className="flex-1 pl-8">
+        <Modal modalTitle="Add Facility" trigger="+ Add Facilities">
+          <ModalFooter>
+            <ModalSteps activeStep={activeStep} numSteps={numSteps} />
+            <InputButton
+              styles={{ width: "80px" }}
+              label="Next"
+              onClick={handleButtonClick}
+            />
+          </ModalFooter>
+        </Modal>
+      </div>
     </AddFacilityModalContainer>
   );
 };
