@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { zip } from "d3-array";
 import { useEffect, useState } from "react";
 
@@ -15,6 +14,10 @@ interface Props {
   groupStatus: Record<string, any>;
 }
 
+interface ChartData {
+  [key: string]: number[];
+}
+
 // for these curves we combine incarcerated and staff
 function combinePopulations(data: CurveData, columnIndex: number) {
   return zip(
@@ -24,40 +27,39 @@ function combinePopulations(data: CurveData, columnIndex: number) {
 }
 const CurveChartContainer: React.FC<Props> = ({ markColors, groupStatus }) => {
   const modelData = useEpidemicModelState();
-  // TODO: could this be stored on the context instead for reuse?
-  const projectionData = calculateCurves(modelData);
-  // merge and filter the curve data to only what we need for the chart
-  const curveData = {
-    exposed: combinePopulations(projectionData, seirIndex.exposed),
-    fatalities: combinePopulations(projectionData, seirIndex.fatalities),
-    hospitalized: combinePopulations(projectionData, seirIndex.hospitalized),
-    infectious: combinePopulations(projectionData, seirIndex.infectious),
-  };
+  const [curveData, updateCurveData] = useState({} as ChartData);
+  const [curveDataFiltered, setCurveDataFiltered] = useState({} as ChartData);
 
-  const [displayData, setDisplayData] = useState({});
+  useEffect(() => {
+    // TODO: could this be stored on the context instead for reuse?
+    const projectionData = calculateCurves(modelData);
+    // merge and filter the curve data to only what we need for the chart
+    updateCurveData({
+      exposed: combinePopulations(projectionData, seirIndex.exposed),
+      fatalities: combinePopulations(projectionData, seirIndex.fatalities),
+      hospitalized: combinePopulations(projectionData, seirIndex.hospitalized),
+      infectious: combinePopulations(projectionData, seirIndex.infectious),
+    });
+  }, [modelData]);
 
-  const updateDisplayData = () => {
+  useEffect(() => {
     let filteredGroupStatus = Object.keys(groupStatus).filter(
       (groupName) => groupStatus[groupName],
     );
 
-    setDisplayData(
+    setCurveDataFiltered(
       filteredGroupStatus.reduce(
         (data, key) => Object.assign(data, { [key]: curveData[key] }),
         {},
       ),
     );
-  };
-
-  useEffect(() => {
-    updateDisplayData();
-  }, [groupStatus]);
+  }, [groupStatus, curveData]);
 
   return modelData.countyLevelDataLoading ? (
     <Loading />
   ) : (
     <CurveChart
-      curveData={displayData}
+      curveData={curveDataFiltered}
       hospitalBeds={modelData.hospitalBeds}
       markColors={markColors}
     />

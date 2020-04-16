@@ -13,10 +13,6 @@ export type MarkColors = {
   hospitalBeds: string;
 };
 
-interface GroupStatusProps {
-  [propName: string]: boolean;
-}
-
 const Container = styled.div``;
 
 const LegendAndActions = styled.div`
@@ -30,7 +26,7 @@ const LegendContainer = styled.div`
   flex: 0 0 auto;
 `;
 
-const ChartArea: React.FC<GroupStatusProps> = () => {
+const ChartArea: React.FC = () => {
   const markColors = {
     exposed: Colors.green,
     fatalities: Colors.black,
