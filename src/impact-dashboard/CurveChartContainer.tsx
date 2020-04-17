@@ -1,4 +1,5 @@
 import { zip } from "d3-array";
+import isEmpty from "lodash/isEmpty";
 import { useEffect, useState } from "react";
 
 import Loading from "../design-system/Loading";
@@ -48,6 +49,11 @@ const CurveChartContainer: React.FC<Props> = ({
   }, [modelData]);
 
   useEffect(() => {
+    if (isEmpty(curveData)) {
+      setCurveDataFiltered({});
+      return;
+    }
+
     let filteredGroupStatus = Object.keys(groupStatus).filter(
       (groupName) => groupStatus[groupName],
     );
@@ -60,7 +66,7 @@ const CurveChartContainer: React.FC<Props> = ({
     );
   }, [groupStatus, curveData]);
 
-  return modelData.countyLevelDataLoading ? (
+  return !curveDataFiltered ? (
     <Loading />
   ) : (
     <CurveChart

@@ -2,13 +2,14 @@ import { hot } from "react-hot-loader";
 import { Route, Switch } from "react-router-dom";
 
 import AuthWall from "../auth/AuthWall";
+import { LocaleDataProvider } from "../locale-data-context";
 import { GlobalStyles } from "../styles";
 import PageList from "./PageList";
 import WindowTitle from "./WindowTitle";
 
 const App: React.FC = () => {
   return (
-    <>
+    <LocaleDataProvider>
       <GlobalStyles />
       <Switch>
         {PageList.map(({ path, title, isPrivate, contents }) => {
@@ -31,7 +32,7 @@ const App: React.FC = () => {
           }
         })}
       </Switch>
-    </>
+    </LocaleDataProvider>
   );
 };
 

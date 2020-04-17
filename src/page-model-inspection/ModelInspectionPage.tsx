@@ -1,7 +1,6 @@
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
-import { useEpidemicModelState } from "../impact-dashboard/EpidemicModelContext";
 import FacilityInformation from "../impact-dashboard/FacilityInformation";
 import LocaleInformation from "../impact-dashboard/LocaleInformation";
 import MitigationInformation from "../impact-dashboard/MitigationInformation";
@@ -36,10 +35,6 @@ const ChartsContainer = styled.div`
   margin: 0 15px;
 `;
 
-const ErrorMessage = styled.div`
-  margin: 10px;
-`;
-
 const ImpactDashboardVDiv = styled.div`
   display: flex;
   flex-direction: row;
@@ -62,31 +57,24 @@ const HorizontalDivider = styled.hr`
 `;
 
 const ModelInspectionPage: React.FC = () => {
-  const { countyLevelDataFailed } = useEpidemicModelState();
   return (
     <div>
-      {countyLevelDataFailed ? (
-        <ErrorMessage>Error: unable to load data!</ErrorMessage>
-      ) : (
-        <>
-          <SectionHeader>Locale Information</SectionHeader>
-          <LocaleInformation />
-          <SectionHeader>Facility Customization</SectionHeader>
-          <ImpactDashboardVDiv>
-            <FormColumn>
-              <SubsectionHeader>Facility Population</SubsectionHeader>
-              <FacilityInformation />
-              <HorizontalDivider />
-              <SubsectionHeader>COVID-19 Mitigation Efforts</SubsectionHeader>
-              <MitigationInformation />
-            </FormColumn>
-            <ChartsContainer>
-              <ModelOutputChartArea />
-            </ChartsContainer>
-          </ImpactDashboardVDiv>
-          <ModelInspectionTable />
-        </>
-      )}
+      <SectionHeader>Locale Information</SectionHeader>
+      <LocaleInformation />
+      <SectionHeader>Facility Customization</SectionHeader>
+      <ImpactDashboardVDiv>
+        <FormColumn>
+          <SubsectionHeader>Facility Population</SubsectionHeader>
+          <FacilityInformation />
+          <HorizontalDivider />
+          <SubsectionHeader>COVID-19 Mitigation Efforts</SubsectionHeader>
+          <MitigationInformation />
+        </FormColumn>
+        <ChartsContainer>
+          <ModelOutputChartArea />
+        </ChartsContainer>
+      </ImpactDashboardVDiv>
+      <ModelInspectionTable />
     </div>
   );
 };

@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import { getBaselineScenarioRef } from "../database";
 import Loading from "../design-system/Loading";
+import { useLocaleDataState } from "../locale-data-context";
 import SiteHeader from "../site-header/SiteHeader";
 import CreateBaselineScenarioPage from "./CreateBaselineScenarioPage";
 import MultiFacilityImpactDashboard from "./MultiFacilityImpactDashboard";
@@ -14,6 +15,7 @@ const MultiFacilityPage: React.FC = () => {
     data: false,
     loading: true,
   });
+  const localeState = useLocaleDataState();
 
   useEffect(() => {
     async function fetchBaselineScenarioRef() {
@@ -32,7 +34,13 @@ const MultiFacilityPage: React.FC = () => {
       <div className="font-body text-green min-h-screen tracking-normal w-full">
         <div className="max-w-screen-xl px-4 mx-auto">
           <SiteHeader />
-          {hasBaselineScenario.loading ? (
+          {localeState.failed ? (
+            // TODO: real error state?
+            <div>
+              Unable to load state and county data. Please try refreshing the
+              page.
+            </div>
+          ) : hasBaselineScenario.loading || localeState.loading ? (
             <Loading />
           ) : hasBaselineScenario.data ? (
             <MultiFacilityImpactDashboard />

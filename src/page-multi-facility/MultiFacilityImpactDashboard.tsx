@@ -3,6 +3,8 @@ import styled from "styled-components";
 
 import { getFacilities } from "../database";
 import Loading from "../design-system/Loading";
+import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
+import { useLocaleDataState } from "../locale-data-context";
 import AddFacilityModal from "./AddFacilityModal";
 import { FacilityContext } from "./FacilityContext";
 import FacilityRow from "./FacilityRow";
@@ -19,6 +21,8 @@ const MultiFacilityImpactDashboardContainer = styled.main.attrs({
 })``;
 
 const MultiFacilityImpactDashboard: React.FC = () => {
+  const { data: localeDataSource } = useLocaleDataState();
+
   const [facilities, setFacilities] = useState({
     data: [] as Facilities,
     loading: true,
@@ -50,7 +54,12 @@ const MultiFacilityImpactDashboard: React.FC = () => {
           facilities?.data.map((facility, index) => {
             return (
               <FacilityContext.Provider key={index} value={facility}>
-                <FacilityRow />
+                <EpidemicModelProvider
+                  facilityModel={facility.modelInputs}
+                  localeDataSource={localeDataSource}
+                >
+                  <FacilityRow />
+                </EpidemicModelProvider>
               </FacilityContext.Provider>
             );
           })
