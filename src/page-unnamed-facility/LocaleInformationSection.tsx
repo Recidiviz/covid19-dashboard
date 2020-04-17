@@ -11,6 +11,15 @@ const LocaleInformationSectionDiv = styled.div`
   border-top: ${borderStyle};
 `;
 const SystemTypeInputDiv = styled.div``;
+const SectionHeader = styled.header`
+  font-family: Poppins;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 16px;
+  padding: 20px 0;
+  color: "${Colors.forest}"
+`;
+
 
 const LocaleInformationSection: React.FC = () => {
   const systemTypeList = [{ value: "State Prison" }, { value: "County Jail" }];
@@ -18,6 +27,7 @@ const LocaleInformationSection: React.FC = () => {
 
   return (
     <LocaleInformationSectionDiv>
+      <SectionHeader>Locale Information</SectionHeader>
       <SystemTypeInputDiv>
         <InputSelect
           label="Type of System"

@@ -4,7 +4,8 @@ import styled from "styled-components";
 import SiteHeader from "../site-header/SiteHeader";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
 import ChartArea from "../impact-dashboard/ChartArea";
-import ImpactProjectionTableContainer from "../impact-dashboard/ImpactProjectionTableContainer";
+import ImpactProjectionTable from "../impact-dashboard/ImpactProjectionTableContainer";
+import FacilityInformationSection from "./FacilityInformationSection";
 import LocaleInformationSection from "./LocaleInformationSection"
 
 const UnnamedFacilityPageDiv = styled.div``;
@@ -15,11 +16,11 @@ const UnnamedFacilityInputForm = styled.div`
 `;
 const LeftColumn = styled.div`
   margin: 20px;
-  flex-basis: 30%;
+  // flex-basis: 30%;
 `;
 const RightColumn = styled.div`
   margin: 20px;
-  flex-basis: 40%;
+  // flex-basis: 40%;
 `;
 
 const UnnamedFacilityPage: React.FC = () => {
@@ -34,10 +35,11 @@ const UnnamedFacilityPage: React.FC = () => {
                 <h1 className="text-3xl leading-none">Unnamed Facility</h1>
                 <div className="mt-5 mb-5 border-b border-gray-300" />
                 <LocaleInformationSection />
+                <FacilityInformationSection />
               </LeftColumn>
               <RightColumn>
                 <ChartArea />
-                <ImpactProjectionTableContainer />
+                <ImpactProjectionTable />
               </RightColumn>
             </UnnamedFacilityInputForm>
           </div>
