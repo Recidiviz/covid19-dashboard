@@ -3,21 +3,23 @@ import styled from "styled-components";
 
 import SiteHeader from "../site-header/SiteHeader";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
+import ChartArea from "../impact-dashboard/ChartArea";
+import ImpactProjectionTableContainer from "../impact-dashboard/ImpactProjectionTableContainer";
 import LocaleInformationSection from "./LocaleInformationSection"
 
 const UnnamedFacilityPageDiv = styled.div``;
 const UnnamedFacilityInputForm = styled.div`
   display: flex;
   flex-direction: row;
-  flex: 1 1
   justify-content: space-between
-  padding: 20px
 `;
 const LeftColumn = styled.div`
-  margin: 30px
+  margin: 20px;
+  flex-basis: 30%;
 `;
 const RightColumn = styled.div`
-  margin: 30px
+  margin: 20px;
+  flex-basis: 40%;
 `;
 
 const UnnamedFacilityPage: React.FC = () => {
@@ -34,7 +36,8 @@ const UnnamedFacilityPage: React.FC = () => {
                 <LocaleInformationSection />
               </LeftColumn>
               <RightColumn>
-                Right
+                <ChartArea />
+                <ImpactProjectionTableContainer />
               </RightColumn>
             </UnnamedFacilityInputForm>
           </div>
