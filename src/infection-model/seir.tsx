@@ -24,6 +24,8 @@ export interface CurveProjectionInputs extends SimulationInputs {
   facilityOccupancyPct: number;
   rateOfSpreadFactor: RateOfSpread;
   plannedReleases?: PlannedReleases;
+  overrideR0Cells?: number;
+  overrideR0Dorms?: number;
 }
 
 interface SingleDayInputs {
@@ -237,6 +239,8 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
     numDays,
     plannedReleases,
     rateOfSpreadFactor,
+    overrideR0Cells,
+    overrideR0Dorms,
   } = inputs;
 
   // 3d array. D1 = SEIR compartment. D2 = day. D3 = age bracket
@@ -270,13 +274,13 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
   ageGroupFatalityRates[ageGroupIndex.staff] = 0.026;
 
   // calculate R0 adjusted for housing type and capacity
-  let rateOfSpreadCells = R0Cells[rateOfSpreadFactor];
+  let rateOfSpreadCells = overrideR0Cells || R0Cells[rateOfSpreadFactor];
   const rateOfSpreadCellsAdjustment = 0.8; // magic constant
   rateOfSpreadCells =
     rateOfSpreadCells -
     (1 - facilityOccupancyPct) *
       (rateOfSpreadCells - rateOfSpreadCellsAdjustment);
-  let rateOfSpreadDorms = R0Dorms[rateOfSpreadFactor];
+  let rateOfSpreadDorms = overrideR0Dorms || R0Dorms[rateOfSpreadFactor];
   const rateOfSpreadDormsAdjustment = 1.7; // magic constant
   rateOfSpreadDorms =
     rateOfSpreadDorms -

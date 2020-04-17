@@ -1,8 +1,18 @@
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
-import { useEpidemicModelState } from "../impact-dashboard/EpidemicModelContext";
+import InputTextNumeric from "../design-system/InputTextNumeric";
+import Description from "../impact-dashboard/Description";
+import {
+  useEpidemicModelDispatch,
+  useEpidemicModelState,
+} from "../impact-dashboard/EpidemicModelContext";
 import FacilityInformation from "../impact-dashboard/FacilityInformation";
+import {
+  FormGrid,
+  FormGridCell,
+  FormGridRow,
+} from "../impact-dashboard/FormGrid";
 import LocaleInformation from "../impact-dashboard/LocaleInformation";
 import MitigationInformation from "../impact-dashboard/MitigationInformation";
 import ModelInspectionTable from "./ModelInspectionTableContainer";
@@ -62,7 +72,12 @@ const HorizontalDivider = styled.hr`
 `;
 
 const ModelInspectionPage: React.FC = () => {
-  const { countyLevelDataFailed } = useEpidemicModelState();
+  const {
+    countyLevelDataFailed,
+    overrideR0Cells,
+    overrideR0Dorms,
+  } = useEpidemicModelState();
+  const dispatch = useEpidemicModelDispatch();
   return (
     <div>
       {countyLevelDataFailed ? (
@@ -79,6 +94,41 @@ const ModelInspectionPage: React.FC = () => {
               <HorizontalDivider />
               <SubsectionHeader>COVID-19 Mitigation Efforts</SubsectionHeader>
               <MitigationInformation />
+              <SubsectionHeader>Override R0</SubsectionHeader>
+              <Description>
+                Override the model's computed/derived R0 value, for testing
+                purposes.
+              </Description>
+              <FormGrid>
+                <FormGridRow>
+                  <FormGridCell>
+                    <InputTextNumeric
+                      labelAbove="Override for cells"
+                      type="number"
+                      onValueChange={(v) =>
+                        dispatch({
+                          type: "update",
+                          payload: { overrideR0Cells: v },
+                        })
+                      }
+                      valueEntered={overrideR0Cells}
+                    />
+                  </FormGridCell>
+                  <FormGridCell>
+                    <InputTextNumeric
+                      labelAbove="Override for dorms"
+                      type="number"
+                      onValueChange={(v) =>
+                        dispatch({
+                          type: "update",
+                          payload: { overrideR0Dorms: v },
+                        })
+                      }
+                      valueEntered={overrideR0Dorms}
+                    />
+                  </FormGridCell>
+                </FormGridRow>
+              </FormGrid>
             </FormColumn>
             <ChartsContainer>
               <ModelOutputChartArea />

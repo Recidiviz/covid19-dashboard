@@ -83,7 +83,11 @@ function prepareCurveData(inputs: EpidemicModelInputs): CurveProjectionInputs {
 }
 
 export function calculateCurves(inputs: EpidemicModelInputs): CurveData {
-  const { projectionGrid } = getAllBracketCurves(prepareCurveData(inputs));
+  const { overrideR0Dorms, overrideR0Cells } = inputs;
+  const { projectionGrid } = getAllBracketCurves({
+    ...prepareCurveData(inputs),
+    ...{ overrideR0Cells, overrideR0Dorms },
+  });
 
   // these will each produce a matrix with row = day and col = SEIR bucket,
   // collapsing all age brackets into a single sum
@@ -122,7 +126,11 @@ export function calculateCurves(inputs: EpidemicModelInputs): CurveData {
 }
 
 export function calculateAllCurves(inputs: EpidemicModelInputs) {
-  return getAllBracketCurves(prepareCurveData(inputs));
+  const { overrideR0Dorms, overrideR0Cells } = inputs;
+  return getAllBracketCurves({
+    ...prepareCurveData(inputs),
+    ...{ overrideR0Cells, overrideR0Dorms },
+  });
 }
 
 export function estimatePeakHospitalUse() {

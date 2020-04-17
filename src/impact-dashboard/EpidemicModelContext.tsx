@@ -63,6 +63,9 @@ interface ModelInputsUpdate extends ModelInputsPersistent {
   confirmedCases?: number;
   totalIncarcerated?: number;
   usePopulationSubsets?: boolean;
+  // these are special and dangerous values used for testing only
+  overrideR0Cells?: number;
+  overrideR0Dorms?: number;
 }
 // some fields are required for calculations, define them here
 interface EpidemicModelInputs extends ModelInputsUpdate {
