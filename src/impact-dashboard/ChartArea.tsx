@@ -1,3 +1,4 @@
+import { useState } from "react";
 import styled from "styled-components";
 
 import Colors, { darken } from "../design-system/Colors";
@@ -33,14 +34,30 @@ const ChartArea: React.FC = () => {
     hospitalBeds: darken(Colors.lightBlue, 20),
     infectious: Colors.red,
   };
+
+  const [groupStatus, setGroupStatus] = useState({
+    exposed: true,
+    fatalities: true,
+    hospitalized: true,
+    infectious: true,
+  });
+
+  const toggleGroup = (groupName: keyof typeof groupStatus) => {
+    setGroupStatus({ ...groupStatus, [groupName]: !groupStatus[groupName] });
+  };
+
   return (
     <Container>
       <LegendAndActions>
         <LegendContainer>
-          <CurveChartLegend markColors={markColors} />
+          <CurveChartLegend
+            markColors={markColors}
+            toggleGroup={toggleGroup}
+            groupStatus={groupStatus}
+          />
         </LegendContainer>
       </LegendAndActions>
-      <CurveChart markColors={markColors} />
+      <CurveChart markColors={markColors} groupStatus={groupStatus} />
     </Container>
   );
 };
