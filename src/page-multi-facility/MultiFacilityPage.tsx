@@ -19,12 +19,10 @@ const MultiFacilityPage: React.FC = () => {
     async function fetchBaselineScenarioRef() {
       const baselineScenarioRef = await getBaselineScenarioRef();
 
-      if (baselineScenarioRef) {
-        setHasBaselineScenario({
-          data: true,
-          loading: false,
-        });
-      }
+      setHasBaselineScenario({
+        data: !!baselineScenarioRef,
+        loading: false,
+      });
     }
     fetchBaselineScenarioRef();
   }, []);
