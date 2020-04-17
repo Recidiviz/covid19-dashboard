@@ -1,0 +1,41 @@
+import React, { useState } from "react";
+import styled from "styled-components";
+
+import Colors from "../design-system/Colors";
+import LocaleInformation from "../impact-dashboard/LocaleInformation"
+import InputSelect from "../design-system/InputSelect";
+
+const borderStyle = `1px solid ${Colors.paleGreen}`;
+
+const LocaleInformationSectionDiv = styled.div`
+  border-top: ${borderStyle};
+`;
+const SystemTypeInputDiv = styled.div``;
+
+const LocaleInformationSection: React.FC = () => {
+  const systemTypeList = [{ value: "State Prison" }, { value: "County Jail" }];
+  const [systemType, updateSystemType] = useState(systemTypeList[0].value);
+
+  return (
+    <LocaleInformationSectionDiv>
+      <SystemTypeInputDiv>
+        <InputSelect
+          label="Type of System"
+          value={systemType}
+          onChange={(event) => {
+            updateSystemType(event.target.value);
+          }}
+        >
+          {systemTypeList.map(({ value }) => (
+            <option key={value} value={value}>
+              {value}
+            </option>
+          ))}
+        </InputSelect>
+      </SystemTypeInputDiv>
+      <LocaleInformation />
+    </LocaleInformationSectionDiv>
+  );
+};
+
+export default LocaleInformationSection;
