@@ -33,7 +33,30 @@ export const PolicyCheckboxContainer = styled.div`
   margin-bottom: 16px;
 `;
 
-let defaultPolicies = {
+type PolicyType = {
+  value: boolean;
+  label: string;
+};
+
+interface StaffType {
+  recentContact: PolicyType;
+  feverScreen: PolicyType;
+  restrictedMovement: PolicyType;
+}
+
+interface IncarceratedType {
+  visitation: PolicyType;
+  restrictedRecreactionTime: PolicyType;
+  sanitizedRecreationEquipment: PolicyType;
+  quarantine: PolicyType;
+}
+
+interface DefaultPoliciesType {
+  staff: StaffType;
+  incarcerated: IncarceratedType;
+}
+
+let defaultPolicies: DefaultPoliciesType = {
   staff: {
     recentContact: {
       value: false,
@@ -71,11 +94,22 @@ let defaultPolicies = {
     },
   },
 };
-const RateOfSpreadSection: React.FC = () => {
-  const [policies, setPolicies] = useState(defaultPolicies);
 
-  const updatePolicy = (type, id) => {
-    policies[type][id].value = !policies[type][id].value;
+const RateOfSpreadSection: React.FC = () => {
+  const [policies, setPolicies] = useState<DefaultPoliciesType>(
+    defaultPolicies,
+  );
+
+  const updatePolicy = (
+    type: keyof DefaultPoliciesType,
+    id: keyof (StaffType & IncarceratedType),
+  ) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+    // @ts-ignore
+    // NOTE: Typescript errors on the id type and cannot find property name in type definition.
+    (policies[type][id] as PolicyType).value = !(policies[type][
+      id
+    ] as PolicyType).value;
     setPolicies({ ...policies });
   };
 
@@ -91,8 +125,10 @@ const RateOfSpreadSection: React.FC = () => {
             labelAbove={"Release date"}
             labelHelp={`Enter the date of any planned reductions in the in-facility
                    population below (e.g., early releases to supervision).`}
-            valueEntered=""
-            onValueChange=""
+            valueEntered={undefined}
+            onValueChange={() => {
+              console.log("on value change placeholder");
+            }}
           />
         </FormGridCell>
         <FormGridCell width={30}>
@@ -102,8 +138,10 @@ const RateOfSpreadSection: React.FC = () => {
               "Enter the number of incarcerated people you plan to release."
             }
             type="number"
-            valueEntered=""
-            onValueChange=""
+            valueEntered={undefined}
+            onValueChange={() => {
+              console.log("on value change placeholder");
+            }}
           />
         </FormGridCell>
       </FormGridRow>
@@ -120,7 +158,12 @@ const RateOfSpreadSection: React.FC = () => {
                 <InputCheckbox
                   key={id}
                   checked={policy.value}
-                  onChange={() => updatePolicy("staff", id)}
+                  onChange={() =>
+                    updatePolicy(
+                      "staff",
+                      id as keyof (StaffType & IncarceratedType),
+                    )
+                  }
                   label={policy.label}
                 />
               </FormGridCell>
@@ -134,7 +177,12 @@ const RateOfSpreadSection: React.FC = () => {
                 <InputCheckbox
                   key={id}
                   checked={policy.value}
-                  onChange={() => updatePolicy("incarcerated", id)}
+                  onChange={() =>
+                    updatePolicy(
+                      "incarcerated",
+                      id as keyof (StaffType & IncarceratedType),
+                    )
+                  }
                   label={policy.label}
                 />
               </FormGridCell>

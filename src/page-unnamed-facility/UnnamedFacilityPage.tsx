@@ -13,16 +13,18 @@ import RateOfSpreadSection from "./RateOfSpreadSection";
 const UnnamedFacilityPageDiv = styled.div``;
 const UnnamedFacilityInputForm = styled.div`
   display: flex;
-  flex-direction: row;
+  flex-flow: row wrap;
   justify-content: space-between;
+  margin-top: 40px;
 `;
-const LeftColumn = styled.div`
-  margin: 20px;
-  // flex-basis: 30%;
+const FormColumn = styled.div`
+  margin-right: 5vw;
+  flex: 1 0 auto;
+  width: 350px;
 `;
-const RightColumn = styled.div`
-  margin: 20px;
-  // flex-basis: 40%;
+const ChartsColumn = styled.div`
+  flex: 2 0 auto;
+  width: 350px;
 `;
 
 // TODO add section header tooltips
@@ -40,17 +42,16 @@ const UnnamedFacilityPage: React.FC = () => {
           <div className="max-w-screen-xl px-4 mx-auto">
             <SiteHeader />
             <UnnamedFacilityInputForm>
-              <LeftColumn>
-                <h1 className="text-3xl leading-none">Unnamed Facility</h1>
-                <div className="mt-5 mb-5 border-b border-gray-300" />
+              <FormColumn>
+                <h1 className="text-3xl mb-5 leading-none">Unnamed Facility</h1>
                 <LocaleInformationSection />
                 <FacilityInformationSection />
                 <RateOfSpreadSection />
-              </LeftColumn>
-              <RightColumn>
+              </FormColumn>
+              <ChartsColumn>
                 <ChartArea />
                 <ImpactProjectionTable />
-              </RightColumn>
+              </ChartsColumn>
             </UnnamedFacilityInputForm>
           </div>
         </div>
