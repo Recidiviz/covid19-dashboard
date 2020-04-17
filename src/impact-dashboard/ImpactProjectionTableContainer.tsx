@@ -1,4 +1,4 @@
-import { sum } from "d3-array";
+import { sum, zip } from "d3-array";
 import ndarray from "ndarray";
 
 import Loading from "../design-system/Loading";
@@ -37,22 +37,30 @@ function countEverHospitalizedForDay(data: ndarray, day: number) {
   // includes people who are currently hospitalized or were previously
   const everHospitalized = [
     seirIndex.hospitalized,
-    seirIndex.severeRecovered,
+    seirIndex.icu,
+    seirIndex.hospitalRecovery,
     seirIndex.fatalities,
+    seirIndex.recoveredHospitalized,
   ];
   const row = getAllValues(getRowView(data, day));
   return Math.round(sum(row.filter((d, i) => everHospitalized.includes(i))));
 }
 
-// row = day and col = SEIR bucket
+// row = day and col = SEIR compartment
 function countCasesForDay(data: ndarray, day: number): number {
   const row = getAllValues(getRowView(data, day));
   const notCases = [seirIndex.susceptible, seirIndex.exposed];
   return Math.round(sum(row.filter((d, i) => !notCases.includes(i))));
 }
 
-function getHospitalizedForDay(data: ndarray, day: number): number {
-  return Math.round(data.get(day, seirIndex.hospitalized));
+function countTotalHospitalizedForDay(data: ndarray, day: number): number {
+  const inHospital = [
+    seirIndex.hospitalized,
+    seirIndex.icu,
+    seirIndex.hospitalRecovery,
+  ];
+  const row = getAllValues(getRowView(data, day));
+  return Math.round(sum(row.filter((d, i) => inHospital.includes(i))));
 }
 
 function getFatalitiesForDay(data: ndarray, day: number): number {
@@ -61,8 +69,9 @@ function getFatalitiesForDay(data: ndarray, day: number): number {
 
 function countUnableToWorkForDay(data: ndarray, day: number): number {
   const unableToWork = [
-    seirIndex.mild,
-    seirIndex.severe,
+    seirIndex.quarantined,
+    seirIndex.icu,
+    seirIndex.hospitalRecovery,
     seirIndex.hospitalized,
     seirIndex.fatalities,
   ];
@@ -77,15 +86,21 @@ type PeakData = {
 };
 
 function getPeakHospitalized(data: ndarray, hospitalBeds: number): PeakData {
-  const hospitalized = getAllValues(getColView(data, seirIndex.hospitalized));
+  const hospitalized = zip(
+    ...[
+      seirIndex.hospitalized,
+      seirIndex.icu,
+      seirIndex.hospitalRecovery,
+    ].map((compartment) => getAllValues(getColView(data, compartment))),
+  ).map((values) => sum(values));
   const peakHospitalized = Math.max(...hospitalized);
   const daysUntil50Pct = hospitalized.findIndex(
     (val) => val / hospitalBeds > 0.5,
   );
   return {
-    peakDay: hospitalized.indexOf(peakHospitalized) + 1,
+    peakDay: hospitalized.indexOf(peakHospitalized),
     peakPct: peakHospitalized / hospitalBeds,
-    daysUntil50Pct: daysUntil50Pct > -1 ? daysUntil50Pct + 1 : null,
+    daysUntil50Pct: daysUntil50Pct > -1 ? daysUntil50Pct : null,
   };
 }
 
@@ -93,7 +108,7 @@ function buildHospitalizedRow(data: ndarray): TableRow {
   const row = buildTableRowFromCurves(
     data,
     "In hospital",
-    getHospitalizedForDay,
+    countTotalHospitalizedForDay,
   );
   // overall hospitalized is a different calculation, it's everyone
   // who was ever hospitalized

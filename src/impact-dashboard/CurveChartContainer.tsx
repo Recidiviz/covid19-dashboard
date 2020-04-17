@@ -1,4 +1,4 @@
-import { zip } from "d3-array";
+import { sum, zip } from "d3-array";
 import { useEffect, useState } from "react";
 
 import Loading from "../design-system/Loading";
@@ -19,11 +19,18 @@ interface ChartData {
 }
 
 // for these curves we combine incarcerated and staff
-function combinePopulations(data: CurveData, columnIndex: number) {
+function combinePopulations(data: CurveData, compartment: seirIndex) {
   return zip(
-    getAllValues(getColView(data.incarcerated, columnIndex)),
-    getAllValues(getColView(data.staff, columnIndex)),
-  ).map(([incarcerated, staff]) => incarcerated + staff);
+    getAllValues(getColView(data.incarcerated, compartment)),
+    getAllValues(getColView(data.staff, compartment)),
+  ).map((values) => sum(values));
+}
+
+// some curves are an aggregate of several compartments
+function combineCompartments(data: CurveData, compartments: seirIndex[]) {
+  return zip(
+    ...compartments.map((compartment) => combinePopulations(data, compartment)),
+  ).map((values) => sum(values));
 }
 const CurveChartContainer: React.FC<Props> = ({ markColors, groupStatus }) => {
   const modelData = useEpidemicModelState();
@@ -37,7 +44,11 @@ const CurveChartContainer: React.FC<Props> = ({ markColors, groupStatus }) => {
     updateCurveData({
       exposed: combinePopulations(projectionData, seirIndex.exposed),
       fatalities: combinePopulations(projectionData, seirIndex.fatalities),
-      hospitalized: combinePopulations(projectionData, seirIndex.hospitalized),
+      hospitalized: combineCompartments(projectionData, [
+        seirIndex.hospitalized,
+        seirIndex.icu,
+        seirIndex.hospitalRecovery,
+      ]),
       infectious: combinePopulations(projectionData, seirIndex.infectious),
     });
   }, [modelData]);

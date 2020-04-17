@@ -33,6 +33,7 @@ interface SingleDayInputs {
   rateOfSpreadCells: number;
   rateOfSpreadDorms: number;
   simulateStaff: boolean;
+  totalExposed: number;
   totalInfectious: number;
   totalPopulation: number;
   totalSusceptibleIncarcerated: number;
@@ -42,12 +43,13 @@ export enum seirIndex {
   susceptible,
   exposed,
   infectious,
-  mild,
-  severe,
+  quarantined,
   hospitalized,
-  mildRecovered,
-  severeRecovered,
+  icu,
+  hospitalRecovery,
   fatalities,
+  recoveredMild,
+  recoveredHospitalized,
   __length,
 }
 
@@ -74,18 +76,23 @@ export enum ageGroupIndex {
 const dIncubation = 2;
 // days in infectious period
 const dInfectious = 4.1;
-// days from end of infectious period to end of virus
-const dRecoveryMild = 9.9;
 // days from end of infectious period to hospital admission
 const dHospitalLag = 2.9;
 // days from hospital admission to hospital release (non-fatality scenario)
 const dHospitalRecovery = 22;
-// days from hospital admission to deceased (fatality scenario)
-const dHospitalFatality = 8.3;
-// probability case will be severe enough for the hospital
-const pSevereCase = 0.26;
-// factor for inferring exposure based on confirmed cases
-const ratioExposedToInfected = dIncubation / dInfectious;
+// aka alpha
+const rExposedToInfectious = dIncubation / dInfectious;
+// aka kappa
+const rExposedToRecovered = 0.1;
+// aka delta
+const rInfectiousToQuarantined = 0.24;
+// aka gamma
+const rInfectiousToRecovered = 0.0667;
+const rQuarantinedToRecovered = 0.071429;
+const rQuarantinedToHospitalized = 1 / dHospitalLag;
+const rHospitalizedToIcu = 0.2;
+const rHospitalizedToRecovered = 1 / dHospitalRecovery;
+const rHospitalRecoveryToRecovered = 1 / dHospitalRecovery;
 
 function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
   const {
@@ -95,102 +102,118 @@ function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
     rateOfSpreadCells,
     rateOfSpreadDorms,
     simulateStaff,
+    totalExposed,
     totalInfectious,
     totalPopulation,
     populationAdjustment,
     totalSusceptibleIncarcerated,
   } = inputs;
 
-  const alpha = 1 / dIncubation;
-  const betaCells = rateOfSpreadCells / dInfectious;
-  const betaDorms = rateOfSpreadDorms / dInfectious;
-  const gamma = 1 / dInfectious;
-
-  const pMildCase = 1 - pSevereCase;
+  // aka beta
+  const rSusceptibleToExposedCells = rateOfSpreadCells / dInfectious;
+  const rSusceptibleToExposedDorms = rateOfSpreadDorms / dInfectious;
+  // TODO: these are likely to diverge in the future
+  const rHospitalizedToFatality = pFatalityRate;
+  const rIcuToFatality = pFatalityRate;
+  const rIcuToHospitalRecovery = 1 - rIcuToFatality;
 
   const facilityCellsPct = 1 - facilityDormitoryPct;
 
-  let [
-    susceptible,
-    exposed,
-    infectious,
-    mild,
-    severe,
-    hospitalized,
-    mildRecovered,
-    severeRecovered,
-    fatalities,
-  ] = priorSimulation;
+  let susceptible = priorSimulation[seirIndex.susceptible];
+  const exposed = priorSimulation[seirIndex.exposed];
+  const infectious = priorSimulation[seirIndex.infectious];
+  const quarantined = priorSimulation[seirIndex.quarantined];
+  const hospitalized = priorSimulation[seirIndex.hospitalized];
+  const icu = priorSimulation[seirIndex.icu];
+  const hospitalRecovery = priorSimulation[seirIndex.hospitalRecovery];
+  const fatalities = priorSimulation[seirIndex.fatalities];
+  const recoveredMild = priorSimulation[seirIndex.recoveredMild];
+  const recoveredHospitalized =
+    priorSimulation[seirIndex.recoveredHospitalized];
 
-  // Compute the deltas from the bottom of the tree up, additions to the
-  // leaf nodes are subtracted from their parent node as people flow
-  // from the root to the leaves of the tree
-  const mildRecoveredData = mild / dRecoveryMild;
+  const recoveredMildDelta =
+    rExposedToRecovered * exposed +
+    rInfectiousToRecovered * infectious +
+    rQuarantinedToRecovered * quarantined;
+
+  const recoveredHospitalizedDelta =
+    rHospitalizedToRecovered * hospitalized +
+    rHospitalRecoveryToRecovered * hospitalRecovery;
+
   const fatalitiesDelta =
-    ((pFatalityRate / pSevereCase) * hospitalized) / dHospitalFatality;
-  const severeRecoveredDelta =
-    ((1 - pFatalityRate / pSevereCase) * hospitalized) / dHospitalRecovery;
+    rIcuToFatality * icu + rHospitalizedToFatality * hospitalized;
 
-  const mildDelta = gamma * pMildCase * infectious - mild / dRecoveryMild;
-  const severeDelta = gamma * pSevereCase * infectious - severe / dHospitalLag;
+  const hospitalRecoveryDelta =
+    rIcuToHospitalRecovery * icu -
+    rHospitalRecoveryToRecovered * hospitalRecovery;
+
+  const icuDelta =
+    rHospitalizedToIcu * hospitalized -
+    rIcuToFatality * icu -
+    rIcuToHospitalRecovery * icu;
+
   const hospitalizedDelta =
-    severe / dHospitalLag - fatalitiesDelta - severeRecoveredDelta;
+    rQuarantinedToHospitalized * quarantined -
+    (rHospitalizedToIcu + rHospitalizedToRecovered) * hospitalized -
+    rHospitalizedToFatality * hospitalized;
 
-  const infectiousDelta = alpha * exposed - gamma * infectious;
+  const quarantinedDelta =
+    rInfectiousToQuarantined * infectious -
+    (rQuarantinedToHospitalized + rQuarantinedToRecovered) * quarantined;
 
-  let exposedDelta;
-  let susceptibleDelta;
-  if (totalPopulation === 0) {
-    exposedDelta = 0;
-    susceptibleDelta = 0;
+  const infectiousDelta =
+    rExposedToInfectious * exposed -
+    (rInfectiousToQuarantined + rInfectiousToRecovered) * infectious;
+
+  let cSusceptible;
+  if (simulateStaff) {
+    // for staff we assume facility type has a negligible effect on spread,
+    // so we just use the R0 for cells as a baseline
+    cSusceptible =
+      (rSusceptibleToExposedCells *
+        (totalExposed + totalInfectious) *
+        susceptible) /
+      totalPopulation;
   } else {
-    if (simulateStaff) {
-      exposedDelta =
-        Math.min(
-          susceptible,
-          (betaCells * totalInfectious * susceptible) / totalPopulation,
-        ) -
-        alpha * exposed;
+    // incarcerated population adjustments affect susceptibility and exposure
+    // for the incarcerated, but not staff
+    susceptible += totalSusceptibleIncarcerated
+      ? populationAdjustment * (susceptible / totalSusceptibleIncarcerated)
+      : 0;
 
-      susceptibleDelta =
-        0 - (betaCells * totalInfectious * susceptible) / totalPopulation;
-    } else {
-      // incarcerated population adjustments affect susceptibility and exposure
-      // for the incarcerated, but not staff
-
-      susceptible += totalSusceptibleIncarcerated
-        ? populationAdjustment * (susceptible / totalSusceptibleIncarcerated)
-        : 0;
-      exposedDelta =
-        Math.min(
-          susceptible,
-          (facilityCellsPct * betaCells * totalInfectious * susceptible) /
-            totalPopulation +
-            (facilityDormitoryPct * betaDorms * totalInfectious * susceptible) /
-              totalPopulation,
-        ) -
-        alpha * exposed;
-
-      susceptibleDelta =
-        0 -
-        (facilityCellsPct * betaCells * totalInfectious * susceptible) /
-          totalPopulation -
-        (facilityDormitoryPct * betaDorms * totalInfectious * susceptible) /
-          totalPopulation;
-    }
+    cSusceptible =
+      (facilityCellsPct *
+        rSusceptibleToExposedCells *
+        (totalExposed + totalInfectious) *
+        susceptible) /
+        totalPopulation +
+      (facilityDormitoryPct *
+        rSusceptibleToExposedDorms *
+        (totalExposed + totalInfectious) *
+        susceptible) /
+        totalPopulation;
   }
+  // guard against cSusceptible being nonsensical (e.g. we divided by zero or something)
+  cSusceptible = Number.isFinite(cSusceptible) ? cSusceptible : 0;
 
-  return [
-    Math.max(susceptible + susceptibleDelta, 0),
-    exposed + exposedDelta,
-    infectious + infectiousDelta,
-    mild + mildDelta,
-    severe + severeDelta,
-    hospitalized + hospitalizedDelta,
-    mildRecovered + mildRecoveredData,
-    severeRecovered + severeRecoveredDelta,
-    fatalities + fatalitiesDelta,
-  ];
+  const exposedDelta =
+    cSusceptible - (rExposedToInfectious + rExposedToRecovered) * exposed;
+  const susceptibleDelta = -cSusceptible;
+
+  const newDay = [];
+  newDay[seirIndex.susceptible] = Math.max(susceptible + susceptibleDelta, 0);
+  newDay[seirIndex.exposed] = exposed + exposedDelta;
+  newDay[seirIndex.infectious] = infectious + infectiousDelta;
+  newDay[seirIndex.quarantined] = quarantined + quarantinedDelta;
+  newDay[seirIndex.hospitalized] = hospitalized + hospitalizedDelta;
+  newDay[seirIndex.icu] = icu + icuDelta;
+  newDay[seirIndex.hospitalRecovery] = hospitalRecovery + hospitalRecoveryDelta;
+  newDay[seirIndex.fatalities] = fatalities + fatalitiesDelta;
+  newDay[seirIndex.recoveredMild] = recoveredMild + recoveredMildDelta;
+  newDay[seirIndex.recoveredHospitalized] =
+    recoveredHospitalized + recoveredHospitalizedDelta;
+
+  return newDay;
 }
 
 enum R0Cells {
@@ -265,7 +288,7 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
 
   // initialize the base daily state with just susceptible and infected pops.
   // each age group is a single row
-  // each SEIR bucket is a single column
+  // each SEIR compartment is a single column
   const singleDayState = ndarray(
     Array(ageGroupIndex.__length * seirIndex.__length).fill(0),
     [ageGroupIndex.__length, seirIndex.__length],
@@ -274,7 +297,7 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
   // initially everyone is either susceptible, exposed, or infected
   zip(ageGroupPopulations, ageGroupInitiallyInfected).forEach(
     ([pop, cases], index) => {
-      const exposed = cases * ratioExposedToInfected;
+      const exposed = cases * rExposedToInfectious;
       singleDayState.set(index, seirIndex.exposed, exposed);
       singleDayState.set(index, seirIndex.infectious, cases);
       singleDayState.set(index, seirIndex.susceptible, pop - cases - exposed);
@@ -304,6 +327,9 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
     const totalInfectious = sum(
       getAllValues(getColView(singleDayState, seirIndex.infectious)),
     );
+    const totalExposed = sum(
+      getAllValues(getColView(singleDayState, seirIndex.exposed)),
+    );
     const totalSusceptibleIncarcerated = sum(
       getAllValues(getColView(singleDayState, seirIndex.susceptible)).filter(
         (v, i) => i !== ageGroupIndex.staff,
@@ -318,6 +344,7 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
       const projectionForAgeGroup = simulateOneDay({
         priorSimulation: getAllValues(getRowView(singleDayState, ageGroup)),
         totalPopulation,
+        totalExposed,
         totalInfectious,
         rateOfSpreadCells,
         rateOfSpreadDorms,

@@ -139,9 +139,9 @@ const CurveChart: React.FC<CurveChartProps> = ({
   markColors,
 }) => {
   const frameProps = {
-    lines: Object.entries(curveData).map(([bucket, values]) => ({
-      title: bucket,
-      key: bucket,
+    lines: Object.entries(curveData).map(([compartment, values]) => ({
+      title: compartment,
+      key: compartment,
       coordinates: values.map((count, index) => ({
         count,
         days: index,
