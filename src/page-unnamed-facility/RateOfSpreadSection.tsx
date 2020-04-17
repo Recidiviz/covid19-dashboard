@@ -58,7 +58,7 @@ let defaultPolicies = {
     restrictedRecreactionTime: {
       value: false,
       label:
-        "Rectreaction time has been restricted to the same groups of individuals daily, and in small numbers (<12)",
+        "Recreation time has been restricted to the same groups of individuals daily, and in small numbers (<12)",
     },
     sanitizedRecreationEquipment: {
       value: false,

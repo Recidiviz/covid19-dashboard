@@ -24,9 +24,6 @@ const RightColumn = styled.div`
   // flex-basis: 40%;
 `;
 
-// TODO add Duplicate Facility
-// TODO add description input
-// TODO add section collapse
 // TODO add section header tooltips
 // TODO add summary at bottom of Locale Information
 // TODO full page styling
