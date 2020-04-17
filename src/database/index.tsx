@@ -8,12 +8,15 @@ import createAuth0Client from "@auth0/auth0-spa-js";
 
 import config from "../auth/auth_config.json";
 import { EpidemicModelPersistent } from "../impact-dashboard/EpidemicModelContext";
+import { Facility } from "../page-multi-facility/types";
 import { prepareForStorage, prepareFromStorage } from "./utils";
 
 // As long as there is just one Auth0 config, this endpoint will work with any environment (local, prod, etc.).
 const tokenExchangeEndpoint =
   "https://us-central1-c19-backend.cloudfunctions.net/getFirebaseToken";
 const modelInputsCollectionId = "model_inputs";
+const scenariosCollectionId = "scenarios";
+const facilitiesCollectionId = "facilities";
 
 // Note: None of these are secrets.
 let firebaseConfig = {
@@ -58,6 +61,10 @@ const authenticate = async () => {
   await firebase.auth().signInWithCustomToken(customToken);
 };
 
+const currrentUserId = () => {
+  return (firebase.auth().currentUser || {}).uid;
+};
+
 const getInputModelsDocRef = async () => {
   await authenticate();
 
@@ -66,9 +73,7 @@ const getInputModelsDocRef = async () => {
   }
 
   const db = firebase.firestore();
-  return db
-    .collection(modelInputsCollectionId)
-    .doc((firebase.auth().currentUser || {}).uid);
+  return db.collection(modelInputsCollectionId).doc(currrentUserId());
 };
 
 // TODO: Guard against the possibility of autosaves completing out of order.
@@ -107,6 +112,55 @@ export const getSavedState = async (): Promise<EpidemicModelPersistent | null> =
     console.error(
       "Encountered error while attempting to retrieve saved state:",
     );
+    console.error(error);
+
+    return null;
+  }
+};
+
+const getBaselineScenario = async () => {
+  await authenticate();
+
+  if (!firebase.auth().currentUser) {
+    throw new Error("Firebase user unexpectedly not set");
+  }
+
+  const db = firebase.firestore();
+  const query = db
+    .collection(scenariosCollectionId)
+    .where("baseline", "==", true);
+
+  const results = await query.get();
+  const userId = currrentUserId();
+
+  const baselineScenario = results.docs.find((doc) => {
+    const scenario = doc.data();
+    return userId && scenario.roles[userId] == "owner";
+  });
+
+  if (!baselineScenario) return null;
+
+  return baselineScenario.ref;
+};
+
+export const getFacilities = async (): Promise<Array<Facility> | null> => {
+  try {
+    const baselineScenario = await getBaselineScenario();
+
+    if (!baselineScenario) return null;
+
+    const facilitiesResults = await baselineScenario
+      .collection(facilitiesCollectionId)
+      .get();
+
+    const facilities = facilitiesResults.docs.map(
+      (doc) => doc.data() as Facility,
+    );
+
+    return facilities;
+  } catch (error) {
+    console.error("Encountered error while attempting to retrieve facilities:");
+
     console.error(error);
 
     return null;

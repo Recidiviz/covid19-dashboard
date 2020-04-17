@@ -10,6 +10,7 @@ import CurveChart from "./CurveChart";
 import { useEpidemicModelState } from "./EpidemicModelContext";
 
 interface Props {
+  chartHeight?: number;
   markColors: MarkColors;
   groupStatus: Record<string, any>;
 }
@@ -25,7 +26,11 @@ function combinePopulations(data: CurveData, columnIndex: number) {
     getAllValues(getColView(data.staff, columnIndex)),
   ).map(([incarcerated, staff]) => incarcerated + staff);
 }
-const CurveChartContainer: React.FC<Props> = ({ markColors, groupStatus }) => {
+const CurveChartContainer: React.FC<Props> = ({
+  markColors,
+  groupStatus,
+  chartHeight,
+}) => {
   const modelData = useEpidemicModelState();
   const [curveData, updateCurveData] = useState({} as ChartData);
   const [curveDataFiltered, setCurveDataFiltered] = useState({} as ChartData);
@@ -59,6 +64,7 @@ const CurveChartContainer: React.FC<Props> = ({ markColors, groupStatus }) => {
     <Loading />
   ) : (
     <CurveChart
+      chartHeight={chartHeight}
       curveData={curveDataFiltered}
       hospitalBeds={modelData.hospitalBeds}
       markColors={markColors}
