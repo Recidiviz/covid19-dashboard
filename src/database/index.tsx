@@ -71,6 +71,10 @@ const currrentUserId = () => {
   return userId;
 };
 
+const currrentTimestamp = () => {
+  return firebase.firestore.FieldValue.serverTimestamp();
+};
+
 const getDb = async () => {
   await authenticate();
 
@@ -96,7 +100,7 @@ export const saveState = async (
     if (!docRef) return;
 
     docRef.set({
-      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      timestamp: currrentTimestamp(),
       inputs: prepareForStorage(persistedState),
     });
   } catch (error) {
@@ -181,7 +185,7 @@ export const createBaselineScenario = async () => {
     }
 
     const userId = currrentUserId();
-    const timestamp = firebase.firestore.FieldValue.serverTimestamp();
+    const timestamp = currrentTimestamp();
 
     const db = await getDb();
 
@@ -200,5 +204,26 @@ export const createBaselineScenario = async () => {
     console.error("Encountered an error while creating the baseline scenario:");
     console.error(error);
     return null;
+  }
+};
+
+export const saveScenario = async (scenario: {}): Promise<void> => {
+  try {
+    // We're cheating here because for the launch we know there is only a
+    // baseline scenario. In subsequent launches, we'll need to pass in
+    // the ID of the specific scenario that we want to save. See:
+    // https://github.com/Recidiviz/covid19-dashboard/issues/129
+    const baselineScenarioRef = await getBaselineScenarioRef();
+
+    if (!baselineScenarioRef) return;
+
+    const payload = Object.assign({}, scenario, {
+      updatedAt: currrentTimestamp(),
+    });
+
+    baselineScenarioRef.update(payload);
+  } catch (error) {
+    console.error("Encountered an error while saving the scenario:");
+    console.error(error);
   }
 };
