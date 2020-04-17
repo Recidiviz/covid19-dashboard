@@ -22,4 +22,13 @@ const Colors = {
   darkGreen: "#00413E",
 };
 
+// Shared colors for the Projection charts
+export const MarkColors = {
+  exposed: Colors.green,
+  fatalities: Colors.black,
+  hospitalized: Colors.lightBlue,
+  hospitalBeds: darken(Colors.lightBlue, 20),
+  infectious: Colors.red,
+};
+
 export default Colors;

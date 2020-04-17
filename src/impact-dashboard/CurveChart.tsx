@@ -9,7 +9,7 @@ import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import { MarkColors } from "./ChartArea";
 
 const ChartContainer = styled.div`
-  height: ${props => props.chartHeight}px;
+  height: ${(props) => props.chartHeight}px;
 
   .frame {
     font-family: "Poppins", sans-serif;
@@ -195,7 +195,7 @@ const CurveChart: React.FC<CurveChartProps> = ({
   };
 
   return (
-    <ChartContainer chartHeight={chartHeight || 380 }>
+    <ChartContainer chartHeight={chartHeight || 380}>
       <ResponsiveXYFrame {...frameProps} />
     </ChartContainer>
   );

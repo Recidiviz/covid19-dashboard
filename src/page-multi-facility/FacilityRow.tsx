@@ -1,23 +1,24 @@
-import styled from "styled-components";
+import React, { useContext } from "react";
 
-import Colors from "../design-system/Colors";
-import Loading from "../design-system/Loading";
+import { MarkColors as markColors } from "../design-system/Colors";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
-import { Facility } from "./types";
+import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
+import { FacilityContext } from "./FacilityContext";
 
-const markColors = {
-  exposed: Colors.green,
-  fatalities: Colors.black,
-  hospitalized: Colors.lightBlue,
-  hospitalBeds: Colors.red,
-  infectious: Colors.red,
+const groupStatus = {
+  exposed: true,
+  fatalities: true,
+  hospitalized: true,
+  infectious: true,
 };
 
-interface Props {
-  facility: Facility;
-}
+const FacilityRow: React.FC = () => {
+  const facility = useContext(FacilityContext);
 
-const FacilityRow: React.FC<Props> = ({ facility }) => {
+  if (!facility) {
+    throw new Error("Facility must be provided to the FacilityContext");
+  }
+
   const { name, modelInputs } = facility;
 
   const confirmedCases = modelInputs.confirmedCases;
@@ -46,11 +47,13 @@ const FacilityRow: React.FC<Props> = ({ facility }) => {
           </div>
         </div>
         <div className="w-3/5">
-          <CurveChartContainer
-            modelData={modelInputs}
-            markColors={markColors}
-            chartHeight={200}
-          />
+          <EpidemicModelProvider facilityModel={modelInputs}>
+            <CurveChartContainer
+              chartHeight={200}
+              groupStatus={groupStatus}
+              markColors={markColors}
+            />
+          </EpidemicModelProvider>
         </div>
       </div>
     </div>

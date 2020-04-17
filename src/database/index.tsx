@@ -150,7 +150,7 @@ export const getFacilities = async (): Promise<Array<Facility> | null> => {
     if (!baselineScenario) return null;
 
     const facilitiesResults = await baselineScenario
-      .collection("facilities")
+      .collection(facilitiesCollectionId)
       .get();
 
     const facilities = facilitiesResults.docs.map(

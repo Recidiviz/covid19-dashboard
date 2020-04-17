@@ -5,10 +5,11 @@ import { getFacilities } from "../database";
 import Loading from "../design-system/Loading";
 import SiteHeader from "../site-header/SiteHeader";
 import AddFacilityModal from "./AddFacilityModal";
+import { FacilityContext } from "./FacilityContext";
 import FacilityRow from "./FacilityRow";
 import ProjectionsHeader from "./ProjectionsHeader";
 import ScenarioSidebar from "./ScenarioSidebar";
-import { Facilities, Facility } from "./types";
+import { Facilities } from "./types";
 
 const MultiFacilityPageDiv = styled.div``;
 
@@ -53,8 +54,12 @@ const MultiFacilityPage: React.FC = () => {
               {facilities.loading ? (
                 <Loading />
               ) : (
-                facilities.data.map((facility, index) => {
-                  return <FacilityRow key={index} facility={facility} />;
+                facilities?.data.map((facility, index) => {
+                  return (
+                    <FacilityContext.Provider key={index} value={facility}>
+                      <FacilityRow />
+                    </FacilityContext.Provider>
+                  );
                 })
               )}
             </div>

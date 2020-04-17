@@ -130,7 +130,10 @@ export type EpidemicModelUpdate = ModelInputsUpdate & MetadataUpdate;
 
 export type EpidemicModelState = EpidemicModelInputs & Metadata;
 
-type EpidemicModelProviderProps = { children: React.ReactNode };
+type EpidemicModelProviderProps = {
+  children: React.ReactNode;
+  facilityModel?: EpidemicModelState;
+};
 
 const EpidemicModelStateContext = React.createContext<
   EpidemicModelState | undefined
@@ -251,7 +254,10 @@ function sanitizeQueryParams(rawQueryParams: QueryParams) {
 // estimated ratio of confirmed cases to actual cases
 const caseReportingRate = 0.14;
 
-function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
+function EpidemicModelProvider({
+  children,
+  facilityModel,
+}: EpidemicModelProviderProps) {
   const {
     values: rawQueryParams,
     replaceValues: replaceHistoryState,
@@ -264,8 +270,9 @@ function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
 
   useEffect(
     () => {
-      // leave state alone until we are done loading data
-      if (state.countyLevelDataLoading) {
+      // leave state alone if a facility model is provided or
+      // until we are done loading data
+      if (facilityModel || state.countyLevelDataLoading) {
         return;
       }
 
@@ -340,10 +347,17 @@ function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
           const stateFromQueryParams =
             rawQueryParams && size(rawQueryParams) > 0;
 
+          let preexistingState;
+          // if a facility model is provided it takes the higest priority
+          if (facilityModel) {
+            preexistingState = facilityModel;
+          }
           // app state in query params supersedes app state in the database
-          const preexistingState = stateFromQueryParams
-            ? rawQueryParams
-            : (await getSavedState()) || {};
+          else if (stateFromQueryParams) {
+            preexistingState = rawQueryParams;
+          } else {
+            preexistingState = (await getSavedState()) || {};
+          }
 
           let {
             stateCode: savedStateCode,
