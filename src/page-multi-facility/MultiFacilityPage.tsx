@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import { getFacilities } from "../database";
 import Loading from "../design-system/Loading";
+import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
 import { useLocaleDataState } from "../locale-data-context";
 import SiteHeader from "../site-header/SiteHeader";
 import AddFacilityModal from "./AddFacilityModal";
@@ -29,13 +30,10 @@ const MultiFacilityPage: React.FC = () => {
   });
 
   const {
-    data,
+    data: localeDataSource,
     failed: localeDataFailed,
     loading: localeDataLoading,
   } = useLocaleDataState();
-  if (!localeDataLoading && !localeDataFailed) {
-    console.log(data);
-  }
 
   useEffect(() => {
     async function fetchFacilities() {
@@ -77,7 +75,12 @@ const MultiFacilityPage: React.FC = () => {
                     facilities?.data.map((facility, index) => {
                       return (
                         <FacilityContext.Provider key={index} value={facility}>
-                          <FacilityRow />
+                          <EpidemicModelProvider
+                            facilityModel={facility.modelInputs}
+                            localeDataSource={localeDataSource}
+                          >
+                            <FacilityRow />
+                          </EpidemicModelProvider>
                         </FacilityContext.Provider>
                       );
                     })

@@ -1,3 +1,5 @@
+import { sum } from "d3";
+import { pick } from "lodash";
 import React from "react";
 
 import { LocaleData } from "../locale-data-context";
@@ -49,7 +51,7 @@ interface ModelInputsUpdate extends ModelInputsPersistent {
   usePopulationSubsets?: boolean;
 }
 // some fields are required for calculations, define them here
-interface EpidemicModelInputs extends ModelInputsUpdate {
+export interface EpidemicModelInputs extends ModelInputsUpdate {
   rateOfSpreadFactor: RateOfSpread;
   usePopulationSubsets: boolean;
   facilityDormitoryPct: number;
@@ -204,7 +206,7 @@ function epidemicModelReducer(
   }
 }
 
-function EpidemicModelProvider({
+export function EpidemicModelProvider({
   children,
   facilityModel,
   localeDataSource,
@@ -235,7 +237,7 @@ function EpidemicModelProvider({
   );
 }
 
-function useEpidemicModelState() {
+export function useEpidemicModelState() {
   const context = React.useContext(EpidemicModelStateContext);
 
   if (context === undefined) {
@@ -247,7 +249,7 @@ function useEpidemicModelState() {
   return context;
 }
 
-function useEpidemicModelDispatch() {
+export function useEpidemicModelDispatch() {
   const context = React.useContext(EpidemicModelDispatchContext);
 
   if (context === undefined) {
@@ -259,9 +261,24 @@ function useEpidemicModelDispatch() {
   return context;
 }
 
-export {
-  EpidemicModelProvider,
-  useEpidemicModelState,
-  useEpidemicModelDispatch,
-  EpidemicModelInputs,
-};
+// *******
+// calculation helpers
+// *******
+
+export function totalConfirmedCases(model: EpidemicModelState): number {
+  return sum(
+    Object.values(
+      pick(model, [
+        "age0Cases",
+        "age20Cases",
+        "age45Cases",
+        "age55Cases",
+        "age65Cases",
+        "age75Cases",
+        "age85Cases",
+        "ageUnknownCases",
+        "staffCases",
+      ]),
+    ),
+  );
+}

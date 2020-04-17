@@ -2,7 +2,10 @@ import React, { useContext } from "react";
 
 import { MarkColors as markColors } from "../design-system/Colors";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
-import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
+import {
+  totalConfirmedCases,
+  useEpidemicModelState,
+} from "../impact-dashboard/EpidemicModelContext";
 import { FacilityContext } from "./FacilityContext";
 
 const groupStatus = {
@@ -14,14 +17,12 @@ const groupStatus = {
 
 const FacilityRow: React.FC = () => {
   const facility = useContext(FacilityContext);
-
+  const confirmedCases = totalConfirmedCases(useEpidemicModelState());
   if (!facility) {
     throw new Error("Facility must be provided to the FacilityContext");
   }
 
-  const { name, modelInputs } = facility;
-
-  const confirmedCases = modelInputs.confirmedCases;
+  const { name } = facility;
 
   return (
     <div>
@@ -47,13 +48,11 @@ const FacilityRow: React.FC = () => {
           </div>
         </div>
         <div className="w-3/5">
-          {/* <EpidemicModelProvider facilityModel={modelInputs}>
-            <CurveChartContainer
-              chartHeight={200}
-              groupStatus={groupStatus}
-              markColors={markColors}
-            />
-          </EpidemicModelProvider> */}
+          <CurveChartContainer
+            chartHeight={200}
+            groupStatus={groupStatus}
+            markColors={markColors}
+          />
         </div>
       </div>
     </div>
