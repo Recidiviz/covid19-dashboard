@@ -51,10 +51,7 @@ const CreateBaselineScenarioPage: React.FC = () => {
             on the right-hand side of the page. Your initial scenario is also
             your 'Baseline' - meaning this is where you should keep real-world
             numbers about the current state of your facilities, their cases, and
-            mitigation steps. If you want to test the impact of proposed
-            changes, duplicate your baseline scenario and make the changes in
-            the new scenario - that way you can still compare them back to
-            baseline.
+            mitigation steps.
           </WelcomeText>
           <ModalFooter>
             <InputButton
