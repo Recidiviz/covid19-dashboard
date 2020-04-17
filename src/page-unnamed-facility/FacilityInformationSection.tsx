@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
-import FacilityInformation from "../impact-dashboard/FacilityInformation"
+import FacilityInformation from "../impact-dashboard/FacilityInformation";
 
 const borderStyle = `1px solid ${Colors.paleGreen}`;
 
@@ -17,7 +17,6 @@ const SectionHeader = styled.header`
   padding: 20px 0;
   color: "${Colors.forest}"
 `;
-
 
 const FacilityInformationSection: React.FC = () => {
   return (

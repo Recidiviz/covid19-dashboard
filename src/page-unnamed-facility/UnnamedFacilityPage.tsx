@@ -1,18 +1,19 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 
-import SiteHeader from "../site-header/SiteHeader";
-import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
 import ChartArea from "../impact-dashboard/ChartArea";
+import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
 import ImpactProjectionTable from "../impact-dashboard/ImpactProjectionTableContainer";
+import SiteHeader from "../site-header/SiteHeader";
 import FacilityInformationSection from "./FacilityInformationSection";
-import LocaleInformationSection from "./LocaleInformationSection"
+import LocaleInformationSection from "./LocaleInformationSection";
+import RateOfSpreadSection from "./RateOfSpreadSection";
 
 const UnnamedFacilityPageDiv = styled.div``;
 const UnnamedFacilityInputForm = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: space-between
+  justify-content: space-between;
 `;
 const LeftColumn = styled.div`
   margin: 20px;
@@ -23,6 +24,14 @@ const RightColumn = styled.div`
   // flex-basis: 40%;
 `;
 
+// TODO add Duplicate Facility
+// TODO add description input
+// TODO add section collapse
+// TODO add section header tooltips
+// TODO add summary at bottom of Locale Information
+// TODO full page styling
+// TODO rate of spread section
+// TODO use FormGrid
 const UnnamedFacilityPage: React.FC = () => {
   return (
     <EpidemicModelProvider>
@@ -36,6 +45,7 @@ const UnnamedFacilityPage: React.FC = () => {
                 <div className="mt-5 mb-5 border-b border-gray-300" />
                 <LocaleInformationSection />
                 <FacilityInformationSection />
+                <RateOfSpreadSection />
               </LeftColumn>
               <RightColumn>
                 <ChartArea />
