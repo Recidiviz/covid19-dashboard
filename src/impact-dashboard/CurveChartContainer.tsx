@@ -1,4 +1,5 @@
 import { zip } from "d3-array";
+import { useEffect, useState } from "react";
 
 import Loading from "../design-system/Loading";
 import { calculateCurves, CurveData } from "../infection-model";
@@ -10,6 +11,11 @@ import { useEpidemicModelState } from "./EpidemicModelContext";
 
 interface Props {
   markColors: MarkColors;
+  groupStatus: Record<string, any>;
+}
+
+interface ChartData {
+  [key: string]: number[];
 }
 
 // for these curves we combine incarcerated and staff
@@ -19,24 +25,41 @@ function combinePopulations(data: CurveData, columnIndex: number) {
     getAllValues(getColView(data.staff, columnIndex)),
   ).map(([incarcerated, staff]) => incarcerated + staff);
 }
-
-const CurveChartContainer: React.FC<Props> = ({ markColors }) => {
+const CurveChartContainer: React.FC<Props> = ({ markColors, groupStatus }) => {
   const modelData = useEpidemicModelState();
-  // TODO: could this be stored on the context instead for reuse?
-  const projectionData = calculateCurves(modelData);
-  // merge and filter the curve data to only what we need for the chart
-  const curveData = {
-    exposed: combinePopulations(projectionData, seirIndex.exposed),
-    fatalities: combinePopulations(projectionData, seirIndex.fatalities),
-    hospitalized: combinePopulations(projectionData, seirIndex.hospitalized),
-    infectious: combinePopulations(projectionData, seirIndex.infectious),
-  };
+  const [curveData, updateCurveData] = useState({} as ChartData);
+  const [curveDataFiltered, setCurveDataFiltered] = useState({} as ChartData);
+
+  useEffect(() => {
+    // TODO: could this be stored on the context instead for reuse?
+    const projectionData = calculateCurves(modelData);
+    // merge and filter the curve data to only what we need for the chart
+    updateCurveData({
+      exposed: combinePopulations(projectionData, seirIndex.exposed),
+      fatalities: combinePopulations(projectionData, seirIndex.fatalities),
+      hospitalized: combinePopulations(projectionData, seirIndex.hospitalized),
+      infectious: combinePopulations(projectionData, seirIndex.infectious),
+    });
+  }, [modelData]);
+
+  useEffect(() => {
+    let filteredGroupStatus = Object.keys(groupStatus).filter(
+      (groupName) => groupStatus[groupName],
+    );
+
+    setCurveDataFiltered(
+      filteredGroupStatus.reduce(
+        (data, key) => Object.assign(data, { [key]: curveData[key] }),
+        {},
+      ),
+    );
+  }, [groupStatus, curveData]);
 
   return modelData.countyLevelDataLoading ? (
     <Loading />
   ) : (
     <CurveChart
-      curveData={curveData}
+      curveData={curveDataFiltered}
       hospitalBeds={modelData.hospitalBeds}
       markColors={markColors}
     />
