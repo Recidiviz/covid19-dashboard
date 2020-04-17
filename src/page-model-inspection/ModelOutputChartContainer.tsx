@@ -1,6 +1,5 @@
 import { sum, zip } from "d3-array";
 
-import Loading from "../design-system/Loading";
 import { useEpidemicModelState } from "../impact-dashboard/EpidemicModelContext";
 import { calculateCurves, CurveData } from "../infection-model";
 import { getAllValues, getColView } from "../infection-model/matrixUtils";
@@ -25,9 +24,7 @@ const ModelOutputChartContainer: React.FC = () => {
     curveData[seirIndex[i]] = combinePopulations(projectionData, i);
   });
 
-  return modelData.countyLevelDataLoading ? (
-    <Loading />
-  ) : (
+  return (
     <ModelOutputChart
       curveData={curveData}
       hospitalBeds={modelData.hospitalBeds}

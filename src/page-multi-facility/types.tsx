@@ -1,8 +1,8 @@
-import { EpidemicModelState } from "../impact-dashboard/EpidemicModelContext";
+import { EpidemicModelPersistent } from "../impact-dashboard/EpidemicModelContext";
 
 export type Facility = {
   name: string;
-  modelInputs: EpidemicModelState;
+  modelInputs: EpidemicModelPersistent;
 };
 
 export type Facilities = Facility[];
