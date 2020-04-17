@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import ChartArea from "../impact-dashboard/ChartArea";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
+import { useLocaleDataState } from "../locale-data-context";
 import ImpactProjectionTable from "../impact-dashboard/ImpactProjectionTableContainer";
 import SiteHeader from "../site-header/SiteHeader";
 import FacilityInformationSection from "./FacilityInformationSection";
@@ -30,8 +31,10 @@ const RightColumn = styled.div`
 // TODO rate of spread section
 // TODO use FormGrid
 const UnnamedFacilityPage: React.FC = () => {
+  const { data: localeDataSource } = useLocaleDataState();
+
   return (
-    <EpidemicModelProvider>
+    <EpidemicModelProvider localeDataSource={localeDataSource}>
       <UnnamedFacilityPageDiv>
         <div className="font-body text-green min-h-screen tracking-normal w-full">
           <div className="max-w-screen-xl px-4 mx-auto">
