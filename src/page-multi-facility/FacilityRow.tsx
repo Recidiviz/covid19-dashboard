@@ -47,13 +47,13 @@ const FacilityRow: React.FC = () => {
           </div>
         </div>
         <div className="w-3/5">
-          <EpidemicModelProvider facilityModel={modelInputs}>
+          {/* <EpidemicModelProvider facilityModel={modelInputs}>
             <CurveChartContainer
               chartHeight={200}
               groupStatus={groupStatus}
               markColors={markColors}
             />
-          </EpidemicModelProvider>
+          </EpidemicModelProvider> */}
         </div>
       </div>
     </div>

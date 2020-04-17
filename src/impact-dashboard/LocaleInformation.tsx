@@ -23,28 +23,30 @@ const LocaleInformation: React.FC = () => {
   const [countyList, updateCountyList] = useState([{ value: "Total" }]);
 
   useEffect(() => {
-    if (typeof model.countyLevelData !== "undefined") {
-      const newStateList = Array.from(
-        model.countyLevelData.keys(),
-      ).map((key) => ({ value: key }));
+    if (typeof model.localeDataSource !== "undefined") {
+      const newStateList = Array.from(model.localeDataSource.keys()).map(
+        (key) => ({
+          value: key,
+        }),
+      );
       updateStateList(newStateList);
     }
-  }, [model.countyLevelData]);
+  }, [model.localeDataSource]);
 
   useEffect(() => {
-    const countyLevelData = model.countyLevelData;
+    const localeDataSource = model.localeDataSource;
     const stateCode = model.stateCode;
-    if (countyLevelData !== undefined && stateCode !== undefined) {
+    if (localeDataSource !== undefined && stateCode !== undefined) {
       // TODO: TS is complaining about things being undefined
       // despite the above checks; replace these assertions
       // with proper type guards
-      const keys = countyLevelData?.get(stateCode)?.keys();
+      const keys = localeDataSource?.get(stateCode)?.keys();
       const newCountyList = Array.from(
         keys as Iterable<string>,
       ).map((value) => ({ value }));
       updateCountyList(newCountyList);
     }
-  }, [model.countyLevelData, model.stateCode]);
+  }, [model.localeDataSource, model.stateCode]);
 
   return (
     <LocaleInformationDiv>

@@ -1,8 +1,8 @@
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
+import { useLocaleDataState } from "../locale-data-context";
 import ChartArea from "./ChartArea";
-import { useEpidemicModelState } from "./EpidemicModelContext";
 import FacilityInformation from "./FacilityInformation";
 import ImpactProjectionTable from "./ImpactProjectionTableContainer";
 import LocaleInformation from "./LocaleInformation";
@@ -62,7 +62,7 @@ const HorizontalDivider = styled.hr`
 `;
 
 const ImpactDashboard: React.FC = () => {
-  const { countyLevelDataFailed } = useEpidemicModelState();
+  const { failed: countyLevelDataFailed } = useLocaleDataState();
   return (
     <div>
       {countyLevelDataFailed ? (

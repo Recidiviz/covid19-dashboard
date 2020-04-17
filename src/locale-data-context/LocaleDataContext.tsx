@@ -12,7 +12,7 @@ type LocaleRecord = {
   totalIncarceratedPopulation: number;
 };
 
-type LocaleData = Map<string, Map<string, LocaleRecord>>;
+export type LocaleData = Map<string, Map<string, LocaleRecord>>;
 
 type LocaleDataUpdate = {
   loading?: boolean;
