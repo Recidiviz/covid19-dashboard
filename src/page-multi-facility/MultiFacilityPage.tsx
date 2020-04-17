@@ -1,44 +1,30 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
-import { getFacilities } from "../database";
+import { getBaselineScenarioRef } from "../database";
 import Loading from "../design-system/Loading";
 import SiteHeader from "../site-header/SiteHeader";
-import AddFacilityModal from "./AddFacilityModal";
-import { FacilityContext } from "./FacilityContext";
-import FacilityRow from "./FacilityRow";
-import ProjectionsHeader from "./ProjectionsHeader";
-import ScenarioSidebar from "./ScenarioSidebar";
-import { Facilities } from "./types";
+import CreateBaselineScenarioPage from "./CreateBaselineScenarioPage";
+import MultiFacilityImpactDashboard from "./MultiFacilityImpactDashboard";
 
 const MultiFacilityPageDiv = styled.div``;
 
-const MultiFacilityImpactDashboard = styled.main.attrs({
-  className: `
-    h-screen
-    flex
-    mt-8
-  `,
-})``;
-
 const MultiFacilityPage: React.FC = () => {
-  const [facilities, setFacilities] = useState({
-    data: [] as Facilities,
+  const [hasBaselineScenario, setHasBaselineScenario] = useState({
+    data: false,
     loading: true,
   });
 
   useEffect(() => {
-    async function fetchFacilities() {
-      const facilitiesData = await getFacilities();
+    async function fetchBaselineScenarioRef() {
+      const baselineScenarioRef = await getBaselineScenarioRef();
 
-      if (facilitiesData) {
-        setFacilities({
-          data: facilitiesData,
-          loading: false,
-        });
-      }
+      setHasBaselineScenario({
+        data: !!baselineScenarioRef,
+        loading: false,
+      });
     }
-    fetchFacilities();
+    fetchBaselineScenarioRef();
   }, []);
 
   return (
@@ -46,24 +32,13 @@ const MultiFacilityPage: React.FC = () => {
       <div className="font-body text-green min-h-screen tracking-normal w-full">
         <div className="max-w-screen-xl px-4 mx-auto">
           <SiteHeader />
-          <MultiFacilityImpactDashboard>
-            <ScenarioSidebar />
-            <div className="flex flex-col flex-1 pb-6 pl-8">
-              <AddFacilityModal />
-              <ProjectionsHeader />
-              {facilities.loading ? (
-                <Loading />
-              ) : (
-                facilities?.data.map((facility, index) => {
-                  return (
-                    <FacilityContext.Provider key={index} value={facility}>
-                      <FacilityRow />
-                    </FacilityContext.Provider>
-                  );
-                })
-              )}
-            </div>
-          </MultiFacilityImpactDashboard>
+          {hasBaselineScenario.loading ? (
+            <Loading />
+          ) : hasBaselineScenario.data ? (
+            <MultiFacilityImpactDashboard />
+          ) : (
+            <CreateBaselineScenarioPage />
+          )}
         </div>
       </div>
     </MultiFacilityPageDiv>
