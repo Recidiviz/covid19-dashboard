@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import { getBaselineScenarioRef } from "../database";
+import Loading from "../design-system/Loading";
 import SiteHeader from "../site-header/SiteHeader";
 import CreateBaselineScenarioPage from "./CreateBaselineScenarioPage";
 import MultiFacilityImpactDashboard from "./MultiFacilityImpactDashboard";
@@ -9,14 +10,20 @@ import MultiFacilityImpactDashboard from "./MultiFacilityImpactDashboard";
 const MultiFacilityPageDiv = styled.div``;
 
 const MultiFacilityPage: React.FC = () => {
-  const [hasBaselineScenario, setHasBaselineScenario] = useState(false);
+  const [hasBaselineScenario, setHasBaselineScenario] = useState({
+    data: false,
+    loading: true,
+  });
 
   useEffect(() => {
     async function fetchBaselineScenarioRef() {
       const baselineScenarioRef = await getBaselineScenarioRef();
 
       if (baselineScenarioRef) {
-        setHasBaselineScenario(true);
+        setHasBaselineScenario({
+          data: true,
+          loading: false,
+        });
       }
     }
     fetchBaselineScenarioRef();
@@ -27,7 +34,9 @@ const MultiFacilityPage: React.FC = () => {
       <div className="font-body text-green min-h-screen tracking-normal w-full">
         <div className="max-w-screen-xl px-4 mx-auto">
           <SiteHeader />
-          {hasBaselineScenario ? (
+          {hasBaselineScenario.loading ? (
+            <Loading />
+          ) : hasBaselineScenario.data ? (
             <MultiFacilityImpactDashboard />
           ) : (
             <CreateBaselineScenarioPage />
