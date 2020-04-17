@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import { getFacilities } from "../database";
 import Loading from "../design-system/Loading";
+import { useLocaleDataState } from "../locale-data-context";
 import SiteHeader from "../site-header/SiteHeader";
 import AddFacilityModal from "./AddFacilityModal";
 import { FacilityContext } from "./FacilityContext";
@@ -27,6 +28,15 @@ const MultiFacilityPage: React.FC = () => {
     loading: true,
   });
 
+  const {
+    data,
+    failed: localeDataFailed,
+    loading: localeDataLoading,
+  } = useLocaleDataState();
+  if (!localeDataLoading && !localeDataFailed) {
+    console.log(data);
+  }
+
   useEffect(() => {
     async function fetchFacilities() {
       const facilitiesData = await getFacilities();
@@ -47,22 +57,34 @@ const MultiFacilityPage: React.FC = () => {
         <div className="max-w-screen-xl px-4 mx-auto">
           <SiteHeader />
           <MultiFacilityImpactDashboard>
-            <ScenarioSidebar />
-            <div className="flex flex-col flex-1 pb-6 pl-8">
-              <AddFacilityModal />
-              <ProjectionsHeader />
-              {facilities.loading ? (
-                <Loading />
-              ) : (
-                facilities?.data.map((facility, index) => {
-                  return (
-                    <FacilityContext.Provider key={index} value={facility}>
-                      <FacilityRow />
-                    </FacilityContext.Provider>
-                  );
-                })
-              )}
-            </div>
+            {localeDataFailed ? (
+              // TODO: real error state
+              <div>
+                Unable to load state and county data. Please try refreshing the
+                page.
+              </div>
+            ) : localeDataLoading ? (
+              <Loading />
+            ) : (
+              <>
+                <ScenarioSidebar />
+                <div className="flex flex-col flex-1 pb-6 pl-8">
+                  <AddFacilityModal />
+                  <ProjectionsHeader />
+                  {facilities.loading ? (
+                    <Loading />
+                  ) : (
+                    facilities?.data.map((facility, index) => {
+                      return (
+                        <FacilityContext.Provider key={index} value={facility}>
+                          <FacilityRow />
+                        </FacilityContext.Provider>
+                      );
+                    })
+                  )}
+                </div>
+              </>
+            )}
           </MultiFacilityImpactDashboard>
         </div>
       </div>
