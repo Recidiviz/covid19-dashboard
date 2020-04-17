@@ -1,6 +1,8 @@
 import React from "react";
+import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
+import { createBaselineScenario } from "../database";
 import Colors from "../design-system/Colors";
 import InputButton from "../design-system/InputButton";
 import ModalDialog from "../design-system/ModalDialog";
@@ -31,6 +33,15 @@ const ModalContent = styled.div`
 `;
 
 const CreateBaselineScenarioPage: React.FC = () => {
+  const history = useHistory();
+  const handleOnClick = async () => {
+    const baselineScenarioRef = await createBaselineScenario();
+    if (baselineScenarioRef) {
+      // TODO: Replace this with create facility page path when ready
+      history.push("/");
+    }
+  };
+
   return (
     <CreateBaselineScenarioPageContainer>
       <ModalDialog open title="Welcome">
@@ -49,9 +60,7 @@ const CreateBaselineScenarioPage: React.FC = () => {
             <InputButton
               styles={{ width: "80px" }}
               label="Ok"
-              onClick={() => {
-                console.log("OK Clicked");
-              }}
+              onClick={handleOnClick}
             />
           </ModalFooter>
         </ModalContent>
