@@ -62,17 +62,27 @@ const authenticate = async () => {
 };
 
 const currrentUserId = () => {
-  return (firebase.auth().currentUser || {}).uid;
+  const userId = (firebase.auth().currentUser || {}).uid;
+
+  if (!userId) {
+    throw new Error("currrentUserId() always expects a user to be returned");
+  }
+
+  return userId;
 };
 
-const getInputModelsDocRef = async () => {
+const getDb = async () => {
   await authenticate();
 
   if (!firebase.auth().currentUser) {
     throw new Error("Firebase user unexpectedly not set");
   }
 
-  const db = firebase.firestore();
+  return firebase.firestore();
+};
+
+const getInputModelsDocRef = async () => {
+  const db = await getDb();
   return db.collection(modelInputsCollectionId).doc(currrentUserId());
 };
 
@@ -118,14 +128,9 @@ export const getSavedState = async (): Promise<EpidemicModelPersistent | null> =
   }
 };
 
-const getBaselineScenario = async () => {
-  await authenticate();
+const getBaselineScenarioRef = async () => {
+  const db = await getDb();
 
-  if (!firebase.auth().currentUser) {
-    throw new Error("Firebase user unexpectedly not set");
-  }
-
-  const db = firebase.firestore();
   const query = db
     .collection(scenariosCollectionId)
     .where("baseline", "==", true);
@@ -135,7 +140,7 @@ const getBaselineScenario = async () => {
 
   const baselineScenario = results.docs.find((doc) => {
     const scenario = doc.data();
-    return userId && scenario.roles[userId] == "owner";
+    return scenario.roles[userId] == "owner";
   });
 
   if (!baselineScenario) return null;
@@ -145,11 +150,11 @@ const getBaselineScenario = async () => {
 
 export const getFacilities = async (): Promise<Array<Facility> | null> => {
   try {
-    const baselineScenario = await getBaselineScenario();
+    const baselineScenarioRef = await getBaselineScenarioRef();
 
-    if (!baselineScenario) return null;
+    if (!baselineScenarioRef) return null;
 
-    const facilitiesResults = await baselineScenario
+    const facilitiesResults = await baselineScenarioRef
       .collection(facilitiesCollectionId)
       .get();
 
@@ -163,6 +168,37 @@ export const getFacilities = async (): Promise<Array<Facility> | null> => {
 
     console.error(error);
 
+    return null;
+  }
+};
+
+export const createBaselineScenario = async () => {
+  try {
+    let baselineScenarioRef = await getBaselineScenarioRef();
+
+    if (baselineScenarioRef) {
+      return baselineScenarioRef;
+    }
+
+    const userId = currrentUserId();
+    const timestamp = firebase.firestore.FieldValue.serverTimestamp();
+
+    const db = await getDb();
+
+    baselineScenarioRef = await db.collection(scenariosCollectionId).add({
+      name: "Baseline Scenario",
+      baseline: true,
+      roles: {
+        [userId]: "owner",
+      },
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    });
+
+    return baselineScenarioRef;
+  } catch (error) {
+    console.error("Encountered an error while creating the baseline scenario:");
+    console.error(error);
     return null;
   }
 };
