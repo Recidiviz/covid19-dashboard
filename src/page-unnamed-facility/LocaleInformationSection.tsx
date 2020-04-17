@@ -12,6 +12,7 @@ const borderStyle = `1px solid ${Colors.paleGreen}`;
 const LocaleInformationSectionDiv = styled.div`
   border-top: ${borderStyle};
 `;
+
 const SystemTypeInputDiv = styled.div``;
 
 const SectionHeader = styled.header`
@@ -24,13 +25,13 @@ const SectionHeader = styled.header`
 `;
 
 const LocaleInputDiv = styled.div`
-  flex: 0 1 auto;
+  flex-grow: 1
 `;
 
 const defaultLocaleData = {
   type: '',
   state: '',
-  count: '',
+  count: undefined,
   county: ''
 }
 
@@ -70,7 +71,7 @@ const LocaleInformationSection: React.FC = () => {
     <LocaleInformationSectionDiv>
       <SectionHeader>Locale Information</SectionHeader>
       <FormGridRow>
-        <SystemTypeInputDiv>
+        <LocaleInputDiv>
           <InputSelect
             label="Type of System"
             onChange={(event) => {setLocaleData({...localeData, type: event.target.value})}}
@@ -81,14 +82,14 @@ const LocaleInformationSection: React.FC = () => {
               </option>
             ))}
           </InputSelect>
-        </SystemTypeInputDiv>
+        </LocaleInputDiv>
         <LocaleInputDiv>
           <InputTextNumeric
             type="number"
             labelAbove="Confirmed case count"
             labelHelp="Based on NYTimes data. Replace with your most up-to-date data."
             valueEntered={localeData.count}
-            onValueChange={(value) => {setLocaleData({...localeData, count: value})}}
+            onValueChange={(value) => {value && setLocaleData({...localeData, count: value})}}
           />
         </LocaleInputDiv>
       </FormGridRow>
