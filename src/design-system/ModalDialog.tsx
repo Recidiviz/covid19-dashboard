@@ -22,24 +22,16 @@ const ModalContainer = styled.div`
   border-radius: 5px;
   display: flex;
   flex-direction: column;
-  height: 90vh;
   width: 65vw;
   padding: 35px;
   position: static;
-`;
-
-const ModalContentContainer = styled.div`
-  align-items: flex-end;
-  border-top: 0.5px solid ${Colors.darkGray};
-  display: flex;
-  flex: 1 1;
 `;
 
 interface Props {
   numSteps?: number;
   title?: TitleProps["title"];
   open?: boolean;
-  closeModal: (e: React.MouseEvent<HTMLElement>) => void;
+  closeModal?: (e: React.MouseEvent<HTMLElement>) => void | null;
   children?: React.ReactElement<any>;
 }
 
@@ -58,7 +50,7 @@ const ModalDialog: React.FC<Props> = (props) => {
   if (!open) return null;
 
   const handleOnClick = (event: React.MouseEvent<HTMLElement>) => {
-    if (isOutsideModal(event, ref.current)) {
+    if (isOutsideModal(event, ref.current) && closeModal) {
       closeModal(event);
     }
   };
@@ -67,7 +59,7 @@ const ModalDialog: React.FC<Props> = (props) => {
     <BackgroundAside onClick={handleOnClick}>
       <ModalContainer ref={ref}>
         <ModalTitle title={title} closeModal={closeModal} />
-        <ModalContentContainer>{children}</ModalContentContainer>
+        {children}
       </ModalContainer>
     </BackgroundAside>,
     document.getElementById("app") as HTMLElement,

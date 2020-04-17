@@ -128,7 +128,7 @@ export const getSavedState = async (): Promise<EpidemicModelPersistent | null> =
   }
 };
 
-const getBaselineScenarioRef = async () => {
+export const getBaselineScenarioRef = async () => {
   const db = await getDb();
 
   const query = db
