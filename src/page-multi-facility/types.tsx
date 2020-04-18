@@ -20,4 +20,5 @@ export type Scenario = {
 type TimestampType = {
   seconds: string;
   nanoseconds: string;
+  toDate: () => string;
 };

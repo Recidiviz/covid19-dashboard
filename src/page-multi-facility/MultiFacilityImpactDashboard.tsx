@@ -48,9 +48,9 @@ const MultiFacilityImpactDashboard: React.FC<Props> = ({
         loading: false,
       });
     }
-
     fetchScenario();
   }, []);
+
   useEffect(() => {
     async function fetchFacilities() {
       const facilitiesData = await getFacilities();
@@ -68,7 +68,11 @@ const MultiFacilityImpactDashboard: React.FC<Props> = ({
 
   return (
     <MultiFacilityImpactDashboardContainer>
-      <ScenarioSidebar scenario={scenario?.data} />
+      {scenario.loading ? (
+        <Loading />
+      ) : (
+        <ScenarioSidebar scenario={scenario.data} />
+      )}
       <div className="flex flex-col flex-1 pb-6 pl-8">
         <AddFacilityModal />
         <ProjectionsHeader />

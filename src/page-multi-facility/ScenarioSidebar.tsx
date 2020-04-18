@@ -1,4 +1,5 @@
-import { saveScenario } from "../database";
+import { format } from "date-fns";
+
 import PromoBoxWithButton from "../design-system/PromoBoxWithButton";
 import ToggleRow from "./ToggleRow";
 import { Scenario } from "./types";
@@ -8,14 +9,13 @@ interface Props {
 }
 
 const ScenarioSidebar: React.FC<Props> = (props) => {
-  // Typescript error that these properties do not exist on type Scenario
-  // Have I defined the type wrong?
-  const { name, dailyReports, dataSharing } = props.scenario;
+  const { scenario } = props;
+  const updatedAtDate = Number(scenario?.updatedAt.toDate());
 
   return (
     <div className="flex flex-col w-1/4 mr-24">
       <div className="flex-1 flex flex-col pb-4">
-        <h1 className="text-3xl leading-none">{name}</h1>
+        <h1 className="text-3xl leading-none">{scenario?.name}</h1>
         <div className="mt-5 mb-5 border-b border-gray-300" />
         <div className="mb-12">
           <p>
@@ -25,17 +25,20 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
           </p>
         </div>
         <div>
-          <p className="text-xs text-gray-500">Last Update:</p>
+          <p className="text-xs text-gray-500">
+            Last Update:{" "}
+            {updatedAtDate && format(updatedAtDate, "MMMM d, yyyy")}
+          </p>
         </div>
         <div className="mt-5 mb-5 border-b border-gray-300" />
         <div>
           <ToggleRow
-            data={dailyReports}
+            data={scenario?.dailyReports}
             label="Daily Reports"
             labelHelp="Tooltip help Lorem ipsum dolor sit amet, consectetur adipiscing elit"
           />
           <ToggleRow
-            data={dataSharing}
+            data={scenario?.dataSharing}
             label="Data Sharing"
             labelHelp="Tooltip help Lorem ipsum dolor sit amet, consectetur adipiscing elit"
           />
