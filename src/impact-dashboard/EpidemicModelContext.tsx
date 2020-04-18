@@ -62,8 +62,6 @@ interface MetadataPersistent {
   // fields that we want to store
   countyName?: string;
   stateCode?: string;
-  hospitalBeds?: number;
-  confirmedCases?: number;
 }
 
 // some fields are required to display a sensible UI, define them here
@@ -80,8 +78,6 @@ export type EpidemicModelPersistent = ModelInputsPersistent &
 export const persistedKeys: Array<keyof EpidemicModelPersistent> = [
   "countyName",
   "stateCode",
-  "hospitalBeds",
-  "confirmedCases",
   "age0Cases",
   "age0Population",
   "age20Cases",
@@ -139,23 +135,15 @@ function getLocaleData(
   countyName: string,
 ) {
   return {
-    stateCode,
+    confirmedCases:
+      dataSource.get(stateCode)?.get(countyName)?.reportedCases || 0,
     countyName,
+    hospitalBeds: dataSource.get(stateCode)?.get(countyName)?.hospitalBeds || 0,
     localeDataSource: dataSource,
+    stateCode,
     totalIncarcerated:
       dataSource.get(stateCode)?.get(countyName)?.totalIncarceratedPopulation ||
       0,
-    hospitalBeds: dataSource.get(stateCode)?.get(countyName)?.hospitalBeds || 0,
-    ageUnknownPopulation:
-      dataSource.get(stateCode)?.get(countyName)?.totalIncarceratedPopulation ||
-      0,
-    ageUnknownCases:
-      dataSource.get(stateCode)?.get(countyName)?.estimatedIncarceratedCases ||
-      0,
-    confirmedCases:
-      dataSource.get(stateCode)?.get(countyName)?.reportedCases || 0,
-    staffCases: 0,
-    staffPopulation: 0,
   };
 }
 
@@ -210,14 +198,11 @@ export function EpidemicModelProvider({
   localeDataSource,
 }: EpidemicModelProviderProps) {
   const resetBase = getResetBase();
+  const stateCode = facilityModel?.stateCode || resetBase.stateCode;
+  const countyName = facilityModel?.countyName || resetBase.countyName;
   const initialState = {
     ...resetBase,
-    ...getLocaleData(
-      localeDataSource,
-      resetBase.stateCode,
-      resetBase.countyName,
-    ),
-    // any passed data (e.g. fetched from database) takes precedence
+    ...getLocaleData(localeDataSource, stateCode, countyName),
     ...(facilityModel || {}),
   };
 
