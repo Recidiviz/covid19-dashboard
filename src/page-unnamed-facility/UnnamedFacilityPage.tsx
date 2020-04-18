@@ -13,25 +13,18 @@ import RateOfSpreadSection from "./RateOfSpreadSection";
 const UnnamedFacilityPageDiv = styled.div``;
 const UnnamedFacilityInputForm = styled.div`
   display: flex;
-  flex-flow: row wrap;
+  flex-direction: row;
   justify-content: space-between;
-  margin-top: 40px;
 `;
-const FormColumn = styled.div`
-  margin-right: 5vw;
-  flex: 1 0 auto;
-  width: 350px;
+const LeftColumn = styled.div`
+  margin: 20px;
 `;
-const ChartsColumn = styled.div`
-  flex: 2 0 auto;
-  width: 350px;
+const RightColumn = styled.div`
+  margin: 20px;
 `;
 
 // TODO add section header tooltips
 // TODO add summary at bottom of Locale Information
-// TODO full page styling
-// TODO rate of spread section
-// TODO use FormGrid
 const UnnamedFacilityPage: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
 
@@ -42,16 +35,17 @@ const UnnamedFacilityPage: React.FC = () => {
           <div className="max-w-screen-xl px-4 mx-auto">
             <SiteHeader />
             <UnnamedFacilityInputForm>
-              <FormColumn>
-                <h1 className="text-3xl mb-5 leading-none">Unnamed Facility</h1>
+              <LeftColumn>
+                <h1 className="text-3xl leading-none">Unnamed Facility</h1>
+                <div className="mt-5 mb-5 border-b border-gray-300" />
                 <LocaleInformationSection />
                 <FacilityInformationSection />
                 <RateOfSpreadSection />
-              </FormColumn>
-              <ChartsColumn>
+              </LeftColumn>
+              <RightColumn>
                 <ChartArea />
                 <ImpactProjectionTable />
-              </ChartsColumn>
+              </RightColumn>
             </UnnamedFacilityInputForm>
           </div>
         </div>

@@ -11,7 +11,10 @@ const LocaleInformationSectionDiv = styled.div`
   border-top: ${borderStyle};
 `;
 
-const SystemTypeInputDiv = styled.div``;
+const SystemTypeInputDiv = styled.div`
+  width: 195px;
+  padding-bottom: 20px;
+`;
 
 const SectionHeader = styled.header`
   font-family: Poppins;
