@@ -3,8 +3,8 @@ import styled from "styled-components";
 
 import ChartArea from "../impact-dashboard/ChartArea";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
-import { useLocaleDataState } from "../locale-data-context";
 import ImpactProjectionTable from "../impact-dashboard/ImpactProjectionTableContainer";
+import { useLocaleDataState } from "../locale-data-context";
 import SiteHeader from "../site-header/SiteHeader";
 import FacilityInformationSection from "./FacilityInformationSection";
 import LocaleInformationSection from "./LocaleInformationSection";
