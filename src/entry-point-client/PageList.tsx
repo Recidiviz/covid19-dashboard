@@ -1,4 +1,5 @@
 import GetInvolvedPage from "../page-get-involved/GetInvolvedPage";
+import LibraryCard from "../page-library/LibraryCard";
 import OverviewPage from "../page-overview/OverviewPage";
 import VerificationNeeded from "../page-verification-needed/VerificationNeeded";
 
@@ -32,6 +33,12 @@ const PageList: PageInfo[] = [
     title: getPageTitle("Get Involved"),
     isPrivate: false,
     contents: <GetInvolvedPage />,
+  },
+  {
+    path: "/library",
+    title: getPageTitle("library Menu"),
+    isPrivate: false,
+    contents: <LibraryCard />,
   },
 ];
 
