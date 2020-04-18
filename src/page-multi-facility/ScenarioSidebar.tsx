@@ -1,13 +1,16 @@
+import { saveScenario } from "../database";
 import PromoBoxWithButton from "../design-system/PromoBoxWithButton";
 import ToggleRow from "./ToggleRow";
-import { saveScenario } from "../database";
+import { Scenario } from "./types";
 
-interface ScenarioSidebar = {
-  scenario: Object;
+interface Props {
+  scenario?: Scenario | null;
 }
 
-const ScenarioSidebar: React.FC = ({ scenario }) => {
-  const { name, updatedAt, dailyReports, dataSharing } = scenario;
+const ScenarioSidebar: React.FC<Props> = (props) => {
+  // Typescript error that these properties do not exist on type Scenario
+  // Have I defined the type wrong?
+  const { name, dailyReports, dataSharing } = props.scenario;
 
   return (
     <div className="flex flex-col w-1/4 mr-24">

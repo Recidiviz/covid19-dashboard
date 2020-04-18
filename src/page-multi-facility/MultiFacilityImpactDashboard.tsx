@@ -8,6 +8,7 @@ import { useLocaleDataState } from "../locale-data-context";
 import AddFacilityModal from "./AddFacilityModal";
 import { FacilityContext } from "./FacilityContext";
 import FacilityRow from "./FacilityRow";
+import { ScenarioType } from "./MultiFacilityPage";
 import ProjectionsHeader from "./ProjectionsHeader";
 import ScenarioSidebar from "./ScenarioSidebar";
 import { Facilities } from "./types";
@@ -20,11 +21,13 @@ const MultiFacilityImpactDashboardContainer = styled.main.attrs({
   `,
 })``;
 
-interface MultiFacilityImpactDashboardType = {
-  baselineScenario?: object;
+interface Props {
+  baselineScenario?: ScenarioType;
 }
 
-const MultiFacilityImpactDashboard<MultiFacilityImpactDashboardType>: React.FC = ({ baselineScenario }) => {
+const MultiFacilityImpactDashboard: React.FC<Props> = ({
+  baselineScenario,
+}) => {
   const { data: localeDataSource } = useLocaleDataState();
 
   const [facilities, setFacilities] = useState({
@@ -33,19 +36,22 @@ const MultiFacilityImpactDashboard<MultiFacilityImpactDashboardType>: React.FC =
   });
 
   const [scenario, setScenario] = useState({
-    data: {},
-    loading: true
-  })
+    data: null,
+    loading: true,
+  });
 
   useEffect(() => {
-    async function fetchScenario () {
-      const result = await baselineScenario.data.get();
+    async function fetchScenario() {
+      const result = await baselineScenario?.data?.get();
       setScenario({
         data: result?.data(),
-        loading: false
-      })
+        loading: false,
+      });
     }
 
+    fetchScenario();
+  }, []);
+  useEffect(() => {
     async function fetchFacilities() {
       const facilitiesData = await getFacilities();
 
@@ -57,7 +63,6 @@ const MultiFacilityImpactDashboard<MultiFacilityImpactDashboardType>: React.FC =
       }
     }
 
-    fetchScenario();
     fetchFacilities();
   }, []);
 

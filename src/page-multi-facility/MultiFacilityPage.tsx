@@ -10,10 +10,11 @@ import MultiFacilityImpactDashboard from "./MultiFacilityImpactDashboard";
 
 const MultiFacilityPageDiv = styled.div``;
 
-type ScenarioType = {
-  data: object | null;
-  lodaing: boolean;
-}
+export type ScenarioType = {
+  // Note: I'm not sure what the actual type should be for the firestore document
+  data?: any;
+  loading: boolean;
+};
 
 const MultiFacilityPage: React.FC = () => {
   const [baselineScenario, setBaselineScenario] = useState<ScenarioType>({
@@ -49,7 +50,7 @@ const MultiFacilityPage: React.FC = () => {
           ) : baselineScenario.loading || localeState.loading ? (
             <Loading />
           ) : baselineScenario.data ? (
-            <MultiFacilityImpactDashboard baselineScenario={baselineScenario}/>
+            <MultiFacilityImpactDashboard baselineScenario={baselineScenario} />
           ) : (
             <CreateBaselineScenarioPage />
           )}
