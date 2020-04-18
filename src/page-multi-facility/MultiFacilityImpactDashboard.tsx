@@ -20,7 +20,11 @@ const MultiFacilityImpactDashboardContainer = styled.main.attrs({
   `,
 })``;
 
-const MultiFacilityImpactDashboard: React.FC = () => {
+interface MultiFacilityImpactDashboardType = {
+  baselineScenario?: object;
+}
+
+const MultiFacilityImpactDashboard<MultiFacilityImpactDashboardType>: React.FC = ({ baselineScenario }) => {
   const { data: localeDataSource } = useLocaleDataState();
 
   const [facilities, setFacilities] = useState({
@@ -28,7 +32,20 @@ const MultiFacilityImpactDashboard: React.FC = () => {
     loading: true,
   });
 
+  const [scenario, setScenario] = useState({
+    data: {},
+    loading: true
+  })
+
   useEffect(() => {
+    async function fetchScenario () {
+      const result = await baselineScenario.data.get();
+      setScenario({
+        data: result?.data(),
+        loading: false
+      })
+    }
+
     async function fetchFacilities() {
       const facilitiesData = await getFacilities();
 
@@ -39,12 +56,14 @@ const MultiFacilityImpactDashboard: React.FC = () => {
         });
       }
     }
+
+    fetchScenario();
     fetchFacilities();
   }, []);
 
   return (
     <MultiFacilityImpactDashboardContainer>
-      <ScenarioSidebar />
+      <ScenarioSidebar scenario={scenario?.data} />
       <div className="flex flex-col flex-1 pb-6 pl-8">
         <AddFacilityModal />
         <ProjectionsHeader />

@@ -10,19 +10,25 @@ import MultiFacilityImpactDashboard from "./MultiFacilityImpactDashboard";
 
 const MultiFacilityPageDiv = styled.div``;
 
+type ScenarioType = {
+  data: object | null;
+  lodaing: boolean;
+}
+
 const MultiFacilityPage: React.FC = () => {
-  const [hasBaselineScenario, setHasBaselineScenario] = useState({
-    data: false,
+  const [baselineScenario, setBaselineScenario] = useState<ScenarioType>({
+    data: null,
     loading: true,
   });
+
   const localeState = useLocaleDataState();
 
   useEffect(() => {
     async function fetchBaselineScenarioRef() {
       const baselineScenarioRef = await getBaselineScenarioRef();
 
-      setHasBaselineScenario({
-        data: !!baselineScenarioRef,
+      setBaselineScenario({
+        data: baselineScenarioRef,
         loading: false,
       });
     }
@@ -40,10 +46,10 @@ const MultiFacilityPage: React.FC = () => {
               Unable to load state and county data. Please try refreshing the
               page.
             </div>
-          ) : hasBaselineScenario.loading || localeState.loading ? (
+          ) : baselineScenario.loading || localeState.loading ? (
             <Loading />
-          ) : hasBaselineScenario.data ? (
-            <MultiFacilityImpactDashboard />
+          ) : baselineScenario.data ? (
+            <MultiFacilityImpactDashboard baselineScenario={baselineScenario}/>
           ) : (
             <CreateBaselineScenarioPage />
           )}

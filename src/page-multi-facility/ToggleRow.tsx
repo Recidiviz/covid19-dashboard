@@ -6,6 +6,7 @@ import InputLabelAndHelp from "../design-system/InputLabelAndHelp";
 import InputToggle from "../design-system/InputToggle";
 
 interface Props {
+  data?: boolean;
   label?: React.ReactNode;
   labelHelp?: React.ReactNode;
 }
@@ -20,8 +21,9 @@ const ToggleRowContainer = styled.div`
 `;
 
 const ToggleRow: React.FC<Props> = (props) => {
-  const [toggled, setToggled] = useState(false);
-  if (!props.label && !props.labelHelp) {
+  const { data, label, labelHelp } = props;
+  const [toggled, setToggled] = useState(data);
+  if (!label && !labelHelp) {
     return null;
   }
 
