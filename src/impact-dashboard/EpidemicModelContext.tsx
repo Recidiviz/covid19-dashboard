@@ -18,7 +18,7 @@ export enum RateOfSpread {
 // any field that we can update via reducer should be here,
 // and should probably be optional
 
-// fields that we want to store in URL or other persistent store
+// fields that we want to store
 interface ModelInputsPersistent {
   age0Cases?: number;
   age0Population?: number;
@@ -59,18 +59,15 @@ export interface EpidemicModelInputs extends ModelInputsUpdate {
 }
 
 interface MetadataPersistent {
-  // fields that we want to store in URL or other persistent store
+  // fields that we want to store
   countyName?: string;
-  facilityName?: string;
   stateCode?: string;
+  hospitalBeds?: number;
+  confirmedCases?: number;
 }
 
-interface MetadataUpdate extends MetadataPersistent {
-  // this is not user input so don't store it
-  hospitalBeds?: number;
-}
 // some fields are required to display a sensible UI, define them here
-interface Metadata extends MetadataUpdate {
+interface Metadata extends MetadataPersistent {
   stateCode: string;
   hospitalBeds: number;
 }
@@ -82,8 +79,9 @@ export type EpidemicModelPersistent = ModelInputsPersistent &
 // TODO: is there a smarter way to get these values?
 export const persistedKeys: Array<keyof EpidemicModelPersistent> = [
   "countyName",
-  "facilityName",
   "stateCode",
+  "hospitalBeds",
+  "confirmedCases",
   "age0Cases",
   "age0Population",
   "age20Cases",
@@ -108,7 +106,7 @@ export const persistedKeys: Array<keyof EpidemicModelPersistent> = [
   "plannedReleases",
 ];
 
-export type EpidemicModelUpdate = ModelInputsUpdate & MetadataUpdate;
+export type EpidemicModelUpdate = ModelInputsUpdate & MetadataPersistent;
 
 export type EpidemicModelState = EpidemicModelInputs &
   Metadata & {
