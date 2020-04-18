@@ -192,6 +192,8 @@ export const createBaselineScenario = async () => {
     baselineScenarioRef = await db.collection(scenariosCollectionId).add({
       name: "Baseline Scenario",
       baseline: true,
+      dataSharing: false,
+      dailyReports: false,
       roles: {
         [userId]: "owner",
       },
