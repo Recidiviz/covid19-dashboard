@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 
+import { saveScenario } from "../database/index";
 import PromoBoxWithButton from "../design-system/PromoBoxWithButton";
 import ToggleRow from "./ToggleRow";
 import { Scenario } from "./types";
@@ -11,6 +12,15 @@ interface Props {
 const ScenarioSidebar: React.FC<Props> = (props) => {
   const { scenario } = props;
   const updatedAtDate = Number(scenario?.updatedAt.toDate());
+
+  const handleToggle = (toggleValue: keyof Scenario) => {
+    const value = scenario?.[toggleValue];
+    // TODO: I think the default value is still set to false for both dataSharing and dailyReports
+    saveScenario({
+      ...scenario,
+      [toggleValue]: !value,
+    });
+  };
 
   return (
     <div className="flex flex-col w-1/4 mr-24">
@@ -33,12 +43,14 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
         <div className="mt-5 mb-5 border-b border-gray-300" />
         <div>
           <ToggleRow
-            data={scenario?.dailyReports}
+            onToggle={() => handleToggle("dailyReports")}
+            toggled={scenario?.dailyReports}
             label="Daily Reports"
             labelHelp="Tooltip help Lorem ipsum dolor sit amet, consectetur adipiscing elit"
           />
           <ToggleRow
-            data={scenario?.dataSharing}
+            onToggle={() => handleToggle("dataSharing")}
+            toggled={scenario?.dataSharing}
             label="Data Sharing"
             labelHelp="Tooltip help Lorem ipsum dolor sit amet, consectetur adipiscing elit"
           />
