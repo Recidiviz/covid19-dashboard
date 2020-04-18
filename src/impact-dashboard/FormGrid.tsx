@@ -11,6 +11,13 @@ export const FormGridRow = styled.div`
   margin-bottom: 16px;
 `;
 
+export const FormGridColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 16px;
+`;
+
 export const FormGridCell = styled.div<{ width?: number; vAlign?: string }>`
   box-sizing: border-box;
   padding: 0 8px;

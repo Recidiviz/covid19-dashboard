@@ -49,7 +49,7 @@ const ButtonAdd = styled.button`
   padding: 8px 16px;
 `;
 
-const ReleaseRow: React.FC<RowProps> = ({
+export const ReleaseRow: React.FC<RowProps> = ({
   date,
   count,
   index,
