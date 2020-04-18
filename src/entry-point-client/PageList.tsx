@@ -1,8 +1,8 @@
 import GetInvolvedPage from "../page-get-involved/GetInvolvedPage";
 import ModelInspectionPage from "../page-model-inspection/";
+import FacilityPage from "../page-multi-facility/FacilityPage";
 import MultiFacilityPage from "../page-multi-facility/MultiFacilityPage";
 import OverviewPage from "../page-overview/OverviewPage";
-import UnnamedFacilityPage from "../page-unnamed-facility/UnnamedFacilityPage";
 import UnsupportedBrowserPage from "../page-unsupported-browser/UnsupportedBrowserPage";
 import VerificationNeeded from "../page-verification-needed/VerificationNeeded";
 
@@ -49,16 +49,16 @@ const PageList: PageInfo[] = [
     contents: <MultiFacilityPage />,
   },
   {
+    path: "/multi-facility/facility",
+    title: getPageTitle(),
+    isPrivate: true,
+    contents: <FacilityPage />,
+  },
+  {
     path: "/inspect-model",
     title: getPageTitle("Inspect epidemic model output"),
     isPrivate: true,
     contents: <ModelInspectionPage />,
-  },
-  {
-    path: "/unnamed-facility",
-    title: getPageTitle(),
-    isPrivate: true,
-    contents: <UnnamedFacilityPage />,
   },
 ];
 

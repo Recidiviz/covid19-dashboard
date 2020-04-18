@@ -10,8 +10,8 @@ import FacilityInformationSection from "./FacilityInformationSection";
 import LocaleInformationSection from "./LocaleInformationSection";
 import RateOfSpreadSection from "./RateOfSpreadSection";
 
-const UnnamedFacilityPageDiv = styled.div``;
-const UnnamedFacilityInputForm = styled.div`
+const FacilityPageDiv = styled.div``;
+const FacilityInputForm = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -25,18 +25,18 @@ const RightColumn = styled.div`
 
 // TODO add section header tooltips
 // TODO add summary at bottom of Locale Information
-const UnnamedFacilityPage: React.FC = () => {
+const FacilityPage: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
 
   return (
     <EpidemicModelProvider localeDataSource={localeDataSource}>
-      <UnnamedFacilityPageDiv>
+      <FacilityPageDiv>
         <div className="font-body text-green min-h-screen tracking-normal w-full">
           <div className="max-w-screen-xl px-4 mx-auto">
             <SiteHeader />
-            <UnnamedFacilityInputForm>
+            <FacilityInputForm>
               <LeftColumn>
-                <h1 className="text-3xl leading-none">Unnamed Facility</h1>
+                <h1 className="text-3xl leading-none">Facility</h1>
                 <div className="mt-5 mb-5 border-b border-gray-300" />
                 <LocaleInformationSection />
                 <FacilityInformationSection />
@@ -46,12 +46,12 @@ const UnnamedFacilityPage: React.FC = () => {
                 <ChartArea />
                 <ImpactProjectionTable />
               </RightColumn>
-            </UnnamedFacilityInputForm>
+            </FacilityInputForm>
           </div>
         </div>
-      </UnnamedFacilityPageDiv>
+      </FacilityPageDiv>
     </EpidemicModelProvider>
   );
 };
 
-export default UnnamedFacilityPage;
+export default FacilityPage;
