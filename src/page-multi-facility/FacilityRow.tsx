@@ -1,8 +1,11 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { useHistory } from "react-router-dom";
+import styled from "styled-components";
 
-import { MarkColors as markColors } from "../design-system/Colors";
+import Colors, { MarkColors as markColors } from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
+import { StyledButton } from "../design-system/InputButton";
+import ModalDialog from "../design-system/ModalDialog";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
 import {
   totalConfirmedCases,
@@ -18,21 +21,83 @@ const groupStatus = {
   infectious: true,
 };
 
+const ModalContents = styled.div`
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  font-weight: normal;
+  justify-content: flex-start;
+  margin-top: 30px;
+`;
+
+const ModalText = styled.div`
+  font-size: 13px;
+  margin-right: 25px;
+`;
+
+const ModalButtons = styled.div`
+  /* display: flex;
+  flex-direction: column; */
+`;
+
+const ModalButton = styled(StyledButton)`
+  font-size: 14px;
+  font-weight: normal;
+`;
+
+const DeleteButton = styled(ModalButton)`
+  background: ${Colors.darkRed};
+  color: ${Colors.white};
+  margin-right: 15px;
+`;
+
+const CancelButton = styled(ModalButton)`
+  background: transparent;
+  border: 1px solid ${Colors.forest};
+  color: ${Colors.forest};
+`;
+
+// TODO: validate the arguments?
+const handleSubClick = (fn: Function, ...args: any[]) => {
+  return (event: React.MouseEvent<Element>) => {
+    // This is required or else the openFacilityPage onClick will fire
+    // since the Delete button lives within the same div that opens the
+    // Facility Details page.
+    event.stopPropagation();
+    fn(...args);
+  };
+};
+
 interface Props {
+  deleteFn: (id: string) => void;
   facility: Facility;
 }
 
-const FacilityRow: React.FC<Props> = ({ facility }) => {
+const FacilityRow: React.FC<Props> = ({ deleteFn, facility }) => {
   const confirmedCases = totalConfirmedCases(useEpidemicModelState());
   const history = useHistory();
   const { setFacility } = useContext(FacilityContext);
+  const [showDeleteModal, updateShowDeleteModal] = useState(false);
 
   const { id, name, updatedAt } = facility;
 
-  const openFacilityPage = (event: React.MouseEvent<HTMLElement>) => {
+  const openFacilityPage = () => {
     setFacility(facility);
     history.push("/multi-facility/facility");
   };
+
+  const openDeleteModal = handleSubClick(updateShowDeleteModal, true);
+
+  const closeDeleteModal = handleSubClick(updateShowDeleteModal, false);
+
+  const removeFacility = handleSubClick(async () => {
+    // In this context id should always be present, but TypeScript
+    // is complaining so I'm adding this check to appease it.
+    if (id) {
+      await deleteFn(id);
+    }
+    updateShowDeleteModal(false);
+  });
 
   return (
     <div onClick={openFacilityPage} className="cursor-pointer">
@@ -47,15 +112,29 @@ const FacilityRow: React.FC<Props> = ({ facility }) => {
               Last update: <DateMMMMdyyyy date={new Date(updatedAt.toDate())} />
             </div>
             <div className="mr-8">
-              <a className="px-1" href="#">
+              <a className="px-1" href="#" onClick={openDeleteModal}>
                 Delete
               </a>
-              <a className="px-1" href="#">
-                Edit
-              </a>
-              <a className="px-1" href="#">
-                Share
-              </a>
+              <ModalDialog
+                closeModal={closeDeleteModal}
+                open={showDeleteModal}
+                title="Are you sure?"
+              >
+                <ModalContents>
+                  <ModalText>This action cannot be undone.</ModalText>
+                  <ModalButtons>
+                    <DeleteButton
+                      label="Delete facility"
+                      onClick={removeFacility}
+                    >
+                      Delete facility
+                    </DeleteButton>
+                    <CancelButton onClick={closeDeleteModal}>
+                      Cancel
+                    </CancelButton>
+                  </ModalButtons>
+                </ModalContents>
+              </ModalDialog>
             </div>
           </div>
         </div>

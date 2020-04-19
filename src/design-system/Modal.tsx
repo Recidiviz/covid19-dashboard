@@ -10,10 +10,10 @@ const ModalContainer = styled.div``;
 const ModalTrigger = styled.button`
   color: ${Colors.green};
   cursor: pointer;
-  font-family: 'Libre Baskerville', serif;
+  font-family: "Libre Baskerville", serif;
   font-size: 32px;
-  line-height: 32px
-  letter-spacing: -0.03em
+  line-height: 32px;
+  letter-spacing: -0.03em;
 `;
 
 interface Props {

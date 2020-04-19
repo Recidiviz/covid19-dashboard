@@ -2,12 +2,11 @@ import React, { useContext, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
-import { getFacilities, saveScenario } from "../database";
+import { deleteFacility, getFacilities, saveScenario } from "../database";
 import Colors from "../design-system/Colors";
 import Loading from "../design-system/Loading";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
 import { useLocaleDataState } from "../locale-data-context";
-import AddFacilityModal from "./AddFacilityModal";
 import { FacilityContext } from "./FacilityContext";
 import FacilityRow from "./FacilityRow";
 import { ScenarioType } from "./MultiFacilityPage";
@@ -73,24 +72,29 @@ const MultiFacilityImpactDashboard: React.FC<Props> = ({
     fetchScenario();
   }, []);
 
-  useEffect(() => {
-    async function fetchFacilities() {
-      const facilitiesData = await getFacilities();
+  async function fetchFacilities() {
+    const facilitiesData = await getFacilities();
 
-      if (facilitiesData) {
-        setFacilities({
-          data: facilitiesData,
-          loading: false,
-        });
-      }
+    if (facilitiesData) {
+      setFacilities({
+        data: facilitiesData,
+        loading: false,
+      });
     }
+  }
 
+  useEffect(() => {
     fetchFacilities();
   }, []);
 
-  const openAddFacilityPage = (event: React.MouseEvent<HTMLElement>) => {
+  const openAddFacilityPage = () => {
     setFacility(null);
     history.push("/multi-facility/facility");
+  };
+
+  const deleteFn = async (id: string) => {
+    await deleteFacility(id);
+    fetchFacilities();
   };
 
   return (
@@ -118,7 +122,7 @@ const MultiFacilityImpactDashboard: React.FC<Props> = ({
                 facilityModel={facility.modelInputs}
                 localeDataSource={localeDataSource}
               >
-                <FacilityRow facility={facility} />
+                <FacilityRow deleteFn={deleteFn} facility={facility} />
               </EpidemicModelProvider>
             );
           })

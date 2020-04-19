@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-const StyledButton = styled.button<Props>`
+export const StyledButton = styled.button<Props>`
   background: #00615c;
   font-size: 16px;
   border-radius: 12px;

@@ -18,6 +18,7 @@ const Colors = {
   lightBlue: "#33B6FF",
   paleGreen: "#D2DBDB",
   red: "#FF464A",
+  darkRed: "#C53B3E",
   white: "#ffffff",
   darkGreen: "#00413E",
 };
