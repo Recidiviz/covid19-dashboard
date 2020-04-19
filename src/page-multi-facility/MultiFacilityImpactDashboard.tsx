@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
-import { getFacilities } from "../database";
+import { getFacilities, saveScenario } from "../database";
 import Colors from "../design-system/Colors";
 import Loading from "../design-system/Loading";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
@@ -10,9 +10,10 @@ import { useLocaleDataState } from "../locale-data-context";
 import AddFacilityModal from "./AddFacilityModal";
 import { FacilityContext } from "./FacilityContext";
 import FacilityRow from "./FacilityRow";
+import { ScenarioType } from "./MultiFacilityPage";
 import ProjectionsHeader from "./ProjectionsHeader";
 import ScenarioSidebar from "./ScenarioSidebar";
-import { Facilities } from "./types";
+import { Facilities, Scenario } from "./types";
 
 const MultiFacilityImpactDashboardContainer = styled.main.attrs({
   className: `
@@ -21,6 +22,10 @@ const MultiFacilityImpactDashboardContainer = styled.main.attrs({
     mt-8
   `,
 })``;
+
+interface Props {
+  baselineScenario?: ScenarioType;
+}
 
 const AddFacilityButton = styled.button`
   color: ${Colors.green};
@@ -32,7 +37,9 @@ const AddFacilityButton = styled.button`
   text-align: left;
 `;
 
-const MultiFacilityImpactDashboard: React.FC = () => {
+const MultiFacilityImpactDashboard: React.FC<Props> = ({
+  baselineScenario,
+}) => {
   const { data: localeDataSource } = useLocaleDataState();
   const history = useHistory();
   const { setFacility } = useContext(FacilityContext);
@@ -41,6 +48,30 @@ const MultiFacilityImpactDashboard: React.FC = () => {
     data: [] as Facilities,
     loading: true,
   });
+
+  const [scenario, setScenario] = useState<{
+    data: Scenario | null;
+    loading: boolean;
+  }>({
+    data: null,
+    loading: true,
+  });
+
+  const updateScenario = async (scenario: Scenario) => {
+    await saveScenario(scenario);
+    setScenario({ data: scenario, loading: false });
+  };
+
+  useEffect(() => {
+    async function fetchScenario() {
+      const result = await baselineScenario?.data?.get();
+      setScenario({
+        data: result?.data(),
+        loading: false,
+      });
+    }
+    fetchScenario();
+  }, []);
 
   useEffect(() => {
     async function fetchFacilities() {
@@ -53,6 +84,7 @@ const MultiFacilityImpactDashboard: React.FC = () => {
         });
       }
     }
+
     fetchFacilities();
   }, []);
 
@@ -63,7 +95,14 @@ const MultiFacilityImpactDashboard: React.FC = () => {
 
   return (
     <MultiFacilityImpactDashboardContainer>
-      <ScenarioSidebar />
+      {scenario.loading ? (
+        <Loading />
+      ) : (
+        <ScenarioSidebar
+          scenario={scenario.data}
+          updateScenario={updateScenario}
+        />
+      )}
       <div className="flex flex-col flex-1 pb-6 pl-8">
         <AddFacilityButton onClick={openAddFacilityPage}>
           + Add Facility

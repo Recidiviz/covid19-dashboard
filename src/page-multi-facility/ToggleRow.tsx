@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
@@ -6,6 +6,8 @@ import InputLabelAndHelp from "../design-system/InputLabelAndHelp";
 import InputToggle from "../design-system/InputToggle";
 
 interface Props {
+  onToggle: () => void;
+  toggled?: boolean;
   label?: React.ReactNode;
   labelHelp?: React.ReactNode;
 }
@@ -20,15 +22,15 @@ const ToggleRowContainer = styled.div`
 `;
 
 const ToggleRow: React.FC<Props> = (props) => {
-  const [toggled, setToggled] = useState(false);
-  if (!props.label && !props.labelHelp) {
+  const { toggled, label, labelHelp, onToggle } = props;
+  if (!label && !labelHelp) {
     return null;
   }
 
   return (
     <ToggleRowContainer>
       <InputLabelAndHelp softened {...props} />
-      <InputToggle toggled={toggled} onChange={() => setToggled(!toggled)} />
+      <InputToggle toggled={toggled} onChange={onToggle} />
     </ToggleRowContainer>
   );
 };

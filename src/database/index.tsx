@@ -192,6 +192,10 @@ export const createBaselineScenario = async () => {
     const payload = buildCreatePayload({
       name: "Baseline Scenario",
       baseline: true,
+      dataSharing: false,
+      dailyReports: false,
+      description:
+        "Welcome to your new scenario. To get started, add in facility data on the right-hand side of the page. Your initial scenario is also your 'Baseline' - meaning this is where you should keep real-world numbers about the current state of your facilities, their cases, and mitigation steps.",
       roles: {
         [userId]: "owner",
       },
@@ -221,7 +225,7 @@ export const saveScenario = async (scenario: {}): Promise<void> => {
 
     const payload = buildUpdatePayload(scenario);
 
-    baselineScenarioRef.update(payload);
+    return await baselineScenarioRef.update(payload);
   } catch (error) {
     console.error("Encountered an error while saving the scenario:");
     console.error(error);
