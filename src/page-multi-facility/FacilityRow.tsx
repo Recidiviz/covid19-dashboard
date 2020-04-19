@@ -1,9 +1,9 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { useHistory } from "react-router-dom";
 
-import { deleteFacility } from "../database/index";
 import { MarkColors as markColors } from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
+import ModalDialog from "../design-system/ModalDialog";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
 import {
   totalConfirmedCases,
@@ -20,13 +20,15 @@ const groupStatus = {
 };
 
 interface Props {
+  deleteFn: (id: string) => void;
   facility: Facility;
 }
 
-const FacilityRow: React.FC<Props> = ({ facility }) => {
+const FacilityRow: React.FC<Props> = ({ deleteFn, facility }) => {
   const confirmedCases = totalConfirmedCases(useEpidemicModelState());
   const history = useHistory();
   const { setFacility } = useContext(FacilityContext);
+  const [showDeleteModal, updateShowDeleteModal] = useState(false);
 
   const { id, name, updatedAt } = facility;
 
@@ -35,22 +37,29 @@ const FacilityRow: React.FC<Props> = ({ facility }) => {
     history.push("/multi-facility/facility");
   };
 
-  const removeFacility = (event: React.MouseEvent<HTMLElement>) => {
-    // This is required or else the openFacilityPage onClick will fire
-    // since the Delete button lives within the same div that opens the
-    // Facility Details page.
-    event.stopPropagation();
+  // TODO: validate the arguments?
+  const handleSubClick = (fn: Function, ...args: any[]) => {
+    return (event: React.MouseEvent<HTMLElement>) => {
+      // This is required or else the openFacilityPage onClick will fire
+      // since the Delete button lives within the same div that opens the
+      // Facility Details page.
+      event.stopPropagation();
+      fn(...args);
+    };
+  };
 
-    // TODO: Needs confirmation modal
+  const openDeleteModal = handleSubClick(updateShowDeleteModal, true);
 
+  const closeDeleteModal = handleSubClick(updateShowDeleteModal, false);
+
+  const removeFacility = handleSubClick(async () => {
     // In this context id should always be present, but TypeScript
     // is complaining so I'm adding this check to appease it.
-    if (id) deleteFacility(id);
-
-    // TODO: Figure out how to update the facilities list so that the
-    // deleted facilty no longer appears on the page without having
-    // to manually refresh.
-  };
+    if (id) {
+      await deleteFn(id);
+    }
+    updateShowDeleteModal(false);
+  });
 
   return (
     <div onClick={openFacilityPage} className="cursor-pointer">
@@ -65,9 +74,20 @@ const FacilityRow: React.FC<Props> = ({ facility }) => {
               Last update: <DateMMMMdyyyy date={new Date(updatedAt.toDate())} />
             </div>
             <div className="mr-8">
-              <a className="px-1" href="#" onClick={removeFacility}>
+              <a className="px-1" href="#" onClick={openDeleteModal}>
                 Delete
               </a>
+              <ModalDialog
+                closeModal={closeDeleteModal}
+                open={showDeleteModal}
+                title="Are you sure?"
+              >
+                <div>
+                  <div>This action cannot be undone</div>
+                  <button onClick={removeFacility}>do the thing</button>
+                  <button onClick={closeDeleteModal}>cancel</button>
+                </div>
+              </ModalDialog>
             </div>
           </div>
         </div>
