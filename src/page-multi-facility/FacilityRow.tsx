@@ -57,6 +57,17 @@ const CancelButton = styled(ModalButton)`
   color: ${Colors.forest};
 `;
 
+// TODO: validate the arguments?
+const handleSubClick = (fn: Function, ...args: any[]) => {
+  return (event: React.MouseEvent<Element>) => {
+    // This is required or else the openFacilityPage onClick will fire
+    // since the Delete button lives within the same div that opens the
+    // Facility Details page.
+    event.stopPropagation();
+    fn(...args);
+  };
+};
+
 interface Props {
   deleteFn: (id: string) => void;
   facility: Facility;
@@ -73,17 +84,6 @@ const FacilityRow: React.FC<Props> = ({ deleteFn, facility }) => {
   const openFacilityPage = () => {
     setFacility(facility);
     history.push("/multi-facility/facility");
-  };
-
-  // TODO: validate the arguments?
-  const handleSubClick = (fn: Function, ...args: any[]) => {
-    return (event: React.MouseEvent<Element>) => {
-      // This is required or else the openFacilityPage onClick will fire
-      // since the Delete button lives within the same div that opens the
-      // Facility Details page.
-      event.stopPropagation();
-      fn(...args);
-    };
   };
 
   const openDeleteModal = handleSubClick(updateShowDeleteModal, true);
