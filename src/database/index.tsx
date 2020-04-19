@@ -223,7 +223,7 @@ export const saveScenario = async (scenario: {}): Promise<void> => {
       updatedAt: currrentTimestamp(),
     });
 
-    baselineScenarioRef.update(payload);
+    return await baselineScenarioRef.update(payload);
   } catch (error) {
     console.error("Encountered an error while saving the scenario:");
     console.error(error);

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
-import { getFacilities } from "../database";
+import { getFacilities, saveScenario } from "../database";
 import Loading from "../design-system/Loading";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
 import { useLocaleDataState } from "../locale-data-context";
@@ -11,7 +11,7 @@ import FacilityRow from "./FacilityRow";
 import { ScenarioType } from "./MultiFacilityPage";
 import ProjectionsHeader from "./ProjectionsHeader";
 import ScenarioSidebar from "./ScenarioSidebar";
-import { Facilities } from "./types";
+import { Facilities, Scenario } from "./types";
 
 const MultiFacilityImpactDashboardContainer = styled.main.attrs({
   className: `
@@ -35,10 +35,18 @@ const MultiFacilityImpactDashboard: React.FC<Props> = ({
     loading: true,
   });
 
-  const [scenario, setScenario] = useState({
+  const [scenario, setScenario] = useState<{
+    data: Scenario | null;
+    loading: boolean;
+  }>({
     data: null,
     loading: true,
   });
+
+  const updateScenario = async (scenario: Scenario) => {
+    await saveScenario(scenario);
+    setScenario({ data: scenario, loading: false });
+  };
 
   useEffect(() => {
     async function fetchScenario() {
@@ -71,7 +79,10 @@ const MultiFacilityImpactDashboard: React.FC<Props> = ({
       {scenario.loading ? (
         <Loading />
       ) : (
-        <ScenarioSidebar scenario={scenario.data} />
+        <ScenarioSidebar
+          scenario={scenario.data}
+          updateScenario={updateScenario}
+        />
       )}
       <div className="flex flex-col flex-1 pb-6 pl-8">
         <AddFacilityModal />
