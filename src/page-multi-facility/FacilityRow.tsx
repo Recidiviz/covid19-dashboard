@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import { useHistory } from "react-router-dom";
 
+import { deleteFacility } from "../database/index";
 import { MarkColors as markColors } from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
@@ -29,9 +30,26 @@ const FacilityRow: React.FC<Props> = ({ facility }) => {
 
   const { id, name, updatedAt } = facility;
 
-  const openFacilityPage = (event: React.MouseEvent<HTMLElement>) => {
+  const openFacilityPage = () => {
     setFacility(facility);
     history.push("/multi-facility/facility");
+  };
+
+  const removeFacility = (event: React.MouseEvent<HTMLElement>) => {
+    // This is required or else the openFacilityPage onClick will fire
+    // since the Delete button lives within the same div that opens the
+    // Facility Details page.
+    event.stopPropagation();
+
+    // TODO: Needs confirmation modal
+
+    // In this context id should always be present, but TypeScript
+    // is complaining so I'm adding this check to appease it.
+    if (id) deleteFacility(id);
+
+    // TODO: Figure out how to update the facilities list so that the
+    // deleted facilty no longer appears on the page without having
+    // to manually refresh.
   };
 
   return (
@@ -47,14 +65,8 @@ const FacilityRow: React.FC<Props> = ({ facility }) => {
               Last update: <DateMMMMdyyyy date={new Date(updatedAt.toDate())} />
             </div>
             <div className="mr-8">
-              <a className="px-1" href="#">
+              <a className="px-1" href="#" onClick={removeFacility}>
                 Delete
-              </a>
-              <a className="px-1" href="#">
-                Edit
-              </a>
-              <a className="px-1" href="#">
-                Share
               </a>
             </div>
           </div>
