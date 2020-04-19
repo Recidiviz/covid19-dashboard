@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
@@ -25,13 +24,20 @@ const SectionHeader = styled.header`
   color: "${Colors.forest}"
 `;
 
-const LocaleInformationSection: React.FC = () => {
+interface Props {
+  systemType?: string;
+  setSystemType: (systemType?: string) => void;
+}
+
+const LocaleInformationSection: React.FC<Props> = ({
+  systemType,
+  setSystemType,
+}) => {
   const systemTypeList = [
-    { value: "Select..." },
+    { value: undefined },
     { value: "State Prison" },
     { value: "County Jail" },
   ];
-  const [systemType, updateSystemType] = useState(systemTypeList[0].value);
 
   return (
     <LocaleInformationSectionDiv>
@@ -40,9 +46,7 @@ const LocaleInformationSection: React.FC = () => {
         <InputSelect
           label="Type of System"
           value={systemType}
-          onChange={(event) => {
-            updateSystemType(event.target.value);
-          }}
+          onChange={(event) => setSystemType(event.target.value)}
         >
           {systemTypeList.map(({ value }) => (
             <option key={value} value={value}>
