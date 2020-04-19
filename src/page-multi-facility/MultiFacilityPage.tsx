@@ -11,7 +11,8 @@ import MultiFacilityImpactDashboard from "./MultiFacilityImpactDashboard";
 const MultiFacilityPageDiv = styled.div``;
 
 export type ScenarioType = {
-  // Note: I'm not sure what the actual type should be for the firestore document
+  // TODO: Confine uses of Firestore APIs (document references, etc.) to the `database` module and make this type
+  //       more specific.
   data?: any;
   loading: boolean;
 };
