@@ -44,7 +44,7 @@ const FacilityInputForm: React.FC = () => {
       name: facilityName,
       modelInputs: JSON.parse(JSON.stringify(model))[0],
     });
-    history.push("/multi-facility");
+    history.push("/");
   };
 
   return (

@@ -89,7 +89,7 @@ const MultiFacilityImpactDashboard: React.FC<Props> = ({
 
   const openAddFacilityPage = () => {
     setFacility(null);
-    history.push("/multi-facility/facility");
+    history.push("/facility");
   };
 
   const deleteFn = async (id: string) => {
