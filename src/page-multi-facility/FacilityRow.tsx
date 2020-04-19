@@ -83,7 +83,7 @@ const FacilityRow: React.FC<Props> = ({ deleteFn, facility }) => {
 
   const openFacilityPage = () => {
     setFacility(facility);
-    history.push("/multi-facility/facility");
+    history.push("/facility");
   };
 
   const openDeleteModal = handleSubClick(updateShowDeleteModal, true);

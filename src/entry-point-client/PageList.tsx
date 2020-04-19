@@ -22,7 +22,7 @@ const PageList: PageInfo[] = [
     path: "/",
     title: getPageTitle(),
     isPrivate: true,
-    contents: <OverviewPage />,
+    contents: <MultiFacilityPage />,
   },
   {
     path: "/get-involved",
@@ -43,13 +43,7 @@ const PageList: PageInfo[] = [
     contents: <VerificationNeeded />,
   },
   {
-    path: "/multi-facility",
-    title: getPageTitle(),
-    isPrivate: true,
-    contents: <MultiFacilityPage />,
-  },
-  {
-    path: "/multi-facility/facility",
+    path: "/facility",
     title: getPageTitle(),
     isPrivate: true,
     contents: <FacilityPage />,
