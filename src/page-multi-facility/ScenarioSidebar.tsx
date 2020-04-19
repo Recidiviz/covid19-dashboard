@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import React, { useEffect, useState } from "react";
 
 import InputTextArea from "../design-system/InputTextArea";
 import PromoBoxWithButton from "../design-system/PromoBoxWithButton";
@@ -18,6 +19,12 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
     updateScenario(Object.assign({}, scenario, scenarioChange));
   };
 
+  const [description, setDescription] = useState(scenario?.description);
+
+  useEffect(() => {
+    updateScenario(Object.assign({}, scenario, { description }));
+  }, [description]);
+
   return (
     <div className="flex flex-col w-1/4 mr-24">
       <div className="flex-1 flex flex-col pb-4">
@@ -26,12 +33,9 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
         <div className="mb-12">
           <InputTextArea
             label="Description"
-            value={scenario?.description}
+            value={description}
             placeholder=""
-            onChange={(event) => {
-              // Question - Should we have a Save button to save the description?
-              console.log(event.target.value);
-            }}
+            onChange={(event) => setDescription(event.target.value)}
           />
         </div>
         <div>
