@@ -14,11 +14,11 @@ export type Scenario = {
   dailyReports: boolean;
   description: string;
   roles: Map<string, string>;
-  createdAt: TimestampType;
-  updatedAt: TimestampType;
+  createdAt: TimeStamp;
+  updatedAt: TimeStamp;
 };
 
-type TimestampType = {
+type TimeStamp = {
   seconds: string;
   nanoseconds: string;
   toDate: () => string;
