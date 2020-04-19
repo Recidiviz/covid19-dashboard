@@ -2,6 +2,12 @@ import React from "react";
 
 import { Facility } from "./types";
 
-export const FacilityContext = React.createContext<Facility | undefined>(
-  undefined,
-);
+interface FacilityContextProps {
+  facility?: Facility;
+  setFacility?: any;
+}
+
+export const FacilityContext = React.createContext<FacilityContextProps>({
+  facility: undefined,
+  setFacility: undefined,
+});
