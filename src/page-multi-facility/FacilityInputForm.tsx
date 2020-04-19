@@ -16,13 +16,18 @@ import LocaleInformationSection from "./LocaleInformationSection";
 const FacilityInputFormDiv = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
 `;
 const LeftColumn = styled.div`
   margin: 20px;
+  width: 45%;
 `;
 const RightColumn = styled.div`
   margin: 20px;
+  width: 55%;
+`;
+
+const ButtonSection = styled.div`
+  margin-top: 30px;
 `;
 
 // TODO add section header tooltips
@@ -55,7 +60,10 @@ const FacilityInputForm: React.FC = () => {
         <LocaleInformationSection />
         <FacilityInformationSection />
         <MitigationInformation />
-        <InputButton label="Save" onClick={save} />
+        <ButtonSection>
+          <InputButton label="Save" onClick={save} />
+        </ButtonSection>
+        <div className="mt-8" />
       </LeftColumn>
       <RightColumn>
         <ChartArea />
