@@ -352,6 +352,10 @@ export const saveFacility = async (facility: any): Promise<void> => {
         .doc(facility.id)
         .update(payload);
     } else {
+      // Make sure this key doesn't exist on the facility object
+      // or else Firestore won't permit the addition.
+      delete facility.id;
+
       const payload = buildCreatePayload(facility);
 
       baselineScenarioRef.collection(facilitiesCollectionId).add(payload);

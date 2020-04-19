@@ -1,29 +1,13 @@
 import React, { useContext } from "react";
 import styled from "styled-components";
 
-import ChartArea from "../impact-dashboard/ChartArea";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
-import ImpactProjectionTable from "../impact-dashboard/ImpactProjectionTableContainer";
 import { useLocaleDataState } from "../locale-data-context";
 import SiteHeader from "../site-header/SiteHeader";
 import { FacilityContext } from "./FacilityContext";
-import FacilityInformationSection from "./FacilityInformationSection";
-import LocaleInformationSection from "./LocaleInformationSection";
-import RateOfSpreadSection from "./RateOfSpreadSection";
-import { Facility } from "./types";
+import FacilityInputForm from "./FacilityInputForm";
 
 const FacilityPageDiv = styled.div``;
-const FacilityInputForm = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-`;
-const LeftColumn = styled.div`
-  margin: 20px;
-`;
-const RightColumn = styled.div`
-  margin: 20px;
-`;
 
 // TODO add section header tooltips
 // TODO add summary at bottom of Locale Information
@@ -40,21 +24,7 @@ const FacilityPage: React.FC = () => {
         <div className="font-body text-green min-h-screen tracking-normal w-full">
           <div className="max-w-screen-xl px-4 mx-auto">
             <SiteHeader />
-            <FacilityInputForm>
-              <LeftColumn>
-                <h1 className="text-3xl leading-none">
-                  {facility?.name || "Facility"}
-                </h1>
-                <div className="mt-5 mb-5 border-b border-gray-300" />
-                <LocaleInformationSection />
-                <FacilityInformationSection />
-                <RateOfSpreadSection />
-              </LeftColumn>
-              <RightColumn>
-                <ChartArea />
-                <ImpactProjectionTable />
-              </RightColumn>
-            </FacilityInputForm>
+            <FacilityInputForm />
           </div>
         </div>
       </FacilityPageDiv>
