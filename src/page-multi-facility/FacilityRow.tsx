@@ -1,12 +1,15 @@
 import React, { useContext } from "react";
+import { useHistory } from "react-router-dom";
 
 import { MarkColors as markColors } from "../design-system/Colors";
+import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
 import {
   totalConfirmedCases,
   useEpidemicModelState,
 } from "../impact-dashboard/EpidemicModelContext";
 import { FacilityContext } from "./FacilityContext";
+import { Facility } from "./types";
 
 const groupStatus = {
   exposed: true,
@@ -15,17 +18,24 @@ const groupStatus = {
   infectious: true,
 };
 
-const FacilityRow: React.FC = () => {
-  const facility = useContext(FacilityContext);
-  const confirmedCases = totalConfirmedCases(useEpidemicModelState());
-  if (!facility) {
-    throw new Error("Facility must be provided to the FacilityContext");
-  }
+interface Props {
+  facility: Facility;
+}
 
-  const { name } = facility;
+const FacilityRow: React.FC<Props> = ({ facility }) => {
+  const confirmedCases = totalConfirmedCases(useEpidemicModelState());
+  const history = useHistory();
+  const { setFacility } = useContext(FacilityContext);
+
+  const { id, name, updatedAt } = facility;
+
+  const openFacilityPage = (event: React.MouseEvent<HTMLElement>) => {
+    setFacility(facility);
+    history.push("/multi-facility/facility");
+  };
 
   return (
-    <div>
+    <div onClick={openFacilityPage} className="cursor-pointer">
       <div className="flex flex-row h-48 mb-8 border-b border-grey-300">
         <div className="w-2/5 flex flex-col justify-between">
           <div className="flex flex-row">
@@ -33,7 +43,9 @@ const FacilityRow: React.FC = () => {
             <div className="w-3/4 font-bold">{name}</div>
           </div>
           <div className="text-xs text-gray-500 pb-4 flex flex-row justify-between">
-            <div>Last update: on March 25, 2020</div>
+            <div>
+              Last update: <DateMMMMdyyyy date={new Date(updatedAt.toDate())} />
+            </div>
             <div className="mr-8">
               <a className="px-1" href="#">
                 Delete
