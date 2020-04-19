@@ -62,8 +62,6 @@ interface MetadataPersistent {
   // fields that we want to store
   countyName?: string;
   stateCode?: string;
-  hospitalBeds?: number;
-  confirmedCases?: number;
 }
 
 // some fields are required to display a sensible UI, define them here
@@ -80,8 +78,6 @@ export type EpidemicModelPersistent = ModelInputsPersistent &
 export const persistedKeys: Array<keyof EpidemicModelPersistent> = [
   "countyName",
   "stateCode",
-  "hospitalBeds",
-  "confirmedCases",
   "age0Cases",
   "age0Population",
   "age20Cases",
@@ -133,43 +129,30 @@ interface ResetPayload {
   countyName?: string;
 }
 
-function getLocaleData(
+function getLocaleDefaults(
   dataSource: LocaleData,
-  stateCode: string,
-  countyName: string,
+  stateCode = "US Total",
+  countyName = "Total",
 ) {
   return {
-    stateCode,
+    // metadata
     countyName,
+    stateCode,
     localeDataSource: dataSource,
-    totalIncarcerated:
-      dataSource.get(stateCode)?.get(countyName)?.totalIncarceratedPopulation ||
-      0,
-    hospitalBeds: dataSource.get(stateCode)?.get(countyName)?.hospitalBeds || 0,
-    ageUnknownPopulation:
-      dataSource.get(stateCode)?.get(countyName)?.totalIncarceratedPopulation ||
-      0,
-    ageUnknownCases:
-      dataSource.get(stateCode)?.get(countyName)?.estimatedIncarceratedCases ||
-      0,
-    confirmedCases:
-      dataSource.get(stateCode)?.get(countyName)?.reportedCases || 0,
-    staffCases: 0,
-    staffPopulation: 0,
-  };
-}
-
-function getResetBase(stateCode = "US Total", countyName = "Total") {
-  return {
-    stateCode,
-    countyName,
-    rateOfSpreadFactor: RateOfSpread.high,
     // in the current UI we are always using age brackets
     // TODO: maybe this field is no longer needed?
     usePopulationSubsets: true,
+    // read-only locale data
+    confirmedCases:
+      dataSource.get(stateCode)?.get(countyName)?.reportedCases || 0,
+    hospitalBeds: dataSource.get(stateCode)?.get(countyName)?.hospitalBeds || 0,
+    totalIncarcerated:
+      dataSource.get(stateCode)?.get(countyName)?.totalIncarceratedPopulation ||
+      0,
+    // user input defaults
+    rateOfSpreadFactor: RateOfSpread.high,
     facilityOccupancyPct: 1,
     facilityDormitoryPct: 0.15,
-    hospitalBeds: 0,
   };
 }
 
@@ -184,20 +167,17 @@ function epidemicModelReducer(
       // action and merge the whole object into previous state.
       // it's not very granular but it doesn't need to be at the moment
 
-      // change in state or county triggers a bigger reset
       let updates = { ...action.payload };
       let { stateCode, countyName } = updates;
 
+      // change in state or county triggers a bigger reset
       if (stateCode) {
         countyName = countyName || "Total";
       } else if (countyName) {
         stateCode = state.stateCode;
       }
       if (stateCode && countyName) {
-        return Object.assign(
-          getResetBase(stateCode, countyName),
-          getLocaleData(state.localeDataSource, stateCode, countyName),
-        );
+        return getLocaleDefaults(state.localeDataSource, stateCode, countyName);
       }
 
       return Object.assign({}, state, updates);
@@ -209,15 +189,12 @@ export function EpidemicModelProvider({
   facilityModel,
   localeDataSource,
 }: EpidemicModelProviderProps) {
-  const resetBase = getResetBase();
   const initialState = {
-    ...resetBase,
-    ...getLocaleData(
+    ...getLocaleDefaults(
       localeDataSource,
-      resetBase.stateCode,
-      resetBase.countyName,
+      facilityModel?.stateCode,
+      facilityModel?.countyName,
     ),
-    // any passed data (e.g. fetched from database) takes precedence
     ...(facilityModel || {}),
   };
 
