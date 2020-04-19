@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 
+import InputTextArea from "../design-system/InputTextArea";
 import PromoBoxWithButton from "../design-system/PromoBoxWithButton";
 import ToggleRow from "./ToggleRow";
 import { Scenario } from "./types";
@@ -13,13 +14,8 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
   const { scenario, updateScenario } = props;
   const updatedAtDate = Number(scenario?.updatedAt.toDate());
 
-  const handleToggle = (toggleProperty: keyof Scenario) => {
-    const value = scenario?.[toggleProperty];
-    updateScenario(
-      Object.assign({}, scenario, {
-        [toggleProperty]: !value,
-      }),
-    );
+  const handleScenarioChange = (scenarioChange: object) => {
+    updateScenario(Object.assign({}, scenario, scenarioChange));
   };
 
   return (
@@ -28,11 +24,15 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
         <h1 className="text-3xl leading-none">{scenario?.name}</h1>
         <div className="mt-5 mb-5 border-b border-gray-300" />
         <div className="mb-12">
-          <p>
-            This text describes unique qualities for this data model. Taking
-            notes here will be useful when you have multiple data model
-            experiments in your library?
-          </p>
+          <InputTextArea
+            label="Description"
+            value={scenario?.description}
+            placeholder=""
+            onChange={(event) => {
+              // Question - Should we have a Save button to save the description?
+              console.log(event.target.value);
+            }}
+          />
         </div>
         <div>
           <p className="text-xs text-gray-500">
@@ -43,13 +43,17 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
         <div className="mt-5 mb-5 border-b border-gray-300" />
         <div>
           <ToggleRow
-            onToggle={() => handleToggle("dailyReports")}
+            onToggle={() =>
+              handleScenarioChange({ dailyReports: !scenario?.dailyReports })
+            }
             toggled={scenario?.dailyReports}
             label="Daily Reports"
             labelHelp="Tooltip help Lorem ipsum dolor sit amet, consectetur adipiscing elit"
           />
           <ToggleRow
-            onToggle={() => handleToggle("dataSharing")}
+            onToggle={() =>
+              handleScenarioChange({ dataSharing: !scenario?.dataSharing })
+            }
             toggled={scenario?.dataSharing}
             label="Data Sharing"
             labelHelp="Tooltip help Lorem ipsum dolor sit amet, consectetur adipiscing elit"
