@@ -10,8 +10,9 @@ export type Facilities = Facility[];
 export type Scenario = {
   name: string;
   baseline: boolean;
-  dataSharing?: boolean;
-  dailyReports?: boolean;
+  dataSharing: boolean;
+  dailyReports: boolean;
+  description: string;
   roles: Map<string, string>;
   createdAt: TimestampType;
   updatedAt: TimestampType;

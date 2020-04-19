@@ -194,6 +194,8 @@ export const createBaselineScenario = async () => {
       baseline: true,
       dataSharing: false,
       dailyReports: false,
+      description:
+        "Welcome to your new scenario. To get started, add in facility data on the right-hand side of the page. Your initial scenario is also your 'Baseline' - meaning this is where you should keep real-world numbers about the current state of your facilities, their cases, and mitigation steps.",
       roles: {
         [userId]: "owner",
       },
