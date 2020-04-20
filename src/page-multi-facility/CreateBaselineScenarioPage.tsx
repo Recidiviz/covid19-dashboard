@@ -37,7 +37,7 @@ const CreateBaselineScenarioPage: React.FC = () => {
   const handleOnClick = async () => {
     const baselineScenarioRef = await createBaselineScenario();
     if (baselineScenarioRef) {
-      // Redirect to new facility page after entering welcome modal
+      // Redirect to new facility page after exiting welcome modal
       history.push("/facility");
     }
   };
