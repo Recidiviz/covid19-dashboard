@@ -1,7 +1,11 @@
-import { sum, zip } from "d3-array";
+import { range, sum, zip } from "d3-array";
+import differenceInCalendarDays from "date-fns/differenceInCalendarDays";
 import ndarray from "ndarray";
 
-import { RateOfSpread } from "../impact-dashboard/EpidemicModelContext";
+import {
+  PlannedReleases,
+  RateOfSpread,
+} from "../impact-dashboard/EpidemicModelContext";
 import {
   getAllValues,
   getColView,
@@ -13,25 +17,28 @@ interface SimulationInputs {
   facilityDormitoryPct: number;
 }
 
-interface CurveProjectionInputs {
+export interface CurveProjectionInputs extends SimulationInputs {
   ageGroupPopulations: number[];
   numDays: number;
   ageGroupInitiallyInfected: number[];
   facilityOccupancyPct: number;
   rateOfSpreadFactor: RateOfSpread;
+  plannedReleases?: PlannedReleases;
 }
 
 interface SingleDayInputs {
-  totalPopulation: number;
-  priorSimulation: number[];
-  totalInfectious: number;
   pFatalityRate: number;
+  populationAdjustment: number;
+  priorSimulation: number[];
   rateOfSpreadCells: number;
   rateOfSpreadDorms: number;
   simulateStaff: boolean;
+  totalInfectious: number;
+  totalPopulation: number;
+  totalSusceptibleIncarcerated: number;
 }
 
-enum seirIndex {
+export enum seirIndex {
   susceptible,
   exposed,
   infectious,
@@ -44,7 +51,12 @@ enum seirIndex {
   __length,
 }
 
-enum ageGroupIndex {
+export const seirIndexList = Object.keys(seirIndex)
+  .filter((k) => typeof seirIndex[k as any] === "number" && k !== "__length")
+  // these should all be numbers anyway but this extra cast makes typescript happy
+  .map((k) => parseInt(seirIndex[k as any]));
+
+export enum ageGroupIndex {
   ageUnknown,
   age0,
   age20,
@@ -85,6 +97,8 @@ function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
     simulateStaff,
     totalInfectious,
     totalPopulation,
+    populationAdjustment,
+    totalSusceptibleIncarcerated,
   } = inputs;
 
   const alpha = 1 / dIncubation;
@@ -96,7 +110,7 @@ function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
 
   const facilityCellsPct = 1 - facilityDormitoryPct;
 
-  const [
+  let [
     susceptible,
     exposed,
     infectious,
@@ -141,6 +155,12 @@ function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
       susceptibleDelta =
         0 - (betaCells * totalInfectious * susceptible) / totalPopulation;
     } else {
+      // incarcerated population adjustments affect susceptibility and exposure
+      // for the incarcerated, but not staff
+
+      susceptible += totalSusceptibleIncarcerated
+        ? populationAdjustment * (susceptible / totalSusceptibleIncarcerated)
+        : 0;
       exposedDelta =
         Math.min(
           susceptible,
@@ -185,15 +205,35 @@ enum R0Dorms {
   high = 7,
 }
 
-function getCurveProjections(inputs: SimulationInputs & CurveProjectionInputs) {
+export function getAllBracketCurves(inputs: CurveProjectionInputs) {
   let {
     ageGroupInitiallyInfected,
     ageGroupPopulations,
     facilityDormitoryPct,
     facilityOccupancyPct,
     numDays,
+    plannedReleases,
     rateOfSpreadFactor,
   } = inputs;
+
+  // 3d array. D1 = SEIR compartment. D2 = day. D3 = age bracket
+  const projectionGrid = ndarray(
+    new Array(seirIndexList.length * numDays * ageGroupIndex.__length).fill(0),
+    [seirIndexList.length, numDays, ageGroupIndex.__length],
+  );
+
+  const updateProjectionDay = (day: number, data: ndarray) => {
+    range(data.shape[0]).forEach((bracket) => {
+      range(data.shape[1]).forEach((compartment) => {
+        projectionGrid.set(
+          compartment,
+          day,
+          bracket,
+          data.get(bracket, compartment),
+        );
+      });
+    });
+  };
 
   const ageGroupFatalityRates = [];
   ageGroupFatalityRates[ageGroupIndex.ageUnknown] = 0.026;
@@ -220,7 +260,8 @@ function getCurveProjections(inputs: SimulationInputs & CurveProjectionInputs) {
     (1 - facilityOccupancyPct) *
       (rateOfSpreadDorms - rateOfSpreadDormsAdjustment);
 
-  const totalPopulation = sum(ageGroupPopulations);
+  const totalPopulationByDay = new Array(numDays);
+  totalPopulationByDay[0] = sum(ageGroupPopulations);
 
   // initialize the base daily state with just susceptible and infected pops.
   // each age group is a single row
@@ -240,56 +281,64 @@ function getCurveProjections(inputs: SimulationInputs & CurveProjectionInputs) {
     },
   );
 
-  const dailyIncarceratedProjections = [];
-  const dailyStaffProjections = [];
-  let day = 0;
+  // index expected population adjustments by day;
+  const today = Date.now();
+  const expectedPopulationChanges = Array(numDays).fill(0);
+  plannedReleases?.forEach(({ date, count }) => {
+    // skip incomplete records
+    if (!count || date === undefined) {
+      return;
+    }
+    const dateIndex = differenceInCalendarDays(date, today);
+    if (dateIndex < expectedPopulationChanges.length) {
+      expectedPopulationChanges[dateIndex] -= count;
+    }
+  });
+
+  // initialize the output with today's data
+  // and start the projections with tomorrow
+  updateProjectionDay(0, singleDayState);
+  let day = 1;
   while (day < numDays) {
-    const currentDayIncarceratedProjections = [];
-    const currentDayStaffProjections = [];
     // each day's projection needs the sum of all infectious projections so far
     const totalInfectious = sum(
       getAllValues(getColView(singleDayState, seirIndex.infectious)),
     );
+    const totalSusceptibleIncarcerated = sum(
+      getAllValues(getColView(singleDayState, seirIndex.susceptible)).filter(
+        (v, i) => i !== ageGroupIndex.staff,
+      ),
+    );
+
+    // slightly counterintuitive perhaps, but we need prior day's
+    // total population to go along with prior day's data
+    const totalPopulation = totalPopulationByDay[day - 1];
     // update the age group SEIR matrix in place for this day
-    ageGroupFatalityRates.forEach((rate, rowIndex) => {
+    ageGroupFatalityRates.forEach((rate, ageGroup) => {
       const projectionForAgeGroup = simulateOneDay({
-        priorSimulation: getAllValues(getRowView(singleDayState, rowIndex)),
+        priorSimulation: getAllValues(getRowView(singleDayState, ageGroup)),
         totalPopulation,
         totalInfectious,
         rateOfSpreadCells,
         rateOfSpreadDorms,
         pFatalityRate: rate,
         facilityDormitoryPct,
-        simulateStaff: rowIndex === ageGroupIndex.staff,
+        simulateStaff: ageGroup === ageGroupIndex.staff,
+        populationAdjustment: expectedPopulationChanges[day],
+        totalSusceptibleIncarcerated,
       });
-      setRowValues(singleDayState, rowIndex, projectionForAgeGroup);
+      setRowValues(singleDayState, ageGroup, projectionForAgeGroup);
     });
 
-    // sum up each column to get the total daily projection for each SEIR bucket
-    for (let colIndex = 0; colIndex < singleDayState.shape[1]; colIndex++) {
-      const incarceratedValues = getAllValues(
-        getColView(singleDayState, colIndex),
-      );
-      const [staffCount] = incarceratedValues.splice(ageGroupIndex.staff, 1);
-      currentDayIncarceratedProjections.push(sum(incarceratedValues));
-      currentDayStaffProjections.push(staffCount);
-    }
+    updateProjectionDay(day, singleDayState);
 
-    // push this day's data to a flat list of daily projections,
-    // which we will build a new matrix from
-    dailyIncarceratedProjections.push(...currentDayIncarceratedProjections);
-    dailyStaffProjections.push(...currentDayStaffProjections);
+    // update total population for today to account for any adjustments made;
+    // the next day will depend on this
+    totalPopulationByDay[day] =
+      totalPopulation + expectedPopulationChanges[day];
+
     day++;
   }
 
-  // this will produce a matrix with row = day and col = SEIR bucket
-  return {
-    incarcerated: ndarray(dailyIncarceratedProjections, [
-      numDays,
-      seirIndex.__length,
-    ]),
-    staff: ndarray(dailyStaffProjections, [numDays, seirIndex.__length]),
-  };
+  return { totalPopulationByDay, projectionGrid, expectedPopulationChanges };
 }
-
-export { ageGroupIndex, getCurveProjections, seirIndex };

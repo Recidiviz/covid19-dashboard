@@ -11,7 +11,6 @@ const Headline = styled.h1`
   margin-top: 30px;
   text-align: center;
 `;
-
 const OverviewPageDiv = styled.div``;
 
 const OverviewPage: React.FC = () => {
