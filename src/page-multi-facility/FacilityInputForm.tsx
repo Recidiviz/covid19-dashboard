@@ -47,7 +47,7 @@ const FacilityInputForm: React.FC = () => {
       name: facilityName,
       systemType: systemType || null,
       modelInputs: JSON.parse(JSON.stringify(model))[0],
-    }).then(_ => {
+    }).then((_) => {
       history.push("/");
     });
   };
