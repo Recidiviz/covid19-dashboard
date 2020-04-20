@@ -24,6 +24,7 @@ const TooltipContentsDiv = styled.div`
   border-radius: 5px;
   min-width: 20px;
   min-height: 20px;
+  max-width: 400px;
   padding: 5px;
   margin-left: 5px;
   z-index: 100;
