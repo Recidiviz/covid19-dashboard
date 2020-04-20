@@ -5,6 +5,7 @@ import styled from "styled-components";
 import { saveFacility } from "../database/index";
 import Colors, { MarkColors as markColors } from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
+import iconEditSrc from "../design-system/icons/ic_edit.svg";
 import { StyledButton } from "../design-system/InputButton";
 import InputTextArea from "../design-system/InputTextArea";
 import ModalDialog from "../design-system/ModalDialog";
@@ -57,6 +58,28 @@ const CancelButton = styled(ModalButton)`
   background: transparent;
   border: 1px solid ${Colors.forest};
   color: ${Colors.forest};
+`;
+
+const FacilityNameLabel = styled.label`
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  padding-right: 25px;
+  width: 75%;
+`;
+
+const IconEdit = styled.img`
+  align-self: flex-start;
+  flex: 0 0 auto;
+  height: 10px;
+  margin-left: 10px;
+  visibility: hidden;
+  width: 10px;
+
+  ${FacilityNameLabel}:hover & {
+    visibility: visible;
+  }
 `;
 
 // TODO: validate the arguments?
@@ -112,7 +135,7 @@ const FacilityRow: React.FC<Props> = ({
         <div className="w-2/5 flex flex-col justify-between">
           <div className="flex flex-row h-full">
             <div className="w-1/4 text-red-600 font-bold">{confirmedCases}</div>
-            <div className="h-full" onClick={handleSubClick()}>
+            <FacilityNameLabel onClick={handleSubClick()}>
               <InputTextArea
                 inline={true}
                 fillVertical={true}
@@ -131,7 +154,8 @@ const FacilityRow: React.FC<Props> = ({
                   });
                 }}
               />
-            </div>
+              <IconEdit alt="Edit facility name" src={iconEditSrc} />
+            </FacilityNameLabel>
           </div>
           <div className="text-xs text-gray-500 pb-4 flex flex-row justify-between">
             <div>

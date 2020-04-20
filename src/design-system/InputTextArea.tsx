@@ -28,6 +28,7 @@ const TextAreaInput = styled.textarea<InputProps>`
   color: #00413e;
   resize: none;
   font-family: "Poppins", sans-serif;
+  width: 100%;
 
   ${(props) =>
     props.inline &&
