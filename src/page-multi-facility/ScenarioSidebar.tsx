@@ -1,11 +1,38 @@
 import { format } from "date-fns";
 import React, { useEffect, useState } from "react";
+import styled from "styled-components";
 
+import iconEditSrc from "../design-system/icons/ic_edit.svg";
 import InputText from "../design-system/InputText";
 import InputTextArea from "../design-system/InputTextArea";
 import PromoBoxWithButton from "../design-system/PromoBoxWithButton";
 import ToggleRow from "./ToggleRow";
 import { Scenario } from "./types";
+
+const ScenarioNameLabel = styled.label`
+  align-items: baseline;
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+`;
+
+const IconEdit = styled.img`
+  flex: 0 0 auto;
+  height: 10px;
+  margin-left: 10px;
+  visibility: hidden;
+  width: 10px;
+
+  ${ScenarioNameLabel}:hover & {
+    visibility: visible;
+  }
+`;
+
+const ScenarioHeading = styled.h1`
+  font-size: 1.875rem;
+  line-height: 1.2;
+`;
 
 interface Props {
   scenario?: Scenario | null;
@@ -41,26 +68,26 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
   return (
     <div className="flex flex-col w-1/4 mr-24">
       <div className="flex-1 flex flex-col pb-4">
-        {!editingName ? (
-          <h1
-            className="text-3xl leading-none cursor-pointer"
-            onClick={() => setEditingName(true)}
-          >
-            {name}
-          </h1>
-        ) : (
-          <InputText
-            type="text"
-            headerStyle={true}
-            focus={true}
-            valueEntered={name}
-            onValueChange={(value) => setName(value)}
-            onBlur={() => setEditingName(false)}
-            onKeyDown={(event) =>
-              onEnterPress(event, () => setEditingName(false))
-            }
-          />
-        )}
+        <ScenarioNameLabel>
+          {!editingName ? (
+            <ScenarioHeading onClick={() => setEditingName(true)}>
+              {name}
+            </ScenarioHeading>
+          ) : (
+            <InputText
+              type="text"
+              headerStyle={true}
+              focus={true}
+              valueEntered={name}
+              onValueChange={(value) => setName(value)}
+              onBlur={() => setEditingName(false)}
+              onKeyDown={(event) =>
+                onEnterPress(event, () => setEditingName(false))
+              }
+            />
+          )}
+          <IconEdit alt="Scenario name" src={iconEditSrc} />
+        </ScenarioNameLabel>
         <div className="mt-5 mb-5 border-b border-gray-300" />
         <div className="mb-12">
           <InputTextArea
