@@ -52,10 +52,9 @@ const CreateBaselineScenarioPage: React.FC = () => {
             likely cases given your facility policies and populations. For more
             information and for a list of the corrections and epidemiology
             collaborators who made this model possible, see
-            <a href="recidiviz.org/collaborators">
-              recidiviz.org/collaborators
-            </a>
+            <a href="https://www.recidiviz.org/collaborators"> recidiviz.org/collaborators</a>
             .
+            <br />
             <br />
             To begin, we've created a 'Baseline Scenario' for you, where you can
             add your current facilities. Think of a 'Scenario' as you would a
@@ -67,9 +66,10 @@ const CreateBaselineScenarioPage: React.FC = () => {
             baseline. (Note: Creating multiple scenarios isn't ready just yet,
             but it will be available within the next few days.)
             <br />
+            <br />
             If you have any questions or concerns, feel free to drop us a note
             at
-            <a href="mailto:covid@recidiviz.org">covid@recidiviz.org</a>.
+            <a href="mailto:covid@recidiviz.org"> covid@recidiviz.org</a>.
           </WelcomeText>
           <ModalFooter>
             <InputButton
