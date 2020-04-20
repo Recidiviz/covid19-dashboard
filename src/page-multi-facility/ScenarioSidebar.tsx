@@ -84,7 +84,7 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
             }
             toggled={scenario?.dailyReports}
             label="Daily Reports"
-            labelHelp="Tooltip help Lorem ipsum dolor sit amet, consectetur adipiscing elit"
+            labelHelp="If enabled, your baseline scenario will be shared with Recidiviz and CSG. This data will only be used to provide you with daily reports."
           />
           <ToggleRow
             onToggle={() =>
@@ -92,11 +92,11 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
             }
             toggled={scenario?.dataSharing}
             label="Data Sharing"
-            labelHelp="Tooltip help Lorem ipsum dolor sit amet, consectetur adipiscing elit"
+            labelHelp="If enabled, your baseline scenario will be made available to Recidiviz and the research community to improve the model and the state of research on the spread of disease in facilities. Any public research will anonymize state and facility names."
           />
           <PromoBoxWithButton
             text={
-              "Turn on 'DailyReports' to receive Lorem ipsum dolor sit amet, consectetur adipiscing elit"
+              "Turn on 'DailyReports' to receive daily analysis and status updates from Recidiviz and CSG."
             }
           />
         </div>

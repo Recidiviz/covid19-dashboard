@@ -44,11 +44,12 @@ const FacilityInputForm: React.FC = () => {
   const save = () => {
     saveFacility({
       id: facility?.id,
-      name: facilityName,
+      name: facilityName || "Unnamed Facility",
       systemType: systemType || null,
       modelInputs: JSON.parse(JSON.stringify(model))[0],
+    }).then((_) => {
+      history.push("/");
     });
-    history.push("/");
   };
 
   return (

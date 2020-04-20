@@ -118,7 +118,7 @@ const MultiFacilityImpactDashboard: React.FC<Props> = ({
           facilities?.data.map((facility, index) => {
             return (
               <EpidemicModelProvider
-                key={index}
+                key={facility.id}
                 facilityModel={facility.modelInputs}
                 localeDataSource={localeDataSource}
               >
