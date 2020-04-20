@@ -22,6 +22,7 @@ export type Scenario = {
   baseline: boolean;
   dataSharing: boolean;
   dailyReports: boolean;
+  showPromo: boolean;
   description: string;
   roles: Map<string, string>;
   createdAt: TimeStamp;
