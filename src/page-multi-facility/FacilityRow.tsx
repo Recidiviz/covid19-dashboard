@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
@@ -75,15 +75,18 @@ interface Props {
   facility: Facility;
 }
 
-const FacilityRow: React.FC<Props> = ({ deleteFn, facility }) => {
+const FacilityRow: React.FC<Props> = ({
+  deleteFn,
+  facility: initialFacility,
+}) => {
   const confirmedCases = totalConfirmedCases(useEpidemicModelState());
   const history = useHistory();
   const { setFacility } = useContext(FacilityContext);
+  const [facility, updateFacility] = useState(initialFacility);
 
-  const { id, name: initialName, updatedAt } = facility;
+  const { id, name, updatedAt } = facility;
 
   const [showDeleteModal, updateShowDeleteModal] = useState(false);
-  const [name, setName] = useState(initialName);
 
   const openFacilityPage = () => {
     setFacility(facility);
@@ -103,13 +106,6 @@ const FacilityRow: React.FC<Props> = ({ deleteFn, facility }) => {
     updateShowDeleteModal(false);
   });
 
-  useEffect(() => {
-    saveFacility({
-      id,
-      name,
-    });
-  }, [name]);
-
   return (
     <div onClick={openFacilityPage} className="cursor-pointer">
       <div className="flex flex-row h-48 mb-8 border-b border-grey-300">
@@ -121,11 +117,19 @@ const FacilityRow: React.FC<Props> = ({ deleteFn, facility }) => {
                 inline={true}
                 fillVertical={true}
                 value={name}
-                onChange={(event) =>
-                  setName(
-                    (event.target.value || "").replace(/(\r\n|\n|\r)/gm, ""),
-                  )
-                }
+                onChange={(event) => {
+                  const newName = (event.target.value || "").replace(
+                    /(\r\n|\n|\r)/gm,
+                    "",
+                  );
+                  // this updates the local state
+                  updateFacility({ ...facility, name: newName });
+                  // this persists the changes to the database
+                  saveFacility({
+                    id,
+                    name: newName,
+                  });
+                }}
               />
             </div>
           </div>
