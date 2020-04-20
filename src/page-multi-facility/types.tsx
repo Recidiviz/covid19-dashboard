@@ -3,6 +3,7 @@ import { EpidemicModelPersistent } from "../impact-dashboard/EpidemicModelContex
 export type Facility = {
   id?: string;
   name: string;
+  systemType?: string;
   modelInputs: EpidemicModelPersistent;
   createdAt: Timestamp;
   updatedAt: Timestamp;

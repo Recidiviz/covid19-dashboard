@@ -36,12 +36,16 @@ const FacilityInputForm: React.FC = () => {
   const { facility } = useContext(FacilityContext);
   const history = useHistory();
   const [facilityName, setFacilityName] = useState(facility?.name);
+  const [systemType, setSystemType] = useState(
+    facility?.systemType || undefined,
+  );
   const model = useModel();
 
   const save = () => {
     saveFacility({
       id: facility?.id,
       name: facilityName,
+      systemType: systemType || null,
       modelInputs: JSON.parse(JSON.stringify(model))[0],
     });
     history.push("/");
@@ -57,7 +61,10 @@ const FacilityInputForm: React.FC = () => {
           onValueChange={(value) => setFacilityName(value)}
         />
         <div className="mt-5 mb-5 border-b border-gray-300" />
-        <LocaleInformationSection />
+        <LocaleInformationSection
+          systemType={systemType}
+          setSystemType={setSystemType}
+        />
         <FacilityInformationSection />
         <MitigationInformation />
         <ButtonSection>
