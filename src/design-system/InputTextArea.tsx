@@ -1,5 +1,5 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import TextLabel from "./TextLabel";
 
@@ -8,9 +8,16 @@ interface Props {
   value?: string;
   placeholder?: string;
   onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  inline?: boolean;
+  fillVertical?: boolean;
 }
 
-const TextAreaInput = styled.textarea`
+interface InputProps {
+  inline?: boolean;
+  fillVertical?: boolean;
+}
+
+const TextAreaInput = styled.textarea<InputProps>`
   margin-top: 8px;
   border: none;
   outline: none;
@@ -21,18 +28,46 @@ const TextAreaInput = styled.textarea`
   color: #00413e;
   resize: none;
   font-family: "Poppins", sans-serif;
+
+  ${(props) =>
+    props.inline &&
+    css`
+      margin: 0 !important;
+      padding: 0 !important;
+      font-size: inherit;
+      background-color: transparent;
+    `};
+
+  ${(props) =>
+    props.fillVertical &&
+    css`
+      height: 100%;
+    `};
 `;
-const TextAreaContainer = styled.div`
+
+interface TextAreaContainer {
+  fillVertical?: boolean;
+}
+
+const TextAreaContainer = styled.div<TextAreaContainer>`
   margin-bottom: 24px;
   display: flex;
   flex-direction: column;
+
+  ${(props) =>
+    props.fillVertical &&
+    css`
+      height: 100%;
+    `};
 `;
 
 const InputTextArea: React.FC<Props> = (props) => {
   return (
-    <TextAreaContainer>
+    <TextAreaContainer fillVertical={!!props.fillVertical}>
       <TextLabel>{props.label}</TextLabel>
       <TextAreaInput
+        inline={!!props.inline}
+        fillVertical={!!props.fillVertical}
         onChange={props.onChange}
         value={props.value}
         placeholder={props.placeholder}

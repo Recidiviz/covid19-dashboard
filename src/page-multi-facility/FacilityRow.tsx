@@ -1,10 +1,12 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
+import { saveFacility } from "../database/index";
 import Colors, { MarkColors as markColors } from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import { StyledButton } from "../design-system/InputButton";
+import InputTextArea from "../design-system/InputTextArea";
 import ModalDialog from "../design-system/ModalDialog";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
 import {
@@ -58,13 +60,13 @@ const CancelButton = styled(ModalButton)`
 `;
 
 // TODO: validate the arguments?
-const handleSubClick = (fn: Function, ...args: any[]) => {
+const handleSubClick = (fn?: Function, ...args: any[]) => {
   return (event: React.MouseEvent<Element>) => {
     // This is required or else the openFacilityPage onClick will fire
     // since the Delete button lives within the same div that opens the
     // Facility Details page.
     event.stopPropagation();
-    fn(...args);
+    if (fn) fn(...args);
   };
 };
 
@@ -77,9 +79,11 @@ const FacilityRow: React.FC<Props> = ({ deleteFn, facility }) => {
   const confirmedCases = totalConfirmedCases(useEpidemicModelState());
   const history = useHistory();
   const { setFacility } = useContext(FacilityContext);
-  const [showDeleteModal, updateShowDeleteModal] = useState(false);
 
-  const { id, name, updatedAt } = facility;
+  const { id, name: initialName, updatedAt } = facility;
+
+  const [showDeleteModal, updateShowDeleteModal] = useState(false);
+  const [name, setName] = useState(initialName);
 
   const openFacilityPage = () => {
     setFacility(facility);
@@ -99,13 +103,31 @@ const FacilityRow: React.FC<Props> = ({ deleteFn, facility }) => {
     updateShowDeleteModal(false);
   });
 
+  useEffect(() => {
+    saveFacility({
+      id,
+      name,
+    });
+  }, [name]);
+
   return (
     <div onClick={openFacilityPage} className="cursor-pointer">
       <div className="flex flex-row h-48 mb-8 border-b border-grey-300">
         <div className="w-2/5 flex flex-col justify-between">
-          <div className="flex flex-row">
+          <div className="flex flex-row h-full">
             <div className="w-1/4 text-red-600 font-bold">{confirmedCases}</div>
-            <div className="w-3/4 font-bold">{name}</div>
+            <div className="h-full" onClick={handleSubClick()}>
+              <InputTextArea
+                inline={true}
+                fillVertical={true}
+                value={name}
+                onChange={(event) =>
+                  setName(
+                    (event.target.value || "").replace(/(\r\n|\n|\r)/gm, ""),
+                  )
+                }
+              />
+            </div>
           </div>
           <div className="text-xs text-gray-500 pb-4 flex flex-row justify-between">
             <div>
