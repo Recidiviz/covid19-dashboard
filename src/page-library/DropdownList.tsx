@@ -9,7 +9,7 @@ const LibraryPageDiv = styled.div`
     margin-top: 10px;
   }
 
-  .dropdown-Icon {
+  .dropdown-icon {
     width: 24px;
     height: 24px;
   }
