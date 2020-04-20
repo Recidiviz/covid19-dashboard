@@ -18,16 +18,19 @@ const ProjectionsHeader: React.FC = () => {
         <div>Projection</div>
         <div>
           <span className="ml-6">
-            <LegendCircle color={markColors.fatalities}>•</LegendCircle> Fatalities
+            <LegendCircle color={markColors.fatalities}>•</LegendCircle>{" "}
+            Fatalities
           </span>
           <span className="ml-6">
             <LegendCircle color={markColors.exposed}>•</LegendCircle> Exposed
           </span>
           <span className="ml-6">
-            <LegendCircle color={markColors.infectious}>•</LegendCircle> Infectious
+            <LegendCircle color={markColors.infectious}>•</LegendCircle>{" "}
+            Infectious
           </span>
           <span className="ml-6">
-            <LegendCircle color={markColors.hospitalized}>•</LegendCircle> Hospitalized
+            <LegendCircle color={markColors.hospitalized}>•</LegendCircle>{" "}
+            Hospitalized
           </span>
         </div>
       </div>
