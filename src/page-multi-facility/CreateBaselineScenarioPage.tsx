@@ -47,12 +47,14 @@ const CreateBaselineScenarioPage: React.FC = () => {
       <ModalDialog open title="Welcome">
         <ModalContent>
           <WelcomeText>
-            This tool will help you model Covid-19 cases in a set of criminal
+            This tool will help you model COVID-19 cases in a set of criminal
             justice facilities (jails or prisons), and provide a forecast of
             likely cases given your facility policies and populations. For more
             information and for a list of the corrections and epidemiology
-            collaborators who made this model possible, see
-            <a href="https://www.recidiviz.org/collaborators"> recidiviz.org/collaborators</a>
+            collaborators who made this model possible, see{" "}
+            <a href="https://www.recidiviz.org/collaborators">
+              recidiviz.org/collaborators
+            </a>
             .
             <br />
             <br />
@@ -68,8 +70,7 @@ const CreateBaselineScenarioPage: React.FC = () => {
             <br />
             <br />
             If you have any questions or concerns, feel free to drop us a note
-            at
-            <a href="mailto:covid@recidiviz.org"> covid@recidiviz.org</a>.
+            at <a href="mailto:covid@recidiviz.org">covid@recidiviz.org</a>.
           </WelcomeText>
           <ModalFooter>
             <InputButton
