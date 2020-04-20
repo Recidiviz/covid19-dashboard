@@ -1,5 +1,7 @@
 import GetInvolvedPage from "../page-get-involved/GetInvolvedPage";
-import OverviewPage from "../page-overview/OverviewPage";
+import ModelInspectionPage from "../page-model-inspection/";
+import FacilityPage from "../page-multi-facility/FacilityPage";
+import MultiFacilityPage from "../page-multi-facility/MultiFacilityPage";
 import UnsupportedBrowserPage from "../page-unsupported-browser/UnsupportedBrowserPage";
 import VerificationNeeded from "../page-verification-needed/VerificationNeeded";
 
@@ -19,7 +21,7 @@ const PageList: PageInfo[] = [
     path: "/",
     title: getPageTitle(),
     isPrivate: true,
-    contents: <OverviewPage />,
+    contents: <MultiFacilityPage />,
   },
   {
     path: "/get-involved",
@@ -38,6 +40,18 @@ const PageList: PageInfo[] = [
     title: getPageTitle("Verification Needed"),
     isPrivate: false,
     contents: <VerificationNeeded />,
+  },
+  {
+    path: "/facility",
+    title: getPageTitle(),
+    isPrivate: true,
+    contents: <FacilityPage />,
+  },
+  {
+    path: "/inspect-model",
+    title: getPageTitle("Inspect epidemic model output"),
+    isPrivate: true,
+    contents: <ModelInspectionPage />,
   },
 ];
 

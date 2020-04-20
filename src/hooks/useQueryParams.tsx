@@ -1,10 +1,13 @@
 import { isEqual as isGenerallyEqual } from "lodash";
-import queryString from "query-string";
+import qs from "qs";
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 
+import { prepareForStorage, prepareFromStorage } from "../database/utils";
+import { EpidemicModelPersistent } from "../impact-dashboard/EpidemicModelContext";
+
 export interface QueryParams {
-  [key: string]: string | number | undefined;
+  [key: string]: any;
 }
 
 export type HistoryAction = "replace" | "push";
@@ -29,6 +32,12 @@ function isEqual(
   });
 }
 
+const stringify = (values: EpidemicModelPersistent): string =>
+  qs.stringify(prepareForStorage(values));
+
+const parse = (searchString: string): EpidemicModelPersistent =>
+  prepareFromStorage(qs.parse(searchString));
+
 // A basic hook for fetching query param values and setting query param values
 // Optionally pass in an array of valid keys if you want to be strict about your set of query parameters
 const useQueryParams = (
@@ -37,9 +46,7 @@ const useQueryParams = (
 ): UseQueryParamsOutput => {
   const history = useHistory();
 
-  const defaultQueryParams = queryString.parse(
-    history.location.search,
-  ) as QueryParams;
+  const defaultQueryParams = parse(history.location.search) as QueryParams;
   const hasExistingURLQueryParams = Object.keys(defaultQueryParams).length > 0;
 
   const initialValues = hasExistingURLQueryParams
@@ -50,14 +57,12 @@ const useQueryParams = (
 
   // If values have been updated, also set the query params
   useEffect(() => {
-    const currentQuery = queryString.parse(
-      history.location.search,
-    ) as QueryParams;
+    const currentQuery = parse(history.location.search) as QueryParams;
 
     if (!isEqual(currentQuery, values, validKeys)) {
       const newLocation = {
         ...history.location,
-        search: queryString.stringify(values),
+        search: stringify(values),
       };
       if (action == "replace") {
         history.replace(newLocation);
@@ -70,7 +75,7 @@ const useQueryParams = (
 
   // If the query params in the url changes, also set the values
   useEffect(() => {
-    const nextValues = queryString.parse(location.search) as QueryParams;
+    const nextValues = parse(location.search) as QueryParams;
 
     if (!isEqual(values, nextValues, validKeys)) {
       setValues(nextValues);

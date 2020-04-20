@@ -1,7 +1,6 @@
 import { sum } from "d3-array";
 import ndarray from "ndarray";
 
-import Loading from "../design-system/Loading";
 import { calculateCurves } from "../infection-model";
 import {
   getAllValues,
@@ -18,9 +17,9 @@ function buildTableRowFromCurves(
   calculator: Function,
 ): TableRow {
   const [week1, week2, week3, overall] = [
-    6,
-    13,
-    20,
+    7,
+    14,
+    21,
     data.shape[0] - 1,
   ].map((day) => calculator(data, day));
 
@@ -154,9 +153,8 @@ const ImpactProjectionTableContainer: React.FC = () => {
     week3: null,
     overall: value,
   }));
-  return modelData.countyLevelDataLoading ? (
-    <Loading />
-  ) : (
+
+  return (
     <ImpactProjectionTable {...{ incarceratedData, staffData, peakData }} />
   );
 };

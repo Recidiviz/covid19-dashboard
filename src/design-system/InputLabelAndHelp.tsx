@@ -6,6 +6,7 @@ import TextLabel from "./TextLabel";
 interface Props {
   label?: React.ReactNode;
   labelHelp?: React.ReactNode;
+  softened?: boolean;
 }
 
 const LabelContainer = styled.div`
@@ -22,7 +23,9 @@ const InputLabelAndHelp: React.FC<Props> = (props) => {
     <LabelContainer>
       <TextLabel>{props.label}</TextLabel>
       {props.labelHelp && (
-        <HelpButtonWithTooltip>{props.labelHelp}</HelpButtonWithTooltip>
+        <HelpButtonWithTooltip softened={props.softened}>
+          {props.labelHelp}
+        </HelpButtonWithTooltip>
       )}
     </LabelContainer>
   );

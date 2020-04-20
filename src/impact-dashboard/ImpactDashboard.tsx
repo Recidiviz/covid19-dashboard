@@ -1,10 +1,14 @@
 import styled from "styled-components";
 
+import Colors from "../design-system/Colors";
+import { useLocaleDataState } from "../locale-data-context";
 import ChartArea from "./ChartArea";
-import { useEpidemicModelState } from "./EpidemicModelContext";
 import FacilityInformation from "./FacilityInformation";
 import ImpactProjectionTable from "./ImpactProjectionTableContainer";
 import LocaleInformation from "./LocaleInformation";
+import MitigationInformation from "./MitigationInformation";
+
+const borderStyle = `1px solid ${Colors.paleGreen}`;
 
 const SectionHeader = styled.header`
   font-family: Poppins;
@@ -21,6 +25,7 @@ const SubsectionHeader = styled.header`
   font-weight: 600;
   font-size: 14px;
   line-height: 16px;
+  margin-bottom: 12px;
 `;
 
 /* Charts */
@@ -39,15 +44,25 @@ const ImpactDashboardVDiv = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  margin-bottom: 30px;
 `;
 
 const FormColumn = styled.div`
+  box-sizing: border-box;
   flex: 1 0 auto;
   width: 350px;
+  border-right: ${borderStyle};
+  padding-bottom: 30px;
+  padding-right: 25px;
+`;
+
+const HorizontalDivider = styled.hr`
+  border-top: ${borderStyle};
+  margin: 40px 0;
 `;
 
 const ImpactDashboard: React.FC = () => {
-  const { countyLevelDataFailed } = useEpidemicModelState();
+  const { failed: countyLevelDataFailed } = useLocaleDataState();
   return (
     <div>
       {countyLevelDataFailed ? (
@@ -59,8 +74,11 @@ const ImpactDashboard: React.FC = () => {
           <SectionHeader>Facility Customization</SectionHeader>
           <ImpactDashboardVDiv>
             <FormColumn>
-              <SubsectionHeader>Facility Information</SubsectionHeader>
+              <SubsectionHeader>Facility Population</SubsectionHeader>
               <FacilityInformation />
+              <HorizontalDivider />
+              <SubsectionHeader>COVID-19 Mitigation Efforts</SubsectionHeader>
+              <MitigationInformation />
             </FormColumn>
             <ChartsContainer>
               <ChartArea />
