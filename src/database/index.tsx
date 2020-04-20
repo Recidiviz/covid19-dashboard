@@ -160,21 +160,18 @@ export const getSavedState = async (): Promise<EpidemicModelPersistent | null> =
 export const getBaselineScenarioRef = async () => {
   const db = await getDb();
 
+  // Note: Firestore queries must only return documents that the user has access to. Otherwise, an error will be thrown.
+  //       See https://firebase.google.com/docs/firestore/security/rules-conditions#rules_are_not_filters.
   const query = db
     .collection(scenariosCollectionId)
+    .where(`roles.${currrentUserId()}`, "in", ["owner"])
     .where("baseline", "==", true);
 
   const results = await query.get();
-  const userId = currrentUserId();
 
-  const baselineScenario = results.docs.find((doc) => {
-    const scenario = doc.data();
-    return scenario.roles[userId] == "owner";
-  });
+  if (results.docs.length === 0) return null;
 
-  if (!baselineScenario) return null;
-
-  return baselineScenario.ref;
+  return results.docs[0].ref;
 };
 
 export const createBaselineScenario = async () => {
