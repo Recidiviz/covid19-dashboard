@@ -103,6 +103,7 @@ const MultiFacilityImpactDashboard: React.FC<Props> = ({
         <Loading />
       ) : (
         <ScenarioSidebar
+          numFacilities={facilities?.data.length}
           scenario={scenario.data}
           updateScenario={updateScenario}
         />
