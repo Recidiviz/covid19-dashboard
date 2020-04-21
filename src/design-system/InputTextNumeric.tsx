@@ -1,4 +1,5 @@
 import React from "react";
+import styled from "styled-components";
 
 import { InputBaseProps } from "./Input";
 import InputText from "./InputText";
@@ -6,6 +7,10 @@ import InputText from "./InputText";
 interface Props extends InputBaseProps<number> {
   type: "number" | "percent";
 }
+
+const PctAddon = styled.div`
+  margin-left: 6px;
+`;
 
 const InputTextNumeric: React.FC<Props> = (props) => {
   function onValueChange(value: string | undefined) {
@@ -42,7 +47,9 @@ const InputTextNumeric: React.FC<Props> = (props) => {
         props.labelPlaceholder ??
         (props.type === "number" ? "Enter number" : "Enter a percentage")
       }
-    />
+    >
+      {props.type === "percent" && <PctAddon>%</PctAddon>}
+    </InputText>
   );
 };
 
