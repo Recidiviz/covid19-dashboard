@@ -16,7 +16,6 @@ import { Facilities, Scenario } from "./types";
 
 const MultiFacilityImpactDashboardContainer = styled.main.attrs({
   className: `
-    h-screen
     flex
     mt-8
   `,
