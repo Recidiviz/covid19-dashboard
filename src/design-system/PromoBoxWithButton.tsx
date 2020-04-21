@@ -4,7 +4,7 @@ import styled from "styled-components";
 import Colors from "../design-system/Colors";
 
 interface Props {
-  enabled?: boolean;
+  enabled: boolean;
   text?: string | null;
   onDismiss: () => void;
 }

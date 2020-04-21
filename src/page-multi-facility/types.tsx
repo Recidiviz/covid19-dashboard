@@ -22,9 +22,9 @@ export type Scenario = {
   baseline: boolean;
   dataSharing: boolean;
   dailyReports: boolean;
-  showPromo: boolean;
+  promoStatuses: PromoStatuses;
   description: string;
-  roles: Map<string, string>;
+  roles: object;
   createdAt: TimeStamp;
   updatedAt: TimeStamp;
 };
@@ -33,4 +33,11 @@ type TimeStamp = {
   seconds: string;
   nanoseconds: string;
   toDate: () => string;
+};
+
+export type PromoStatuses = {
+  [promoType: string]: boolean;
+  dailyReports: boolean;
+  dataSharing: boolean;
+  addFacilities: boolean;
 };
