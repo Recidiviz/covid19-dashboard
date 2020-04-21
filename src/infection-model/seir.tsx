@@ -33,7 +33,6 @@ interface SingleDayInputs {
   rateOfSpreadCells: number;
   rateOfSpreadDorms: number;
   simulateStaff: boolean;
-  totalExposed: number;
   totalInfectious: number;
   totalPopulation: number;
   totalSusceptibleIncarcerated: number;
@@ -72,27 +71,50 @@ export enum ageGroupIndex {
 }
 
 // model constants
-// days from virus exposure to infectious/contagious state
+// non-contagious incubation period
 const dIncubation = 2;
-// days in infectious period
-const dInfectious = 4.1;
-// days from end of infectious period to hospital admission
-const dHospitalLag = 2.9;
-// days from hospital admission to hospital release (non-fatality scenario)
-const dHospitalRecovery = 22;
 // aka alpha
-const rExposedToInfectious = dIncubation / dInfectious;
-// aka kappa
-const rExposedToRecovered = 0.1;
-// aka delta
-const rInfectiousToQuarantined = 0.24;
-// aka gamma
-const rInfectiousToRecovered = 0.0667;
-const rQuarantinedToRecovered = 0.071429;
-const rQuarantinedToHospitalized = 1 / dHospitalLag;
-const rHospitalizedToIcu = 0.2;
-const rHospitalizedToRecovered = 1 / dHospitalRecovery;
-const rHospitalRecoveryToRecovered = 1 / dHospitalRecovery;
+const rExposedToInfectious = 1 / dIncubation;
+
+const pSymptomatic = 0.821;
+// days in infectious period.
+const dInfectious = 5.1;
+const rInfectiousToQuarantined = pSymptomatic * (1 / dInfectious);
+
+const dAsymptomaticInfectious = 7;
+const rInfectiousToRecovered =
+  (1 - pSymptomatic) * (1 / dAsymptomaticInfectious);
+
+// "mild" here means not hospitalized
+const pQuarantinedMild = 0.74;
+const dMildRecovery = 9.9;
+const rQuarantinedToRecovered = pQuarantinedMild * (1 / dMildRecovery);
+
+const dHospitalLag = 2.9;
+const rQuarantinedToHospitalized = (1 - pQuarantinedMild) * (1 / dHospitalLag);
+
+// TODO: needs to be validated
+const pIcu = 0.3;
+const dIcuLag = 2;
+const rHospitalizedToIcu = pIcu * (1 / dIcuLag);
+
+// days from hospital admission to hospital release (non-fatality scenario)
+const dHospitalized = 22;
+
+// "hospital recovery" is post-ICU recovery in regular hospital.
+// TODO: this naming is confusing? change?
+const dPostIcuRecovery = 12;
+const rHospitalRecoveryToRecovered = 1 / dPostIcuRecovery;
+
+// TODO: these need to be validated
+// TODO: will ICU fatality rate vary per age bracket also?
+const pIcuFatality = 0.15;
+const dIcuFatality = 6.3;
+const dIcuRecovery = 5;
+const rIcuToFatality = pIcuFatality * (1 / dIcuFatality);
+const rIcuToHospitalRecovery = (1 - pIcuFatality) * (1 / dIcuRecovery);
+
+const dHospitalizedFatality = 8.3;
 
 function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
   const {
@@ -102,7 +124,6 @@ function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
     rateOfSpreadCells,
     rateOfSpreadDorms,
     simulateStaff,
-    totalExposed,
     totalInfectious,
     totalPopulation,
     populationAdjustment,
@@ -112,10 +133,11 @@ function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
   // aka beta
   const rSusceptibleToExposedCells = rateOfSpreadCells / dInfectious;
   const rSusceptibleToExposedDorms = rateOfSpreadDorms / dInfectious;
-  // TODO: these are likely to diverge in the future
-  const rHospitalizedToFatality = pFatalityRate;
-  const rIcuToFatality = pFatalityRate;
-  const rIcuToHospitalRecovery = 1 - rIcuToFatality;
+
+  // some variables depend on the non-ICU fatality rate for the current group
+  const rHospitalizedToFatality = pFatalityRate * (1 / dHospitalizedFatality);
+  const pHospitalRecovery = 1 - pFatalityRate - pIcu;
+  const rHospitalizedToRecovered = pHospitalRecovery * (1 / dHospitalized);
 
   const facilityCellsPct = 1 - facilityDormitoryPct;
 
@@ -131,48 +153,14 @@ function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
   const recoveredHospitalized =
     priorSimulation[seirIndex.recoveredHospitalized];
 
-  const recoveredMildDelta =
-    rExposedToRecovered * exposed +
-    rInfectiousToRecovered * infectious +
-    rQuarantinedToRecovered * quarantined;
-
-  const recoveredHospitalizedDelta =
-    rHospitalizedToRecovered * hospitalized +
-    rHospitalRecoveryToRecovered * hospitalRecovery;
-
-  const fatalitiesDelta =
-    rIcuToFatality * icu + rHospitalizedToFatality * hospitalized;
-
-  const hospitalRecoveryDelta =
-    rIcuToHospitalRecovery * icu -
-    rHospitalRecoveryToRecovered * hospitalRecovery;
-
-  const icuDelta =
-    rHospitalizedToIcu * hospitalized -
-    rIcuToFatality * icu -
-    rIcuToHospitalRecovery * icu;
-
-  const hospitalizedDelta =
-    rQuarantinedToHospitalized * quarantined -
-    (rHospitalizedToIcu + rHospitalizedToRecovered) * hospitalized -
-    rHospitalizedToFatality * hospitalized;
-
-  const quarantinedDelta =
-    rInfectiousToQuarantined * infectious -
-    (rQuarantinedToHospitalized + rQuarantinedToRecovered) * quarantined;
-
-  const infectiousDelta =
-    rExposedToInfectious * exposed -
-    (rInfectiousToQuarantined + rInfectiousToRecovered) * infectious;
+  // calculate deltas for each compartment
 
   let cSusceptible;
   if (simulateStaff) {
     // for staff we assume facility type has a negligible effect on spread,
     // so we just use the R0 for cells as a baseline
     cSusceptible =
-      (rSusceptibleToExposedCells *
-        (totalExposed + totalInfectious) *
-        susceptible) /
+      (rSusceptibleToExposedCells * totalInfectious * susceptible) /
       totalPopulation;
   } else {
     // incarcerated population adjustments affect susceptibility and exposure
@@ -184,21 +172,53 @@ function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
     cSusceptible =
       (facilityCellsPct *
         rSusceptibleToExposedCells *
-        (totalExposed + totalInfectious) *
+        totalInfectious *
         susceptible) /
         totalPopulation +
       (facilityDormitoryPct *
         rSusceptibleToExposedDorms *
-        (totalExposed + totalInfectious) *
+        totalInfectious *
         susceptible) /
         totalPopulation;
   }
   // guard against cSusceptible being nonsensical (e.g. we divided by zero or something)
   cSusceptible = Number.isFinite(cSusceptible) ? cSusceptible : 0;
 
-  const exposedDelta =
-    cSusceptible - (rExposedToInfectious + rExposedToRecovered) * exposed;
   const susceptibleDelta = -cSusceptible;
+
+  const exposedDelta = cSusceptible - rExposedToInfectious * exposed;
+
+  const infectiousDelta =
+    rExposedToInfectious * exposed -
+    (rInfectiousToQuarantined + rInfectiousToRecovered) * infectious;
+
+  const quarantinedDelta =
+    rInfectiousToQuarantined * infectious -
+    (rQuarantinedToHospitalized + rQuarantinedToRecovered) * quarantined;
+
+  const hospitalizedDelta =
+    rQuarantinedToHospitalized * quarantined -
+    (rHospitalizedToIcu + rHospitalizedToRecovered) * hospitalized -
+    rHospitalizedToFatality * hospitalized;
+
+  const icuDelta =
+    rHospitalizedToIcu * hospitalized -
+    rIcuToFatality * icu -
+    rIcuToHospitalRecovery * icu;
+
+  const hospitalRecoveryDelta =
+    rIcuToHospitalRecovery * icu -
+    rHospitalRecoveryToRecovered * hospitalRecovery;
+
+  const fatalitiesDelta =
+    rIcuToFatality * icu + rHospitalizedToFatality * hospitalized;
+
+  const recoveredMildDelta =
+    rInfectiousToRecovered * infectious + rQuarantinedToRecovered * quarantined;
+
+  const recoveredHospitalizedDelta =
+    rHospitalizedToRecovered * hospitalized +
+    rHospitalRecoveryToRecovered * hospitalRecovery;
 
   const newDay = [];
   newDay[seirIndex.susceptible] = Math.max(susceptible + susceptibleDelta, 0);
@@ -329,9 +349,6 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
     const totalInfectious = sum(
       getAllValues(getColView(singleDayState, seirIndex.infectious)),
     );
-    const totalExposed = sum(
-      getAllValues(getColView(singleDayState, seirIndex.exposed)),
-    );
     const totalSusceptibleIncarcerated = sum(
       getAllValues(getColView(singleDayState, seirIndex.susceptible)).filter(
         (v, i) => i !== ageGroupIndex.staff,
@@ -346,7 +363,6 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
       const projectionForAgeGroup = simulateOneDay({
         priorSimulation: getAllValues(getRowView(singleDayState, ageGroup)),
         totalPopulation,
-        totalExposed,
         totalInfectious,
         rateOfSpreadCells,
         rateOfSpreadDorms,
