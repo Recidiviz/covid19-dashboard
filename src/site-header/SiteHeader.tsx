@@ -26,11 +26,6 @@ const LogoContainer = styled.div`
   font-size: 13px;
   font-weight: 600;
   letter-spacing: -0.05em;
-  text-transform: uppercase;
-`;
-
-const Subhead = styled.div`
-  margin-left: 1em;
 `;
 
 const SiteHeader: React.FC = () => {
@@ -43,7 +38,6 @@ const SiteHeader: React.FC = () => {
       <Link to="/">
         <LogoContainer>
           <Logo />
-          <Subhead>COVID-19 Incarceration Model</Subhead>
         </LogoContainer>
       </Link>
       {/* <!-- Nav Items and Social Links --> */}
