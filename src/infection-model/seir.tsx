@@ -120,13 +120,14 @@ const dHospitalizedFatality = 8.3;
 // factor for estimating population adjustment based on expected turnover
 const populationAdjustmentRatio = 0.0879;
 // Distribution of initial infected cases, based on curve ratios
-// TODO: the compartments changed so these are no longer valid
-const pInitiallyInfectious = 0.611;
-const pInitiallyMild = 0.231;
-const pInitiallySevere = 0.054;
-const pInitiallyHospitalized = 0.043;
-const pInitiallyMildRecovered = 0.057;
-const pInitiallySevereRecovered = 0.004;
+const pInitiallyInfectious = 0.57;
+const pInitiallyQuarantined = 0.253;
+const pInitiallyHospitalized = 0.041;
+const pInitiallyIcu = 0.012;
+const pInitiallyHospitalRecovery = 0.004;
+const pInitiallyRecoveredMild = 0.074;
+const pInitiallyRecoveredHospitalized = 0.045;
+const pInitiallyDead = 0.001;
 
 function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
   const {
@@ -352,31 +353,39 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
       const exposed = cases * rExposedToInfectious;
       singleDayState.set(index, seirIndex.exposed, exposed);
       singleDayState.set(index, seirIndex.susceptible, pop - cases - exposed);
-      // TODO: get updated distribution constants for new compartments
-      singleDayState.set(index, seirIndex.infectious, cases);
       // distribute cases across compartments proportionally
-      // singleDayState.set(
-      //   index,
-      //   seirIndex.infectious,
-      //   cases * pInitiallyInfectious,
-      // );
-      // singleDayState.set(index, seirIndex.mild, cases * pInitiallyMild);
-      // singleDayState.set(index, seirIndex.severe, cases * pInitiallySevere);
-      // singleDayState.set(
-      //   index,
-      //   seirIndex.hospitalized,
-      //   cases * pInitiallyHospitalized,
-      // );
-      // singleDayState.set(
-      //   index,
-      //   seirIndex.mildRecovered,
-      //   cases * pInitiallyMildRecovered,
-      // );
-      // singleDayState.set(
-      //   index,
-      //   seirIndex.severeRecovered,
-      //   cases * pInitiallySevereRecovered,
-      // );
+      singleDayState.set(
+        index,
+        seirIndex.infectious,
+        cases * pInitiallyInfectious,
+      );
+      singleDayState.set(
+        index,
+        seirIndex.quarantined,
+        cases * pInitiallyQuarantined,
+      );
+      singleDayState.set(
+        index,
+        seirIndex.hospitalized,
+        cases * pInitiallyHospitalized,
+      );
+      singleDayState.set(index, seirIndex.icu, cases * pInitiallyIcu);
+      singleDayState.set(
+        index,
+        seirIndex.hospitalRecovery,
+        cases * pInitiallyHospitalRecovery,
+      );
+      singleDayState.set(
+        index,
+        seirIndex.recoveredMild,
+        cases * pInitiallyRecoveredMild,
+      );
+      singleDayState.set(
+        index,
+        seirIndex.recoveredHospitalized,
+        cases * pInitiallyRecoveredHospitalized,
+      );
+      singleDayState.set(index, seirIndex.fatalities, cases * pInitiallyDead);
     },
   );
 
