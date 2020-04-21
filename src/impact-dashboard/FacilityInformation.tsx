@@ -179,8 +179,10 @@ const FacilityInformation: React.FC = () => {
                 labelAbove="Population turnover"
                 labelHelp={`Admissions as a percent of releases in a typical 3mo period
                   (e.g., April - June 2019). Can be over or under 100%.`}
-                valueEntered={undefined}
-                onValueChange={() => undefined}
+                valueEntered={model.populationTurnover}
+                onValueChange={(value) =>
+                  updateModel({ populationTurnover: value })
+                }
               />,
             ]}
           />
