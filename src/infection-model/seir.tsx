@@ -24,6 +24,7 @@ export interface CurveProjectionInputs extends SimulationInputs {
   facilityOccupancyPct: number;
   rateOfSpreadFactor: RateOfSpread;
   plannedReleases?: PlannedReleases;
+  populationTurnover: number;
 }
 
 interface SingleDayInputs {
@@ -205,6 +206,9 @@ enum R0Dorms {
   high = 7,
 }
 
+// factor for estimating population adjustment based on expected turnover
+const populationAdjustmentRatio = 0.0879;
+
 export function getAllBracketCurves(inputs: CurveProjectionInputs) {
   let {
     ageGroupInitiallyInfected,
@@ -213,6 +217,7 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
     facilityOccupancyPct,
     numDays,
     plannedReleases,
+    populationTurnover,
     rateOfSpreadFactor,
   } = inputs;
 
@@ -260,6 +265,11 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
     (1 - facilityOccupancyPct) *
       (rateOfSpreadDorms - rateOfSpreadDormsAdjustment);
 
+  // adjust population figures based on expected turnover
+  const adjustRate = populationTurnover * populationAdjustmentRatio;
+  ageGroupPopulations = ageGroupPopulations.map((pop, i) =>
+    i === ageGroupIndex.staff ? pop : pop + pop * adjustRate,
+  );
   const totalPopulationByDay = new Array(numDays);
   totalPopulationByDay[0] = sum(ageGroupPopulations);
 

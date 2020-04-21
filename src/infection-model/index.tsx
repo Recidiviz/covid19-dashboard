@@ -35,6 +35,7 @@ function prepareCurveData(inputs: EpidemicModelInputs): CurveProjectionInputs {
     facilityDormitoryPct,
     facilityOccupancyPct,
     plannedReleases,
+    populationTurnover,
     rateOfSpreadFactor,
     staffCases,
     staffPopulation,
@@ -78,6 +79,7 @@ function prepareCurveData(inputs: EpidemicModelInputs): CurveProjectionInputs {
     facilityOccupancyPct,
     numDays,
     plannedReleases,
+    populationTurnover,
     rateOfSpreadFactor,
   };
 }
