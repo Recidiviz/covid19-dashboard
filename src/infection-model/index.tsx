@@ -65,7 +65,7 @@ function prepareCurveData(inputs: EpidemicModelInputs): CurveProjectionInputs {
     usePopulationSubsets,
   } = inputs;
 
-  const numDays = 75;
+  const numDays = 90;
 
   const ageGroupPopulations = prepareAgeGroupPopulations(inputs);
 
