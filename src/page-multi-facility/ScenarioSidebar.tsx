@@ -80,6 +80,7 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
   };
   const [editingName, setEditingName] = useState(false);
   const [name, setName] = useState(scenario?.name);
+  const [promoDismissed, setPromoDismissed] = useState(false);
   const [description, setDescription] = useState(scenario?.description);
   const promoType: string | null = getEnabledPromoType(scenario, numFacilities);
 
@@ -154,10 +155,11 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
             labelHelp="If enabled, your baseline scenario will be made available to Recidiviz and the research community to improve the model and the state of research on the spread of disease in facilities. Any public research will anonymize state and facility names."
           />
           <PromoBoxWithButton
-            enabled={!!scenario?.baseline}
-            text={getPromoText(promoType)}
+            enabled={!!scenario?.baseline && !promoDismissed}
+            text={getPromoText(promoType) || null}
             onDismiss={() => {
               if (scenario && promoType) {
+                setPromoDismissed(true);
                 handleScenarioChange({
                   promoStatuses: {
                     ...scenario.promoStatuses,
