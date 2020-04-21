@@ -293,7 +293,7 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
   const totalPopulationByDay = new Array(numDays);
   totalPopulationByDay[0] = sum(ageGroupPopulations);
 
-  // initialize the base daily state with just susceptible and infected pops.
+  // initialize the base daily state
   // each age group is a single row
   // each SEIR bucket is a single column
   const singleDayState = ndarray(
@@ -301,13 +301,13 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
     [ageGroupIndex.__length, seirIndex.__length],
   );
 
-  // initially everyone is either susceptible, exposed, or infected
+  // assign people to initial states
   zip(ageGroupPopulations, ageGroupInitiallyInfected).forEach(
     ([pop, cases], index) => {
       const exposed = cases * ratioExposedToInfected;
       singleDayState.set(index, seirIndex.exposed, exposed);
       singleDayState.set(index, seirIndex.susceptible, pop - cases - exposed);
-      // TODO: distribute cases across all compartments
+      // distribute cases across compartments proportionally
       singleDayState.set(
         index,
         seirIndex.infectious,
