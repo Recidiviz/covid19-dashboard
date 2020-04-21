@@ -87,6 +87,15 @@ const dHospitalFatality = 8.3;
 const pSevereCase = 0.26;
 // factor for inferring exposure based on confirmed cases
 const ratioExposedToInfected = dIncubation / dInfectious;
+// factor for estimating population adjustment based on expected turnover
+const populationAdjustmentRatio = 0.0879;
+// Distribution of initial infected cases, based on curve ratios
+const pInitiallyInfectious = 0.611;
+const pInitiallyMild = 0.231;
+const pInitiallySevere = 0.054;
+const pInitiallyHospitalized = 0.043;
+const pInitiallyMildRecovered = 0.057;
+const pInitiallySevereRecovered = 0.004;
 
 function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
   const {
@@ -213,8 +222,6 @@ export const adjustPopulations = ({
   ageGroupPopulations: CurveProjectionInputs["ageGroupPopulations"];
   populationTurnover: number;
 }): number[] => {
-  // factor for estimating population adjustment based on expected turnover
-  const populationAdjustmentRatio = 0.0879;
   const adjustRate = populationTurnover * populationAdjustmentRatio;
 
   return ageGroupPopulations.map((pop, i) =>
@@ -299,8 +306,30 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
     ([pop, cases], index) => {
       const exposed = cases * ratioExposedToInfected;
       singleDayState.set(index, seirIndex.exposed, exposed);
-      singleDayState.set(index, seirIndex.infectious, cases);
       singleDayState.set(index, seirIndex.susceptible, pop - cases - exposed);
+      // TODO: distribute cases across all compartments
+      singleDayState.set(
+        index,
+        seirIndex.infectious,
+        cases * pInitiallyInfectious,
+      );
+      singleDayState.set(index, seirIndex.mild, cases * pInitiallyMild);
+      singleDayState.set(index, seirIndex.severe, cases * pInitiallySevere);
+      singleDayState.set(
+        index,
+        seirIndex.hospitalized,
+        cases * pInitiallyHospitalized,
+      );
+      singleDayState.set(
+        index,
+        seirIndex.mildRecovered,
+        cases * pInitiallyMildRecovered,
+      );
+      singleDayState.set(
+        index,
+        seirIndex.severeRecovered,
+        cases * pInitiallySevereRecovered,
+      );
     },
   );
 
