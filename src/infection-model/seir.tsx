@@ -120,6 +120,7 @@ const dHospitalizedFatality = 8.3;
 // factor for estimating population adjustment based on expected turnover
 const populationAdjustmentRatio = 0.0879;
 // Distribution of initial infected cases, based on curve ratios
+// TODO: the compartments changed so these are no longer valid
 const pInitiallyInfectious = 0.611;
 const pInitiallyMild = 0.231;
 const pInitiallySevere = 0.054;
