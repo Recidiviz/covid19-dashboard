@@ -24,6 +24,7 @@ export interface CurveProjectionInputs extends SimulationInputs {
   facilityOccupancyPct: number;
   rateOfSpreadFactor: RateOfSpread;
   plannedReleases?: PlannedReleases;
+  populationTurnover: number;
 }
 
 interface SingleDayInputs {
@@ -115,6 +116,16 @@ const rIcuToFatality = pIcuFatality * (1 / dIcuFatality);
 const rIcuToHospitalRecovery = (1 - pIcuFatality) * (1 / dIcuRecovery);
 
 const dHospitalizedFatality = 8.3;
+
+// factor for estimating population adjustment based on expected turnover
+const populationAdjustmentRatio = 0.0879;
+// Distribution of initial infected cases, based on curve ratios
+const pInitiallyInfectious = 0.611;
+const pInitiallyMild = 0.231;
+const pInitiallySevere = 0.054;
+const pInitiallyHospitalized = 0.043;
+const pInitiallyMildRecovered = 0.057;
+const pInitiallySevereRecovered = 0.004;
 
 function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
   const {
@@ -248,6 +259,20 @@ enum R0Dorms {
   high = 7,
 }
 
+export const adjustPopulations = ({
+  ageGroupPopulations,
+  populationTurnover,
+}: {
+  ageGroupPopulations: CurveProjectionInputs["ageGroupPopulations"];
+  populationTurnover: number;
+}): number[] => {
+  const adjustRate = populationTurnover * populationAdjustmentRatio;
+
+  return ageGroupPopulations.map((pop, i) =>
+    i === ageGroupIndex.staff ? pop : pop + pop * adjustRate,
+  );
+};
+
 export function getAllBracketCurves(inputs: CurveProjectionInputs) {
   let {
     ageGroupInitiallyInfected,
@@ -256,15 +281,14 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
     facilityOccupancyPct,
     numDays,
     plannedReleases,
+    populationTurnover,
     rateOfSpreadFactor,
   } = inputs;
 
   // 3d array. D1 = SEIR compartment. D2 = day. D3 = age bracket
   const projectionGrid = ndarray(
-    new Array(seirIndexList.length * numDays + 1 * ageGroupIndex.__length).fill(
-      0,
-    ),
-    [seirIndexList.length, numDays + 1, ageGroupIndex.__length],
+    new Array(seirIndexList.length * numDays * ageGroupIndex.__length).fill(0),
+    [seirIndexList.length, numDays, ageGroupIndex.__length],
   );
 
   const updateProjectionDay = (day: number, data: ndarray) => {
@@ -305,10 +329,15 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
     (1 - facilityOccupancyPct) *
       (rateOfSpreadDorms - rateOfSpreadDormsAdjustment);
 
-  const totalPopulationByDay = new Array(numDays + 1);
+  // adjust population figures based on expected turnover
+  ageGroupPopulations = adjustPopulations({
+    ageGroupPopulations,
+    populationTurnover,
+  });
+  const totalPopulationByDay = new Array(numDays);
   totalPopulationByDay[0] = sum(ageGroupPopulations);
 
-  // initialize the base daily state with just susceptible and infected pops.
+  // initialize the base daily state
   // each age group is a single row
   // each SEIR compartment is a single column
   const singleDayState = ndarray(
@@ -316,19 +345,43 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
     [ageGroupIndex.__length, seirIndex.__length],
   );
 
-  // initially everyone is either susceptible, exposed, or infected
+  // assign people to initial states
   zip(ageGroupPopulations, ageGroupInitiallyInfected).forEach(
     ([pop, cases], index) => {
       const exposed = cases * rExposedToInfectious;
       singleDayState.set(index, seirIndex.exposed, exposed);
-      singleDayState.set(index, seirIndex.infectious, cases);
       singleDayState.set(index, seirIndex.susceptible, pop - cases - exposed);
+      // TODO: get updated distribution constants for new compartments
+      singleDayState.set(index, seirIndex.infectious, cases);
+      // distribute cases across compartments proportionally
+      // singleDayState.set(
+      //   index,
+      //   seirIndex.infectious,
+      //   cases * pInitiallyInfectious,
+      // );
+      // singleDayState.set(index, seirIndex.mild, cases * pInitiallyMild);
+      // singleDayState.set(index, seirIndex.severe, cases * pInitiallySevere);
+      // singleDayState.set(
+      //   index,
+      //   seirIndex.hospitalized,
+      //   cases * pInitiallyHospitalized,
+      // );
+      // singleDayState.set(
+      //   index,
+      //   seirIndex.mildRecovered,
+      //   cases * pInitiallyMildRecovered,
+      // );
+      // singleDayState.set(
+      //   index,
+      //   seirIndex.severeRecovered,
+      //   cases * pInitiallySevereRecovered,
+      // );
     },
   );
 
   // index expected population adjustments by day;
   const today = Date.now();
-  const expectedPopulationChanges = Array(numDays + 1).fill(0);
+  const expectedPopulationChanges = Array(numDays).fill(0);
   plannedReleases?.forEach(({ date, count }) => {
     // skip incomplete records
     if (!count || date === undefined) {
@@ -340,11 +393,11 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
     }
   });
 
-  // initialize the projections with today's data
+  // initialize the output with today's data
+  // and start the projections with tomorrow
   updateProjectionDay(0, singleDayState);
-
   let day = 1;
-  while (day <= numDays) {
+  while (day < numDays) {
     // each day's projection needs the sum of all infectious projections so far
     const totalInfectious = sum(
       getAllValues(getColView(singleDayState, seirIndex.infectious)),

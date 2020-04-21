@@ -13,10 +13,23 @@ const Colors = {
   teal: "#25b894",
   darkTeal: "#759f9e",
   gray: "#E0E4E4",
+  darkGray: "#c8d3d3",
   green: "#006C67",
   lightBlue: "#33B6FF",
   paleGreen: "#D2DBDB",
   red: "#FF464A",
+  darkRed: "#C53B3E",
+  white: "#ffffff",
+  darkGreen: "#00413E",
+};
+
+// Shared colors for the Projection charts
+export const MarkColors = {
+  exposed: Colors.green,
+  fatalities: Colors.black,
+  hospitalized: Colors.lightBlue,
+  hospitalBeds: darken(Colors.lightBlue, 20),
+  infectious: Colors.red,
 };
 
 export default Colors;

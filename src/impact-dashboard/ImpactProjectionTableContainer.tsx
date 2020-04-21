@@ -1,7 +1,6 @@
 import { sum, zip } from "d3-array";
 import ndarray from "ndarray";
 
-import Loading from "../design-system/Loading";
 import { calculateCurves } from "../infection-model";
 import {
   getAllValues,
@@ -169,9 +168,8 @@ const ImpactProjectionTableContainer: React.FC = () => {
     week3: null,
     overall: value,
   }));
-  return modelData.countyLevelDataLoading ? (
-    <Loading />
-  ) : (
+
+  return (
     <ImpactProjectionTable {...{ incarceratedData, staffData, peakData }} />
   );
 };

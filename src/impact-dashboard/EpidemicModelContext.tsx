@@ -1,22 +1,8 @@
-import { csvParse, DSVRowAny } from "d3";
-import { rollup } from "d3-array";
-import parseJSON from "date-fns/parseJSON";
-import { mapValues, pick, size } from "lodash";
-import numeral from "numeral";
-import React, { useEffect } from "react";
+import { sum } from "d3";
+import { pick } from "lodash";
+import React from "react";
 
-import { getSavedState, saveState } from "../database";
-import useQueryParams, { QueryParams } from "../hooks/useQueryParams";
-
-type CountyLevelRecord = {
-  hospitalBeds: number;
-  totalIncarceratedPopulation: number;
-  estimatedIncarceratedCases: number;
-  county: string;
-  state: string;
-};
-
-type CountyLevelData = Map<string, Map<string, CountyLevelRecord>>;
+import { LocaleData } from "../locale-data-context";
 
 export type PlannedRelease = { date?: Date; count?: number };
 export type PlannedReleases = PlannedRelease[];
@@ -32,7 +18,7 @@ export enum RateOfSpread {
 // any field that we can update via reducer should be here,
 // and should probably be optional
 
-// fields that we want to store in URL or other persistent store
+// fields that we want to store
 interface ModelInputsPersistent {
   age0Cases?: number;
   age0Population?: number;
@@ -52,10 +38,11 @@ interface ModelInputsPersistent {
   ageUnknownPopulation?: number;
   facilityDormitoryPct?: number;
   facilityOccupancyPct?: number;
+  plannedReleases?: PlannedReleases;
+  populationTurnover?: number;
   rateOfSpreadFactor?: RateOfSpread;
   staffCases?: number;
   staffPopulation?: number;
-  plannedReleases?: PlannedReleases;
 }
 
 interface ModelInputsUpdate extends ModelInputsPersistent {
@@ -65,30 +52,22 @@ interface ModelInputsUpdate extends ModelInputsPersistent {
   usePopulationSubsets?: boolean;
 }
 // some fields are required for calculations, define them here
-interface EpidemicModelInputs extends ModelInputsUpdate {
+export interface EpidemicModelInputs extends ModelInputsUpdate {
   rateOfSpreadFactor: RateOfSpread;
   usePopulationSubsets: boolean;
   facilityDormitoryPct: number;
   facilityOccupancyPct: number;
+  populationTurnover: number;
 }
 
 interface MetadataPersistent {
-  // fields that we want to store in URL or other persistent store
+  // fields that we want to store
   countyName?: string;
-  facilityName?: string;
   stateCode?: string;
 }
 
-interface MetadataUpdate extends MetadataPersistent {
-  countyLevelData?: CountyLevelData;
-  countyLevelDataLoading?: boolean;
-  countyLevelDataFailed?: boolean;
-  stateInitialized?: boolean;
-  // this is not user input so don't store it
-  hospitalBeds?: number;
-}
 // some fields are required to display a sensible UI, define them here
-interface Metadata extends MetadataUpdate {
+interface Metadata extends MetadataPersistent {
   stateCode: string;
   hospitalBeds: number;
 }
@@ -100,7 +79,6 @@ export type EpidemicModelPersistent = ModelInputsPersistent &
 // TODO: is there a smarter way to get these values?
 export const persistedKeys: Array<keyof EpidemicModelPersistent> = [
   "countyName",
-  "facilityName",
   "stateCode",
   "age0Cases",
   "age0Population",
@@ -120,17 +98,25 @@ export const persistedKeys: Array<keyof EpidemicModelPersistent> = [
   "ageUnknownPopulation",
   "facilityDormitoryPct",
   "facilityOccupancyPct",
+  "plannedReleases",
+  "populationTurnover",
   "rateOfSpreadFactor",
   "staffCases",
   "staffPopulation",
-  "plannedReleases",
 ];
 
-export type EpidemicModelUpdate = ModelInputsUpdate & MetadataUpdate;
+export type EpidemicModelUpdate = ModelInputsUpdate & MetadataPersistent;
 
-type EpidemicModelState = EpidemicModelInputs & Metadata;
+export type EpidemicModelState = EpidemicModelInputs &
+  Metadata & {
+    localeDataSource: LocaleData;
+  };
 
-type EpidemicModelProviderProps = { children: React.ReactNode };
+type EpidemicModelProviderProps = {
+  children: React.ReactNode;
+  facilityModel?: EpidemicModelPersistent;
+  localeDataSource: LocaleData;
+};
 
 const EpidemicModelStateContext = React.createContext<
   EpidemicModelState | undefined
@@ -141,47 +127,36 @@ const EpidemicModelDispatchContext = React.createContext<Dispatch | undefined>(
 );
 
 interface ResetPayload {
-  dataSource?: CountyLevelData;
+  dataSource?: LocaleData;
   stateCode?: string;
   countyName?: string;
 }
 
-function getLocaleData(
-  dataSource: CountyLevelData,
-  stateCode: string,
-  countyName: string,
+function getLocaleDefaults(
+  dataSource: LocaleData,
+  stateCode = "US Total",
+  countyName = "Total",
 ) {
   return {
-    stateCode,
+    // metadata
     countyName,
-    countyLevelData: dataSource,
-    countyLevelDataLoading: false,
-    totalIncarcerated: dataSource.get(stateCode)?.get(countyName)
-      ?.totalIncarceratedPopulation,
-    hospitalBeds: dataSource.get(stateCode)?.get(countyName)?.hospitalBeds,
-    ageUnknownPopulation: dataSource.get(stateCode)?.get(countyName)
-      ?.totalIncarceratedPopulation,
-    ageUnknownCases: dataSource.get(stateCode)?.get(countyName)
-      ?.estimatedIncarceratedCases,
-    confirmedCases: dataSource.get(stateCode)?.get(countyName)
-      ?.estimatedIncarceratedCases,
-    staffCases: 0,
-    staffPopulation: 0,
-  };
-}
-
-function getResetBase(stateCode = "US Total", countyName = "Total") {
-  return {
     stateCode,
-    countyName,
-    rateOfSpreadFactor: RateOfSpread.high,
+    localeDataSource: dataSource,
     // in the current UI we are always using age brackets
     // TODO: maybe this field is no longer needed?
     usePopulationSubsets: true,
+    // read-only locale data
+    confirmedCases:
+      dataSource.get(stateCode)?.get(countyName)?.reportedCases || 0,
+    hospitalBeds: dataSource.get(stateCode)?.get(countyName)?.hospitalBeds || 0,
+    totalIncarcerated:
+      dataSource.get(stateCode)?.get(countyName)?.totalIncarceratedPopulation ||
+      0,
+    // user input defaults
+    rateOfSpreadFactor: RateOfSpread.high,
     facilityOccupancyPct: 1,
     facilityDormitoryPct: 0.15,
-    hospitalBeds: 0,
-    countyLevelDataLoading: true,
+    populationTurnover: 0,
   };
 }
 
@@ -196,207 +171,40 @@ function epidemicModelReducer(
       // action and merge the whole object into previous state.
       // it's not very granular but it doesn't need to be at the moment
 
-      // change in state or county triggers a bigger reset
       let updates = { ...action.payload };
+      let { stateCode, countyName } = updates;
 
-      let { stateCode, countyName, countyLevelData } = updates;
-
-      countyLevelData = countyLevelData || state.countyLevelData;
-      const stateInitialized =
-        updates.stateInitialized || state.stateInitialized;
-
-      if (countyLevelData) {
-        if (stateCode) {
-          countyName = countyName || "Total";
-        } else if (countyName) {
-          stateCode = state.stateCode;
-        }
-        if (stateCode && countyName) {
-          return Object.assign(
-            getResetBase(stateCode, countyName),
-            getLocaleData(countyLevelData, stateCode, countyName),
-            { stateInitialized },
-          );
-        }
+      // change in state or county triggers a bigger reset
+      if (stateCode) {
+        countyName = countyName || "Total";
+      } else if (countyName) {
+        stateCode = state.stateCode;
+      }
+      if (stateCode && countyName) {
+        return getLocaleDefaults(state.localeDataSource, stateCode, countyName);
       }
 
-      return Object.assign({}, state, updates, { stateInitialized });
+      return Object.assign({}, state, updates);
   }
 }
 
-function sanitizeQueryParams(rawQueryParams: QueryParams) {
-  return mapValues(pick(rawQueryParams, persistedKeys), (value, key) => {
-    if (value === undefined) return value;
-
-    // most of these are numbers but some are strings
-    const n = numeral(value).value();
-    let sanitizedValue = n != null ? n : value;
-
-    // planned release dates are serialized to strings; deserialize
-    if (key === "plannedReleases") {
-      sanitizedValue = (sanitizedValue as Array<{
-        date?: string;
-        count?: number;
-      }>).map(({ date, count }) => {
-        return {
-          count,
-          date: date ? parseJSON(date) : undefined,
-        };
-      });
-    }
-    return sanitizedValue;
-  });
-}
-
-// estimated ratio of confirmed cases to actual cases
-const caseReportingRate = 0.14;
-
-function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
-  const {
-    values: rawQueryParams,
-    replaceValues: replaceHistoryState,
-  } = useQueryParams({});
+export function EpidemicModelProvider({
+  children,
+  facilityModel,
+  localeDataSource,
+}: EpidemicModelProviderProps) {
+  const initialState = {
+    ...getLocaleDefaults(
+      localeDataSource,
+      facilityModel?.stateCode,
+      facilityModel?.countyName,
+    ),
+    ...(facilityModel || {}),
+  };
 
   const [state, dispatch] = React.useReducer(
     epidemicModelReducer,
-    getResetBase(),
-  );
-
-  useEffect(
-    () => {
-      // leave state alone until we are done loading data
-      if (state.countyLevelDataLoading) {
-        return;
-      }
-
-      const persistedState = pick(state, persistedKeys);
-      replaceHistoryState(persistedState);
-
-      if (state.stateInitialized) saveState(persistedState);
-    },
-    // replaceHistoryState changes on every render so must be excluded
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [state],
-  );
-
-  // fetch from external datasource
-  React.useEffect(
-    () => {
-      async function effect() {
-        try {
-          const response = await fetch(
-            "https://docs.google.com/spreadsheets/d/e/2PACX-1vSeEO7JySaN21_Cxa7ON_x" +
-              "UHDM-EEOFSMIjOAoLf6YOXBurMRXZYPFi7x_aOe-0awqDcL4KZTK1NhVI/pub?gid=" +
-              "1836987932&single=true&output=csv",
-          );
-          let rawCSV = await response.text();
-          // the first line is not the header row so we need to strip it
-          rawCSV = rawCSV.substring(rawCSV.indexOf("\n") + 1);
-
-          const parsedArray = csvParse(
-            rawCSV,
-            (row): CountyLevelRecord => {
-              // we only need a few columns, which we will explicitly format
-
-              // defaulting missing numbers to zero will not produce meaningful modeling
-              // but it should at least prevent the UI from breaking;
-              // users can still substitute their own values via form inputs
-              const reportedCases: number = numeral(row.cases).value() || 0;
-              const estimatedTotalCases: number =
-                reportedCases * (1 / caseReportingRate);
-              // TODO: distinguish jail vs prison?
-              const totalIncarceratedPopulation: number =
-                numeral(row["Total Incarcerated Population"]).value() || 0;
-              const totalPopulation: number =
-                numeral(row["Total Population"]).value() || 0;
-
-              return {
-                county: row.County || "",
-                state: row.State || "",
-                hospitalBeds: numeral(row["Hospital Beds"]).value() || 0,
-                totalIncarceratedPopulation,
-                estimatedIncarceratedCases: Math.round(
-                  totalPopulation
-                    ? (totalIncarceratedPopulation / totalPopulation) *
-                        estimatedTotalCases
-                    : 0,
-                ),
-              };
-            },
-          )
-            // rows without County are known to be junk
-            .filter((row) => row.county !== "");
-
-          const nestedStateCounty = rollup(
-            parsedArray,
-            // there will only ever be one row object per county
-            (v: object[]) => v[0],
-            (d: DSVRowAny) => d.state as string,
-            (d: DSVRowAny) => d.county as string,
-            // some wrong/outdated typedefs for d3 are making typescript sad
-            // but this should check out
-          ) as CountyLevelData;
-
-          const stateFromQueryParams =
-            rawQueryParams && size(rawQueryParams) > 0;
-
-          // app state in query params supersedes app state in the database
-          const preexistingState = stateFromQueryParams
-            ? rawQueryParams
-            : (await getSavedState()) || {};
-
-          let {
-            stateCode: savedStateCode,
-            countyName: savedCountyName,
-            ...otherParams
-          } = preexistingState;
-
-          // state or county changes trigger a state reset
-          // so we have to run them separately
-          let { stateCode, countyName } = state;
-          if (savedStateCode) {
-            stateCode = savedStateCode as string;
-            if (savedCountyName) {
-              countyName = savedCountyName as string;
-            }
-          }
-          dispatch({
-            type: "update",
-            payload: {
-              countyLevelData: nestedStateCounty,
-              countyLevelDataLoading: false,
-              ...getLocaleData(
-                nestedStateCounty,
-                stateCode,
-                countyName as string,
-              ),
-            },
-          });
-
-          dispatch({
-            type: "update",
-            payload: (stateFromQueryParams
-              ? sanitizeQueryParams(otherParams as QueryParams)
-              : otherParams) as EpidemicModelUpdate,
-          });
-
-          dispatch({
-            type: "update",
-            payload: { stateInitialized: true },
-          });
-        } catch (error) {
-          console.error(error);
-          dispatch({
-            type: "update",
-            payload: { countyLevelDataFailed: true },
-          });
-        }
-      }
-      effect();
-    },
-    // we only want to run this once, on initial mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+    initialState,
   );
 
   return (
@@ -408,7 +216,7 @@ function EpidemicModelProvider({ children }: EpidemicModelProviderProps) {
   );
 }
 
-function useEpidemicModelState() {
+export function useEpidemicModelState() {
   const context = React.useContext(EpidemicModelStateContext);
 
   if (context === undefined) {
@@ -420,7 +228,7 @@ function useEpidemicModelState() {
   return context;
 }
 
-function useEpidemicModelDispatch() {
+export function useEpidemicModelDispatch() {
   const context = React.useContext(EpidemicModelDispatchContext);
 
   if (context === undefined) {
@@ -432,9 +240,24 @@ function useEpidemicModelDispatch() {
   return context;
 }
 
-export {
-  EpidemicModelProvider,
-  useEpidemicModelState,
-  useEpidemicModelDispatch,
-  EpidemicModelInputs,
-};
+// *******
+// calculation helpers
+// *******
+
+export function totalConfirmedCases(model: EpidemicModelState): number {
+  return sum(
+    Object.values(
+      pick(model, [
+        "age0Cases",
+        "age20Cases",
+        "age45Cases",
+        "age55Cases",
+        "age65Cases",
+        "age75Cases",
+        "age85Cases",
+        "ageUnknownCases",
+        "staffCases",
+      ]),
+    ),
+  );
+}

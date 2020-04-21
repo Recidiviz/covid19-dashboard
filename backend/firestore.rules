@@ -6,4 +6,21 @@ service cloud.firestore {
       allow read, write: if request.auth.uid == userId
     }
   }
+
+  match /databases/{database}/documents {
+    match /scenarios/{scenario} {
+      function userCanAccess(scenario) {
+        return scenario.data.roles[request.auth.uid] == 'owner';
+      }
+
+      allow create: if request.auth.uid != null;
+
+      // Scenario owners (and only scenario owners) should have read/write access to their scenarios and child documents
+      allow read, write: if userCanAccess(resource);
+
+      match /{documents=**} {
+        allow read, write: if userCanAccess(get(/databases/$(database)/documents/scenarios/$(scenario)));
+      }
+    }
+  }
 }
