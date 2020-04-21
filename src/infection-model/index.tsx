@@ -3,6 +3,7 @@ import ndarray from "ndarray";
 
 import { EpidemicModelInputs } from "../impact-dashboard/EpidemicModelContext";
 import {
+  adjustPopulations,
   ageGroupIndex,
   CurveProjectionInputs,
   getAllBracketCurves,
@@ -13,40 +14,20 @@ export type CurveData = {
   staff: ndarray;
 };
 
-function prepareCurveData(inputs: EpidemicModelInputs): CurveProjectionInputs {
-  const {
-    age0Cases,
-    age0Population,
-    age20Cases,
-    age20Population,
-    age45Cases,
-    age45Population,
-    age55Cases,
-    age55Population,
-    age65Cases,
-    age65Population,
-    age75Cases,
-    age75Population,
-    age85Cases,
-    age85Population,
-    ageUnknownCases,
-    ageUnknownPopulation,
-    confirmedCases,
-    facilityDormitoryPct,
-    facilityOccupancyPct,
-    plannedReleases,
-    populationTurnover,
-    rateOfSpreadFactor,
-    staffCases,
-    staffPopulation,
-    totalIncarcerated,
-    usePopulationSubsets,
-  } = inputs;
-
-  const numDays = 75;
-
+function prepareAgeGroupPopulations({
+  age0Population,
+  age20Population,
+  age45Population,
+  age55Population,
+  age65Population,
+  age75Population,
+  age85Population,
+  ageUnknownPopulation,
+  staffPopulation,
+  totalIncarcerated,
+  usePopulationSubsets,
+}: EpidemicModelInputs): number[] {
   const ageGroupPopulations = Array(ageGroupIndex.__length).fill(0);
-  const ageGroupInitiallyInfected = Array(ageGroupIndex.__length).fill(0);
   if (usePopulationSubsets) {
     ageGroupPopulations[ageGroupIndex.age0] = age0Population || 0;
     ageGroupPopulations[ageGroupIndex.age20] = age20Population || 0;
@@ -57,7 +38,39 @@ function prepareCurveData(inputs: EpidemicModelInputs): CurveProjectionInputs {
     ageGroupPopulations[ageGroupIndex.age85] = age85Population || 0;
     ageGroupPopulations[ageGroupIndex.ageUnknown] = ageUnknownPopulation || 0;
     ageGroupPopulations[ageGroupIndex.staff] = staffPopulation || 0;
+  } else {
+    ageGroupPopulations[ageGroupIndex.ageUnknown] = totalIncarcerated || 0;
+  }
 
+  return ageGroupPopulations;
+}
+
+function prepareCurveData(inputs: EpidemicModelInputs): CurveProjectionInputs {
+  const {
+    age0Cases,
+    age20Cases,
+    age45Cases,
+    age55Cases,
+    age65Cases,
+    age75Cases,
+    age85Cases,
+    ageUnknownCases,
+    confirmedCases,
+    facilityDormitoryPct,
+    facilityOccupancyPct,
+    plannedReleases,
+    populationTurnover,
+    rateOfSpreadFactor,
+    staffCases,
+    usePopulationSubsets,
+  } = inputs;
+
+  const numDays = 75;
+
+  const ageGroupPopulations = prepareAgeGroupPopulations(inputs);
+
+  const ageGroupInitiallyInfected = Array(ageGroupIndex.__length).fill(0);
+  if (usePopulationSubsets) {
     ageGroupInitiallyInfected[ageGroupIndex.age0] = age0Cases || 0;
     ageGroupInitiallyInfected[ageGroupIndex.age20] = age20Cases || 0;
     ageGroupInitiallyInfected[ageGroupIndex.age45] = age45Cases || 0;
@@ -68,7 +81,6 @@ function prepareCurveData(inputs: EpidemicModelInputs): CurveProjectionInputs {
     ageGroupInitiallyInfected[ageGroupIndex.ageUnknown] = ageUnknownCases || 0;
     ageGroupInitiallyInfected[ageGroupIndex.staff] = staffCases || 0;
   } else {
-    ageGroupPopulations[ageGroupIndex.ageUnknown] = totalIncarcerated || 0;
     ageGroupInitiallyInfected[ageGroupIndex.ageUnknown] = confirmedCases || 0;
   }
 
@@ -125,6 +137,15 @@ export function calculateCurves(inputs: EpidemicModelInputs): CurveData {
 
 export function calculateAllCurves(inputs: EpidemicModelInputs) {
   return getAllBracketCurves(prepareCurveData(inputs));
+}
+
+export function getAdjustedTotalPopulation(inputs: EpidemicModelInputs) {
+  let ageGroupPopulations = prepareAgeGroupPopulations(inputs);
+  ageGroupPopulations = adjustPopulations({
+    ageGroupPopulations,
+    populationTurnover: inputs.populationTurnover,
+  });
+  return sum(ageGroupPopulations);
 }
 
 export function estimatePeakHospitalUse() {

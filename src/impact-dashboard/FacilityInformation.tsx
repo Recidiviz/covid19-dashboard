@@ -1,7 +1,9 @@
+import numeral from "numeral";
 import styled from "styled-components";
 
 import InputTextNumeric from "../design-system/InputTextNumeric";
 import TextLabel from "../design-system/TextLabel";
+import { getAdjustedTotalPopulation } from "../infection-model";
 import Description from "./Description";
 import { EpidemicModelUpdate } from "./EpidemicModelContext";
 import { FormGrid, FormGridCell, FormGridRow } from "./FormGrid";
@@ -22,6 +24,11 @@ const LabelCell: React.FC = (props) => (
 const InputCell: React.FC = (props) => (
   <FormGridCell width={39}>{props.children}</FormGridCell>
 );
+
+const InputNote = styled(Description)`
+  margin-bottom: 0;
+  font-style: italic;
+`;
 
 interface FormRowProps {
   inputs: React.ReactNodeArray;
@@ -173,17 +180,25 @@ const FacilityInformation: React.FC = () => {
           />
           <FormRow
             inputs={[
-              <InputTextNumeric
-                key="turnover"
-                type="percent"
-                labelAbove="Population turnover"
-                labelHelp={`Admissions as a percent of releases in a typical 3mo period
+              <>
+                <InputTextNumeric
+                  key="turnover"
+                  type="percent"
+                  labelAbove="Population turnover"
+                  labelHelp={`Admissions as a percent of releases in a typical 3mo period
                   (e.g., April - June 2019). Can be over or under 100%.`}
-                valueEntered={model.populationTurnover}
-                onValueChange={(value) =>
-                  updateModel({ populationTurnover: value })
-                }
-              />,
+                  valueEntered={model.populationTurnover}
+                  onValueChange={(value) =>
+                    updateModel({ populationTurnover: value })
+                  }
+                />
+                {model.populationTurnover !== 0 && (
+                  <InputNote>
+                    Your updated total population impacted is{" "}
+                    {numeral(getAdjustedTotalPopulation(model)).format("0,0")}
+                  </InputNote>
+                )}
+              </>,
             ]}
           />
         </FormGrid>

@@ -206,8 +206,21 @@ enum R0Dorms {
   high = 7,
 }
 
-// factor for estimating population adjustment based on expected turnover
-const populationAdjustmentRatio = 0.0879;
+export const adjustPopulations = ({
+  ageGroupPopulations,
+  populationTurnover,
+}: {
+  ageGroupPopulations: CurveProjectionInputs["ageGroupPopulations"];
+  populationTurnover: number;
+}): number[] => {
+  // factor for estimating population adjustment based on expected turnover
+  const populationAdjustmentRatio = 0.0879;
+  const adjustRate = populationTurnover * populationAdjustmentRatio;
+
+  return ageGroupPopulations.map((pop, i) =>
+    i === ageGroupIndex.staff ? pop : pop + pop * adjustRate,
+  );
+};
 
 export function getAllBracketCurves(inputs: CurveProjectionInputs) {
   let {
@@ -266,10 +279,10 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
       (rateOfSpreadDorms - rateOfSpreadDormsAdjustment);
 
   // adjust population figures based on expected turnover
-  const adjustRate = populationTurnover * populationAdjustmentRatio;
-  ageGroupPopulations = ageGroupPopulations.map((pop, i) =>
-    i === ageGroupIndex.staff ? pop : pop + pop * adjustRate,
-  );
+  ageGroupPopulations = adjustPopulations({
+    ageGroupPopulations,
+    populationTurnover,
+  });
   const totalPopulationByDay = new Array(numDays);
   totalPopulationByDay[0] = sum(ageGroupPopulations);
 
