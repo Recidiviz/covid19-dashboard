@@ -18,16 +18,6 @@ const Nav = styled.nav`
   justify-content: space-between;
 `;
 
-const LogoContainer = styled.div`
-  align-items: flex-end;
-  color: ${Colors.red};
-  display: flex;
-  font-family: "Poppins", sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: -0.05em;
-`;
-
 const SiteHeader: React.FC = () => {
   const { isAuthenticated, loginWithRedirect, logout } = (useAuth0 as any)();
 
@@ -36,9 +26,7 @@ const SiteHeader: React.FC = () => {
   return (
     <Nav>
       <Link to="/">
-        <LogoContainer>
-          <Logo />
-        </LogoContainer>
+        <Logo />
       </Link>
       {/* <!-- Nav Items and Social Links --> */}
       <div className="flex items-center justify-between">
