@@ -18,46 +18,30 @@ interface Props {
 }
 
 const Table = styled.table`
-  color: ${Colors.black};
-  font-family: "Rubik", sans-serif;
+  color: ${Colors.forest};
+  font-family: "Helvetica Neue", sans serif;
   font-size: 12px;
   font-weight: normal;
   letter-spacing: 0;
   text-align: center;
   width: 100%;
-
-  th,
-  td {
-    padding-bottom: 5px;
-  }
 `;
 
 const TableHeading = styled.thead`
-  border-bottom: 1px solid ${Colors.forest};
+  border-bottom: 1px solid rgba(70, 116, 114, 0.2);
+  border-top: 1px solid rgba(70, 116, 114, 0.2);
 `;
 
 const HeadingCell = styled.th<{ left?: boolean }>`
-  color: ${Colors.forest};
-  font-family: "Poppins", sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: -0.05em;
+  color: ${Colors.darkForest};
+  font-family: "Poppins", sans serif;
+  font-size: 10px;
+  font-weight: normal;
+  letter-spacing: 0.15em;
+  line-height: 150%;
+  padding-bottom: 1.5em;
   text-align: ${(props) => (props.left ? "left" : "center")};
-
-  &.marked {
-    position: relative;
-    &::after {
-      content: "";
-      position: absolute;
-      left: calc(50% - 0.5px);
-      bottom: -4px;
-      width: 0;
-      height: 9px;
-      border-color: ${Colors.forest};
-      border-left: 1px solid;
-      overflow: visible;
-    }
-  }
+  text-transform: uppercase;
 `;
 
 const TableSection = styled.tbody`
@@ -68,26 +52,25 @@ const TableSection = styled.tbody`
   }
 `;
 
-const LabelCell = styled.td<{ italic?: boolean }>`
-  color: ${Colors.forest};
+const TableHeadingCell = styled.td<{ left?: boolean }>`
+  font-family: "Poppins", sans serif;
   font-weight: normal;
-  font-family: "Helvetica Neue";
-  font-size: 13px;
-  font-style: ${(props) => (props.italic ? "italic" : "inherit")};
-  line-height: 150%;
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 16px;
   text-align: left;
   opacity: 0.7;
+  padding: 5px 0;
+  text-align: ${(props) => (props.left ? "left" : "center")};
 `;
 
 const TableCell = styled.td<{ italic?: boolean; center?: boolean }>`
-  color: ${Colors.forest};
-  font-weight: normal;
-  font-family: "Helvetica Neue";
   font-size: 13px;
   font-style: ${(props) => (props.italic ? "italic" : "inherit")};
   line-height: 150%;
   text-align: ${(props) => (props.center ? "center" : "left")};
   opacity: 0.7;
+  padding-bottom: 0.5em;
 `;
 
 const naString = "N/A";
@@ -131,17 +114,17 @@ const ImpactProjectionTable: React.FC<Props> = ({
     <Table>
       <TableHeading>
         <tr>
-          <LabelCell italic>Impact projections</LabelCell>
-          <HeadingCell className="marked">in 1 wk</HeadingCell>
-          <HeadingCell className="marked">in 2 wk</HeadingCell>
-          <HeadingCell className="marked">in 3 wk</HeadingCell>
-          <HeadingCell>Overall</HeadingCell>
+          <TableHeadingCell left>Impact projections</TableHeadingCell>
+          <TableHeadingCell>in 1 wk</TableHeadingCell>
+          <TableHeadingCell>in 2 wk</TableHeadingCell>
+          <TableHeadingCell>in 3 wk</TableHeadingCell>
+          <TableHeadingCell>Overall</TableHeadingCell>
         </tr>
       </TableHeading>
       <TableSection>
         <tr>
           <HeadingCell left scope="rowgroup">
-            Incarcerated population (totals)
+            Total Incarcerated Population
           </HeadingCell>
         </tr>
         {incarceratedData.map((row, i) => {
@@ -152,7 +135,7 @@ const ImpactProjectionTable: React.FC<Props> = ({
       <TableSection>
         <tr>
           <HeadingCell left scope="rowgroup">
-            In-facility staff (totals)
+            Total In-facility Staff
           </HeadingCell>
         </tr>
         {staffData.map((row) => makeTableRow(row))}
