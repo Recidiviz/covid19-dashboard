@@ -1,7 +1,9 @@
+import numeral from "numeral";
 import styled from "styled-components";
 
 import InputTextNumeric from "../design-system/InputTextNumeric";
 import TextLabel from "../design-system/TextLabel";
+import { getAdjustedTotalPopulation } from "../infection-model";
 import Description from "./Description";
 import { EpidemicModelUpdate } from "./EpidemicModelContext";
 import { FormGrid, FormGridCell, FormGridRow } from "./FormGrid";
@@ -23,6 +25,23 @@ const InputCell: React.FC = (props) => (
   <FormGridCell width={39}>{props.children}</FormGridCell>
 );
 
+const InputNote = styled(Description)`
+  margin-bottom: 0;
+  font-style: italic;
+`;
+
+interface FormRowProps {
+  inputs: React.ReactNodeArray;
+}
+
+const FormRow: React.FC<FormRowProps> = ({ inputs }) => (
+  <FormGridRow>
+    {inputs.map((input, i) => (
+      <FormGridCell key={i}>{input}</FormGridCell>
+    ))}
+  </FormGridRow>
+);
+
 interface FormHeaderRowProps {
   label: string;
 }
@@ -39,13 +58,13 @@ const FormHeaderRow: React.FC<FormHeaderRowProps> = (props) => (
   </LabelRow>
 );
 
-interface FormRowProps {
+interface AgeGroupRowProps {
   label: string;
   leftKey: keyof EpidemicModelUpdate;
   rightKey: keyof EpidemicModelUpdate;
 }
 
-const FormRow: React.FC<FormRowProps> = (props) => {
+const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
   const [model, updateModel] = useModel();
 
   return (
@@ -71,38 +90,9 @@ const FormRow: React.FC<FormRowProps> = (props) => {
   );
 };
 
-const BottomRow: React.FC = () => {
+const FacilityInformation: React.FC = () => {
   const [model, updateModel] = useModel();
 
-  return (
-    <FormGridRow>
-      <FormGridCell>
-        <InputTextNumeric
-          type="percent"
-          labelAbove="Capacity (%)"
-          labelHelp="Enter population as a percent of facility built capacity."
-          valueEntered={model.facilityOccupancyPct}
-          onValueChange={(value) =>
-            updateModel({ facilityOccupancyPct: value })
-          }
-        />
-      </FormGridCell>
-      <FormGridCell>
-        <InputTextNumeric
-          type="percent"
-          labelAbove="Bunk-Style Housing (%)"
-          labelHelp="Enter the percent of facility in dormitory bunk style housing."
-          valueEntered={model.facilityDormitoryPct as number}
-          onValueChange={(value) =>
-            updateModel({ facilityDormitoryPct: value })
-          }
-        />
-      </FormGridCell>
-    </FormGridRow>
-  );
-};
-
-const FacilityInformation: React.FC = () => {
   return (
     <FacilityInformationDiv>
       <Description>
@@ -114,7 +104,7 @@ const FacilityInformation: React.FC = () => {
       <div>
         <FormGrid>
           <FormHeaderRow label="Staff Population" />
-          <FormRow
+          <AgeGroupRow
             label="Facility Staff"
             leftKey="staffCases"
             rightKey="staffPopulation"
@@ -122,49 +112,95 @@ const FacilityInformation: React.FC = () => {
           {/* empty row for spacing */}
           <FormGridRow />
           <FormHeaderRow label="Total Population" />
-          <FormRow
+          <AgeGroupRow
             label="Ages Unknown"
             leftKey="ageUnknownCases"
             rightKey="ageUnknownPopulation"
           />
-          <FormRow
+          <AgeGroupRow
             label="Ages 0-19"
             leftKey="age0Cases"
             rightKey="age0Population"
           />
-          <FormRow
+          <AgeGroupRow
             label="Ages 20-44"
             leftKey="age20Cases"
             rightKey="age20Population"
           />
-          <FormRow
+          <AgeGroupRow
             label="Ages 45-54"
             leftKey="age45Cases"
             rightKey="age45Population"
           />
-          <FormRow
+          <AgeGroupRow
             label="Ages 55-64"
             leftKey="age55Cases"
             rightKey="age55Population"
           />
-          <FormRow
+          <AgeGroupRow
             label="Ages 65-74"
             leftKey="age65Cases"
             rightKey="age65Population"
           />
-          <FormRow
+          <AgeGroupRow
             label="Ages 75-84"
             leftKey="age75Cases"
             rightKey="age75Population"
           />
-          <FormRow
+          <AgeGroupRow
             label="Ages 85+"
             leftKey="age85Cases"
             rightKey="age85Population"
           />
         </FormGrid>
         <FormGrid>
-          <BottomRow />
+          <FormRow
+            inputs={[
+              <InputTextNumeric
+                key="occupancy"
+                type="percent"
+                labelAbove="Occupancy rate"
+                labelHelp="Enter occupancy rate as a percent of capacity."
+                valueEntered={model.facilityOccupancyPct}
+                onValueChange={(value) =>
+                  updateModel({ facilityOccupancyPct: value })
+                }
+              />,
+              <InputTextNumeric
+                key="bunks"
+                type="percent"
+                labelAbove="Bunk-Style Housing"
+                labelHelp="Enter the percent of facility in dormitory bunk style housing."
+                valueEntered={model.facilityDormitoryPct as number}
+                onValueChange={(value) =>
+                  updateModel({ facilityDormitoryPct: value })
+                }
+              />,
+            ]}
+          />
+          <FormRow
+            inputs={[
+              <>
+                <InputTextNumeric
+                  key="turnover"
+                  type="percent"
+                  labelAbove="Population turnover"
+                  labelHelp={`Admissions as a percent of releases in a typical 3mo period
+                  (e.g., April - June 2019). Can be over or under 100%.`}
+                  valueEntered={model.populationTurnover}
+                  onValueChange={(value) =>
+                    updateModel({ populationTurnover: value })
+                  }
+                />
+                {model.populationTurnover !== 0 && (
+                  <InputNote>
+                    Your updated total population impacted is{" "}
+                    {numeral(getAdjustedTotalPopulation(model)).format("0,0")}
+                  </InputNote>
+                )}
+              </>,
+            ]}
+          />
         </FormGrid>
       </div>
     </FacilityInformationDiv>

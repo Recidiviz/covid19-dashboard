@@ -13,7 +13,7 @@ export interface PageInfo {
 }
 
 function getPageTitle(...parts: string[]) {
-  return [...parts, "COVID-19 Dashboard"].join(" • ");
+  return ["Recidiviz", "Covid-19 Incarceration Model", ...parts].join(" • ");
 }
 
 const PageList: PageInfo[] = [

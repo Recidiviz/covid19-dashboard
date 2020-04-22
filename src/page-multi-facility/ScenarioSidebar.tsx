@@ -2,7 +2,9 @@ import { format } from "date-fns";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
+import Colors from "../design-system/Colors";
 import iconEditSrc from "../design-system/icons/ic_edit.svg";
+import iconFolderSrc from "../design-system/icons/ic_folder.svg";
 import InputText from "../design-system/InputText";
 import InputTextArea from "../design-system/InputTextArea";
 import PromoBoxWithButton from "../design-system/PromoBoxWithButton";
@@ -15,6 +17,13 @@ const ScenarioNameLabel = styled.label`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+`;
+
+const IconFolder = styled.img`
+  display: inline;
+  width: 12px;
+  height: 12px;
+  margin-right: 12px;
 `;
 
 const IconEdit = styled.img`
@@ -30,7 +39,8 @@ const IconEdit = styled.img`
 `;
 
 const ScenarioHeading = styled.h1`
-  font-size: 1.875rem;
+  color: ${Colors.forest};
+  font-size: 24px;
   line-height: 1.2;
 `;
 
@@ -104,7 +114,8 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
         <ScenarioNameLabel>
           {!editingName ? (
             <ScenarioHeading onClick={() => setEditingName(true)}>
-              {name}
+              <IconFolder alt="folder" src={iconFolderSrc} />
+              <span>{name}</span>
             </ScenarioHeading>
           ) : (
             <InputText
