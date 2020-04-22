@@ -114,7 +114,7 @@ const ImpactProjectionTable: React.FC<Props> = ({
     <Table>
       <TableHeading>
         <tr>
-          <TableHeadingCell left>Impact projections</TableHeadingCell>
+          <TableHeadingCell left>Impacted projections</TableHeadingCell>
           <TableHeadingCell>in 1 wk</TableHeadingCell>
           <TableHeadingCell>in 2 wk</TableHeadingCell>
           <TableHeadingCell>in 3 wk</TableHeadingCell>
