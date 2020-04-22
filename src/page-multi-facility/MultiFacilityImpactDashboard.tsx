@@ -4,6 +4,7 @@ import styled from "styled-components";
 
 import { deleteFacility, getFacilities, saveScenario } from "../database";
 import Colors from "../design-system/Colors";
+import iconAddSrc from "../design-system/icons/ic_add.svg";
 import Loading from "../design-system/Loading";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
 import { useLocaleDataState } from "../locale-data-context";
@@ -26,13 +27,23 @@ interface Props {
 }
 
 const AddFacilityButton = styled.button`
-  color: ${Colors.green};
+  color: ${Colors.forest};
   cursor: pointer;
   font-family: "Libre Baskerville", serif;
-  font-size: 32px;
-  line-height: 32px;
-  letter-spacing: -0.03em;
+  font-size: 24px;
+  line-height: 1;
   text-align: left;
+`;
+
+const IconAdd = styled.img`
+  display: inline;
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+`;
+
+const AddFacilityButtonText = styled.span`
+  vertical-align: middle;
 `;
 
 const MultiFacilityImpactDashboard: React.FC<Props> = ({
@@ -108,7 +119,8 @@ const MultiFacilityImpactDashboard: React.FC<Props> = ({
       )}
       <div className="flex flex-col flex-1 pb-6 pl-8">
         <AddFacilityButton onClick={openAddFacilityPage}>
-          + Add Facility
+          <IconAdd alt="add facility" src={iconAddSrc} />
+          <AddFacilityButtonText>Add Facility</AddFacilityButtonText>
         </AddFacilityButton>
         <ProjectionsHeader />
         {facilities.loading ? (
