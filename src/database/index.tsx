@@ -12,7 +12,7 @@ import {
   EpidemicModelPersistent,
   persistedKeys,
 } from "../impact-dashboard/EpidemicModelContext";
-import { Facility } from "../page-multi-facility/types";
+import { Facility, Scenario } from "../page-multi-facility/types";
 import { prepareForStorage, prepareFromStorage } from "./utils";
 
 // As long as there is just one Auth0 config, this endpoint will work with any environment (local, prod, etc.).
@@ -174,6 +174,47 @@ export const getBaselineScenarioRef = async () => {
   return results.docs[0].ref;
 };
 
+export const saveScenario = async (scenario: {}): Promise<void> => {
+  try {
+    // We're cheating here because for the launch we know there is only a
+    // baseline scenario. In subsequent launches, we'll need to pass in
+    // the ID of the specific scenario that we want to save. See:
+    // https://github.com/Recidiviz/covid19-dashboard/issues/129
+    const baselineScenarioRef = await getBaselineScenarioRef();
+
+    if (!baselineScenarioRef) return;
+
+    const payload = buildUpdatePayload(scenario);
+
+    return await baselineScenarioRef.update(payload);
+  } catch (error) {
+    console.error("Encountered an error while saving the scenario:");
+    console.error(error);
+  }
+};
+
+export const getBaselineScenario = async (
+  baselineScenarioRef: firebase.firestore.DocumentReference | null,
+) => {
+  if (!baselineScenarioRef) return null;
+
+  const result = await baselineScenarioRef.get();
+  let scenario: Scenario = result.data() as Scenario;
+
+  if (scenario && !scenario.hasOwnProperty("promoStatuses")) {
+    scenario = {
+      ...scenario,
+      promoStatuses: {
+        dataSharing: true,
+        dailyReports: true,
+        addFacilities: true,
+      },
+    };
+    await saveScenario(scenario);
+  }
+  return scenario;
+};
+
 export const createBaselineScenario = async () => {
   try {
     let baselineScenarioRef = await getBaselineScenarioRef();
@@ -212,25 +253,6 @@ export const createBaselineScenario = async () => {
     console.error("Encountered an error while creating the baseline scenario:");
     console.error(error);
     return null;
-  }
-};
-
-export const saveScenario = async (scenario: {}): Promise<void> => {
-  try {
-    // We're cheating here because for the launch we know there is only a
-    // baseline scenario. In subsequent launches, we'll need to pass in
-    // the ID of the specific scenario that we want to save. See:
-    // https://github.com/Recidiviz/covid19-dashboard/issues/129
-    const baselineScenarioRef = await getBaselineScenarioRef();
-
-    if (!baselineScenarioRef) return;
-
-    const payload = buildUpdatePayload(scenario);
-
-    return await baselineScenarioRef.update(payload);
-  } catch (error) {
-    console.error("Encountered an error while saving the scenario:");
-    console.error(error);
   }
 };
 
