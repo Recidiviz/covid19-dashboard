@@ -31,7 +31,7 @@ const ProjectionsHeader: React.FC = () => {
         <LegendText className="w-1/4">Cases</LegendText>
         <LegendText className="w-3/4">Facility</LegendText>
       </div>
-      <div className="w-3/5 flex flex-row justify-between">
+      <div className="w-3/5 flex flex-row justify-start">
         <LegendItem className="ml-6">
           <LegendCircle color={markColors.fatalities} />
           <LegendText>Fatalities</LegendText>
