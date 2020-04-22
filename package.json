@@ -124,6 +124,10 @@
     "setupFiles": [
       "<rootDir>/setupTests.ts"
     ],
+    "testPathIgnorePatterns": [
+      "<rootDir>/node_modules/",
+      "<rootDir>/src/database/"
+    ],
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
     },

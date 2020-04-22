@@ -3,6 +3,8 @@
  * custom functions that we've written to read and write data to Firestore.
  * At a later date, we should consider moving its contents into a proper
  * testing framework.
+ * (If/when ported to Jest, remove this directory from testPathIgnorePatterns
+ * in Jest config.)
  */
 import { deleteFacility, saveFacility } from "../index";
 
