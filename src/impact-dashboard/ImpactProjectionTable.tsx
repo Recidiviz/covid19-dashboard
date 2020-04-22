@@ -71,9 +71,23 @@ const TableSection = styled.tbody`
 const LabelCell = styled.td<{ italic?: boolean }>`
   color: ${Colors.forest};
   font-weight: normal;
-  text-align: left;
-  opacity: 0.8;
+  font-family: "Helvetica Neue";
+  font-size: 13px;
   font-style: ${(props) => (props.italic ? "italic" : "inherit")};
+  line-height: 150%;
+  text-align: left;
+  opacity: 0.7;
+`;
+
+const TableCell = styled.td<{ italic?: boolean; center?: boolean }>`
+  color: ${Colors.forest};
+  font-weight: normal;
+  font-family: "Helvetica Neue";
+  font-size: 13px;
+  font-style: ${(props) => (props.italic ? "italic" : "inherit")};
+  line-height: 150%;
+  text-align: ${(props) => (props.center ? "center" : "left")};
+  opacity: 0.7;
 `;
 
 const naString = "N/A";
@@ -89,11 +103,11 @@ function makeTableRow(row: TableRow, formatter = formatThousands) {
   const { label, week1, week2, week3, overall } = row;
   return (
     <tr key={label}>
-      <LabelCell>{label}</LabelCell>
-      <td>{formatter(week1)}</td>
-      <td>{formatter(week2)}</td>
-      <td>{formatter(week3)}</td>
-      <td>{formatter(overall)}</td>
+      <TableCell>{label}</TableCell>
+      <TableCell center>{formatter(week1)}</TableCell>
+      <TableCell center>{formatter(week2)}</TableCell>
+      <TableCell center>{formatter(week3)}</TableCell>
+      <TableCell center>{formatter(overall)}</TableCell>
     </tr>
   );
 }
@@ -102,8 +116,8 @@ function makeOverallOnlyRow(row: TableRow, formatter = formatThousands) {
   const { label, overall } = row;
   return (
     <tr key={label}>
-      <LabelCell colSpan={4}>{label}</LabelCell>
-      <td>{formatter(overall)}</td>
+      <TableCell colSpan={4}>{label}</TableCell>
+      <TableCell center>{formatter(overall)}</TableCell>
     </tr>
   );
 }
