@@ -121,6 +121,9 @@
       "tsx",
       "js"
     ],
+    "setupFiles": [
+      "<rootDir>/setupTests.ts"
+    ],
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
     },
