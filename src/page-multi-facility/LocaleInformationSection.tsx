@@ -48,8 +48,8 @@ const LocaleInformationSection: React.FC<Props> = ({
           value={systemType}
           onChange={(event) => setSystemType(event.target.value)}
         >
-          {systemTypeList.map(({ value }) => (
-            <option key={value} value={value}>
+          {systemTypeList.map(({ value }, index) => (
+            <option key={value || `system-type-${index}`} value={value}>
               {value}
             </option>
           ))}
