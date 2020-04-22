@@ -201,6 +201,8 @@ export const getBaselineScenario = async (
   const result = await baselineScenarioRef.get();
   let scenario: Scenario = result.data() as Scenario;
 
+  // NOTE: We should be able to remove this check and save once this issue
+  // is resolved: https://github.com/Recidiviz/covid19-dashboard/issues/186
   if (scenario && !scenario.hasOwnProperty("promoStatuses")) {
     scenario = {
       ...scenario,
