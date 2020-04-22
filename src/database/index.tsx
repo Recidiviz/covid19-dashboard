@@ -179,7 +179,7 @@ export const saveScenario = async (scenario: {}): Promise<void> => {
     // We're cheating here because for the launch we know there is only a
     // baseline scenario. In subsequent launches, we'll need to pass in
     // the ID of the specific scenario that we want to save. See:
-    // https://github.com/Recidiviz/covid19-dashboard/issues/186
+    // https://github.com/Recidiviz/covid19-dashboard/issues/129
     const baselineScenarioRef = await getBaselineScenarioRef();
 
     if (!baselineScenarioRef) return;
