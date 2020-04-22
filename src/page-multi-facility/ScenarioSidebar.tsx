@@ -7,7 +7,7 @@ import InputText from "../design-system/InputText";
 import InputTextArea from "../design-system/InputTextArea";
 import PromoBoxWithButton from "../design-system/PromoBoxWithButton";
 import ToggleRow from "./ToggleRow";
-import { Scenario } from "./types";
+import { PromoStatuses, Scenario } from "./types";
 
 const ScenarioNameLabel = styled.label`
   align-items: baseline;
@@ -41,12 +41,13 @@ interface Props {
 }
 
 export function getEnabledPromoType(
+  promoStatuses: PromoStatuses,
   scenario?: Scenario | null,
   numFacilities?: number | null,
 ) {
   if (!scenario) return null;
 
-  const { dailyReports, dataSharing, promoStatuses } = scenario;
+  const { dailyReports, dataSharing } = scenario;
 
   return !dailyReports && promoStatuses.dailyReports
     ? "dailyReports"
@@ -81,8 +82,18 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
   const [editingName, setEditingName] = useState(false);
   const [name, setName] = useState(scenario?.name);
   const [promoDismissed, setPromoDismissed] = useState(false);
+  const [defaultPromoStatuses] = useState<PromoStatuses>({
+    dailyReports: true,
+    dataSharing: true,
+    addFacilities: true,
+  });
   const [description, setDescription] = useState(scenario?.description);
-  const promoType: string | null = getEnabledPromoType(scenario, numFacilities);
+  const promoStatuses = scenario?.promoStatuses || defaultPromoStatuses;
+  const promoType: string | null = getEnabledPromoType(
+    promoStatuses,
+    scenario,
+    numFacilities,
+  );
 
   useEffect(() => {
     updateScenario(Object.assign({}, scenario, { description }));
