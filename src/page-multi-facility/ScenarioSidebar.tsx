@@ -45,21 +45,54 @@ const ScenarioHeading = styled.h1`
 `;
 
 interface Props {
+  numFacilities?: number | null;
   scenario?: Scenario | null;
   updateScenario: (scenario: Scenario) => void;
 }
 
+export function getEnabledPromoType(
+  scenario?: Scenario | null,
+  numFacilities?: number | null,
+) {
+  if (!scenario) return null;
+
+  const { dailyReports, dataSharing, promoStatuses } = scenario;
+
+  return !dailyReports && promoStatuses?.dailyReports
+    ? "dailyReports"
+    : !dataSharing && promoStatuses?.dataSharing
+    ? "dataSharing"
+    : numFacilities && numFacilities < 3 && promoStatuses?.addFacilities
+    ? "addFacilities"
+    : null;
+}
+
+const promoTexts: { [promoType: string]: string } = {
+  dailyReports:
+    "Turn on 'Daily Reports' to receive briefings based on the data in this scenario, prepared by Recidiviz and CSG.",
+  dataSharing:
+    "Turn on 'Data Sharing' to provide your baseline data to public researchers, to help improve models of disease spread in prisons in the future.",
+  addFacilities:
+    "Add additional facilities to see the impact across your entire system.",
+};
+
+export function getPromoText(promoType: string | null) {
+  if (!promoType) return null;
+  return promoTexts[promoType];
+}
+
 const ScenarioSidebar: React.FC<Props> = (props) => {
-  const { scenario, updateScenario } = props;
+  const { scenario, updateScenario, numFacilities } = props;
   const updatedAtDate = Number(scenario?.updatedAt.toDate());
 
   const handleScenarioChange = (scenarioChange: object) => {
     updateScenario(Object.assign({}, scenario, scenarioChange));
   };
-
   const [editingName, setEditingName] = useState(false);
   const [name, setName] = useState(scenario?.name);
+  const [promoDismissed, setPromoDismissed] = useState(false);
   const [description, setDescription] = useState(scenario?.description);
+  const promoType: string | null = getEnabledPromoType(scenario, numFacilities);
 
   useEffect(() => {
     updateScenario(Object.assign({}, scenario, { description }));
@@ -133,9 +166,19 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
             labelHelp="If enabled, your baseline scenario will be made available to Recidiviz and the research community to improve the model and the state of research on the spread of disease in facilities. Any public research will anonymize state and facility names."
           />
           <PromoBoxWithButton
-            text={
-              "Turn on 'Daily Reports' to receive briefings based on the data in this scenario, prepared by Recidiviz and CSG."
-            }
+            enabled={!!scenario?.baseline && !promoDismissed}
+            text={getPromoText(promoType) || null}
+            onDismiss={() => {
+              if (scenario && promoType) {
+                setPromoDismissed(true);
+                handleScenarioChange({
+                  promoStatuses: {
+                    ...scenario.promoStatuses,
+                    [promoType]: false,
+                  },
+                });
+              }
+            }}
           />
         </div>
       </div>

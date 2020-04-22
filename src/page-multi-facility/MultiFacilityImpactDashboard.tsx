@@ -2,7 +2,12 @@ import React, { useContext, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
-import { deleteFacility, getFacilities, saveScenario } from "../database";
+import {
+  deleteFacility,
+  getBaselineScenario,
+  getFacilities,
+  saveScenario,
+} from "../database";
 import Colors from "../design-system/Colors";
 import iconAddSrc from "../design-system/icons/ic_add.svg";
 import Loading from "../design-system/Loading";
@@ -10,7 +15,7 @@ import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext"
 import { useLocaleDataState } from "../locale-data-context";
 import { FacilityContext } from "./FacilityContext";
 import FacilityRow from "./FacilityRow";
-import { ScenarioType } from "./MultiFacilityPage";
+import { BaselineScenarioRef } from "./MultiFacilityPage";
 import ProjectionsHeader from "./ProjectionsHeader";
 import ScenarioSidebar from "./ScenarioSidebar";
 import { Facilities, Scenario } from "./types";
@@ -23,7 +28,7 @@ const MultiFacilityImpactDashboardContainer = styled.main.attrs({
 })``;
 
 interface Props {
-  baselineScenario?: ScenarioType;
+  baselineScenarioRef?: BaselineScenarioRef;
 }
 
 const AddFacilityButton = styled.button`
@@ -47,7 +52,7 @@ const AddFacilityButtonText = styled.span`
 `;
 
 const MultiFacilityImpactDashboard: React.FC<Props> = ({
-  baselineScenario,
+  baselineScenarioRef,
 }) => {
   const { data: localeDataSource } = useLocaleDataState();
   const history = useHistory();
@@ -73,9 +78,9 @@ const MultiFacilityImpactDashboard: React.FC<Props> = ({
 
   useEffect(() => {
     async function fetchScenario() {
-      const result = await baselineScenario?.data?.get();
+      const scenario = await getBaselineScenario(baselineScenarioRef?.data);
       setScenario({
-        data: result?.data(),
+        data: scenario,
         loading: false,
       });
     }
@@ -113,6 +118,7 @@ const MultiFacilityImpactDashboard: React.FC<Props> = ({
         <Loading />
       ) : (
         <ScenarioSidebar
+          numFacilities={facilities?.data.length}
           scenario={scenario.data}
           updateScenario={updateScenario}
         />
@@ -126,7 +132,7 @@ const MultiFacilityImpactDashboard: React.FC<Props> = ({
         {facilities.loading ? (
           <Loading />
         ) : (
-          facilities?.data.map((facility, index) => {
+          facilities?.data.map((facility) => {
             return (
               <EpidemicModelProvider
                 key={facility.id}
