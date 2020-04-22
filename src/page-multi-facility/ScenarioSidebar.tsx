@@ -134,7 +134,7 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
           />
           <PromoBoxWithButton
             text={
-              "Turn on 'DailyReports' to receive daily analysis and status updates from Recidiviz and CSG."
+              "Turn on 'Daily Reports' to receive briefings based on the data in this scenario, prepared by Recidiviz and CSG."
             }
           />
         </div>
