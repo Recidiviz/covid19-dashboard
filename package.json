@@ -122,7 +122,7 @@
       "js"
     ],
     "setupFiles": [
-      "<rootDir>/setupTests.ts"
+      "<rootDir>/setupTests.tsx"
     ],
     "testPathIgnorePatterns": [
       "<rootDir>/node_modules/",
