@@ -64,8 +64,23 @@ const MultiFacilityImpactDashboard: React.FC<Props> = ({
   useEffect(() => {
     async function fetchScenario() {
       const result = await baselineScenario?.data?.get();
+
+      let scenario = result?.data();
+
+      if (!scenario.hasOwnProperty("promoStatuses")) {
+        scenario = {
+          ...scenario,
+          promoStatuses: {
+            dataSharing: true,
+            dailyReports: true,
+            addFacilities: true,
+          },
+        };
+        await updateScenario(scenario);
+      }
+
       setScenario({
-        data: result?.data(),
+        data: scenario,
         loading: false,
       });
     }
