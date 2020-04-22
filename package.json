@@ -121,7 +121,7 @@
       "tsx",
       "js"
     ],
-    "setupFiles": [
+    "setupFilesAfterEnv": [
       "<rootDir>/setupTests.tsx"
     ],
     "testPathIgnorePatterns": [

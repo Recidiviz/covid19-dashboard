@@ -1,6 +1,3 @@
-import "@testing-library/jest-dom";
-import "jest-styled-components";
-
 import { render } from "@testing-library/react";
 
 import InputToggle from "../InputToggle";
