@@ -18,7 +18,7 @@ const ToggleRowContainer = styled.div`
   display: flex;
   border-bottom: ${borderStyle};
   justify-content: space-between;
-  padding: 10px 5px 10px 0;
+  padding: 16px 5px 16px 0;
 `;
 
 const ToggleRow: React.FC<Props> = (props) => {

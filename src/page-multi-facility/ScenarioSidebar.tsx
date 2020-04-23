@@ -151,7 +151,7 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
             {updatedAtDate && format(updatedAtDate, "MMMM d, yyyy")}
           </p>
         </div>
-        <Border className="mt-5 mb-5 border-b" />
+        <Border className="mt-4 border-b" />
         <div>
           <ToggleRow
             onToggle={() =>
