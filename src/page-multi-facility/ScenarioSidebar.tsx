@@ -44,6 +44,10 @@ const ScenarioHeading = styled.h1`
   line-height: 1.2;
 `;
 
+const Border = styled.div`
+  border-color: ${Colors.opacityGray};
+`;
+
 interface Props {
   numFacilities?: number | null;
   scenario?: Scenario | null;
@@ -132,7 +136,7 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
           )}
           <IconEdit alt="Scenario name" src={iconEditSrc} />
         </ScenarioNameLabel>
-        <div className="mt-5 mb-5 border-b border-gray-300" />
+        <Border className="mt-5 mb-5 border-b" />
         <div className="mb-12">
           <InputTextArea
             label="Description"
@@ -147,7 +151,7 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
             {updatedAtDate && format(updatedAtDate, "MMMM d, yyyy")}
           </p>
         </div>
-        <div className="mt-5 mb-5 border-b border-gray-300" />
+        <Border className="mt-5 mb-5 border-b" />
         <div>
           <ToggleRow
             onToggle={() =>

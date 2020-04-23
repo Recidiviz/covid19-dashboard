@@ -12,7 +12,7 @@ interface Props {
   labelHelp?: React.ReactNode;
 }
 
-const borderStyle = `1px solid ${Colors.paleGreen}`;
+const borderStyle = `1px solid ${Colors.opacityGray}`;
 
 const ToggleRowContainer = styled.div`
   display: flex;
