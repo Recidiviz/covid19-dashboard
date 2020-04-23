@@ -139,6 +139,7 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
             fillVertical
             style={inputTextAreaStyle}
             label="Description"
+            autoResizeVertically
             value={description}
             placeholder=""
             onBlur={() => handleScenarioChange({ description })}
