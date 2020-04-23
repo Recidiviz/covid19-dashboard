@@ -197,7 +197,8 @@ const FacilityRow: React.FC<Props> = ({
         </div>
         <div className="w-3/5">
           <CurveChartContainer
-            chartHeight={200}
+            chartHeight={144}
+            hideAxes={true}
             groupStatus={groupStatus}
             markColors={markColors}
           />
