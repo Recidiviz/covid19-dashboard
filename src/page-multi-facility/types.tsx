@@ -25,14 +25,8 @@ export type Scenario = {
   promoStatuses?: PromoStatuses | undefined;
   description: string;
   roles: object;
-  createdAt: TimeStamp;
-  updatedAt: TimeStamp;
-};
-
-type TimeStamp = {
-  seconds: string;
-  nanoseconds: string;
-  toDate: () => string;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
 };
 
 export type PromoStatuses = {
