@@ -29,6 +29,10 @@ const ChartWrapper = styled.div`
   .axis-label {
     font-size: 10px;
   }
+
+  circle.frame-hover {
+    display: none;
+  }
 `;
 
 export default ChartWrapper;

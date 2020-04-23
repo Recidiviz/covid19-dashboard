@@ -19,10 +19,6 @@ const CurveChartWrapper = styled(ChartWrapper)`
       stroke-linecap: round;
     }
   }
-
-  circle.frame-hover {
-    display: none;
-  }
 `;
 
 const TooltipTitle = styled.div`

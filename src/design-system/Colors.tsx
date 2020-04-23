@@ -7,6 +7,12 @@ export function darken(color: string, amount: number) {
   return lab(l - amount, a, b).hex();
 }
 
+export function lighten(color: string, amount: number) {
+  // good to use Lab color because it's perceptually uniform
+  const { l, a, b } = lab(color);
+  return lab(l + amount, a, b).hex();
+}
+
 const Colors = {
   black: "#000",
   slate: "#e9ebeb",
@@ -18,6 +24,7 @@ const Colors = {
   gray: "#E0E4E4",
   darkGray: "#c8d3d3",
   opacityGray: `${hexAlpha("#467472", 0.2)}`,
+  lightGray: "#E1E3E3",
   green: "#006C67",
   lightBlue: "#33B6FF",
   paleGreen: "#D2DBDB",
