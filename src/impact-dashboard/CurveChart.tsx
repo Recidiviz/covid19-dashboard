@@ -157,7 +157,6 @@ const CurveChart: React.FC<CurveChartProps> = ({
     responsiveWidth: true,
     size: [450, 450],
     yExtent: { extent: [0], includeAnnotations: true },
-    margin: { left: 60, bottom: 60, right: 10, top: 0 },
     lineStyle: ({ key }) => ({
       stroke: markColors[key],
       strokeWidth: 1,
@@ -166,14 +165,11 @@ const CurveChart: React.FC<CurveChartProps> = ({
     }),
     axes: [
       {
-        orient: "left",
         baseline: false,
-        tickFormat: formatThousands,
+        ticks: 5,
       },
       {
-        orient: "bottom",
         tickLineGenerator: () => null,
-        label: "Days",
       },
     ],
     annotations: [
