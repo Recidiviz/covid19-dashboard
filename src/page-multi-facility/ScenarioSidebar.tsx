@@ -1,48 +1,11 @@
 import { format } from "date-fns";
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
 
-import Colors from "../design-system/Colors";
-import iconEditSrc from "../design-system/icons/ic_edit.svg";
-import iconFolderSrc from "../design-system/icons/ic_folder.svg";
 import InputDescription from "../design-system/InputDescription";
-import InputText from "../design-system/InputText";
+import InputNameWithIcon from "../design-system/InputNameWithIcon";
 import PromoBoxWithButton from "../design-system/PromoBoxWithButton";
 import ToggleRow from "./ToggleRow";
 import { Scenario } from "./types";
-
-const ScenarioNameLabel = styled.label`
-  align-items: baseline;
-  cursor: pointer;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-`;
-
-const IconFolder = styled.img`
-  display: inline;
-  width: 12px;
-  height: 12px;
-  margin-right: 12px;
-`;
-
-const IconEdit = styled.img`
-  flex: 0 0 auto;
-  height: 10px;
-  margin-left: 10px;
-  visibility: hidden;
-  width: 10px;
-
-  ${ScenarioNameLabel}:hover & {
-    visibility: visible;
-  }
-`;
-
-const ScenarioHeading = styled.h1`
-  color: ${Colors.forest};
-  font-size: 24px;
-  line-height: 1.2;
-`;
 
 interface Props {
   scenario?: Scenario | null;
@@ -56,8 +19,6 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
   const handleScenarioChange = (scenarioChange: object) => {
     updateScenario(Object.assign({}, scenario, scenarioChange));
   };
-
-  const [editingName, setEditingName] = useState(false);
   const [name, setName] = useState(scenario?.name);
   const [description, setDescription] = useState(scenario?.description);
 
@@ -69,36 +30,14 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
     updateScenario(Object.assign({}, scenario, { name }));
   }, [name]);
 
-  const onEnterPress = (event: React.KeyboardEvent, onEnter: Function) => {
-    if (event.key !== "Enter") return;
-
-    onEnter();
-  };
-
   return (
     <div className="flex flex-col w-1/4 mr-24">
       <div className="flex-1 flex flex-col pb-4">
-        <ScenarioNameLabel>
-          {!editingName ? (
-            <ScenarioHeading onClick={() => setEditingName(true)}>
-              <IconFolder alt="folder" src={iconFolderSrc} />
-              <span>{name}</span>
-            </ScenarioHeading>
-          ) : (
-            <InputText
-              type="text"
-              headerStyle={true}
-              focus={true}
-              valueEntered={name}
-              onValueChange={(value) => setName(value)}
-              onBlur={() => setEditingName(false)}
-              onKeyDown={(event) =>
-                onEnterPress(event, () => setEditingName(false))
-              }
-            />
-          )}
-          <IconEdit alt="Scenario name" src={iconEditSrc} />
-        </ScenarioNameLabel>
+        <InputNameWithIcon
+          name={name}
+          setName={setName}
+          placeholder={scenario?.description}
+        />
         <InputDescription
           description={description}
           setDescription={setDescription}

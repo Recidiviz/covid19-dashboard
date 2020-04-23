@@ -8,7 +8,7 @@ import InputText from "../design-system/InputText";
 
 const borderStyle = `1px solid ${Colors.paleGreen}`;
 
-const FacilityNameLabelDiv = styled.label`
+const NameLabelDiv = styled.label`
   align-items: baseline;
   cursor: pointer;
   display: flex;
@@ -34,26 +34,24 @@ const IconEdit = styled.img`
   visibility: hidden;
   width: 10px;
 
-  ${FacilityNameLabelDiv}:hover & {
+  ${NameLabelDiv}:hover & {
     visibility: visible;
   }
 `;
 
-const FacilityHeading = styled.h1`
+const Heading = styled.h1`
   color: ${Colors.forest};
   font-size: 24px;
   line-height: 1.2;
 `;
 
 interface Props {
-  facilityName?: string | undefined;
-  setFacilityName: (facilityName?: string) => void;
+  name?: string | undefined;
+  setName: (name?: string) => void;
+  placeholder?: string | undefined;
 }
 
-const InputFacilityName: React.FC<Props> = ({
-  facilityName,
-  setFacilityName,
-}) => {
+const InputNameWithIcon: React.FC<Props> = ({ name, setName, placeholder }) => {
   const [editingName, setEditingName] = useState(false);
 
   const onEnterPress = (event: React.KeyboardEvent, onEnter: Function) => {
@@ -61,32 +59,32 @@ const InputFacilityName: React.FC<Props> = ({
     onEnter();
   };
 
-  const updateFacilityName = () => {
+  const updateName = () => {
     setEditingName(false);
-    setFacilityName(facilityName);
+    setName(name);
   };
 
   return (
-    <FacilityNameLabelDiv>
+    <NameLabelDiv>
       {!editingName ? (
-        <FacilityHeading onClick={() => setEditingName(true)}>
+        <Heading onClick={() => setEditingName(true)}>
           <IconFolder alt="folder" src={iconFolderSrc} />
-          <span>{facilityName || "Unnamed Facility"}</span>
-        </FacilityHeading>
+          <span>{name || placeholder}</span>
+        </Heading>
       ) : (
         <InputText
           type="text"
           headerStyle={true}
           focus={true}
-          valueEntered={facilityName}
-          onValueChange={(value) => setFacilityName(value)}
-          onBlur={() => updateFacilityName()}
-          onKeyDown={(event) => onEnterPress(event, updateFacilityName)}
+          valueEntered={name}
+          onValueChange={(value) => setName(value)}
+          onBlur={() => updateName()}
+          onKeyDown={(event) => onEnterPress(event, updateName)}
         />
       )}
-      <IconEdit alt="Facility name" src={iconEditSrc} />
-    </FacilityNameLabelDiv>
+      <IconEdit alt="Name" src={iconEditSrc} />
+    </NameLabelDiv>
   );
 };
 
-export default InputFacilityName;
+export default InputNameWithIcon;

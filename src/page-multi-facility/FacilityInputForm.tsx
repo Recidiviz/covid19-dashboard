@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { saveFacility } from "../database/index";
 import InputButton from "../design-system/InputButton";
 import InputDescription from "../design-system/InputDescription";
-import InputFacilityName from "../design-system/InputFacilityName";
+import InputNameWithIcon from "../design-system/InputNameWithIcon";
 import ChartArea from "../impact-dashboard/ChartArea";
 import ImpactProjectionTable from "../impact-dashboard/ImpactProjectionTableContainer";
 import MitigationInformation from "../impact-dashboard/MitigationInformation";
@@ -58,9 +58,10 @@ const FacilityInputForm: React.FC = () => {
   return (
     <FacilityInputFormDiv>
       <LeftColumn>
-        <InputFacilityName
-          facilityName={facilityName}
-          setFacilityName={setFacilityName}
+        <InputNameWithIcon
+          name={facilityName}
+          setName={setFacilityName}
+          placeholder={"Unnamed Facility"}
         />
         <InputDescription
           description={description}
