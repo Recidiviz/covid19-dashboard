@@ -38,6 +38,8 @@ interface ModelInputsPersistent {
   ageUnknownPopulation?: number;
   facilityDormitoryPct?: number;
   facilityOccupancyPct?: number;
+  plannedReleases?: PlannedReleases;
+  populationTurnover?: number;
   rateOfSpreadFactor?: RateOfSpread;
   staffCases?: number;
   staffPopulation?: number;
@@ -56,6 +58,7 @@ export interface EpidemicModelInputs extends ModelInputsUpdate {
   usePopulationSubsets: boolean;
   facilityDormitoryPct: number;
   facilityOccupancyPct: number;
+  populationTurnover: number;
 }
 
 interface MetadataPersistent {
@@ -96,6 +99,8 @@ export const persistedKeys: Array<keyof EpidemicModelPersistent> = [
   "ageUnknownPopulation",
   "facilityDormitoryPct",
   "facilityOccupancyPct",
+  "plannedReleases",
+  "populationTurnover",
   "rateOfSpreadFactor",
   "staffCases",
   "staffPopulation",
@@ -153,6 +158,7 @@ function getLocaleDefaults(
     rateOfSpreadFactor: RateOfSpread.high,
     facilityOccupancyPct: 1,
     facilityDormitoryPct: 0.15,
+    populationTurnover: 0,
   };
 }
 

@@ -24,6 +24,7 @@ export interface CurveProjectionInputs extends SimulationInputs {
   facilityOccupancyPct: number;
   rateOfSpreadFactor: RateOfSpread;
   plannedReleases?: PlannedReleases;
+  populationTurnover: number;
 }
 
 interface SingleDayInputs {
@@ -86,6 +87,15 @@ const dHospitalFatality = 8.3;
 const pSevereCase = 0.26;
 // factor for inferring exposure based on confirmed cases
 const ratioExposedToInfected = dIncubation / dInfectious;
+// factor for estimating population adjustment based on expected turnover
+const populationAdjustmentRatio = 0.0879;
+// Distribution of initial infected cases, based on curve ratios
+const pInitiallyInfectious = 0.611;
+const pInitiallyMild = 0.231;
+const pInitiallySevere = 0.054;
+const pInitiallyHospitalized = 0.043;
+const pInitiallyMildRecovered = 0.057;
+const pInitiallySevereRecovered = 0.004;
 
 function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
   const {
@@ -205,6 +215,20 @@ enum R0Dorms {
   high = 7,
 }
 
+export const adjustPopulations = ({
+  ageGroupPopulations,
+  populationTurnover,
+}: {
+  ageGroupPopulations: CurveProjectionInputs["ageGroupPopulations"];
+  populationTurnover: number;
+}): number[] => {
+  const adjustRate = populationTurnover * populationAdjustmentRatio;
+
+  return ageGroupPopulations.map((pop, i) =>
+    i === ageGroupIndex.staff ? pop : pop + pop * adjustRate,
+  );
+};
+
 export function getAllBracketCurves(inputs: CurveProjectionInputs) {
   let {
     ageGroupInitiallyInfected,
@@ -213,6 +237,7 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
     facilityOccupancyPct,
     numDays,
     plannedReleases,
+    populationTurnover,
     rateOfSpreadFactor,
   } = inputs;
 
@@ -260,10 +285,15 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
     (1 - facilityOccupancyPct) *
       (rateOfSpreadDorms - rateOfSpreadDormsAdjustment);
 
+  // adjust population figures based on expected turnover
+  ageGroupPopulations = adjustPopulations({
+    ageGroupPopulations,
+    populationTurnover,
+  });
   const totalPopulationByDay = new Array(numDays);
   totalPopulationByDay[0] = sum(ageGroupPopulations);
 
-  // initialize the base daily state with just susceptible and infected pops.
+  // initialize the base daily state
   // each age group is a single row
   // each SEIR bucket is a single column
   const singleDayState = ndarray(
@@ -271,13 +301,35 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
     [ageGroupIndex.__length, seirIndex.__length],
   );
 
-  // initially everyone is either susceptible, exposed, or infected
+  // assign people to initial states
   zip(ageGroupPopulations, ageGroupInitiallyInfected).forEach(
     ([pop, cases], index) => {
       const exposed = cases * ratioExposedToInfected;
       singleDayState.set(index, seirIndex.exposed, exposed);
-      singleDayState.set(index, seirIndex.infectious, cases);
       singleDayState.set(index, seirIndex.susceptible, pop - cases - exposed);
+      // distribute cases across compartments proportionally
+      singleDayState.set(
+        index,
+        seirIndex.infectious,
+        cases * pInitiallyInfectious,
+      );
+      singleDayState.set(index, seirIndex.mild, cases * pInitiallyMild);
+      singleDayState.set(index, seirIndex.severe, cases * pInitiallySevere);
+      singleDayState.set(
+        index,
+        seirIndex.hospitalized,
+        cases * pInitiallyHospitalized,
+      );
+      singleDayState.set(
+        index,
+        seirIndex.mildRecovered,
+        cases * pInitiallyMildRecovered,
+      );
+      singleDayState.set(
+        index,
+        seirIndex.severeRecovered,
+        cases * pInitiallySevereRecovered,
+      );
     },
   );
 

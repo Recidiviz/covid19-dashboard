@@ -10,7 +10,7 @@ import MultiFacilityImpactDashboard from "./MultiFacilityImpactDashboard";
 
 const MultiFacilityPageDiv = styled.div``;
 
-export type ScenarioType = {
+export type BaselineScenarioRef = {
   // TODO: Confine uses of Firestore APIs (document references, etc.) to the `database` module and make this type
   //       more specific.
   data?: any;
@@ -18,7 +18,9 @@ export type ScenarioType = {
 };
 
 const MultiFacilityPage: React.FC = () => {
-  const [baselineScenario, setBaselineScenario] = useState<ScenarioType>({
+  const [baselineScenarioRef, setBaselineScenarioRef] = useState<
+    BaselineScenarioRef
+  >({
     data: null,
     loading: true,
   });
@@ -29,7 +31,7 @@ const MultiFacilityPage: React.FC = () => {
     async function fetchBaselineScenarioRef() {
       const baselineScenarioRef = await getBaselineScenarioRef();
 
-      setBaselineScenario({
+      setBaselineScenarioRef({
         data: baselineScenarioRef,
         loading: false,
       });
@@ -48,10 +50,12 @@ const MultiFacilityPage: React.FC = () => {
               Unable to load state and county data. Please try refreshing the
               page.
             </div>
-          ) : baselineScenario.loading || localeState.loading ? (
+          ) : baselineScenarioRef.loading || localeState.loading ? (
             <Loading />
-          ) : baselineScenario.data ? (
-            <MultiFacilityImpactDashboard baselineScenario={baselineScenario} />
+          ) : baselineScenarioRef.data ? (
+            <MultiFacilityImpactDashboard
+              baselineScenarioRef={baselineScenarioRef}
+            />
           ) : (
             <CreateBaselineScenarioPage />
           )}
