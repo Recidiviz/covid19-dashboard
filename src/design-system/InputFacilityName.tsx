@@ -57,6 +57,11 @@ const InputFacilityName: React.FC<Props> = ({
     onEnter();
   };
 
+  const updateName = () => {
+    setEditingName(false);
+    setFacilityName(facilityName);
+  };
+
   return (
     <FacilityNameLabelDiv>
       {!editingName ? (
@@ -71,9 +76,9 @@ const InputFacilityName: React.FC<Props> = ({
           focus={true}
           valueEntered={facilityName}
           onValueChange={(value) => setFacilityName(value)}
-          onBlur={() => setEditingName(false)}
+          onBlur={() => updateName()}
           onKeyDown={(event) =>
-            onEnterPress(event, () => setEditingName(false))
+            onEnterPress(event, updateName)
           }
         />
       )}
