@@ -1,5 +1,7 @@
 import styled from "styled-components";
 
+import Colors from "./Colors";
+
 const ChartWrapper = styled.div`
   .frame {
     font-family: "Poppins", sans-serif;
@@ -8,24 +10,20 @@ const ChartWrapper = styled.div`
     letter-spacing: 0;
   }
 
-  .axis-baseline,
   .tick {
-    stroke: #467472;
-  }
-
-  .tick {
+    stroke: ${Colors.paleForest};
     stroke-opacity: 0.2;
   }
 
   .axis-baseline {
+    stroke: ${Colors.paleForest};
     stroke-width: 2px;
   }
 
   .axis-title text,
   .axis-label {
-    fill: #00413e;
+    fill: ${Colors.paleForest};
     font-weight: 400;
-    opacity: 0.7;
   }
 
   .axis-label {

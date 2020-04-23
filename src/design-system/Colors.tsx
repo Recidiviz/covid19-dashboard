@@ -12,6 +12,7 @@ const Colors = {
   slate: "#e9ebeb",
   forest: "#005450",
   darkForest: "#033342",
+  paleForest: "#667c7b",
   teal: "#25b894",
   darkTeal: "#759f9e",
   gray: "#E0E4E4",
