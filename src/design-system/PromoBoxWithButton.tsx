@@ -4,7 +4,9 @@ import styled from "styled-components";
 import Colors from "../design-system/Colors";
 
 interface Props {
-  text?: string;
+  enabled: boolean;
+  text?: string | null;
+  onDismiss: () => void;
 }
 
 const DismissButton = styled.div`
@@ -26,14 +28,20 @@ const PromoBox = styled.div`
 `;
 
 const PromoBoxWithButton: React.FC<Props> = (props) => {
+  const { text, onDismiss, enabled } = props;
   const [dismissed, setDismissed] = useState(false);
 
-  if (dismissed || !props.text) return null;
+  if (dismissed || !text || !enabled) return null;
+
+  const handleOnClick = () => {
+    setDismissed(true);
+    onDismiss();
+  };
 
   return (
     <PromoBox>
-      {props.text}
-      <DismissButton onClick={() => setDismissed(true)}>Dismiss</DismissButton>
+      {text}
+      <DismissButton onClick={handleOnClick}>Dismiss</DismissButton>
     </PromoBox>
   );
 };

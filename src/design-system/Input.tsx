@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import Colors from "./Colors";
 
@@ -39,7 +39,11 @@ export function useInputValue<T>(props: InputValueProps<T>) {
 
 export type InputBaseProps<T> = InputLabelProps & InputValueProps<T>;
 
-export const StyledInput = styled.input`
+interface InputProps {
+  headerStyle?: boolean;
+}
+
+export const StyledInput = styled.input<InputProps>`
   background: ${Colors.gray};
   border-radius: 2px;
   border: none;
@@ -53,4 +57,20 @@ export const StyledInput = styled.input`
   outline: 0 solid transparent;
   padding: 0 16px;
   width: 100%;
+
+  ${(props) =>
+    props.headerStyle &&
+    css`
+      font-family: "Libre Baskerville", serif;
+      font-style: normal;
+      font-weight: normal;
+      font-size: 64px;
+      line-height: 64px;
+      letter-spacing: -0.03em;
+      color: #006c67;
+      font-size: 1.875rem;
+      margin: 0 !important;
+      padding: 0 !important;
+      background-color: transparent;
+    `};
 `;

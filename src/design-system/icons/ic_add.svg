@@ -1,0 +1,8 @@
+<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g>
+    <circle cx="10" cy="10" r="9.5" stroke="#C8D3D3"/>
+  </g>
+  <g transform="translate(6,6)">
+    <path opacity="0.5" d="M5 1C5 0.447715 4.55228 0 4 0C3.44772 0 3 0.447715 3 1V3H1C0.447715 3 0 3.44772 0 4C0 4.55228 0.447715 5 1 5H3V7C3 7.55228 3.44772 8 4 8C4.55228 8 5 7.55228 5 7V5H7C7.55228 5 8 4.55228 8 4C8 3.44772 7.55228 3 7 3H5V1Z" fill="#005450"/>
+  </g>
+</svg>
