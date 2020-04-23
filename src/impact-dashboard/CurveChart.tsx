@@ -7,7 +7,6 @@ import styled from "styled-components";
 import ChartTooltip from "../design-system/ChartTooltip";
 import ChartWrapper from "../design-system/ChartWrapper";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
-import Tooltip from "../design-system/Tooltip";
 import { MarkColors } from "./ChartArea";
 
 const CurveChartWrapper = styled(ChartWrapper)`
