@@ -4,43 +4,13 @@ import { add } from "date-fns";
 import ResponsiveXYFrame from "semiotic/lib/ResponsiveXYFrame";
 import styled from "styled-components";
 
+import ChartWrapper from "../design-system/ChartWrapper";
 import Colors from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import { MarkColors } from "./ChartArea";
 
-const ChartContainer = styled.div`
+const CurveChartWrapper = styled(ChartWrapper)`
   height: ${(props) => props.chartHeight}px;
-
-  .frame {
-    font-family: "Poppins", sans-serif;
-    font-size: 11px;
-    font-weight: 300;
-    letter-spacing: 0;
-  }
-
-  .axis-baseline,
-  .tick {
-    stroke: #467472;
-  }
-
-  .tick {
-    stroke-opacity: 0.2;
-  }
-
-  .axis-baseline {
-    stroke-width: 2px;
-  }
-
-  .axis-title text,
-  .axis-label {
-    fill: #00413e;
-    font-weight: 400;
-    opacity: 0.7;
-  }
-
-  .axis-label {
-    font-size: 10px;
-  }
 
   .threshold-annotation {
     .subject {
@@ -195,9 +165,9 @@ const CurveChart: React.FC<CurveChartProps> = ({
   };
 
   return (
-    <ChartContainer chartHeight={chartHeight || 380}>
+    <CurveChartWrapper chartHeight={chartHeight || 380}>
       <ResponsiveXYFrame {...frameProps} />
-    </ChartContainer>
+    </CurveChartWrapper>
   );
 };
 
