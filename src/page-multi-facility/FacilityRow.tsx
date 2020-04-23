@@ -101,13 +101,15 @@ const handleSubClick = (fn?: Function, ...args: any[]) => {
 };
 
 interface Props {
-  deleteFn: (id: string) => void;
+  deleteFn: (scenarioId: string, facilityId: string) => void;
   facility: Facility;
+  scenarioId: string;
 }
 
 const FacilityRow: React.FC<Props> = ({
   deleteFn,
   facility: initialFacility,
+  scenarioId: scenarioId,
 }) => {
   const confirmedCases = totalConfirmedCases(useEpidemicModelState());
   const history = useHistory();
@@ -128,11 +130,7 @@ const FacilityRow: React.FC<Props> = ({
   const closeDeleteModal = handleSubClick(updateShowDeleteModal, false);
 
   const removeFacility = handleSubClick(async () => {
-    // In this context id should always be present, but TypeScript
-    // is complaining so I'm adding this check to appease it.
-    if (id) {
-      await deleteFn(id);
-    }
+    await deleteFn(scenarioId, id);
     updateShowDeleteModal(false);
   });
 
@@ -155,7 +153,7 @@ const FacilityRow: React.FC<Props> = ({
                   // this updates the local state
                   updateFacility({ ...facility, name: newName });
                   // this persists the changes to the database
-                  saveFacility({
+                  saveFacility(scenarioId, {
                     id,
                     name: newName,
                   });
