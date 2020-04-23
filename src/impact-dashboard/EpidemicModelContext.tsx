@@ -38,12 +38,10 @@ interface ModelInputsPersistent {
   ageUnknownPopulation?: number;
   facilityDormitoryPct?: number;
   facilityOccupancyPct?: number;
-  plannedReleases?: PlannedReleases;
   populationTurnover?: number;
   rateOfSpreadFactor?: RateOfSpread;
   staffCases?: number;
   staffPopulation?: number;
-  plannedReleases?: PlannedReleases;
 }
 
 interface ModelInputsUpdate extends ModelInputsPersistent {
