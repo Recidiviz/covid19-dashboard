@@ -81,9 +81,7 @@ const InputFacilityName: React.FC<Props> = ({
           valueEntered={facilityName}
           onValueChange={(value) => setFacilityName(value)}
           onBlur={() => updateFacilityName()}
-          onKeyDown={(event) =>
-            onEnterPress(event, updateFacilityName)
-          }
+          onKeyDown={(event) => onEnterPress(event, updateFacilityName)}
         />
       )}
       <IconEdit alt="Facility name" src={iconEditSrc} />

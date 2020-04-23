@@ -4,8 +4,8 @@ import styled from "styled-components";
 
 import { saveFacility } from "../database/index";
 import InputButton from "../design-system/InputButton";
-import InputFacilityName from "../design-system/InputFacilityName";
 import InputDescription from "../design-system/InputDescription";
+import InputFacilityName from "../design-system/InputFacilityName";
 import ChartArea from "../impact-dashboard/ChartArea";
 import ImpactProjectionTable from "../impact-dashboard/ImpactProjectionTableContainer";
 import MitigationInformation from "../impact-dashboard/MitigationInformation";
@@ -34,11 +34,9 @@ const ButtonSection = styled.div`
 const FacilityInputForm: React.FC = () => {
   const { facility } = useContext(FacilityContext);
   const history = useHistory();
-  const [facilityName, setFacilityName] = useState(
-    facility?.name || undefined
-  );
+  const [facilityName, setFacilityName] = useState(facility?.name || undefined);
   const [description, setDescription] = useState(
-    facility?.description || undefined
+    facility?.description || undefined,
   );
   const [systemType, setSystemType] = useState(
     facility?.systemType || undefined,

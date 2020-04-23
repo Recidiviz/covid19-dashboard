@@ -5,8 +5,8 @@ import styled from "styled-components";
 import Colors from "../design-system/Colors";
 import iconEditSrc from "../design-system/icons/ic_edit.svg";
 import iconFolderSrc from "../design-system/icons/ic_folder.svg";
-import InputText from "../design-system/InputText";
 import InputDescription from "../design-system/InputDescription";
+import InputText from "../design-system/InputText";
 import PromoBoxWithButton from "../design-system/PromoBoxWithButton";
 import ToggleRow from "./ToggleRow";
 import { Scenario } from "./types";
@@ -99,7 +99,6 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
           )}
           <IconEdit alt="Scenario name" src={iconEditSrc} />
         </ScenarioNameLabel>
-        <div className="mt-5 mb-5 border-b border-gray-300" />
         <InputDescription
           description={description}
           setDescription={setDescription}

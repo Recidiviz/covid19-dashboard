@@ -39,16 +39,12 @@ const IconEdit = styled.img`
   }
 `;
 
-
 interface Props {
   description?: string | undefined;
   setDescription: (description?: string) => void;
 }
 
-const InputDescription: React.FC<Props> = ({
-  description,
-  setDescription
-}) => {
+const InputDescription: React.FC<Props> = ({ description, setDescription }) => {
   const [editingDescription, setEditingDescription] = useState(false);
 
   const onEnterPress = (event: React.KeyboardEvent, onEnter: Function) => {
@@ -57,13 +53,13 @@ const InputDescription: React.FC<Props> = ({
   };
 
   const updateDescription = () => {
-    setEditingDescription(false)
-    setDescription(description)
-  }
+    setEditingDescription(false);
+    setDescription(description);
+  };
 
   return (
     <DescriptionDiv>
-    {!editingDescription ? (
+      {!editingDescription ? (
         <Description onClick={() => setEditingDescription(true)}>
           <span>{description || "Enter a description (optional)"}</span>
         </Description>
@@ -78,7 +74,7 @@ const InputDescription: React.FC<Props> = ({
             onBlur={updateDescription}
             onChange={(event) => setDescription(event.target.value)}
             onKeyDown={(event) => {
-              onEnterPress(event, updateDescription)
+              onEnterPress(event, updateDescription);
             }}
           />
         </Description>

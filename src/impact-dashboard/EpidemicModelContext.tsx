@@ -63,13 +63,13 @@ export interface EpidemicModelInputs extends ModelInputsUpdate {
 interface MetadataPersistent {
   // fields that we want to store
   countyName?: string;
-  facilityDescription? : string;
+  facilityDescription?: string;
   stateCode?: string;
 }
 
 // some fields are required to display a sensible UI, define them here
 interface Metadata extends MetadataPersistent {
-  facilityDescription? : string;
+  facilityDescription?: string;
   hospitalBeds: number;
   stateCode: string;
 }
