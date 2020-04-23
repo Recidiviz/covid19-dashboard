@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 import { saveFacility } from "../database/index";
 import InputButton from "../design-system/InputButton";
-import InputText from "../design-system/InputText";
+import InputFacilityName from "../design-system/InputFacilityName";
 import ChartArea from "../impact-dashboard/ChartArea";
 import ImpactProjectionTable from "../impact-dashboard/ImpactProjectionTableContainer";
 import MitigationInformation from "../impact-dashboard/MitigationInformation";
@@ -30,12 +30,12 @@ const ButtonSection = styled.div`
   margin-top: 30px;
 `;
 
-// TODO add section header tooltips
-// TODO add summary at bottom of Locale Information
 const FacilityInputForm: React.FC = () => {
   const { facility } = useContext(FacilityContext);
   const history = useHistory();
-  const [facilityName, setFacilityName] = useState(facility?.name);
+  const [facilityName, setFacilityName] = useState(
+    facility?.name || undefined
+  );
   const [systemType, setSystemType] = useState(
     facility?.systemType || undefined,
   );
@@ -55,11 +55,9 @@ const FacilityInputForm: React.FC = () => {
   return (
     <FacilityInputFormDiv>
       <LeftColumn>
-        <InputText
-          type="text"
-          valueEntered={facilityName}
-          valuePlaceholder="Unnamed Facility"
-          onValueChange={(value) => setFacilityName(value)}
+        <InputFacilityName
+          facilityName={facilityName}
+          setFacilityName={setFacilityName}
         />
         <div className="mt-5 mb-5 border-b border-gray-300" />
         <LocaleInformationSection
