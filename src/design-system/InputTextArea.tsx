@@ -10,11 +10,15 @@ interface Props {
   onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   inline?: boolean;
   fillVertical?: boolean;
+  style?: object;
 }
 
 interface InputProps {
   inline?: boolean;
   fillVertical?: boolean;
+  fontFamily?: string;
+  fontSize?: string;
+  color?: string;
 }
 
 const TextAreaInput = styled.textarea<InputProps>`
@@ -24,10 +28,10 @@ const TextAreaInput = styled.textarea<InputProps>`
   padding: 16px;
   background: #e0e4e4;
   border-radius: 2px;
-  font-size: 16px;
-  color: #00413e;
+  font-size: ${(props) => props.fontSize || "16px"};
+  color: ${(props) => props.color || "#00413e"};
   resize: none;
-  font-family: "Poppins", sans-serif;
+  font-family: ${(props) => props.fontFamily || '"Poppins", sans-serif'};
   width: 100%;
 
   ${(props) =>
@@ -73,6 +77,7 @@ const InputTextArea: React.FC<Props> = (props) => {
         value={props.value}
         placeholder={props.placeholder}
         name={props.label}
+        {...props.style}
       />
     </TextAreaContainer>
   );

@@ -44,6 +44,12 @@ const ScenarioHeading = styled.h1`
   line-height: 1.2;
 `;
 
+const inputTextAreaStyle = {
+  fontFamily: "Helvetica Neue",
+  fontSize: "13px",
+  color: Colors.forest,
+};
+
 interface Props {
   numFacilities?: number | null;
   scenario?: Scenario | null;
@@ -135,6 +141,8 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
         <div className="mt-5 mb-5 border-b border-gray-300" />
         <div className="mb-12">
           <InputTextArea
+            fillVertical
+            style={inputTextAreaStyle}
             label="Description"
             value={description}
             placeholder=""
