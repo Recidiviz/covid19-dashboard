@@ -433,10 +433,31 @@ export const deleteFacility = async (facilityId: string): Promise<void> => {
 
     if (!baselineScenarioRef) return;
 
-    await baselineScenarioRef
+    // Delete all of the modelVersions associated with a facility.  Technically,
+    // this is not the recommended approach for the web*, but we should be ok
+    // while our datasets are small.  In the future, we can address this issue
+    // if it becomes problematic**.
+    //
+    // * https://firebase.google.com/docs/firestore/manage-data/delete-data#web_2
+    // ** https://github.com/Recidiviz/covid19-dashboard/issues/191
+    const facilityDocRef = await baselineScenarioRef
       .collection(facilitiesCollectionId)
-      .doc(facilityId)
-      .delete();
+      .doc(facilityId);
+
+    const modelVersions = await facilityDocRef
+      .collection(modelVersionCollectionId)
+      .get();
+
+    const db = await getDb();
+    const batch = db.batch();
+
+    modelVersions.docs.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+
+    batch.delete(facilityDocRef);
+
+    await batch.commit();
   } catch (error) {
     console.error(
       `Encountered error while attempting to delete the facility (${facilityId}):`,
