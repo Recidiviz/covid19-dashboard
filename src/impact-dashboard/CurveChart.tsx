@@ -4,9 +4,10 @@ import { add } from "date-fns";
 import ResponsiveXYFrame from "semiotic/lib/ResponsiveXYFrame";
 import styled from "styled-components";
 
+import ChartTooltip from "../design-system/ChartTooltip";
 import ChartWrapper from "../design-system/ChartWrapper";
-import Colors from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
+import Tooltip from "../design-system/Tooltip";
 import { MarkColors } from "./ChartArea";
 
 const CurveChartWrapper = styled(ChartWrapper)`
@@ -21,31 +22,6 @@ const CurveChartWrapper = styled(ChartWrapper)`
 
   circle.frame-hover {
     display: none;
-  }
-`;
-
-const triangleSize = "7";
-const TooltipContainer = styled.div`
-  background: ${Colors.forest};
-  color: #fff;
-  font-family: "Rubik", sans-serif;
-  min-width: 120px;
-  padding: 12px;
-  position: relative;
-  transform: translateX(-50%) translateY(calc(-100% - ${2 * triangleSize}px));
-  z-index: 100;
-
-  &::after {
-    border-left: ${triangleSize}px solid transparent;
-    border-right: ${triangleSize}px solid transparent;
-    border-top: ${triangleSize}px solid ${Colors.forest};
-    bottom: -${triangleSize}px;
-    content: "";
-    display: block;
-    height: 0;
-    left: calc(50% - ${triangleSize}px);
-    position: absolute;
-    width: 0;
   }
 `;
 
@@ -83,7 +59,7 @@ const Tooltip: React.FC<TooltipProps> = ({
   const displayDate = add(new Date(), { days });
 
   return (
-    <TooltipContainer>
+    <ChartTooltip>
       <TooltipTitle>{title}</TooltipTitle>
       <TooltipDatalist>
         <TooltipDatum>
@@ -91,7 +67,7 @@ const Tooltip: React.FC<TooltipProps> = ({
         </TooltipDatum>
         <TooltipDatum>People: {formatThousands(count)}</TooltipDatum>
       </TooltipDatalist>
-    </TooltipContainer>
+    </ChartTooltip>
   );
 };
 
