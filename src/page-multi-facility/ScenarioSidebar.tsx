@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
@@ -100,18 +100,15 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
   const [description, setDescription] = useState(scenario?.description);
   const promoType: string | null = getEnabledPromoType(scenario, numFacilities);
 
-  useEffect(() => {
-    updateScenario(Object.assign({}, scenario, { description }));
-  }, [description]);
-
-  useEffect(() => {
-    updateScenario(Object.assign({}, scenario, { name }));
-  }, [name]);
-
   const onEnterPress = (event: React.KeyboardEvent, onEnter: Function) => {
     if (event.key !== "Enter") return;
 
     onEnter();
+  };
+
+  const updateName = () => {
+    setEditingName(false);
+    handleScenarioChange({ name });
   };
 
   return (
@@ -130,10 +127,8 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
               focus={true}
               valueEntered={name}
               onValueChange={(value) => setName(value)}
-              onBlur={() => setEditingName(false)}
-              onKeyDown={(event) =>
-                onEnterPress(event, () => setEditingName(false))
-              }
+              onBlur={updateName}
+              onKeyDown={(event) => onEnterPress(event, updateName)}
             />
           )}
           <IconEdit alt="Scenario name" src={iconEditSrc} />
@@ -146,6 +141,7 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
             label="Description"
             value={description}
             placeholder=""
+            onBlur={() => handleScenarioChange({ description })}
             onChange={(event) => setDescription(event.target.value)}
           />
         </div>

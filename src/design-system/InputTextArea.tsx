@@ -8,6 +8,7 @@ interface Props {
   value?: string;
   placeholder?: string;
   onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  onBlur?: (e: React.FormEvent<HTMLTextAreaElement>) => void;
   inline?: boolean;
   fillVertical?: boolean;
   style?: object;
@@ -74,6 +75,7 @@ const InputTextArea: React.FC<Props> = (props) => {
         inline={!!props.inline}
         fillVertical={!!props.fillVertical}
         onChange={props.onChange}
+        onBlur={props.onBlur}
         value={props.value}
         placeholder={props.placeholder}
         name={props.label}
