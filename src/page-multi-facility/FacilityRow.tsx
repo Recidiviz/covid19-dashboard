@@ -88,7 +88,7 @@ const DataContainer = styled.div`
 `;
 
 const CaseText = styled.div`
-  color: ${Colors.darkRed2};
+  color: ${Colors.darkRed};
 `;
 
 const BottomTextContainer = styled.div`
