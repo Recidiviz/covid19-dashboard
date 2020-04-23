@@ -5,6 +5,7 @@ import styled from "styled-components";
 import { saveFacility } from "../database/index";
 import InputButton from "../design-system/InputButton";
 import InputFacilityName from "../design-system/InputFacilityName";
+import InputDescription from "../design-system/InputDescription";
 import ChartArea from "../impact-dashboard/ChartArea";
 import ImpactProjectionTable from "../impact-dashboard/ImpactProjectionTableContainer";
 import MitigationInformation from "../impact-dashboard/MitigationInformation";
@@ -36,6 +37,9 @@ const FacilityInputForm: React.FC = () => {
   const [facilityName, setFacilityName] = useState(
     facility?.name || undefined
   );
+  const [description, setDescription] = useState(
+    facility?.description || undefined
+  );
   const [systemType, setSystemType] = useState(
     facility?.systemType || undefined,
   );
@@ -45,6 +49,7 @@ const FacilityInputForm: React.FC = () => {
     saveFacility({
       id: facility?.id,
       name: facilityName || "Unnamed Facility",
+      description: description || null,
       systemType: systemType || null,
       modelInputs: JSON.parse(JSON.stringify(model))[0],
     }).then((_) => {
@@ -59,7 +64,10 @@ const FacilityInputForm: React.FC = () => {
           facilityName={facilityName}
           setFacilityName={setFacilityName}
         />
-        <div className="mt-5 mb-5 border-b border-gray-300" />
+        <InputDescription
+          description={description}
+          setDescription={setDescription}
+        />
         <LocaleInformationSection
           systemType={systemType}
           setSystemType={setSystemType}

@@ -6,6 +6,8 @@ import iconEditSrc from "../design-system/icons/ic_edit.svg";
 import iconFolderSrc from "../design-system/icons/ic_folder.svg";
 import InputText from "../design-system/InputText";
 
+const borderStyle = `1px solid ${Colors.paleGreen}`;
+
 const FacilityNameLabelDiv = styled.label`
   align-items: baseline;
   cursor: pointer;
@@ -13,7 +15,9 @@ const FacilityNameLabelDiv = styled.label`
   flex-direction: row;
   justify-content: space-between;
   width: 75%,
-  padding-right: 25%
+  padding-right: 25%;
+  padding-bottom: 15px;
+  border-bottom: ${borderStyle};
 `;
 
 const IconFolder = styled.img`
@@ -57,7 +61,7 @@ const InputFacilityName: React.FC<Props> = ({
     onEnter();
   };
 
-  const updateName = () => {
+  const updateFacilityName = () => {
     setEditingName(false);
     setFacilityName(facilityName);
   };
@@ -76,9 +80,9 @@ const InputFacilityName: React.FC<Props> = ({
           focus={true}
           valueEntered={facilityName}
           onValueChange={(value) => setFacilityName(value)}
-          onBlur={() => updateName()}
+          onBlur={() => updateFacilityName()}
           onKeyDown={(event) =>
-            onEnterPress(event, updateName)
+            onEnterPress(event, updateFacilityName)
           }
         />
       )}

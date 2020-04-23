@@ -10,6 +10,8 @@ interface Props {
   onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   inline?: boolean;
   fillVertical?: boolean;
+  style?: object;
+  onKeyDown?: (event: React.KeyboardEvent) => void;
 }
 
 interface InputProps {
@@ -73,6 +75,8 @@ const InputTextArea: React.FC<Props> = (props) => {
         value={props.value}
         placeholder={props.placeholder}
         name={props.label}
+        onKeyDown={props.onKeyDown}
+        {...props.style}
       />
     </TextAreaContainer>
   );
