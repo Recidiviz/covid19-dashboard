@@ -38,6 +38,7 @@ interface ModelInputsPersistent {
   ageUnknownPopulation?: number;
   facilityDormitoryPct?: number;
   facilityOccupancyPct?: number;
+  plannedReleases?: PlannedReleases;
   populationTurnover?: number;
   rateOfSpreadFactor?: RateOfSpread;
   staffCases?: number;
@@ -102,7 +103,6 @@ export const persistedKeys: Array<keyof EpidemicModelPersistent> = [
   "rateOfSpreadFactor",
   "staffCases",
   "staffPopulation",
-  "plannedReleases",
 ];
 
 export type EpidemicModelUpdate = ModelInputsUpdate & MetadataPersistent;
