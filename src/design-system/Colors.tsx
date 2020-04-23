@@ -1,4 +1,5 @@
 import { lab } from "d3";
+import hexAlpha from "hex-alpha";
 
 export function darken(color: string, amount: number) {
   // good to use Lab color because it's perceptually uniform
@@ -15,11 +16,12 @@ const Colors = {
   darkTeal: "#759f9e",
   gray: "#E0E4E4",
   darkGray: "#c8d3d3",
+  opacityGray: `${hexAlpha("#467472", 0.2)}`,
   green: "#006C67",
   lightBlue: "#33B6FF",
   paleGreen: "#D2DBDB",
   red: "#FF464A",
-  darkRed: "#C53B3E",
+  darkRed: "#CB2500",
   white: "#ffffff",
   darkGreen: "#00413E",
 };
