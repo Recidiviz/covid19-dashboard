@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import hexAlpha from "hex-alpha";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
@@ -42,6 +43,18 @@ const ScenarioHeading = styled.h1`
   color: ${Colors.forest};
   font-size: 24px;
   line-height: 1.2;
+`;
+
+const Border = styled.div`
+  border-color: ${Colors.opacityGray};
+`;
+
+const UpdatedText = styled.div`
+  color: ${hexAlpha(Colors.forest, 0.5)};
+  font-family: "Poppins", sans-serif;
+  font-size: 9px;
+  line-height: 16px;
+  font-weight: 600;
 `;
 
 interface Props {
@@ -99,7 +112,7 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
           )}
           <IconEdit alt="Scenario name" src={iconEditSrc} />
         </ScenarioNameLabel>
-        <div className="mt-5 mb-5 border-b border-gray-300" />
+        <Border className="mt-5 mb-4 border-b" />
         <div className="mb-12">
           <InputTextArea
             label="Description"
@@ -109,12 +122,12 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
           />
         </div>
         <div>
-          <p className="text-xs text-gray-500">
+          <UpdatedText>
             Last Update:{" "}
             {updatedAtDate && format(updatedAtDate, "MMMM d, yyyy")}
-          </p>
+          </UpdatedText>
         </div>
-        <div className="mt-5 mb-5 border-b border-gray-300" />
+        <Border className="mt-4 border-b" />
         <div>
           <ToggleRow
             onToggle={() =>

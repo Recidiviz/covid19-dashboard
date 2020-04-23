@@ -1,3 +1,4 @@
+import hexAlpha from "hex-alpha";
 import React, { useContext, useState } from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
@@ -82,6 +83,21 @@ const IconEdit = styled.img`
   }
 `;
 
+const DataContainer = styled.div`
+  border-color: ${Colors.opacityGray};
+`;
+
+const CaseText = styled.div`
+  color: ${Colors.darkRed2};
+`;
+
+const BottomTextContainer = styled.div`
+  color: ${hexAlpha(Colors.forest, 0.5)};
+  font-family: "Poppins", sans-serif;
+  font-size: 9px;
+  line-height: 16px;
+`;
+
 // TODO: validate the arguments?
 const handleSubClick = (fn?: Function, ...args: any[]) => {
   return (event: React.MouseEvent<Element>) => {
@@ -131,10 +147,10 @@ const FacilityRow: React.FC<Props> = ({
 
   return (
     <div onClick={openFacilityPage} className="cursor-pointer">
-      <div className="flex flex-row h-48 mb-8 border-b border-grey-300">
+      <DataContainer className="flex flex-row mb-8 border-b">
         <div className="w-2/5 flex flex-col justify-between">
           <div className="flex flex-row h-full">
-            <div className="w-1/4 text-red-600 font-bold">{confirmedCases}</div>
+            <CaseText className="w-1/4 font-bold">{confirmedCases}</CaseText>
             <FacilityNameLabel onClick={handleSubClick()}>
               <InputTextArea
                 inline={true}
@@ -157,9 +173,9 @@ const FacilityRow: React.FC<Props> = ({
               <IconEdit alt="Edit facility name" src={iconEditSrc} />
             </FacilityNameLabel>
           </div>
-          <div className="text-xs text-gray-500 pb-4 flex flex-row justify-between">
+          <BottomTextContainer className="pb-4 flex flex-row justify-between">
             <div>
-              Last update: <DateMMMMdyyyy date={new Date(updatedAt.toDate())} />
+              Last Update: <DateMMMMdyyyy date={new Date(updatedAt.toDate())} />
             </div>
             <div className="mr-8">
               <a className="px-1" href="#" onClick={openDeleteModal}>
@@ -186,7 +202,7 @@ const FacilityRow: React.FC<Props> = ({
                 </ModalContents>
               </ModalDialog>
             </div>
-          </div>
+          </BottomTextContainer>
         </div>
         <div className="w-3/5">
           <CurveChartContainer
@@ -195,7 +211,7 @@ const FacilityRow: React.FC<Props> = ({
             markColors={markColors}
           />
         </div>
-      </div>
+      </DataContainer>
     </div>
   );
 };

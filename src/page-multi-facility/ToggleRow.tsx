@@ -12,13 +12,12 @@ interface Props {
   labelHelp?: React.ReactNode;
 }
 
-const borderStyle = `1px solid ${Colors.paleGreen}`;
+const borderStyle = `1px solid ${Colors.opacityGray}`;
 
 const ToggleRowContainer = styled.div`
   display: flex;
   border-bottom: ${borderStyle};
   justify-content: space-between;
-  padding: 10px 5px 10px 0;
 `;
 
 const ToggleRow: React.FC<Props> = (props) => {
@@ -28,7 +27,7 @@ const ToggleRow: React.FC<Props> = (props) => {
   }
 
   return (
-    <ToggleRowContainer>
+    <ToggleRowContainer className="pt-4 pb-4">
       <InputLabelAndHelp softened {...props} />
       <InputToggle toggled={toggled} onChange={onToggle} />
     </ToggleRowContainer>

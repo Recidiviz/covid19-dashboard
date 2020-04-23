@@ -1,3 +1,4 @@
+import hexalpha from "hex-alpha";
 import React, { useState } from "react";
 import styled from "styled-components";
 
@@ -15,13 +16,13 @@ const DismissButton = styled.div`
 `;
 
 const PromoBox = styled.div`
-  color: ${Colors.forest};
+  color: ${hexalpha(Colors.forest, 0.7)};
   background: ${Colors.gray};
   border-radius: 2px;
-  font-family: "Poppins", sans-serif;
+  font-family: "Helvetica Neue", sans-serif;
   font-size: 12px;
-  font-weight: 100;
-  margin-top: 16px;
+  line-height: 1.5;
+  font-weight: normal;
   padding: 16px;
 `;
 
@@ -31,7 +32,7 @@ const PromoBoxWithButton: React.FC<Props> = (props) => {
   if (dismissed || !props.text) return null;
 
   return (
-    <PromoBox>
+    <PromoBox className="mt-6">
       {props.text}
       <DismissButton onClick={() => setDismissed(true)}>Dismiss</DismissButton>
     </PromoBox>
