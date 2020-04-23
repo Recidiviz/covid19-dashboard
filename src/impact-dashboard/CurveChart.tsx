@@ -132,13 +132,38 @@ interface CurveChartProps {
   chartHeight?: number;
   hospitalBeds: number;
   markColors: MarkColors;
+  hideAxes?: boolean;
 }
+
+const xAxisOptions: any[] = [
+  {
+    orient: "bottom",
+    tickLineGenerator: () => null,
+    label: "Days",
+  },
+  {
+    tickLineGenerator: () => null,
+  },
+];
+
+const yAxisOptions: any[] = [
+  {
+    orient: "left",
+    baseline: false,
+    tickFormat: formatThousands,
+  },
+  {
+    baseline: false,
+    ticks: 5,
+  },
+];
 
 const CurveChart: React.FC<CurveChartProps> = ({
   curveData,
   chartHeight,
   hospitalBeds,
   markColors,
+  hideAxes,
 }) => {
   const frameProps = {
     lines: Object.entries(curveData).map(([bucket, values]) => ({
@@ -157,6 +182,7 @@ const CurveChart: React.FC<CurveChartProps> = ({
     responsiveWidth: true,
     size: [450, 450],
     yExtent: { extent: [0], includeAnnotations: true },
+    margin: hideAxes ? null : { left: 60, bottom: 60, right: 10, top: 0 },
     lineStyle: ({ key }) => ({
       stroke: markColors[key],
       strokeWidth: 1,
@@ -164,13 +190,8 @@ const CurveChart: React.FC<CurveChartProps> = ({
       fillOpacity: 0.1,
     }),
     axes: [
-      {
-        baseline: false,
-        ticks: 5,
-      },
-      {
-        tickLineGenerator: () => null,
-      },
+      hideAxes ? yAxisOptions[1] : yAxisOptions[0],
+      hideAxes ? xAxisOptions[1] : xAxisOptions[0],
     ],
     annotations: [
       {
