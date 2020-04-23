@@ -42,9 +42,14 @@ const IconEdit = styled.img`
 interface Props {
   description?: string | undefined;
   setDescription: (description?: string) => void;
+  placeholder?: string | undefined;
 }
 
-const InputDescription: React.FC<Props> = ({ description, setDescription }) => {
+const InputDescription: React.FC<Props> = ({
+  description,
+  setDescription,
+  placeholder,
+}) => {
   const [editingDescription, setEditingDescription] = useState(false);
 
   const onEnterPress = (event: React.KeyboardEvent, onEnter: Function) => {
@@ -61,7 +66,7 @@ const InputDescription: React.FC<Props> = ({ description, setDescription }) => {
     <DescriptionDiv>
       {!editingDescription ? (
         <Description onClick={() => setEditingDescription(true)}>
-          <span>{description || "Enter a description (optional)"}</span>
+          <span>{description || placeholder}</span>
         </Description>
       ) : (
         <Description>

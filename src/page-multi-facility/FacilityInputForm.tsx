@@ -61,11 +61,12 @@ const FacilityInputForm: React.FC = () => {
         <InputNameWithIcon
           name={facilityName}
           setName={setFacilityName}
-          placeholder={"Unnamed Facility"}
+          placeholder="Unnamed Facility"
         />
         <InputDescription
           description={description}
           setDescription={setDescription}
+          placeholder="Enter a description (optional)"
         />
         <LocaleInformationSection
           systemType={systemType}

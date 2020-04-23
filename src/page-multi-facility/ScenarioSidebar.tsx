@@ -36,11 +36,12 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
         <InputNameWithIcon
           name={name}
           setName={setName}
-          placeholder={scenario?.description}
+          placeholder={scenario?.name}
         />
         <InputDescription
           description={description}
           setDescription={setDescription}
+          placeholder={scenario?.description}
         />
         <div>
           <p className="text-xs text-gray-500">
