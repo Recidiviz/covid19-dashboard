@@ -3,7 +3,7 @@ import { rollup } from "d3-array";
 import numeral from "numeral";
 import React from "react";
 
-type LocaleRecord = {
+export type LocaleRecord = {
   county: string;
   estimatedIncarceratedCases: number;
   hospitalBeds: number;
