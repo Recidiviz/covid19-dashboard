@@ -1,3 +1,5 @@
+import React from "react";
+
 import GetInvolvedPage from "../page-get-involved/GetInvolvedPage";
 import ModelInspectionPage from "../page-model-inspection/";
 import FacilityPage from "../page-multi-facility/FacilityPage";

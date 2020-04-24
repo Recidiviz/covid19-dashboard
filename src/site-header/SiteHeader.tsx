@@ -1,4 +1,5 @@
 import hexAlpha from "hex-alpha";
+import React from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
@@ -8,7 +9,7 @@ import Logo from "./Logo";
 
 const Nav = styled.nav`
   align-items: center;
-  border-bottom: 1px solid ${hexAlpha(Colors.forest, 0.1)};
+  border-bottom: 1px solid ${Colors.opacityGray};
   display: flex;
   flex-wrap: wrap;
   font-family: "Poppins", sans-serif;
