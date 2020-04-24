@@ -7,6 +7,7 @@ import InputLabelAndHelp from "./InputLabelAndHelp";
 const TextInputContainer = styled.div`
   display: flex;
   flex-direction: column;
+  width: 100%;
 `;
 
 const InputWrapper = styled(StyledInput)`

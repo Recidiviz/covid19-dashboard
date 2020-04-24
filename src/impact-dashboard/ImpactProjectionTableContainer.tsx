@@ -1,5 +1,6 @@
 import { sum } from "d3-array";
 import ndarray from "ndarray";
+import React from "react";
 
 import { calculateCurves } from "../infection-model";
 import {

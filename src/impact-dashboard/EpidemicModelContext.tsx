@@ -68,8 +68,8 @@ interface MetadataPersistent {
 
 // some fields are required to display a sensible UI, define them here
 interface Metadata extends MetadataPersistent {
-  stateCode: string;
   hospitalBeds: number;
+  stateCode: string;
 }
 
 export type EpidemicModelPersistent = ModelInputsPersistent &

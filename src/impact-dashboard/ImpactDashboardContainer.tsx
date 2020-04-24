@@ -1,3 +1,5 @@
+import React from "react";
+
 import Loading from "../design-system/Loading";
 import { useLocaleDataState } from "../locale-data-context";
 import { EpidemicModelProvider } from "./EpidemicModelContext";

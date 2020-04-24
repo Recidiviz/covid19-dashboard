@@ -1,3 +1,4 @@
+import React from "react";
 import ReactDOMServer from "react-dom/server";
 import { StaticRouter } from "react-router-dom";
 import { ServerStyleSheet } from "styled-components";

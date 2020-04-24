@@ -1,3 +1,5 @@
+import React from "react";
+
 import GetInvolvedPage from "../page-get-involved/GetInvolvedPage";
 import ModelInspectionPage from "../page-model-inspection/";
 import FacilityPage from "../page-multi-facility/FacilityPage";
@@ -13,7 +15,7 @@ export interface PageInfo {
 }
 
 function getPageTitle(...parts: string[]) {
-  return [...parts, "COVID-19 Dashboard"].join(" • ");
+  return ["Recidiviz", "Covid-19 Incarceration Model", ...parts].join(" • ");
 }
 
 const PageList: PageInfo[] = [
