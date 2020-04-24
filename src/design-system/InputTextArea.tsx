@@ -10,6 +10,7 @@ interface Props {
   placeholder?: string;
   onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   onBlur?: (e: React.FormEvent<HTMLTextAreaElement>) => void;
+  onKeyDown?: (event: React.KeyboardEvent) => void;
   inline?: boolean;
   fillVertical?: boolean;
   style?: object;
@@ -35,7 +36,6 @@ const TextAreaInput = styled.textarea<InputProps>`
   resize: none;
   font-family: ${(props) => props.fontFamily || '"Poppins", sans-serif'};
   width: 100%;
-
   ${(props) =>
     props.inline &&
     css`
@@ -44,7 +44,6 @@ const TextAreaInput = styled.textarea<InputProps>`
       font-size: inherit;
       background-color: transparent;
     `};
-
   ${(props) =>
     props.fillVertical &&
     css`
@@ -60,7 +59,6 @@ const TextAreaContainer = styled.div<TextAreaContainer>`
   margin-bottom: 24px;
   display: flex;
   flex-direction: column;
-
   ${(props) =>
     props.fillVertical &&
     css`
@@ -97,6 +95,7 @@ const InputTextArea: React.FC<Props> = (props) => {
         value={props.value}
         placeholder={props.placeholder}
         name={props.label}
+        onKeyDown={props.onKeyDown}
         {...props.style}
       />
     </TextAreaContainer>
