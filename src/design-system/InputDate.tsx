@@ -5,6 +5,7 @@
 import "./InputDate.css";
 
 import hexAlpha from "hex-alpha";
+import React from "react";
 import DatePicker from "react-date-picker/dist/entry.nostyle";
 import styled from "styled-components";
 

@@ -4,7 +4,8 @@ import styled from "styled-components";
 
 import { saveFacility } from "../database/index";
 import InputButton from "../design-system/InputButton";
-import InputText from "../design-system/InputText";
+import InputDescription from "../design-system/InputDescription";
+import InputNameWithIcon from "../design-system/InputNameWithIcon";
 import ChartArea from "../impact-dashboard/ChartArea";
 import ImpactProjectionTable from "../impact-dashboard/ImpactProjectionTableContainer";
 import MitigationInformation from "../impact-dashboard/MitigationInformation";
@@ -30,12 +31,13 @@ const ButtonSection = styled.div`
   margin-top: 30px;
 `;
 
-// TODO add section header tooltips
-// TODO add summary at bottom of Locale Information
 const FacilityInputForm: React.FC = () => {
   const { facility } = useContext(FacilityContext);
   const history = useHistory();
-  const [facilityName, setFacilityName] = useState(facility?.name);
+  const [facilityName, setFacilityName] = useState(facility?.name || undefined);
+  const [description, setDescription] = useState(
+    facility?.description || undefined,
+  );
   const [systemType, setSystemType] = useState(
     facility?.systemType || undefined,
   );
@@ -44,7 +46,8 @@ const FacilityInputForm: React.FC = () => {
   const save = () => {
     saveFacility({
       id: facility?.id,
-      name: facilityName || "Unnamed Facility",
+      name: facilityName || null,
+      description: description || null,
       systemType: systemType || null,
       modelInputs: JSON.parse(JSON.stringify(model))[0],
     }).then((_) => {
@@ -55,13 +58,16 @@ const FacilityInputForm: React.FC = () => {
   return (
     <FacilityInputFormDiv>
       <LeftColumn>
-        <InputText
-          type="text"
-          valueEntered={facilityName}
-          valuePlaceholder="Unnamed Facility"
-          onValueChange={(value) => setFacilityName(value)}
+        <InputNameWithIcon
+          name={facilityName}
+          setName={setFacilityName}
+          placeholderValue="Unnamed Facility"
         />
-        <div className="mt-5 mb-5 border-b border-gray-300" />
+        <InputDescription
+          description={description}
+          setDescription={setDescription}
+          placeholderValue="Enter a description (optional)"
+        />
         <LocaleInformationSection
           systemType={systemType}
           setSystemType={setSystemType}

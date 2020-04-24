@@ -1,5 +1,6 @@
 import { ascending, isoParse } from "d3";
 import mapValues from "lodash/mapValues";
+import React from "react";
 
 import RtTimeseries, { Record } from "./RtTimeseries";
 

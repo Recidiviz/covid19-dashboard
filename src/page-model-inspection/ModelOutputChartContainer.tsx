@@ -1,4 +1,5 @@
 import { sum, zip } from "d3-array";
+import React from "react";
 
 import { useEpidemicModelState } from "../impact-dashboard/EpidemicModelContext";
 import { calculateCurves, CurveData } from "../infection-model";
