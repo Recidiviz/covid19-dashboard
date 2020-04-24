@@ -5,6 +5,7 @@ import styled from "styled-components";
 import { saveFacility } from "../database/index";
 import InputButton from "../design-system/InputButton";
 import InputText from "../design-system/InputText";
+import PopUpMenu from "../design-system/PopUpMenu";
 import ChartArea from "../impact-dashboard/ChartArea";
 import ImpactProjectionTable from "../impact-dashboard/ImpactProjectionTableContainer";
 import MitigationInformation from "../impact-dashboard/MitigationInformation";
@@ -29,6 +30,23 @@ const RightColumn = styled.div`
 const ButtonSection = styled.div`
   margin-top: 30px;
 `;
+
+// mockup divs and menu items
+const TestDiv = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+const TestTitle = styled.div`
+  margin: auto 0;
+`;
+const popupItems = [
+  {
+    name: "Something",
+    onClick: () => console.log("click something "),
+  },
+  { name: "Delete", onClick: () => console.log("click delete") },
+];
 
 // TODO add section header tooltips
 // TODO add summary at bottom of Locale Information
@@ -62,6 +80,12 @@ const FacilityInputForm: React.FC = () => {
           onValueChange={(value) => setFacilityName(value)}
         />
         <div className="mt-5 mb-5 border-b border-gray-300" />
+
+        <TestDiv>
+          <TestTitle>SOMETHIGN HERE</TestTitle>
+          <PopUpMenu items={popupItems} />
+        </TestDiv>
+
         <LocaleInformationSection
           systemType={systemType}
           setSystemType={setSystemType}
