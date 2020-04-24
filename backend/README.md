@@ -18,7 +18,6 @@ Install `nvm` if you don't have it already: https://github.com/nvm-sh/nvm#instal
 Run `nvm use`. If you get an error, you may need to install the configured node version using the `nvm` command in the
 error.
 
-
 ```
 cd functions
 yarn install
@@ -52,4 +51,37 @@ From the `backend` directory:
 
 ```
 yarn deploy
+```
+
+# Python cloud functions
+
+(Python cloud functions)[https://cloud.google.com/functions/docs/quickstart-python] are not
+administered by Firebase, though they are associated
+with the same project specified above, so you will need the same access to administer them.
+
+They live in `backend/python-functions/main.py`.
+
+## Testing locally
+
+In `python-functions` set up your virtual environment:
+
+```sh
+virtualenv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+Unlike Firebase, we don't have tools to emulate these functions locally.
+But we can write tests against them, in `python-functions/test.py`. Run them with:
+
+```sh
+python -m unittest
+```
+
+## Deployment
+
+Deploy the functions using the `gcloud` command line tool for Google Cloud Platform.
+
+```sh
+gcloud functions deploy <FUNCTION_NAME> --runtime python37 --trigger-http --allow-unauthenticated
 ```
