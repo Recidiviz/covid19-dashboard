@@ -56,9 +56,6 @@
     // types.
     "react/prop-types": "off",
 
-    // We've removed this requirement by setting window.React.
-    "react/react-in-jsx-scope": "off",
-
     // Reduces the number of ways we can write an element with no children.
     "react/self-closing-comp": "warn",
 

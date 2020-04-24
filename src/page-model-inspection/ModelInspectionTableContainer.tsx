@@ -1,5 +1,6 @@
 import { range, sum } from "d3-array";
 import flatten from "lodash/flatten";
+import React from "react";
 
 import { useEpidemicModelState } from "../impact-dashboard/EpidemicModelContext";
 import { calculateAllCurves } from "../infection-model";

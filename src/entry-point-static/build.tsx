@@ -1,5 +1,5 @@
-import React from "react";
-(global as any).React = React;
+// Some libraries, including semiotic, assume the global variable `self` is
+// defined. This is true in the browser but not when running Parcel from Node.
 (global as any).self = global;
 
 import chalk from "chalk";
