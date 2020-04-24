@@ -22,11 +22,9 @@ const InputLabelAndHelp: React.FC<Props> = (props) => {
 
   return (
     <LabelContainer>
-      <TextLabel>{props.label}</TextLabel>
+      <TextLabel softened={props.softened}>{props.label}</TextLabel>
       {props.labelHelp && (
-        <HelpButtonWithTooltip softened={props.softened}>
-          {props.labelHelp}
-        </HelpButtonWithTooltip>
+        <HelpButtonWithTooltip>{props.labelHelp}</HelpButtonWithTooltip>
       )}
     </LabelContainer>
   );
