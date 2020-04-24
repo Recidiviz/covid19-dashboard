@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 
-import Colors from "../design-system/Colors";
-import iconEditSrc from "../design-system/icons/ic_edit.svg";
-import InputTextArea from "../design-system/InputTextArea";
+import Colors from "./Colors";
+import iconEditSrc from "./icons/ic_edit.svg";
+import InputTextArea from "./InputTextArea";
 
 const inputTextAreaStyle = {
   fontFamily: "Helvetica Neue",
@@ -42,16 +42,16 @@ const IconEdit = styled.img`
 interface Props {
   description?: string | undefined;
   setDescription: (description?: string) => void;
-  placeholder?: string | undefined;
+  placeholderValue?: string | undefined;
 }
 
 const InputDescription: React.FC<Props> = ({
   description,
   setDescription,
-  placeholder,
+  placeholderValue,
 }) => {
   const [editingDescription, setEditingDescription] = useState(false);
-
+  const [value, setValue] = useState(description);
   const onEnterPress = (event: React.KeyboardEvent, onEnter: Function) => {
     if (event.key !== "Enter") return;
     onEnter();
@@ -59,14 +59,14 @@ const InputDescription: React.FC<Props> = ({
 
   const updateDescription = () => {
     setEditingDescription(false);
-    setDescription(description);
+    setDescription(value);
   };
 
   return (
     <DescriptionDiv>
       {!editingDescription ? (
         <Description onClick={() => setEditingDescription(true)}>
-          <span>{description || placeholder}</span>
+          <span>{value || placeholderValue}</span>
         </Description>
       ) : (
         <Description>
@@ -74,10 +74,10 @@ const InputDescription: React.FC<Props> = ({
             fillVertical
             style={inputTextAreaStyle}
             autoResizeVertically
-            value={description}
+            value={value}
             placeholder={""}
             onBlur={updateDescription}
-            onChange={(event) => setDescription(event.target.value)}
+            onChange={(event) => setValue(event.target.value)}
             onKeyDown={(event) => {
               onEnterPress(event, updateDescription);
             }}

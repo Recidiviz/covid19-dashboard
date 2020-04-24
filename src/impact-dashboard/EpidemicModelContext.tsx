@@ -63,13 +63,11 @@ export interface EpidemicModelInputs extends ModelInputsUpdate {
 interface MetadataPersistent {
   // fields that we want to store
   countyName?: string;
-  facilityDescription?: string;
   stateCode?: string;
 }
 
 // some fields are required to display a sensible UI, define them here
 interface Metadata extends MetadataPersistent {
-  facilityDescription?: string;
   hospitalBeds: number;
   stateCode: string;
 }
@@ -98,7 +96,6 @@ export const persistedKeys: Array<keyof EpidemicModelPersistent> = [
   "age85Population",
   "ageUnknownCases",
   "ageUnknownPopulation",
-  "facilityDescription",
   "facilityDormitoryPct",
   "facilityOccupancyPct",
   "plannedReleases",

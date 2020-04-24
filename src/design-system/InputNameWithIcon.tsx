@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 
-import Colors from "../design-system/Colors";
-import iconEditSrc from "../design-system/icons/ic_edit.svg";
-import iconFolderSrc from "../design-system/icons/ic_folder.svg";
-import InputText from "../design-system/InputText";
+import Colors from "./Colors";
+import iconEditSrc from "./icons/ic_edit.svg";
+import iconFolderSrc from "./icons/ic_folder.svg";
+import InputText from "./InputText";
 
 const borderStyle = `1px solid ${Colors.paleGreen}`;
 
@@ -48,12 +48,16 @@ const Heading = styled.h1`
 interface Props {
   name?: string | undefined;
   setName: (name?: string) => void;
-  placeholder?: string | undefined;
+  placeholderValue?: string | undefined;
 }
 
-const InputNameWithIcon: React.FC<Props> = ({ name, setName, placeholder }) => {
+const InputNameWithIcon: React.FC<Props> = ({
+  name,
+  setName,
+  placeholderValue,
+}) => {
   const [editingName, setEditingName] = useState(false);
-
+  const [value, setValue] = useState(name);
   const onEnterPress = (event: React.KeyboardEvent, onEnter: Function) => {
     if (event.key !== "Enter") return;
     onEnter();
@@ -61,7 +65,7 @@ const InputNameWithIcon: React.FC<Props> = ({ name, setName, placeholder }) => {
 
   const updateName = () => {
     setEditingName(false);
-    setName(name);
+    setName(value);
   };
 
   return (
@@ -69,15 +73,15 @@ const InputNameWithIcon: React.FC<Props> = ({ name, setName, placeholder }) => {
       {!editingName ? (
         <Heading onClick={() => setEditingName(true)}>
           <IconFolder alt="folder" src={iconFolderSrc} />
-          <span>{name || placeholder}</span>
+          <span>{value || placeholderValue}</span>
         </Heading>
       ) : (
         <InputText
           type="text"
           headerStyle={true}
           focus={true}
-          valueEntered={name}
-          onValueChange={(value) => setName(value)}
+          valueEntered={value}
+          onValueChange={(value) => setValue(value)}
           onBlur={() => updateName()}
           onKeyDown={(event) => onEnterPress(event, updateName)}
         />

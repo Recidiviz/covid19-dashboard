@@ -46,7 +46,7 @@ const FacilityInputForm: React.FC = () => {
   const save = () => {
     saveFacility({
       id: facility?.id,
-      name: facilityName || "Unnamed Facility",
+      name: facilityName || null,
       description: description || null,
       systemType: systemType || null,
       modelInputs: JSON.parse(JSON.stringify(model))[0],
@@ -61,12 +61,12 @@ const FacilityInputForm: React.FC = () => {
         <InputNameWithIcon
           name={facilityName}
           setName={setFacilityName}
-          placeholder="Unnamed Facility"
+          placeholderValue="Unnamed Facility"
         />
         <InputDescription
           description={description}
           setDescription={setDescription}
-          placeholder="Enter a description (optional)"
+          placeholderValue="Enter a description (optional)"
         />
         <LocaleInformationSection
           systemType={systemType}
