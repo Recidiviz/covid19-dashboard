@@ -15,7 +15,7 @@ import {
 import { FormGrid, FormGridCell, FormGridRow } from "./FormGrid";
 import useModel from "./useModel";
 
-type ReleaseUpdate = {
+export type ReleaseUpdate = {
   index: number;
   update: PlannedRelease;
 };
@@ -25,7 +25,7 @@ type RowProps = PlannedRelease & {
   updateRelease: (opts: ReleaseUpdate) => void;
 };
 
-const rateOfSpreadDisplayText: { [key in RateOfSpread]: string } = {
+export const rateOfSpreadDisplayText: { [key in RateOfSpread]: string } = {
   low:
     "Low – we've reduced unnecessary interpersonal contact and quarantined at-risk groups",
   moderate:

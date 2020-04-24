@@ -11,11 +11,11 @@ import ModalDialog from "../design-system/ModalDialog";
 import PopUpMenu from "../design-system/PopUpMenu";
 import ChartArea from "../impact-dashboard/ChartArea";
 import ImpactProjectionTable from "../impact-dashboard/ImpactProjectionTableContainer";
-import MitigationInformation from "../impact-dashboard/MitigationInformation";
 import useModel from "../impact-dashboard/useModel";
 import { FacilityContext } from "./FacilityContext";
 import FacilityInformationSection from "./FacilityInformationSection";
 import LocaleInformationSection from "./LocaleInformationSection";
+import RateOfSpreadSection from "./RateOfSpreadSection";
 
 const FacilityInputFormDiv = styled.div`
   display: flex;
@@ -150,7 +150,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
           setSystemType={setSystemType}
         />
         <FacilityInformationSection />
-        <MitigationInformation />
+        <RateOfSpreadSection />
         <ButtonSection>
           <InputButton label="Save" onClick={save} />
         </ButtonSection>

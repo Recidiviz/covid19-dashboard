@@ -17,12 +17,13 @@ const SystemTypeInputDiv = styled.div`
 `;
 
 const SectionHeader = styled.header`
-  font-family: Poppins;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 16px;
+  font-family: Libre Baskerville;
+  font-weight: normal;
+  font-size: 19px;
+  line-height: 24px;
   padding: 20px 0;
-  color: "${Colors.forest}"
+  color: ${Colors.forest};
+  letter-spacing: -0.06em;
 `;
 
 interface Props {
