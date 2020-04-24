@@ -55,7 +55,7 @@ yarn deploy
 
 # Python cloud functions
 
-(Python cloud functions)[https://cloud.google.com/functions/docs/quickstart-python] are not
+[Python cloud functions](https://cloud.google.com/functions/docs/quickstart-python) are not
 administered by Firebase, though they are associated
 with the same project specified above, so you will need the same access to administer them.
 
