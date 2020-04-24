@@ -1,4 +1,5 @@
-from flask import jsonify
+from collections import defaultdict
+from flask import json
 
 def calculate_rt(request):
     """HTTP Cloud Function.
@@ -6,21 +7,36 @@ def calculate_rt(request):
         request (flask.Request):
             Expected JSON body:
             {
-                "dates":[<number (timestamp in s)>, ...],
+                "dates":[<(timestamp in s)>, ...],
                 "cases": [<number>, ...]
             }
 
     Returns:
-        a JsonResponse:
+        JSON:
             {
-                "rt": <number>
+                "Rt": [
+                    {"date": <timestamp in s>, "value": <number>},
+                    ...
+                ],
+                "high90": [
+                    {"date": <timestamp in s>, "value": <number>},
+                    ...
+                ],
+                "low90": [
+                    {"date": <timestamp in s>, "value": <number>},
+                    ...
+                ],
+
             }
     """
     request_json = request.get_json(silent=True)
-    response_obj = {}
+    resp = defaultdict(list)
 
-    # TODO: real calculation
     if request_json and 'dates' in request_json and 'cases' in request_json:
-        response_obj['rt'] = 1.6
+        # TODO: real calculation
+        for date in request_json['dates']:
+            resp['Rt'].append({'date': date, 'value': 1.8})
+            resp['low90'].append({'date': date, 'value': 0.6})
+            resp['high90'].append({'date': date, 'value': 3.7})
 
-    return jsonify(response_obj)
+    return json.dumps(resp)
