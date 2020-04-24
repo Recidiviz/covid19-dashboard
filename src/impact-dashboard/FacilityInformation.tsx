@@ -1,4 +1,5 @@
 import numeral from "numeral";
+import React from "react";
 import styled from "styled-components";
 
 import InputTextNumeric from "../design-system/InputTextNumeric";

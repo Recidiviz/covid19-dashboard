@@ -3,6 +3,7 @@ import { EpidemicModelPersistent } from "../impact-dashboard/EpidemicModelContex
 export type Facility = {
   id?: string;
   name: string;
+  description?: string;
   systemType?: string;
   modelInputs: EpidemicModelPersistent;
   createdAt: Timestamp;
@@ -25,14 +26,8 @@ export type Scenario = {
   promoStatuses?: PromoStatuses | undefined;
   description: string;
   roles: object;
-  createdAt: TimeStamp;
-  updatedAt: TimeStamp;
-};
-
-type TimeStamp = {
-  seconds: string;
-  nanoseconds: string;
-  toDate: () => string;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
 };
 
 export type PromoStatuses = {
