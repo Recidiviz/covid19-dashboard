@@ -1,5 +1,6 @@
 import classNames from "classnames";
 import numeral from "numeral";
+import React from "react";
 import { GridCellProps, MultiGrid } from "react-virtualized";
 import AutoSizer from "react-virtualized-auto-sizer";
 import styled from "styled-components";

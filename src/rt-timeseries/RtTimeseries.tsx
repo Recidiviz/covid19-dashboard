@@ -1,6 +1,7 @@
 import { scaleTime, timeFormat } from "d3";
 // no type defs for Semiotic
 const ResponsiveXYFrame = require("semiotic/lib/ResponsiveXYFrame") as any;
+import React from "react";
 import styled from "styled-components";
 
 import ChartTooltip from "../design-system/ChartTooltip";

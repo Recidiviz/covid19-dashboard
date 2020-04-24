@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "es5",
     "module": "commonjs",
-    "jsx": "preserve",
+    "jsx": "react",
     "strict": true,
     "esModuleInterop": true,
     "noImplicitReturns": true,

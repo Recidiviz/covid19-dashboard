@@ -1,4 +1,5 @@
 import { sentenceCase } from "change-case";
+import React from "react";
 import styled from "styled-components";
 
 import { seirIndex, seirIndexList } from "../infection-model/seir";

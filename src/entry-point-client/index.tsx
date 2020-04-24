@@ -2,8 +2,6 @@ import "core-js/stable";
 import "regenerator-runtime/runtime";
 
 import React from "react";
-(window as any).React = React;
-
 import ReactDOM from "react-dom";
 import { Router } from "react-router-dom";
 
