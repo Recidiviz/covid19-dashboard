@@ -140,6 +140,7 @@ const xAxisOptions: any[] = [
     orient: "bottom",
     tickLineGenerator: () => null,
     label: "Days",
+    tickValues: [0, 25, 50, 75, 100],
   },
   {
     tickLineGenerator: () => null,
