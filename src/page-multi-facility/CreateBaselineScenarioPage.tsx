@@ -12,7 +12,7 @@ const CreateBaselineScenarioPageContainer = styled.div``;
 const WelcomeText = styled.div`
   color: ${Colors.forest};
   font-family: "Poppins", sans serif;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: normal;
   line-height: 180%;
   padding-top: 20px;
