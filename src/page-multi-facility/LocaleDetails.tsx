@@ -42,7 +42,7 @@ const localeData: { [key: string]: string | undefined } = {
   "Cases": "reportedCases",
   "Likely Cases": "estimatedIncarceratedCases",
   "Hospital Beds": "hospitalBeds",
-  "ICU Beds": undefined,
+  "ICU Beds": "icuBeds",
 };
 
 const enDash = "–";
