@@ -21,6 +21,7 @@ const tokenExchangeEndpoint =
 const modelInputsCollectionId = "model_inputs";
 const scenariosCollectionId = "scenarios";
 const facilitiesCollectionId = "facilities";
+const modelVersionCollectionId = "modelVersions";
 
 // Note: None of these are secrets.
 let firebaseConfig = {
@@ -90,6 +91,10 @@ const getDb = async () => {
 };
 
 const buildCreatePayload = (entity: any) => {
+  // Make sure the 'id' key doesn't exist on the entity object
+  // or else Firestore won't permit the addition.
+  delete entity.id;
+
   const timestamp = currrentTimestamp();
   return Object.assign({}, entity, {
     createdAt: timestamp,
@@ -368,7 +373,26 @@ export const saveFacility = async (facility: any): Promise<void> => {
       // Ensures we don't store any attributres that our model does not
       // know about.
       facility.modelInputs = pick(facility.modelInputs, persistedKeys);
+      facility.modelInputs.updatedAt = currrentTimestamp();
+      // TODO: For now, this assumes we're always entering data as of "today"
+      // However, in the near future, we should allow for a user submitted
+      // observed at value.  If it is not provided default to today. For dates
+      // observed in the past we'll have to assume the time portion of the
+      // timestamp is startOfDay** since we won't otherwise have any time
+      // information.
+      //
+      // ** https://date-fns.org/v1.29.0/docs/startOfDay
+      facility.modelInputs.observedAt = new Date();
     }
+
+    const db = await getDb();
+    const batch = db.batch();
+
+    const facilitiesCollection = baselineScenarioRef.collection(
+      facilitiesCollectionId,
+    );
+
+    let facilityDoc;
 
     // If the facility already has an id associated with it then
     // we just need to update that facility. Otherwise, we are
@@ -376,20 +400,25 @@ export const saveFacility = async (facility: any): Promise<void> => {
     // collection.
     if (facility.id) {
       const payload = buildUpdatePayload(facility);
-
-      baselineScenarioRef
-        .collection(facilitiesCollectionId)
-        .doc(facility.id)
-        .update(payload);
+      facilityDoc = facilitiesCollection.doc(facility.id);
+      batch.update(facilityDoc, payload);
     } else {
-      // Make sure this key doesn't exist on the facility object
-      // or else Firestore won't permit the addition.
-      delete facility.id;
-
       const payload = buildCreatePayload(facility);
-
-      baselineScenarioRef.collection(facilitiesCollectionId).add(payload);
+      facilityDoc = facilitiesCollection.doc();
+      batch.set(facilityDoc, payload);
     }
+
+    // If the facility's model inputs have been provided, store a new
+    // versioned copy of those inputs.
+    if (facility.modelInputs) {
+      const newModelVersionDoc = facilityDoc
+        .collection(modelVersionCollectionId)
+        .doc();
+
+      batch.set(newModelVersionDoc, facility.modelInputs);
+    }
+
+    await batch.commit();
   } catch (error) {
     console.error("Encountered error while attempting to save a facility:");
     console.error(error);
@@ -404,10 +433,31 @@ export const deleteFacility = async (facilityId: string): Promise<void> => {
 
     if (!baselineScenarioRef) return;
 
-    await baselineScenarioRef
+    // Delete all of the modelVersions associated with a facility.  Technically,
+    // this is not the recommended approach for the web*, but we should be ok
+    // while our datasets are small.  In the future, we can address this issue
+    // if it becomes problematic**.
+    //
+    // * https://firebase.google.com/docs/firestore/manage-data/delete-data#web_2
+    // ** https://github.com/Recidiviz/covid19-dashboard/issues/191
+    const facilityDocRef = await baselineScenarioRef
       .collection(facilitiesCollectionId)
-      .doc(facilityId)
-      .delete();
+      .doc(facilityId);
+
+    const modelVersions = await facilityDocRef
+      .collection(modelVersionCollectionId)
+      .get();
+
+    const db = await getDb();
+    const batch = db.batch();
+
+    modelVersions.docs.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+
+    batch.delete(facilityDocRef);
+
+    await batch.commit();
   } catch (error) {
     console.error(
       `Encountered error while attempting to delete the facility (${facilityId}):`,
