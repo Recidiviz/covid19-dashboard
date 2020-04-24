@@ -11,6 +11,7 @@ const Colors = {
   black: "#000",
   slate: "#e9ebeb",
   forest: "#005450",
+  opacityForest: `${hexAlpha("#005450", 0.7)}`,
   darkForest: "#033342",
   teal: "#25b894",
   darkTeal: "#759f9e",

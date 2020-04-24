@@ -10,11 +10,11 @@ import ModalDialog from "../design-system/ModalDialog";
 const CreateBaselineScenarioPageContainer = styled.div``;
 
 const WelcomeText = styled.div`
-  color: ${Colors.forest};
+  color: ${Colors.opacityForest};
   font-family: "Poppins", sans serif;
-  font-size: 16px;
+  font-size: 13px;
   font-weight: normal;
-  line-height: 180%;
+  line-height: 150%;
   padding-top: 20px;
 `;
 
