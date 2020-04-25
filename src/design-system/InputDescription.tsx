@@ -43,12 +43,14 @@ interface Props {
   description?: string | undefined;
   setDescription: (description?: string) => void;
   placeholderValue?: string | undefined;
+  persistChanges?: (changes: object) => void;
 }
 
 const InputDescription: React.FC<Props> = ({
   description,
   setDescription,
   placeholderValue,
+  persistChanges,
 }) => {
   const [editingDescription, setEditingDescription] = useState(false);
   const [value, setValue] = useState(description);
@@ -60,6 +62,9 @@ const InputDescription: React.FC<Props> = ({
   const updateDescription = () => {
     setEditingDescription(false);
     setDescription(value);
+    if (persistChanges) {
+      persistChanges({ description: value });
+    }
   };
 
   return (
