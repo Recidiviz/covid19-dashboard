@@ -61,25 +61,23 @@ const LocaleDetails: React.FC<Props> = ({ stateCode, countyName }) => {
     stateData && stateData.get(countyName);
 
   return (
-    <LocaleDataProvider>
-      <LocaleDetailsContainer>
-        {locale &&
-          Object.keys(localeData).map((detail) => {
-            const property = localeData[detail] as keyof LocaleRecord;
-            const value =
-              property && locale[property]
-                ? numeral(locale[property]).format("0,0")
-                : enDash;
+    <LocaleDetailsContainer>
+      {locale &&
+        Object.keys(localeData).map((detail) => {
+          const property = localeData[detail] as keyof LocaleRecord;
+          const value =
+            property && locale[property]
+              ? numeral(locale[property]).format("0,0")
+              : enDash;
 
-            return (
-              <LocaleDetail key={`LocaleDetail-${property}`}>
-                <LocaleDetailValue>{value}</LocaleDetailValue>
-                <LocaleDetailDescription>{detail}</LocaleDetailDescription>
-              </LocaleDetail>
-            );
-          })}
-      </LocaleDetailsContainer>
-    </LocaleDataProvider>
+          return (
+            <LocaleDetail key={`LocaleDetail-${property}`}>
+              <LocaleDetailValue>{value}</LocaleDetailValue>
+              <LocaleDetailDescription>{detail}</LocaleDetailDescription>
+            </LocaleDetail>
+          );
+        })}
+    </LocaleDetailsContainer>
   );
 };
 
