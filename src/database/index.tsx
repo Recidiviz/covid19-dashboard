@@ -34,7 +34,9 @@ let firebaseConfig = {
   appId: "1:508068404480:web:65bfe28b619e1ad572e7e5",
 };
 
-firebase.initializeApp(firebaseConfig);
+if (typeof window !== "undefined") {
+  firebase.initializeApp(firebaseConfig);
+}
 
 /**
  * Silently authenticates the user to Firebase if possible.

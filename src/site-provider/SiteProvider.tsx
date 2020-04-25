@@ -20,7 +20,8 @@ const onRedirectCallback = (appState: any) => {
 const SiteProvider: React.FC = (props) => {
   const [facility, setFacility] = useState();
 
-  let redirectUri = window.location.origin;
+  let redirectUri =
+    typeof window === "undefined" ? undefined : window.location.origin;
 
   return (
     <Auth0Provider
