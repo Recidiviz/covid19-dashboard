@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
-import { deleteFacility, getFacilities } from "../database";
+import { getFacilities } from "../database";
 import Colors from "../design-system/Colors";
 import iconAddSrc from "../design-system/icons/ic_add.svg";
 import Loading from "../design-system/Loading";
@@ -76,11 +76,6 @@ const MultiFacilityImpactDashboard: React.FC = () => {
     history.push("/facility");
   };
 
-  const deleteFn = async (scenarioId: string, facilityId: string) => {
-    await deleteFacility(scenarioId, facilityId);
-    fetchFacilities();
-  };
-
   return (
     <MultiFacilityImpactDashboardContainer>
       {scenario.loading ? (
@@ -105,7 +100,6 @@ const MultiFacilityImpactDashboard: React.FC = () => {
                 localeDataSource={localeDataSource}
               >
                 <FacilityRow
-                  deleteFn={deleteFn}
                   facility={facility}
                   scenarioId={facility.scenarioId}
                 />
