@@ -13,6 +13,7 @@ const inputTextAreaStyle = {
 
 const DescriptionDiv = styled.div`
   min-height: 100px;
+  width: 100%;
   padding: 20px 0;
   display: flex;
   flex-direction: row;

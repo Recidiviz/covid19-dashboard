@@ -34,10 +34,13 @@ const ButtonSection = styled.div`
   margin-top: 30px;
 `;
 
-// mockup divs and menu items
-const NameRow = styled.div`
+const DescRow = styled.div`
   display: flex;
   justify-content: space-between;
+`;
+
+const PopUpMenuWrapper = styled.div`
+  padding-top: 12px;
 `;
 
 // Delete Modal elements
@@ -125,19 +128,21 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   return (
     <FacilityInputFormDiv>
       <LeftColumn>
-        <NameRow>
-          <InputNameWithIcon
-            name={facilityName}
-            setName={setFacilityName}
-            placeholderValue="Unnamed Facility"
-          />
-          <PopUpMenu items={popupItems} />
-        </NameRow>
-        <InputDescription
-          description={description}
-          setDescription={setDescription}
-          placeholderValue="Enter a description (optional)"
+        <InputNameWithIcon
+          name={facilityName}
+          setName={setFacilityName}
+          placeholderValue="Unnamed Facility"
         />
+        <DescRow>
+          <InputDescription
+            description={description}
+            setDescription={setDescription}
+            placeholderValue="Enter a description (optional)"
+          />
+          <PopUpMenuWrapper>
+            <PopUpMenu items={popupItems} />
+          </PopUpMenuWrapper>
+        </DescRow>
         <div className="mt-5 mb-5 border-b border-gray-300" />
 
         <LocaleInformationSection
