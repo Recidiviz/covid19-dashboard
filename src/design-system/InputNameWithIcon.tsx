@@ -49,12 +49,14 @@ interface Props {
   name?: string | undefined;
   setName: (name?: string) => void;
   placeholderValue?: string | undefined;
+  persistChanges?: (changes: object) => void;
 }
 
 const InputNameWithIcon: React.FC<Props> = ({
   name,
   setName,
   placeholderValue,
+  persistChanges,
 }) => {
   const [editingName, setEditingName] = useState(false);
   const [value, setValue] = useState(name);
@@ -66,6 +68,9 @@ const InputNameWithIcon: React.FC<Props> = ({
   const updateName = () => {
     setEditingName(false);
     setName(value);
+    if (persistChanges) {
+      persistChanges({ name: value });
+    }
   };
 
   return (
