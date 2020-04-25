@@ -5,7 +5,7 @@ import { Route, Switch } from "react-router-dom";
 import AuthWall from "../auth/AuthWall";
 import { LocaleDataProvider } from "../locale-data-context";
 import { FacilityContext } from "../page-multi-facility/FacilityContext";
-import { GlobalStyles } from "../styles";
+import { GlobalStyles } from "../site-styles/styles";
 import PageList from "./PageList";
 import WindowTitle from "./WindowTitle";
 
