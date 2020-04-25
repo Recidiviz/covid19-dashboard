@@ -54,6 +54,11 @@
     "eslint-plugin-react-hooks": "^3.0.0",
     "eslint-plugin-simple-import-sort": "^5.0.2",
     "firebase": "^7.14.0",
+    "gatsby": "^2.20.35",
+    "gatsby-plugin-emotion": "^4.2.3",
+    "gatsby-plugin-postcss": "^2.2.4",
+    "gatsby-plugin-styled-components": "^3.2.4",
+    "gatsby-plugin-typescript": "^2.3.5",
     "hex-alpha": "^1.0.2",
     "husky": "^4.2.3",
     "lint-staged": "^10.0.9",
@@ -79,6 +84,7 @@
     "resize-observer-polyfill": "^1.5.1",
     "semiotic": "^1.20.5",
     "styled-components": "^5.0.1",
+    "tailwindcss": "^1.3.5",
     "typescript": "^3.8.3",
     "us-zcta-counties": "^0.0.2"
   },
@@ -94,7 +100,7 @@
     "!(*.d).ts": [
       "false -- Please use .tsx instead of .ts!"
     ],
-    "*.js": [
+    "*/**/*.js": [
       "false -- Please use .tsx with `// @ts-nocheck` instead of .js!"
     ],
     "*.{html,json,md,webmanifest}": [

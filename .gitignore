@@ -1,5 +1,6 @@
 # IDEs
 .idea/
+.history/
 
 # Common OS files
 .DS_Store
@@ -13,6 +14,10 @@
 
 # Eslint
 /.eslintcache
+
+# Gatsby
+/.cache
+/public
 
 # Parcel
 /.cache
