@@ -1,5 +1,5 @@
+import { Redirect, useLocation } from "@reach/router";
 import React, { useEffect } from "react";
-import { Redirect, useLocation } from "react-router-dom";
 
 import Loading from "../design-system/Loading";
 import { useAuth0 } from "./react-auth0-spa";

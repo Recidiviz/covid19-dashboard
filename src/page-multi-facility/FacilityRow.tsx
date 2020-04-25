@@ -1,5 +1,5 @@
+import { navigate } from "gatsby";
 import React, { useContext, useState } from "react";
-import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
 import { saveFacility } from "../database/index";
@@ -110,7 +110,6 @@ const FacilityRow: React.FC<Props> = ({
   facility: initialFacility,
 }) => {
   const confirmedCases = totalConfirmedCases(useEpidemicModelState());
-  const history = useHistory();
   const { setFacility } = useContext(FacilityContext);
   const [facility, updateFacility] = useState(initialFacility);
 
@@ -120,7 +119,7 @@ const FacilityRow: React.FC<Props> = ({
 
   const openFacilityPage = () => {
     setFacility(facility);
-    history.push("/facility");
+    navigate("/facility");
   };
 
   const openDeleteModal = handleSubClick(updateShowDeleteModal, true);

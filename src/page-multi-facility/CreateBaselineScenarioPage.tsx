@@ -1,5 +1,5 @@
+import { navigate } from "gatsby";
 import React from "react";
-import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
 import { createBaselineScenario } from "../database";
@@ -33,12 +33,11 @@ const ModalContent = styled.div`
 `;
 
 const CreateBaselineScenarioPage: React.FC = () => {
-  const history = useHistory();
   const handleOnClick = async () => {
     const baselineScenarioRef = await createBaselineScenario();
     if (baselineScenarioRef) {
       // Redirect to new facility page after exiting welcome modal
-      history.push("/facility");
+      navigate("/facility");
     }
   };
 

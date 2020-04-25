@@ -1,5 +1,5 @@
+import { navigate } from "gatsby";
 import React, { useContext, useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
 import {
@@ -55,7 +55,6 @@ const MultiFacilityImpactDashboard: React.FC<Props> = ({
   baselineScenarioRef,
 }) => {
   const { data: localeDataSource } = useLocaleDataState();
-  const history = useHistory();
   const { setFacility } = useContext(FacilityContext);
 
   const [facilities, setFacilities] = useState({
@@ -104,7 +103,7 @@ const MultiFacilityImpactDashboard: React.FC<Props> = ({
 
   const openAddFacilityPage = () => {
     setFacility(null);
-    history.push("/facility");
+    navigate("/facility");
   };
 
   const deleteFn = async (id: string) => {

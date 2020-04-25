@@ -1,5 +1,5 @@
+import { navigate } from "gatsby";
 import React, { useContext, useState } from "react";
-import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
 import { saveFacility } from "../database/index";
@@ -33,7 +33,6 @@ const ButtonSection = styled.div`
 
 const FacilityInputForm: React.FC = () => {
   const { facility } = useContext(FacilityContext);
-  const history = useHistory();
   const [facilityName, setFacilityName] = useState(facility?.name || undefined);
   const [description, setDescription] = useState(
     facility?.description || undefined,
@@ -51,7 +50,7 @@ const FacilityInputForm: React.FC = () => {
       systemType: systemType || null,
       modelInputs: JSON.parse(JSON.stringify(model))[0],
     }).then((_) => {
-      history.push("/");
+      navigate("/");
     });
   };
 
