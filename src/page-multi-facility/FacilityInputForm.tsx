@@ -2,9 +2,11 @@ import React, { useContext, useState } from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
-import { saveFacility } from "../database/index";
-import InputButton from "../design-system/InputButton";
+import { deleteFacility, saveFacility } from "../database/index";
+import Colors from "../design-system/Colors";
+import InputButton, { StyledButton } from "../design-system/InputButton";
 import InputText from "../design-system/InputText";
+import ModalDialog from "../design-system/ModalDialog";
 import PopUpMenu from "../design-system/PopUpMenu";
 import ChartArea from "../impact-dashboard/ChartArea";
 import ImpactProjectionTable from "../impact-dashboard/ImpactProjectionTableContainer";
@@ -40,13 +42,42 @@ const TestDiv = styled.div`
 const TestTitle = styled.div`
   margin: auto 0;
 `;
-const popupItems = [
-  {
-    name: "Something",
-    onClick: () => console.log("click something "),
-  },
-  { name: "Delete", onClick: () => console.log("click delete") },
-];
+
+// Delete Modal elements
+const ModalContents = styled.div`
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  font-weight: normal;
+  justify-content: flex-start;
+  margin-top: 30px;
+`;
+
+const ModalText = styled.div`
+  font-size: 13px;
+  margin-right: 25px;
+`;
+
+const ModalButtons = styled.div`
+  /* display: flex;
+  flex-direction: column; */
+`;
+
+const ModalButton = styled(StyledButton)`
+  font-size: 14px;
+  font-weight: normal;
+`;
+const DeleteButton = styled(ModalButton)`
+  background: ${Colors.darkRed};
+  color: ${Colors.white};
+  margin-right: 15px;
+`;
+
+const CancelButton = styled(ModalButton)`
+  background: transparent;
+  border: 1px solid ${Colors.forest};
+  color: ${Colors.forest};
+`;
 
 // TODO add section header tooltips
 // TODO add summary at bottom of Locale Information
@@ -70,6 +101,30 @@ const FacilityInputForm: React.FC = () => {
     });
   };
 
+  // delete modal stuff
+  const [showDeleteModal, updateShowDeleteModal] = useState(false);
+  const openDeleteModal = () => {
+    updateShowDeleteModal(true);
+  };
+  const closeDeleteModal = () => {
+    updateShowDeleteModal(false);
+  };
+  const popupItems = [
+    {
+      name: "Something",
+      onClick: () => console.log("click something "),
+    },
+    { name: "Delete", onClick: openDeleteModal },
+  ];
+  const removeFacility = async () => {
+    const id = facility?.id;
+    if (id) {
+      await deleteFacility(id);
+      history.goBack();
+    }
+    updateShowDeleteModal(false);
+  };
+
   return (
     <FacilityInputFormDiv>
       <LeftColumn>
@@ -84,6 +139,24 @@ const FacilityInputForm: React.FC = () => {
         <TestDiv>
           <TestTitle>SOMETHIGN HERE</TestTitle>
           <PopUpMenu items={popupItems} />
+          <ModalDialog
+            closeModal={closeDeleteModal}
+            open={showDeleteModal}
+            title="Are you sure?"
+          >
+            <ModalContents>
+              <ModalText>This action cannot be undone.</ModalText>
+              <ModalButtons>
+                <DeleteButton
+                  label="Delete facility"
+                  onClick={removeFacility} // replace with actual delete function (pass ID)
+                >
+                  Delete facility
+                </DeleteButton>
+                <CancelButton onClick={closeDeleteModal}>Cancel</CancelButton>
+              </ModalButtons>
+            </ModalContents>
+          </ModalDialog>
         </TestDiv>
 
         <LocaleInformationSection

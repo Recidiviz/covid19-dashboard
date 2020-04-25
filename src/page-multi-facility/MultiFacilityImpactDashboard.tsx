@@ -2,12 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
-import {
-  deleteFacility,
-  getBaselineScenario,
-  getFacilities,
-  saveScenario,
-} from "../database";
+import { getBaselineScenario, getFacilities, saveScenario } from "../database";
 import Colors from "../design-system/Colors";
 import iconAddSrc from "../design-system/icons/ic_add.svg";
 import Loading from "../design-system/Loading";
@@ -107,11 +102,6 @@ const MultiFacilityImpactDashboard: React.FC<Props> = ({
     history.push("/facility");
   };
 
-  const deleteFn = async (id: string) => {
-    await deleteFacility(id);
-    fetchFacilities();
-  };
-
   return (
     <MultiFacilityImpactDashboardContainer>
       {scenario.loading ? (
@@ -139,7 +129,7 @@ const MultiFacilityImpactDashboard: React.FC<Props> = ({
                 facilityModel={facility.modelInputs}
                 localeDataSource={localeDataSource}
               >
-                <FacilityRow deleteFn={deleteFn} facility={facility} />
+                <FacilityRow facility={facility} />
               </EpidemicModelProvider>
             );
           })
