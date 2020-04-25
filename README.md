@@ -15,13 +15,9 @@ yarn install
 yarn dev
 ```
 
-To clean builds:
+Serves from <http://localhost:8000/>.
 
-```sh
-yarn clean
-```
-
-Serves from <http://localhost:1234>.
+If you want to a specific port, like 1234, just add `--port 1234`.
 
 ### Production
 
@@ -29,13 +25,15 @@ Serves from <http://localhost:1234>.
 yarn build
 ```
 
-Built files can be found in `/dist`.
+Built files can be found in `public/`.
 
-An easy way to try running the built files:
+An easy way to test out the built files:
 
 ```sh
-bash -c "cd dist && npx serve"
+yarn gatsby serve
 ```
+
+If you want to a specific port, like 1234, just add `--port 1234`.
 
 ### Authentication
 
