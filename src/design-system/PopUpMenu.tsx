@@ -21,6 +21,7 @@ interface ItemProps {
 const PopUpMenuDiv = styled.div`
   position: relative;
   cursor: pointer;
+  height: min-content;
 `;
 
 const PopUpMenuIcon = styled.div`
