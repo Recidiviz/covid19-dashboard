@@ -2,11 +2,11 @@ import React, { useContext, useState } from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
-import InputDescription from "../design-system/InputDescription";
-import InputNameWithIcon from "../design-system/InputNameWithIcon";
 import { deleteFacility, saveFacility } from "../database/index";
 import Colors from "../design-system/Colors";
 import InputButton, { StyledButton } from "../design-system/InputButton";
+import InputDescription from "../design-system/InputDescription";
+import InputNameWithIcon from "../design-system/InputNameWithIcon";
 import ModalDialog from "../design-system/ModalDialog";
 import PopUpMenu from "../design-system/PopUpMenu";
 import ChartArea from "../impact-dashboard/ChartArea";
@@ -35,13 +35,9 @@ const ButtonSection = styled.div`
 `;
 
 // mockup divs and menu items
-const TestDiv = styled.div`
+const NameRow = styled.div`
   display: flex;
   justify-content: space-between;
-`;
-
-const TestTitle = styled.div`
-  margin: auto 0;
 `;
 
 // Delete Modal elements
@@ -116,13 +112,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   const closeDeleteModal = () => {
     updateShowDeleteModal(false);
   };
-  const popupItems = [
-    {
-      name: "Something",
-      onClick: () => console.log("click something "),
-    },
-    { name: "Delete", onClick: openDeleteModal },
-  ];
+  const popupItems = [{ name: "Delete", onClick: openDeleteModal }];
   const removeFacility = async () => {
     const id = facility?.id;
     if (id) {
@@ -135,40 +125,20 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   return (
     <FacilityInputFormDiv>
       <LeftColumn>
-        <InputNameWithIcon
-          name={facilityName}
-          setName={setFacilityName}
-          placeholderValue="Unnamed Facility"
-        />
+        <NameRow>
+          <InputNameWithIcon
+            name={facilityName}
+            setName={setFacilityName}
+            placeholderValue="Unnamed Facility"
+          />
+          <PopUpMenu items={popupItems} />
+        </NameRow>
         <InputDescription
           description={description}
           setDescription={setDescription}
           placeholderValue="Enter a description (optional)"
         />
         <div className="mt-5 mb-5 border-b border-gray-300" />
-
-        <TestDiv>
-          <TestTitle>SOMETHIGN HERE</TestTitle>
-          <PopUpMenu items={popupItems} />
-          <ModalDialog
-            closeModal={closeDeleteModal}
-            open={showDeleteModal}
-            title="Are you sure?"
-          >
-            <ModalContents>
-              <ModalText>This action cannot be undone.</ModalText>
-              <ModalButtons>
-                <DeleteButton
-                  label="Delete facility"
-                  onClick={removeFacility} // replace with actual delete function (pass ID)
-                >
-                  Delete facility
-                </DeleteButton>
-                <CancelButton onClick={closeDeleteModal}>Cancel</CancelButton>
-              </ModalButtons>
-            </ModalContents>
-          </ModalDialog>
-        </TestDiv>
 
         <LocaleInformationSection
           systemType={systemType}
@@ -185,6 +155,26 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
         <ChartArea />
         <ImpactProjectionTable />
       </RightColumn>
+
+      {/* MODAL */}
+      <ModalDialog
+        closeModal={closeDeleteModal}
+        open={showDeleteModal}
+        title="Are you sure?"
+      >
+        <ModalContents>
+          <ModalText>This action cannot be undone.</ModalText>
+          <ModalButtons>
+            <DeleteButton
+              label="Delete facility"
+              onClick={removeFacility} // replace with actual delete function (pass ID)
+            >
+              Delete facility
+            </DeleteButton>
+            <CancelButton onClick={closeDeleteModal}>Cancel</CancelButton>
+          </ModalButtons>
+        </ModalContents>
+      </ModalDialog>
     </FacilityInputFormDiv>
   );
 };

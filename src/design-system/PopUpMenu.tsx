@@ -3,7 +3,7 @@ import React from "react";
 import styled from "styled-components";
 
 import UseComponentToggleVisible from "../hooks/UseComponentToggleVisible";
-import Colors from "./Colors";
+import Colors, { darken } from "./Colors";
 
 interface Item {
   name: string;
@@ -34,13 +34,14 @@ const PopUpMenuContents = styled.div`
   position: absolute;
   top: 100%;
   right: 0;
-  background-color: white;
+  background-color: ${darken(Colors.white, 5)};
+  min-width: 100px;
 `;
 
 const PopUpMenuItemDiv = styled.div`
   padding: 8px;
   &:hover {
-    background-color: ${hexAlpha(Colors.gray, 0.5)};
+    background-color: ${hexAlpha(Colors.teal, 0.1)};
   }
 `;
 
