@@ -10,6 +10,15 @@ module.exports = {
 
     // prettier-ignore
     {
+      resolve: "gatsby-plugin-google-analytics",
+      options: {
+        trackingId: "UA-117977508-2",
+        head: true,
+      },
+    },
+
+    // prettier-ignore
+    {
       resolve: "gatsby-plugin-manifest",
       options: {
         short_name: "COVID-19",
