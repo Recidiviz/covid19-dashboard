@@ -33,7 +33,6 @@ const SiteProvider: React.FC = (props) => {
     >
       <LocaleDataProvider>
         <FacilityContext.Provider value={{ facility, setFacility }}>
-          <GlobalStyles />
           {props.children}
         </FacilityContext.Provider>
       </LocaleDataProvider>
