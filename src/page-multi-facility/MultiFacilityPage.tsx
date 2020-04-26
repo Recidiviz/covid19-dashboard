@@ -1,43 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import styled from "styled-components";
 
-import { getBaselineScenarioRef } from "../database";
 import Loading from "../design-system/Loading";
 import { useLocaleDataState } from "../locale-data-context";
+import useScenario from "../scenario-context/useScenario";
 import SiteHeader from "../site-header/SiteHeader";
 import CreateBaselineScenarioPage from "./CreateBaselineScenarioPage";
 import MultiFacilityImpactDashboard from "./MultiFacilityImpactDashboard";
 
 const MultiFacilityPageDiv = styled.div``;
 
-export type BaselineScenarioRef = {
-  // TODO: Confine uses of Firestore APIs (document references, etc.) to the `database` module and make this type
-  //       more specific.
-  data?: any;
-  loading: boolean;
-};
-
 const MultiFacilityPage: React.FC = () => {
-  const [baselineScenarioRef, setBaselineScenarioRef] = useState<
-    BaselineScenarioRef
-  >({
-    data: null,
-    loading: true,
-  });
-
   const localeState = useLocaleDataState();
-
-  useEffect(() => {
-    async function fetchBaselineScenarioRef() {
-      const baselineScenarioRef = await getBaselineScenarioRef();
-
-      setBaselineScenarioRef({
-        data: baselineScenarioRef,
-        loading: false,
-      });
-    }
-    fetchBaselineScenarioRef();
-  }, []);
+  const [scenario] = useScenario();
 
   return (
     <MultiFacilityPageDiv>
@@ -50,12 +25,10 @@ const MultiFacilityPage: React.FC = () => {
               Unable to load state and county data. Please try refreshing the
               page.
             </div>
-          ) : baselineScenarioRef.loading || localeState.loading ? (
+          ) : localeState.loading || scenario.loading ? (
             <Loading />
-          ) : baselineScenarioRef.data ? (
-            <MultiFacilityImpactDashboard
-              baselineScenarioRef={baselineScenarioRef}
-            />
+          ) : scenario.data ? (
+            <MultiFacilityImpactDashboard />
           ) : (
             <CreateBaselineScenarioPage />
           )}

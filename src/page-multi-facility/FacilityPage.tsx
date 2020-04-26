@@ -1,8 +1,10 @@
 import React, { useContext } from "react";
 import styled from "styled-components";
 
+import Loading from "../design-system/Loading";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
 import { useLocaleDataState } from "../locale-data-context";
+import useScenario from "../scenario-context/useScenario";
 import SiteHeader from "../site-header/SiteHeader";
 import { FacilityContext } from "./FacilityContext";
 import FacilityInputForm from "./FacilityInputForm";
@@ -14,21 +16,28 @@ const FacilityPageDiv = styled.div``;
 const FacilityPage: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
   const { facility } = useContext(FacilityContext);
+  const [scenario] = useScenario();
 
   return (
-    <EpidemicModelProvider
-      facilityModel={facility?.modelInputs}
-      localeDataSource={localeDataSource}
-    >
-      <FacilityPageDiv>
-        <div className="font-body text-green min-h-screen tracking-normal w-full">
-          <div className="max-w-screen-xl px-4 mx-auto">
-            <SiteHeader />
-            <FacilityInputForm />
-          </div>
-        </div>
-      </FacilityPageDiv>
-    </EpidemicModelProvider>
+    <>
+      {scenario.loading || !scenario?.data?.id ? (
+        <Loading />
+      ) : (
+        <EpidemicModelProvider
+          facilityModel={facility?.modelInputs}
+          localeDataSource={localeDataSource}
+        >
+          <FacilityPageDiv>
+            <div className="font-body text-green min-h-screen tracking-normal w-full">
+              <div className="max-w-screen-xl px-4 mx-auto">
+                <SiteHeader />
+                <FacilityInputForm scenarioId={scenario.data.id} />
+              </div>
+            </div>
+          </FacilityPageDiv>
+        </EpidemicModelProvider>
+      )}
+    </>
   );
 };
 

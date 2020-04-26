@@ -31,7 +31,11 @@ const ButtonSection = styled.div`
   margin-top: 30px;
 `;
 
-const FacilityInputForm: React.FC = () => {
+interface Props {
+  scenarioId: string;
+}
+
+const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   const { facility } = useContext(FacilityContext);
   const history = useHistory();
   const [facilityName, setFacilityName] = useState(facility?.name || undefined);
@@ -44,7 +48,7 @@ const FacilityInputForm: React.FC = () => {
   const model = useModel();
 
   const save = () => {
-    saveFacility({
+    saveFacility(scenarioId, {
       id: facility?.id,
       name: facilityName || null,
       description: description || null,
