@@ -8,7 +8,6 @@ module.exports = {
     "gatsby-plugin-styled-components",
     "gatsby-plugin-typescript",
 
-    // prettier-ignore
     {
       resolve: "gatsby-plugin-google-analytics",
       options: {
@@ -17,7 +16,6 @@ module.exports = {
       },
     },
 
-    // prettier-ignore
     {
       resolve: "gatsby-plugin-manifest",
       options: {
@@ -28,6 +26,17 @@ module.exports = {
         display: "standalone",
         theme_color: "#000000",
         background_color: "#ffffff",
+      },
+    },
+
+    {
+      resolve: "gatsby-plugin-prefetch-google-fonts",
+      options: {
+        fonts: [
+          { family: "Libre Baskerville" },
+          { family: "Poppins", variants: ["300", "400", "600"] },
+          { family: "Rubik" },
+        ],
       },
     },
   ],

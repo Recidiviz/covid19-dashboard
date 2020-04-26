@@ -6,7 +6,7 @@
 
   "overrides": [
     {
-      "files": "{*.json,*-config.js,*.config.js}",
+      "files": "{*.json,*.config.js}",
       "options": {
         "printWidth": 0
       }
