@@ -6,8 +6,10 @@ import PageInfo from "../site-metadata/PageInfo";
 
 // eslint-disable-next-line react/display-name
 export default () => (
-  <AuthWall>
+  <>
     <PageInfo title={undefined} />
-    <FacilityPage />
-  </AuthWall>
+    <AuthWall>
+      <FacilityPage />
+    </AuthWall>
+  </>
 );
