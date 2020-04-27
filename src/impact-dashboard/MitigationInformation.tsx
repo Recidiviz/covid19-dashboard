@@ -25,7 +25,7 @@ type RowProps = PlannedRelease & {
   updateRelease: (opts: ReleaseUpdate) => void;
 };
 
-export const rateOfSpreadDisplayText: { [key in RateOfSpread]: string } = {
+const rateOfSpreadDisplayText: { [key in RateOfSpread]: string } = {
   low:
     "Low – we've reduced unnecessary interpersonal contact and quarantined at-risk groups",
   moderate:
@@ -50,7 +50,7 @@ const ButtonAdd = styled.button`
   padding: 8px 16px;
 `;
 
-const ReleaseRow: React.FC<RowProps> = ({
+export const ReleaseRow: React.FC<RowProps> = ({
   date,
   count,
   index,
