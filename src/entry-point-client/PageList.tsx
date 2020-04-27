@@ -52,13 +52,13 @@ const PageList: PageInfo[] = [
   },
   {
     path: "/inspect-model",
-    title: getPageTitle("Inspect epidemic model output"),
+    title: getPageTitle("Inspect Epidemic Model Output"),
     isPrivate: true,
     contents: <ModelInspectionPage />,
   },
   {
     path: "/impact",
-    title: getPageTitle("Response impact"),
+    title: getPageTitle("Response Impact"),
     isPrivate: true,
     contents: <ResponseImpactPage />,
   },
