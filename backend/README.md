@@ -61,7 +61,7 @@ with the same project specified above, so you will need the same access to admin
 
 They live in `backend/python-functions/main.py`.
 
-## Testing locally
+## Testing
 
 In `python-functions` set up your virtual environment:
 
@@ -71,17 +71,40 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Unlike Firebase, we don't have tools to emulate these functions locally.
+Unlike in Firebase, we don't have tools to emulate these functions locally.
 But we can write tests against them, in `python-functions/test.py`. Run them with:
 
 ```sh
 python -m unittest
 ```
 
+## Development
+
+While we cannot emulate the Cloud Functions environment locally, we can deploy separate
+development and production versions of the function to facilitate end-to-end development
+and more rigorous pre-release testing.
+
+All developers' local builds of the dashboard will consume the `development` version of
+the function, so please be aware of how any changes you make will affect others and take
+reasonable measures to avoid breaking it and let others know if it will be unavailable
+or unstable for a time while you are actively developing it.
+
+See the "Deployment" section below for deployment instructions.
+
 ## Deployment
 
-Deploy the functions using the `gcloud` command line tool for Google Cloud Platform.
+To deploy the functions, you will need the `gcloud` command line tool for Google Cloud Platform,
+configured with access to the `c19-backend` project. However, to ensure proper configuration
+of the deployed functions, you should use the deploy script in `python-functions/deploy.py`
+rather than using `gcloud` directly.
+
+To deploy a function, pass the deploy script the function name and target environment (`development`
+or `production`):
 
 ```sh
-gcloud functions deploy <FUNCTION_NAME> --runtime python37 --trigger-http --allow-unauthenticated
+python deploy.py calculate_whatever development
 ```
+
+Deploying a function for development will result in a function URL with `_development` appended.
+This is the only real difference between the "environments" but it allows the prod
+endpoint to remain stable while changes are staged for pre-release testing.
