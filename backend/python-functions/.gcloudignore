@@ -1,0 +1,6 @@
+# local env files
+venv
+__pycache__
+
+# tests don't need to be deployed
+**/test*.py
