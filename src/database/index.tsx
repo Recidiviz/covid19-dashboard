@@ -312,10 +312,20 @@ export const saveFacility = async (
     if (!scenarioRef) return;
 
     if (facility.modelInputs) {
-      // Ensures we don't store any attributres that our model does not
-      // know about.
+      // Ensures we don't store any attributres that our model does not know
+      // about. This also makes a copy of modelInputs, since we shouldn't mutate
+      // the original.
       facility.modelInputs = pick(facility.modelInputs, persistedKeys);
+
+      // Convert the dates in plannedReleases to strings. Otherwise, Firestore
+      // will serialize these dates to timestamps in a way that is not
+      // compatible with our date picker library. Instead, save these dates
+      // values as strings in Firestore.
+      // https://github.com/Recidiviz/covid19-dashboard/issues/144
+      facility.modelInputs = JSON.parse(JSON.stringify(facility.modelInputs));
+
       facility.modelInputs.updatedAt = currrentTimestamp();
+
       // TODO: For now, this assumes we're always entering data as of "today"
       // However, in the near future, we should allow for a user submitted
       // observed at value.  If it is not provided default to today. For dates

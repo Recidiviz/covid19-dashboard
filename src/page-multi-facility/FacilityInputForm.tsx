@@ -99,35 +99,12 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   const model = useModel();
 
   const save = () => {
-    // When saving an object to Firestore, Firestore will reject it if it is not
-    // serializable. This type enforces that what we are saving is serializable.
-    // In the future, if we add new properties to the model that are not
-    // serializable, we will get a TS error below.
-    //
-    // Definition inspired by the one posted here:
-    // https://github.com/microsoft/TypeScript/issues/1897#issuecomment-338650717
-    type JsonSerializable =
-      | boolean
-      | number
-      | Date
-      | string
-      | undefined
-      | JsonSerializable[]
-      | { [key: string]: JsonSerializable };
-
-    let modelInputs: JsonSerializable = {
-      ...model[0],
-
-      // We don't need to save localeDataSource.
-      localeDataSource: undefined,
-    };
-
     saveFacility(scenarioId, {
       id: facility?.id,
       name: facilityName || null,
       description: description || null,
       systemType: systemType || null,
-      modelInputs,
+      modelInputs: model[0],
     }).then(() => {
       navigate("/");
     });
