@@ -62,7 +62,7 @@ const ModalDialog: React.FC<Props> = (props) => {
         {children}
       </ModalContainer>
     </BackgroundAside>,
-    document.getElementById("app") as HTMLElement,
+    document.getElementById("___gatsby") as HTMLElement,
   );
 };
 
