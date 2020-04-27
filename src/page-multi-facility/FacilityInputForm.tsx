@@ -117,9 +117,9 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   };
   const popupItems = [{ name: "Delete", onClick: openDeleteModal }];
   const removeFacility = async () => {
-    const id = facility?.id;
-    if (id) {
-      await deleteFacility(id);
+    const facilityId = facility?.id;
+    if (facilityId) {
+      await deleteFacility(scenarioId, facilityId);
       history.goBack();
     }
     updateShowDeleteModal(false);
