@@ -101,7 +101,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   const save = () => {
     // When saving an object to Firestore, Firestore will reject it if it is not
     // serializable. This type enforces that what we are saving is serializable.
-    // In the future, we add new properties to the model that are not
+    // In the future, if we add new properties to the model that are not
     // serializable, we will get a TS error below.
     //
     // Definition inspired by the one posted here:

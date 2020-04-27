@@ -30,7 +30,7 @@ Built files can be found in `public/`.
 An easy way to test out the built files:
 
 ```sh
-yarn gatsby serve
+yarn serve
 ```
 
 If you want to a specific port, like 1234, just add `--port 1234`.

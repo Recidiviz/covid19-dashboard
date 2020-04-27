@@ -11,6 +11,7 @@
     "lint-prettier-check": "prettier --check --ignore-path .gitignore src",
     "lint-prettier-fix": "prettier --write --ignore-path .gitignore src",
     "lint-tsc-check": "tsc",
+    "serve": "gatsby serve",
     "test": "jest"
   },
   "dependencies": {
@@ -76,7 +77,6 @@
     "react-hot-loader": "^4.12.20",
     "react-is": "^16.13.1",
     "react-popper": "^2.1.0",
-    "react-router-dom": "^5.1.2",
     "react-spinners": "^0.8.1",
     "react-virtualized": "^9.21.2",
     "react-virtualized-auto-sizer": "^1.0.2",
