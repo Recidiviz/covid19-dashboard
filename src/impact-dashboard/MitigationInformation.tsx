@@ -15,7 +15,7 @@ import {
 import { FormGrid, FormGridCell, FormGridRow } from "./FormGrid";
 import useModel from "./useModel";
 
-export type ReleaseUpdate = {
+type ReleaseUpdate = {
   index: number;
   update: PlannedRelease;
 };
@@ -50,7 +50,7 @@ const ButtonAdd = styled.button`
   padding: 8px 16px;
 `;
 
-export const ReleaseRow: React.FC<RowProps> = ({
+const ReleaseRow: React.FC<RowProps> = ({
   date,
   count,
   index,

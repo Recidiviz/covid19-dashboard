@@ -10,12 +10,12 @@ import InputNameWithIcon from "../design-system/InputNameWithIcon";
 import ModalDialog from "../design-system/ModalDialog";
 import PopUpMenu from "../design-system/PopUpMenu";
 import ChartArea from "../impact-dashboard/ChartArea";
+import FacilityInformation from "../impact-dashboard/FacilityInformation";
 import ImpactProjectionTable from "../impact-dashboard/ImpactProjectionTableContainer";
+import MitigationInformation from "../impact-dashboard/MitigationInformation";
 import useModel from "../impact-dashboard/useModel";
 import { FacilityContext } from "./FacilityContext";
-import FacilityInformationSection from "./FacilityInformationSection";
 import LocaleInformationSection from "./LocaleInformationSection";
-import RateOfSpreadSection from "./RateOfSpreadSection";
 
 const FacilityInputFormDiv = styled.div`
   display: flex;
@@ -77,6 +77,19 @@ const CancelButton = styled(ModalButton)`
   background: transparent;
   border: 1px solid ${Colors.forest};
   color: ${Colors.forest};
+`;
+
+const borderStyle = `1px solid ${Colors.paleGreen}`;
+
+export const SectionHeader = styled.header`
+  font-family: Libre Baskerville;
+  font-weight: normal;
+  font-size: 19px;
+  line-height: 24px;
+  padding: 20px 0;
+  color: ${Colors.forest};
+  letter-spacing: -0.06em;
+  border-top: ${borderStyle};
 `;
 
 interface Props {
@@ -149,8 +162,10 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
           systemType={systemType}
           setSystemType={setSystemType}
         />
-        <FacilityInformationSection />
-        <RateOfSpreadSection />
+        <SectionHeader>Facility Details</SectionHeader>
+        <FacilityInformation />
+        <SectionHeader>Rate of Spread</SectionHeader>
+        <MitigationInformation />
         <ButtonSection>
           <InputButton label="Save" onClick={save} />
         </ButtonSection>

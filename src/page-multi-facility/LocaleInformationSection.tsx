@@ -1,29 +1,15 @@
 import React from "react";
 import styled from "styled-components";
 
-import Colors from "../design-system/Colors";
 import InputSelect from "../design-system/InputSelect";
 import LocaleInformation from "../impact-dashboard/LocaleInformation";
+import { SectionHeader } from "./FacilityInputForm";
 
-const borderStyle = `1px solid ${Colors.paleGreen}`;
-
-const LocaleInformationSectionDiv = styled.div`
-  border-top: ${borderStyle};
-`;
+const LocaleInformationSectionDiv = styled.div``;
 
 const SystemTypeInputDiv = styled.div`
   width: 195px;
   padding-bottom: 20px;
-`;
-
-const SectionHeader = styled.header`
-  font-family: Libre Baskerville;
-  font-weight: normal;
-  font-size: 19px;
-  line-height: 24px;
-  padding: 20px 0;
-  color: ${Colors.forest};
-  letter-spacing: -0.06em;
 `;
 
 interface Props {
