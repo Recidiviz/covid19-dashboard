@@ -77,7 +77,6 @@ export const LocaleDataProvider: React.FC<{ children: React.ReactNode }> = ({
             | LocaleRecord
             | undefined => {
             // rows without these fields are known to be junk; we filter these out below
-            console.log({ row });
             if (!row.County || !row.State) {
               return undefined;
             }
