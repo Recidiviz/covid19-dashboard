@@ -3,7 +3,7 @@ import React from "react";
 import styled from "styled-components";
 
 import UseComponentToggleVisible from "../hooks/UseComponentToggleVisible";
-import Colors, { darken } from "./Colors";
+import Colors from "./Colors";
 
 interface Item {
   name: string;
@@ -28,6 +28,7 @@ const PopUpMenuIcon = styled.div`
   font-family: "Rubik", sans-serif;
   font-size: 24px;
   font-weight: 600;
+  color: ${Colors.forest};
   padding: 8px;
 `;
 
@@ -35,22 +36,22 @@ const PopUpMenuContents = styled.div`
   position: absolute;
   top: 100%;
   right: 0;
-  background-color: ${darken(Colors.white, 5)};
-  min-width: 100px;
-`;
-
-const PopUpMenuItemDiv = styled.div`
-  padding: 8px;
-  &:hover {
-    background-color: ${hexAlpha(Colors.teal, 0.1)};
-  }
+  background-color: ${Colors.forest};
+  color: ${Colors.white};
+  border-radius: 4px;
+  min-width: 105px;
+  font-family: "PingFang SC", sans-serif;
+  font-size: 14px;
+  line-height: 26px;
+  font-weight: normal;
+  padding: 8px 16px;
 `;
 
 const PopUpMenuItem: React.FC<ItemProps> = ({ item }) => {
   const clickItem = () => {
     item.onClick();
   };
-  return <PopUpMenuItemDiv onClick={clickItem}>{item.name}</PopUpMenuItemDiv>;
+  return <div onClick={clickItem}>{item.name}</div>;
 };
 
 const PopUpMenu: React.FC<MenuProps> = ({ items }) => {
