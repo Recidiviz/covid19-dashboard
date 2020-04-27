@@ -45,6 +45,7 @@ const PopUpMenuContents = styled.div`
   line-height: 26px;
   font-weight: normal;
   padding: 8px 16px;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
 `;
 
 const PopUpMenuItem: React.FC<ItemProps> = ({ item }) => {
