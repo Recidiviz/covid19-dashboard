@@ -13,7 +13,6 @@ cloud_fn_name = args.function_name
 if args.env == "development":
     cloud_fn_name += "_development"
 
-# gcloud functions deploy <FUNCTION_NAME> --runtime python37 --trigger-http --allow-unauthenticated
 subprocess.run([
     "gcloud",
     "functions",
