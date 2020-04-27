@@ -40,4 +40,4 @@ class TestCalculateRt(TestCase):
 
         resp = self.get_response_json()
 
-        self.assertEqual(resp, {})
+        self.assertIn('error', resp)

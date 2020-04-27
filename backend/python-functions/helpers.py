@@ -48,7 +48,7 @@ def cloudfunction(in_schema=None, out_schema=None):
                 response_json = json.dumps(function_output)
                 return (response_json, 200, headers)
             except:
-                return (traceback.format_exc(), 500, headers)
+                return (json.dumps({'error': traceback.format_exc()}), 500, headers)
 
         return wrapped
 
