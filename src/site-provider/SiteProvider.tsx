@@ -5,7 +5,7 @@ import config from "../auth/auth_config.json";
 import { Auth0Provider } from "../auth/react-auth0-spa";
 import { LocaleDataProvider } from "../locale-data-context";
 import { FacilityContext } from "../page-multi-facility/FacilityContext";
-import { GlobalStyles } from "../site-styles/styles";
+import { ScenarioProvider } from "../scenario-context";
 
 // A function that routes the user to the right place
 // after login
@@ -32,9 +32,11 @@ const SiteProvider: React.FC = (props) => {
       onRedirectCallback={onRedirectCallback as any}
     >
       <LocaleDataProvider>
-        <FacilityContext.Provider value={{ facility, setFacility }}>
-          {props.children}
-        </FacilityContext.Provider>
+        <ScenarioProvider>
+          <FacilityContext.Provider value={{ facility, setFacility }}>
+            {props.children}
+          </FacilityContext.Provider>
+        </ScenarioProvider>
       </LocaleDataProvider>
     </Auth0Provider>
   );

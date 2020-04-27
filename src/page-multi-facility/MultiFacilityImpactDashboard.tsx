@@ -2,23 +2,18 @@ import { navigate } from "gatsby";
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 
-import {
-  deleteFacility,
-  getBaselineScenario,
-  getFacilities,
-  saveScenario,
-} from "../database";
+import { getFacilities } from "../database";
 import Colors from "../design-system/Colors";
 import iconAddSrc from "../design-system/icons/ic_add.svg";
 import Loading from "../design-system/Loading";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
 import { useLocaleDataState } from "../locale-data-context";
+import useScenario from "../scenario-context/useScenario";
 import { FacilityContext } from "./FacilityContext";
 import FacilityRow from "./FacilityRow";
-import { BaselineScenarioRef } from "./MultiFacilityPage";
 import ProjectionsHeader from "./ProjectionsHeader";
 import ScenarioSidebar from "./ScenarioSidebar";
-import { Facilities, Scenario } from "./types";
+import { Facilities } from "./types";
 
 const MultiFacilityImpactDashboardContainer = styled.main.attrs({
   className: `
@@ -26,10 +21,6 @@ const MultiFacilityImpactDashboardContainer = styled.main.attrs({
     mt-8
   `,
 })``;
-
-interface Props {
-  baselineScenarioRef?: BaselineScenarioRef;
-}
 
 const AddFacilityButton = styled.button`
   color: ${Colors.forest};
@@ -51,10 +42,10 @@ const AddFacilityButtonText = styled.span`
   vertical-align: middle;
 `;
 
-const MultiFacilityImpactDashboard: React.FC<Props> = ({
-  baselineScenarioRef,
-}) => {
+const MultiFacilityImpactDashboard: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
+  const [scenario] = useScenario();
+
   const { setFacility } = useContext(FacilityContext);
 
   const [facilities, setFacilities] = useState({
@@ -62,32 +53,10 @@ const MultiFacilityImpactDashboard: React.FC<Props> = ({
     loading: true,
   });
 
-  const [scenario, setScenario] = useState<{
-    data: Scenario | null;
-    loading: boolean;
-  }>({
-    data: null,
-    loading: true,
-  });
-
-  const updateScenario = async (scenario: Scenario) => {
-    await saveScenario(scenario);
-    setScenario({ data: scenario, loading: false });
-  };
-
-  useEffect(() => {
-    async function fetchScenario() {
-      const scenario = await getBaselineScenario(baselineScenarioRef?.data);
-      setScenario({
-        data: scenario,
-        loading: false,
-      });
-    }
-    fetchScenario();
-  }, []);
-
   async function fetchFacilities() {
-    const facilitiesData = await getFacilities();
+    if (!scenario?.data?.id) return;
+
+    const facilitiesData = await getFacilities(scenario.data.id);
 
     if (facilitiesData) {
       setFacilities({
@@ -99,16 +68,11 @@ const MultiFacilityImpactDashboard: React.FC<Props> = ({
 
   useEffect(() => {
     fetchFacilities();
-  }, []);
+  }, [scenario.data?.id]);
 
   const openAddFacilityPage = () => {
     setFacility(null);
     navigate("/facility");
-  };
-
-  const deleteFn = async (id: string) => {
-    await deleteFacility(id);
-    fetchFacilities();
   };
 
   return (
@@ -116,11 +80,7 @@ const MultiFacilityImpactDashboard: React.FC<Props> = ({
       {scenario.loading ? (
         <Loading />
       ) : (
-        <ScenarioSidebar
-          numFacilities={facilities?.data.length}
-          scenario={scenario.data}
-          updateScenario={updateScenario}
-        />
+        <ScenarioSidebar numFacilities={facilities?.data.length} />
       )}
       <div className="flex flex-col flex-1 pb-6 pl-8">
         <AddFacilityButton onClick={openAddFacilityPage}>
@@ -138,7 +98,10 @@ const MultiFacilityImpactDashboard: React.FC<Props> = ({
                 facilityModel={facility.modelInputs}
                 localeDataSource={localeDataSource}
               >
-                <FacilityRow deleteFn={deleteFn} facility={facility} />
+                <FacilityRow
+                  facility={facility}
+                  scenarioId={facility.scenarioId}
+                />
               </EpidemicModelProvider>
             );
           })

@@ -1,7 +1,8 @@
 import { EpidemicModelPersistent } from "../impact-dashboard/EpidemicModelContext";
 
 export type Facility = {
-  id?: string;
+  id: string;
+  scenarioId: string;
   name: string;
   description?: string;
   systemType?: string;
@@ -19,6 +20,7 @@ type Timestamp = {
 export type Facilities = Facility[];
 
 export type Scenario = {
+  id: string;
   name: string;
   baseline: boolean;
   dataSharing: boolean;

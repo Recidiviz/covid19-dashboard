@@ -8,17 +8,12 @@ import createAuth0Client from "@auth0/auth0-spa-js";
 import { pick } from "lodash";
 
 import config from "../auth/auth_config.json";
-import {
-  EpidemicModelPersistent,
-  persistedKeys,
-} from "../impact-dashboard/EpidemicModelContext";
+import { persistedKeys } from "../impact-dashboard/EpidemicModelContext";
 import { Facility, Scenario } from "../page-multi-facility/types";
-import { prepareForStorage, prepareFromStorage } from "./utils";
 
 // As long as there is just one Auth0 config, this endpoint will work with any environment (local, prod, etc.).
 const tokenExchangeEndpoint =
   "https://us-central1-c19-backend.cloudfunctions.net/getFirebaseToken";
-const modelInputsCollectionId = "model_inputs";
 const scenariosCollectionId = "scenarios";
 const facilitiesCollectionId = "facilities";
 const modelVersionCollectionId = "modelVersions";
@@ -110,61 +105,17 @@ const buildUpdatePayload = (entity: any) => {
     updatedAt: timestamp,
   });
 
-  // We don't want to actually store the id as a field. It should
-  // only be used as a Firestore document reference.
+  // We don't want to actually store the id as a field. It should only be used
+  // as a Firestore document reference.  Note: we are intentionally calling
+  // `delete payload.id` and not `delete entity.id` (like we do in
+  // buildCreatePayload) because we do not want to mutate the entity object and
+  // throw away the reference to its own id.
   delete payload.id;
 
   return payload;
 };
 
-const getInputModelsDocRef = async () => {
-  const db = await getDb();
-  return db.collection(modelInputsCollectionId).doc(currrentUserId());
-};
-
-// TODO: Guard against the possibility of autosaves completing out of order.
-export const saveState = async (
-  persistedState: EpidemicModelPersistent,
-): Promise<void> => {
-  try {
-    const docRef = await getInputModelsDocRef();
-
-    if (!docRef) return;
-
-    docRef.set({
-      timestamp: currrentTimestamp(),
-      inputs: prepareForStorage(persistedState),
-    });
-  } catch (error) {
-    console.error("Encountered error while attempting to save:");
-    console.error(error);
-  }
-};
-
-export const getSavedState = async (): Promise<EpidemicModelPersistent | null> => {
-  try {
-    const docRef = await getInputModelsDocRef();
-
-    if (!docRef) return null;
-
-    const doc = await docRef.get();
-
-    if (!doc.exists) return null;
-
-    const data = doc.data();
-
-    return !data || !data.inputs ? null : prepareFromStorage(data.inputs);
-  } catch (error) {
-    console.error(
-      "Encountered error while attempting to retrieve saved state:",
-    );
-    console.error(error);
-
-    return null;
-  }
-};
-
-export const getBaselineScenarioRef = async () => {
+const getBaselineScenarioRef = async (): Promise<firebase.firestore.DocumentReference | void> => {
   const db = await getDb();
 
   // Note: Firestore queries must only return documents that the user has access to. Otherwise, an error will be thrown.
@@ -176,104 +127,121 @@ export const getBaselineScenarioRef = async () => {
 
   const results = await query.get();
 
-  if (results.docs.length === 0) return null;
+  if (results.docs.length === 0) return;
 
   return results.docs[0].ref;
 };
 
-export const saveScenario = async (scenario: {}): Promise<void> => {
-  try {
-    // We're cheating here because for the launch we know there is only a
-    // baseline scenario. In subsequent launches, we'll need to pass in
-    // the ID of the specific scenario that we want to save. See:
-    // https://github.com/Recidiviz/covid19-dashboard/issues/129
-    const baselineScenarioRef = await getBaselineScenarioRef();
+export const getBaselineScenario = async (): Promise<Scenario | null> => {
+  const baselineScenarioRef = await getBaselineScenarioRef();
 
-    if (!baselineScenarioRef) return;
-
-    const payload = buildUpdatePayload(scenario);
-
-    return await baselineScenarioRef.update(payload);
-  } catch (error) {
-    console.error("Encountered an error while saving the scenario:");
-    console.error(error);
-  }
-};
-
-export const getBaselineScenario = async (
-  baselineScenarioRef: firebase.firestore.DocumentReference | null,
-) => {
   if (!baselineScenarioRef) return null;
 
   const result = await baselineScenarioRef.get();
   let scenario: Scenario = result.data() as Scenario;
+  scenario.id = baselineScenarioRef.id;
 
-  // NOTE: We should be able to remove this check and save once this issue
-  // is resolved: https://github.com/Recidiviz/covid19-dashboard/issues/186
-  if (scenario && !scenario.hasOwnProperty("promoStatuses")) {
-    scenario = {
-      ...scenario,
-      promoStatuses: {
-        dataSharing: true,
-        dailyReports: true,
-        addFacilities: true,
-      },
-    };
-    await saveScenario(scenario);
-  }
   return scenario;
 };
 
-export const createBaselineScenario = async () => {
+const getScenarioRef = async (
+  scenarioId: string,
+): Promise<firebase.firestore.DocumentReference | void> => {
   try {
-    let baselineScenarioRef = await getBaselineScenarioRef();
-
-    if (baselineScenarioRef) {
-      return baselineScenarioRef;
-    }
-
-    const userId = currrentUserId();
-
     const db = await getDb();
 
-    const payload = buildCreatePayload({
-      name: "Baseline Scenario",
-      baseline: true,
-      dataSharing: false,
-      dailyReports: false,
-      promoStatuses: {
-        dataSharing: true,
-        dailyReports: true,
-        addFacilities: true,
-      },
-      description:
-        "Welcome to your new scenario. To get started, add in facility data on the right-hand side of the page. Your initial scenario is also your 'Baseline' - meaning this is where you should keep real-world numbers about the current state of your facilities, their cases, and mitigation steps.",
-      roles: {
-        [userId]: "owner",
-      },
-    });
-
-    baselineScenarioRef = await db
+    const scenarioRef = await db
       .collection(scenariosCollectionId)
-      .add(payload);
+      .doc(scenarioId);
 
-    return baselineScenarioRef;
+    return scenarioRef;
   } catch (error) {
-    console.error("Encountered an error while creating the baseline scenario:");
+    console.error(
+      `Encountered error while attempting to retrieve the scenario ref (${scenarioId}):`,
+    );
+    console.error(error);
+  }
+};
+
+export const getScenario = async (
+  scenarioId: string,
+): Promise<Scenario | null> => {
+  try {
+    const scenarioRef = await getScenarioRef(scenarioId);
+
+    if (!scenarioRef) return null;
+
+    const scenarioResult = await scenarioRef.get();
+    const scenario = scenarioResult.data() as Scenario;
+    scenario.id = scenarioResult.id;
+
+    return scenario;
+  } catch (error) {
+    console.error(
+      `Encountered error while attempting to retrieve the scenario (${scenarioId}):`,
+    );
+    console.error(error);
+
+    return null;
+  }
+};
+
+export const saveScenario = async (scenario: any): Promise<Scenario | null> => {
+  try {
+    const db = await getDb();
+    let scenarioId;
+
+    // If the scenario already has an id associated with it then we just need
+    // to update that scenario. Otherwise, we are creating a new scenario.
+    if (scenario.id) {
+      const payload = buildUpdatePayload(scenario);
+
+      await db
+        .collection(scenariosCollectionId)
+        .doc(scenario.id)
+        .update(payload);
+
+      scenarioId = scenario.id;
+    } else {
+      const userId = currrentUserId();
+      const payload = buildCreatePayload(
+        Object.assign({}, scenario, {
+          roles: {
+            // Automatically assign the logged-in user as the
+            // "owner" of the scenario being saved.
+            [userId]: "owner",
+          },
+        }),
+      );
+
+      const scenarioDocRef = await db
+        .collection(scenariosCollectionId)
+        .add(payload);
+
+      scenarioId = scenarioDocRef.id;
+    }
+
+    return await getScenario(scenarioId);
+  } catch (error) {
+    console.error("Encountered error while attempting to save a scenario:");
     console.error(error);
     return null;
   }
 };
 
-export const getFacilities = async (): Promise<Array<Facility> | null> => {
+export const getFacilities = async (
+  scenarioId: string,
+): Promise<Array<Facility> | null> => {
   try {
-    // Cheating for launch expediency.
-    // See: https://github.com/Recidiviz/covid19-dashboard/issues/129
-    const baselineScenarioRef = await getBaselineScenarioRef();
+    const scenario = await getScenario(scenarioId);
 
-    if (!baselineScenarioRef) return null;
+    if (!scenario) return null;
 
-    const facilitiesResults = await baselineScenarioRef
+    const db = await getDb();
+
+    const facilitiesResults = await db
+      .collection(scenariosCollectionId)
+      .doc(scenario.id)
       .collection(facilitiesCollectionId)
       .orderBy("name")
       .get();
@@ -281,42 +249,13 @@ export const getFacilities = async (): Promise<Array<Facility> | null> => {
     const facilities = facilitiesResults.docs.map((doc) => {
       const facility = doc.data() as Facility;
       facility.id = doc.id;
+      facility.scenarioId = scenario.id;
       return facility;
     });
 
     return facilities;
   } catch (error) {
     console.error("Encountered error while attempting to retrieve facilities:");
-
-    console.error(error);
-
-    return null;
-  }
-};
-
-export const getFacility = async (
-  facilityId: string,
-): Promise<Facility | null> => {
-  try {
-    // Cheating for launch expediency.
-    // See: https://github.com/Recidiviz/covid19-dashboard/issues/129
-    const baselineScenarioRef = await getBaselineScenarioRef();
-
-    if (!baselineScenarioRef) return null;
-
-    const facilityResult = await baselineScenarioRef
-      .collection(facilitiesCollectionId)
-      .doc(facilityId)
-      .get();
-
-    const facility = facilityResult.data() as Facility;
-    facility.id = facilityResult.id;
-
-    return facility;
-  } catch (error) {
-    console.error(
-      `Encountered error while attempting to retrieve the facility (${facilityId}):`,
-    );
 
     console.error(error);
 
@@ -333,6 +272,7 @@ export const getFacility = async (
  * affecting any other fields:
  *
  * saveFacility({
+     "scenarioId": "<The Scenario's ID>",
  *   "id": "<The Faciliy's ID>",
  *   "name": "Updated Facility Name",
  * });
@@ -344,6 +284,7 @@ export const getFacility = async (
  * // Don't do this, it will erase all other model input aside from the
  * // ageUnknownCases:
  * saveFacility({
+     "scenarioId": "<The Scenario's ID>",
  *   "id": "<The Faciliy's ID>",
  *   "modelInput": {
  *     "ageUnknownCases": 4
@@ -361,15 +302,14 @@ export const getFacility = async (
  * Note: It is fine to leave model input values out of modelInputs field
  * if the desired behavior is that those fields are deleted from Firestore.
  */
-export const saveFacility = async (facility: any): Promise<void> => {
+export const saveFacility = async (
+  scenarioId: string,
+  facility: any,
+): Promise<void> => {
   try {
-    // We're cheating here because for the launch we know there is only a
-    // baseline scenario. In subsequent launches, we'll need to pass in
-    // the ID of the specific scenario that we want to save the facility to.
-    // See: https://github.com/Recidiviz/covid19-dashboard/issues/129
-    const baselineScenarioRef = await getBaselineScenarioRef();
+    const scenarioRef = await getScenarioRef(scenarioId);
 
-    if (!baselineScenarioRef) return;
+    if (!scenarioRef) return;
 
     if (facility.modelInputs) {
       // Ensures we don't store any attributres that our model does not
@@ -390,9 +330,7 @@ export const saveFacility = async (facility: any): Promise<void> => {
     const db = await getDb();
     const batch = db.batch();
 
-    const facilitiesCollection = baselineScenarioRef.collection(
-      facilitiesCollectionId,
-    );
+    const facilitiesCollection = scenarioRef.collection(facilitiesCollectionId);
 
     let facilityDoc;
 
@@ -427,13 +365,14 @@ export const saveFacility = async (facility: any): Promise<void> => {
   }
 };
 
-export const deleteFacility = async (facilityId: string): Promise<void> => {
+export const deleteFacility = async (
+  scenarioId: string,
+  facilityId: string,
+): Promise<void> => {
   try {
-    // Cheating for launch expediency.
-    // See: https://github.com/Recidiviz/covid19-dashboard/issues/129
-    const baselineScenarioRef = await getBaselineScenarioRef();
+    const scenarioRef = await getScenarioRef(scenarioId);
 
-    if (!baselineScenarioRef) return;
+    if (!scenarioRef) return;
 
     // Delete all of the modelVersions associated with a facility.  Technically,
     // this is not the recommended approach for the web*, but we should be ok
@@ -442,7 +381,7 @@ export const deleteFacility = async (facilityId: string): Promise<void> => {
     //
     // * https://firebase.google.com/docs/firestore/manage-data/delete-data#web_2
     // ** https://github.com/Recidiviz/covid19-dashboard/issues/191
-    const facilityDocRef = await baselineScenarioRef
+    const facilityDocRef = await scenarioRef
       .collection(facilitiesCollectionId)
       .doc(facilityId);
 

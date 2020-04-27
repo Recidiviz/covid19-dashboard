@@ -3,13 +3,14 @@ import { rollup } from "d3-array";
 import numeral from "numeral";
 import React from "react";
 
-type LocaleRecord = {
+export type LocaleRecord = {
   county: string;
   estimatedIncarceratedCases: number;
   hospitalBeds: number;
   reportedCases: number;
   state: string;
   totalIncarceratedPopulation: number;
+  icuBeds: number;
 };
 
 export type LocaleData = Map<string, Map<string, LocaleRecord>>;
@@ -105,6 +106,7 @@ export const LocaleDataProvider: React.FC<{ children: React.ReactNode }> = ({
                       estimatedTotalCases
                   : 0,
               ),
+              icuBeds: numeral(row["ICU Beds"]).value() || 0,
             };
           }).filter((row) => row !== undefined);
 
