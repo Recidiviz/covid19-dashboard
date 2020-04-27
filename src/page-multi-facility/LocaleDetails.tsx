@@ -4,7 +4,6 @@ import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
 import {
-  LocaleDataProvider,
   LocaleRecord,
   useLocaleDataState,
 } from "../locale-data-context/LocaleDataContext";
@@ -37,7 +36,7 @@ const LocaleDetailDescription = styled.div`
   font-weight: normal;
 `;
 
-const localeData: { [key: string]: string | undefined } = {
+const localeRecordProperties: { [key: string]: keyof LocaleRecord } = {
   "Population": "totalIncarceratedPopulation",
   "Cases": "reportedCases",
   "Likely Cases": "estimatedIncarceratedCases",
@@ -57,23 +56,22 @@ const LocaleDetails: React.FC<Props> = ({ stateCode, countyName }) => {
   if (!data || !stateCode || !countyName) return null;
 
   const stateData = data.get(stateCode);
-  const locale: LocaleRecord | undefined =
+  const localeRecord: LocaleRecord | undefined =
     stateData && stateData.get(countyName);
 
   return (
     <LocaleDetailsContainer>
-      {locale &&
-        Object.keys(localeData).map((detail) => {
-          const property = localeData[detail] as keyof LocaleRecord;
-          const value =
-            property && locale[property]
-              ? numeral(locale[property]).format("0,0")
-              : enDash;
+      {localeRecord &&
+        Object.keys(localeRecordProperties).map((headerText: string) => {
+          const property = localeRecordProperties[headerText];
+          const value = localeRecord[property]
+            ? numeral(localeRecord[property]).format("0,0")
+            : enDash;
 
           return (
             <LocaleDetail key={`LocaleDetail-${property}`}>
               <LocaleDetailValue>{value}</LocaleDetailValue>
-              <LocaleDetailDescription>{detail}</LocaleDetailDescription>
+              <LocaleDetailDescription>{headerText}</LocaleDetailDescription>
             </LocaleDetail>
           );
         })}
