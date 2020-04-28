@@ -82,10 +82,7 @@ export const SectionHeader = styled.header`
   border-top: ${borderStyle};
 `;
 
-const RtChartContainer = styled.div`
-  border-bottom: ${borderStyle};
-  padding-bottom: 15px;
-`;
+const RtChartContainer = styled.div``;
 
 interface Props {
   scenarioId: string;

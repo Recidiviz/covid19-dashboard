@@ -1,4 +1,5 @@
 import { scaleTime, timeFormat } from "d3";
+import hexAlpha from "hex-alpha";
 // no type defs for Semiotic
 const ResponsiveXYFrame = require("semiotic/lib/ResponsiveXYFrame") as any;
 import React from "react";
@@ -19,21 +20,37 @@ type Line = {
   title: string;
 };
 
-const formatDate = timeFormat("%-d %B");
+const formatDate = timeFormat("%B %-d");
 
+const borderStyle = `1px solid ${Colors.paleGreen}`;
 const RtTimeseriesWrapper = styled(ChartWrapper)`
+  border-top: ${borderStyle};
+
   .uncertainty {
     fill: ${Colors.darkGray};
     fill-opacity: 0.3;
   }
 `;
 
+const ChartTitle = styled.div`
+  color: ${hexAlpha(Colors.forest, 0.7)};
+  font-family: "Poppins", sans-serif;
+  font-size: 9px;
+  font-weight: 600;
+`;
+
 const TooltipContents = styled.div`
+  font-family: "Poppins", sans-serif;
   text-align: center;
   white-space: nowrap;
 `;
 
-const TooltipLabel = styled.div``;
+const TooltipLabel = styled.div`
+  color: ${Colors.gray};
+  line-height: 1.5;
+  font-size: 11px;
+  font-weight: normal;
+`;
 const TooltipValue = styled.div`
   font-size: 14px;
   font-weight: 600;
@@ -52,8 +69,9 @@ const Tooltip: React.FC<{
     <ChartTooltip>
       <TooltipContents>
         <TooltipValue>{value}</TooltipValue>
-        <TooltipLabel>{title}</TooltipLabel>
-        <TooltipLabel>{formatDate(date)}</TooltipLabel>
+        <TooltipLabel>
+          {title} {formatDate(date)}
+        </TooltipLabel>
       </TooltipContents>
     </ChartTooltip>
   );
@@ -64,12 +82,12 @@ const RtTimeseries: React.FC<Props> = ({ data }) => {
     return [
       { title: "R(t)", data: data.Rt },
       {
-        title: "90% Confidence Interval (low)",
+        title: "90% CI (low)",
         confidenceInterval: true,
         data: data.low90,
       },
       {
-        title: "90% Confidence Interval (high)",
+        title: "90% CI (high)",
         confidenceInterval: true,
         data: data.high90,
       },
@@ -77,49 +95,52 @@ const RtTimeseries: React.FC<Props> = ({ data }) => {
   };
 
   return (
-    <RtTimeseriesWrapper>
-      <ResponsiveXYFrame
-        annotations={[
-          {
-            type: "area",
-            className: "uncertainty",
-            coordinates: [
-              // assuming these are sorted in date order this makes a clean shape
-              ...data.high90,
-              ...[...data.low90].reverse(),
-            ],
-          },
-          {
-            color: lighten(Colors.red, 30),
-            disable: ["connector"],
-            type: "y",
-            value: 1,
-          },
-        ]}
-        axes={[
-          {
-            label: { name: "Rate of spread", locationDistance: 30 },
-            orient: "left",
-            tickLineGenerator: () => null,
-          },
-        ]}
-        hoverAnnotation
-        lineDataAccessor="data"
-        lines={getLines()}
-        lineStyle={(d: Line) => ({
-          stroke: Colors.forest,
-          strokeWidth: d.confidenceInterval ? 0 : 1,
-        })}
-        margin={{ left: 40, bottom: 5, right: 10, top: 5 }}
-        responsiveWidth
-        size={[300, 200]}
-        tooltipContent={Tooltip}
-        xAccessor="date"
-        xScaleType={scaleTime()}
-        yAccessor="value"
-        yExtent={[0]}
-      />
-    </RtTimeseriesWrapper>
+    <>
+      <ChartTitle>Rate of spread</ChartTitle>
+      <RtTimeseriesWrapper>
+        <ResponsiveXYFrame
+          annotations={[
+            {
+              type: "area",
+              className: "uncertainty",
+              coordinates: [
+                // assuming these are sorted in date order this makes a clean shape
+                ...data.high90,
+                ...[...data.low90].reverse(),
+              ],
+            },
+            {
+              color: lighten(Colors.red, 30),
+              disable: ["connector"],
+              type: "y",
+              value: 1,
+            },
+          ]}
+          hoverAnnotation={[
+            {
+              type: "x",
+              disable: ["connector", "note"],
+              color: Colors.darkGray,
+            },
+            { type: "frame-hover" },
+          ]}
+          lineDataAccessor="data"
+          lines={getLines()}
+          lineStyle={(d: Line) => ({
+            stroke: Colors.forest,
+            strokeWidth: d.confidenceInterval ? 0 : 1,
+          })}
+          margin={{ left: 0, bottom: 0, right: 0, top: 0 }}
+          responsiveWidth
+          size={[300, 200]}
+          tooltipContent={Tooltip}
+          xAccessor="date"
+          xScaleType={scaleTime()}
+          yAccessor="value"
+          yExtent={[0]}
+        />
+      </RtTimeseriesWrapper>
+    </>
   );
 };
 
