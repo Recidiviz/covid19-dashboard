@@ -13,12 +13,14 @@ export type Record = {
   value: number;
 };
 
+export type ChartData = {
+  Rt: Record[];
+  low90: Record[];
+  high90: Record[];
+};
+
 interface Props {
-  data: {
-    Rt: Record[];
-    low90: Record[];
-    high90: Record[];
-  };
+  data: ChartData;
 }
 
 type Line = {
