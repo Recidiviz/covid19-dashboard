@@ -280,19 +280,26 @@ export const getFacilityModelVersions = async ({
 }): Promise<ModelInputVersionDocData[]> => {
   const db = await getDb();
 
-  // TODO: error handling?
-  const historyResults = await db
-    .collection(scenariosCollectionId)
-    .doc(scenarioId)
-    .collection(facilitiesCollectionId)
-    .doc(facilityId)
-    .collection(modelVersionCollectionId)
-    .orderBy("observedAt", "asc")
-    .get();
+  try {
+    const historyResults = await db
+      .collection(scenariosCollectionId)
+      .doc(scenarioId)
+      .collection(facilitiesCollectionId)
+      .doc(facilityId)
+      .collection(modelVersionCollectionId)
+      .orderBy("observedAt", "asc")
+      .get();
 
-  return historyResults.docs.map((doc) => {
-    return doc.data() as ModelInputVersionDocData;
-  });
+    return historyResults.docs.map((doc) => {
+      return doc.data() as ModelInputVersionDocData;
+    });
+  } catch (error) {
+    console.error(
+      "Encountered error while attempting to retrieve facility model versions:",
+    );
+    console.error(error);
+    return [];
+  }
 };
 
 /**
