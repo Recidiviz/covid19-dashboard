@@ -1,5 +1,5 @@
+import { navigate } from "gatsby";
 import React, { useContext, useState } from "react";
-import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
 import { deleteFacility, saveFacility } from "../database/index";
@@ -83,9 +83,12 @@ interface Props {
   scenarioId: string;
 }
 
+interface Props {
+  scenarioId: string;
+}
+
 const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   const { facility } = useContext(FacilityContext);
-  const history = useHistory();
   const [facilityName, setFacilityName] = useState(facility?.name || undefined);
   const [description, setDescription] = useState(
     facility?.description || undefined,
@@ -101,9 +104,9 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
       name: facilityName || null,
       description: description || null,
       systemType: systemType || null,
-      modelInputs: JSON.parse(JSON.stringify(model))[0],
-    }).then((_) => {
-      history.push("/");
+      modelInputs: model[0],
+    }).then(() => {
+      navigate("/");
     });
   };
 
@@ -120,7 +123,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
     const facilityId = facility?.id;
     if (facilityId) {
       await deleteFacility(scenarioId, facilityId);
-      history.goBack();
+      window.history.back();
     }
     updateShowDeleteModal(false);
   };

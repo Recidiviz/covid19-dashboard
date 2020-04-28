@@ -1,5 +1,5 @@
+import { navigate } from "gatsby";
 import React from "react";
-import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
 import { saveScenario } from "../database";
@@ -34,9 +34,8 @@ const ModalContent = styled.div`
 `;
 
 const CreateBaselineScenarioPage: React.FC = () => {
-  // eslint-disable-next-line no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, dispatchScenarioUpdate] = useScenario();
-  const history = useHistory();
 
   const handleOnClick = async () => {
     const baselineScenarioDefaults = {
@@ -57,7 +56,7 @@ const CreateBaselineScenarioPage: React.FC = () => {
 
     if (scenario) {
       dispatchScenarioUpdate(scenario);
-      history.push("/facility");
+      navigate("/facility");
     }
   };
 

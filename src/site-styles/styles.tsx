@@ -1,6 +1,15 @@
+import "./styles.css";
+
 import styled, { createGlobalStyle } from "styled-components";
 
 export const GlobalStyles = createGlobalStyle`
+  html,
+  body,
+  #___gatsby,
+  #gatsby-focus-wrapper {
+    height: 100%;
+  }
+
   body {
     font-family: 'Poppins', sans-serif;
     font-style: normal;

@@ -1,4 +1,5 @@
 # IDEs
+.history/
 .idea/
 .vscode/
 
@@ -9,13 +10,15 @@
 # rather than matching a pattern. This helps makes it easier for us to know when
 # it's okay to remove lines from this file.
 
-# Custom
-/bin/**
-
 # Eslint
 /.eslintcache
 
-# Parcel
+# Gatsby
+/.cache
+/public
+
+# Parcel. We don't use Parcel anymore but we used to, and people still have
+# these Parcel-generated files lying around.
 /.cache
 /.parcel-cache
 /dist
