@@ -22,8 +22,6 @@ type Line = {
 const formatDate = timeFormat("%-d %B");
 
 const RtTimeseriesWrapper = styled(ChartWrapper)`
-  height: 300px;
-
   .uncertainty {
     fill: ${Colors.darkGray};
     fill-opacity: 0.3;
@@ -112,9 +110,9 @@ const RtTimeseries: React.FC<Props> = ({ data }) => {
           stroke: Colors.forest,
           strokeWidth: d.confidenceInterval ? 0 : 1,
         })}
-        margin={{ left: 40, bottom: 30, right: 10, top: 10 }}
-        responsiveHeight
+        margin={{ left: 40, bottom: 5, right: 10, top: 5 }}
         responsiveWidth
+        size={[300, 200]}
         tooltipContent={Tooltip}
         xAccessor="date"
         xScaleType={scaleTime()}
