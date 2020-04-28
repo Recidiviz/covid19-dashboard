@@ -7,25 +7,15 @@ import styled from "styled-components";
 import ChartTooltip from "../design-system/ChartTooltip";
 import ChartWrapper from "../design-system/ChartWrapper";
 import Colors, { lighten } from "../design-system/Colors";
-
-export type Record = {
-  date: Date;
-  value: number;
-};
-
-export type ChartData = {
-  Rt: Record[];
-  low90: Record[];
-  high90: Record[];
-};
+import { RtData, RtRecord } from "../infection-model/rt";
 
 interface Props {
-  data: ChartData;
+  data: RtData;
 }
 
 type Line = {
   confidenceInterval?: boolean;
-  data: Record[];
+  data: RtRecord[];
   title: string;
 };
 
@@ -51,7 +41,7 @@ const TooltipValue = styled.div`
 `;
 
 const Tooltip: React.FC<{
-  data: Record;
+  data: RtRecord;
   parentLine: { title: string };
 }> = (props) => {
   const {
