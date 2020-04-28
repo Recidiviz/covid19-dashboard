@@ -8,11 +8,7 @@ import InputButton, { StyledButton } from "../design-system/InputButton";
 import InputDescription from "../design-system/InputDescription";
 import InputNameWithIcon from "../design-system/InputNameWithIcon";
 import ModalDialog from "../design-system/ModalDialog";
-import {
-  LeftColumn,
-  PageContainer,
-  RightColumn,
-} from "../design-system/PageLayoutColumns";
+import { Column, PageContainer } from "../design-system/PageColumn";
 import PopUpMenu from "../design-system/PopUpMenu";
 import ChartArea from "../impact-dashboard/ChartArea";
 import ImpactProjectionTable from "../impact-dashboard/ImpactProjectionTableContainer";
@@ -122,7 +118,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
 
   return (
     <PageContainer>
-      <LeftColumn>
+      <Column width={"45%"}>
         <InputNameWithIcon
           name={facilityName}
           setName={setFacilityName}
@@ -150,11 +146,11 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
           <InputButton label="Save" onClick={save} />
         </ButtonSection>
         <div className="mt-8" />
-      </LeftColumn>
-      <RightColumn>
+      </Column>
+      <Column width={"55%"}>
         <ChartArea />
         <ImpactProjectionTable />
-      </RightColumn>
+      </Column>
 
       {/* MODAL */}
       <ModalDialog

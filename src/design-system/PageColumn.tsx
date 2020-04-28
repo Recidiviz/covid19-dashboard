@@ -4,11 +4,7 @@ export const PageContainer = styled.div`
   display: flex;
   flex-direction: row;
 `;
-export const LeftColumn = styled.div`
+export const Column = styled.div<{ width?: string }>`
   margin: 20px;
-  width: 45%;
-`;
-export const RightColumn = styled.div`
-  margin: 20px;
-  width: 55%;
+  width: ${(props) => props.width || "50%"};
 `;
