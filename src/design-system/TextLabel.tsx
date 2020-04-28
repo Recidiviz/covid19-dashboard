@@ -6,7 +6,7 @@ const TextLabel = styled.span<{ softened?: boolean }>`
   font-weight: 100;
   font-family: "Poppins", sans-serif;
   ${(props) => (props.softened ? null : "letter-spacing: 2px;")}
-  color: #00413e;
+  color: #033342;
   padding-right: 5px;
 `;
 
