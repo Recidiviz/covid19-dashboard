@@ -22,6 +22,8 @@ type Line = {
 const formatDate = timeFormat("%-d %B");
 
 const RtTimeseriesWrapper = styled(ChartWrapper)`
+  height: 300px;
+
   .uncertainty {
     fill: ${Colors.darkGray};
     fill-opacity: 0.3;
