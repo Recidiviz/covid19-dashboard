@@ -3,6 +3,7 @@ import React, { useState } from "react";
 
 import config from "../auth/auth_config.json";
 import { Auth0Provider } from "../auth/react-auth0-spa";
+import { FeatureFlagsProvider } from "../feature-flags";
 import { LocaleDataProvider } from "../locale-data-context";
 import { FacilityContext } from "../page-multi-facility/FacilityContext";
 import { ScenarioProvider } from "../scenario-context";
@@ -24,21 +25,23 @@ const SiteProvider: React.FC = (props) => {
     typeof window === "undefined" ? undefined : window.location.origin;
 
   return (
-    <Auth0Provider
-      domain={config.domain}
-      client_id={config.clientId}
-      audience={config.audience}
-      redirect_uri={redirectUri}
-      onRedirectCallback={onRedirectCallback as any}
-    >
-      <LocaleDataProvider>
-        <ScenarioProvider>
-          <FacilityContext.Provider value={{ facility, setFacility }}>
-            {props.children}
-          </FacilityContext.Provider>
-        </ScenarioProvider>
-      </LocaleDataProvider>
-    </Auth0Provider>
+    <FeatureFlagsProvider>
+      <Auth0Provider
+        domain={config.domain}
+        client_id={config.clientId}
+        audience={config.audience}
+        redirect_uri={redirectUri}
+        onRedirectCallback={onRedirectCallback as any}
+      >
+        <LocaleDataProvider>
+          <ScenarioProvider>
+            <FacilityContext.Provider value={{ facility, setFacility }}>
+              {props.children}
+            </FacilityContext.Provider>
+          </ScenarioProvider>
+        </LocaleDataProvider>
+      </Auth0Provider>
+    </FeatureFlagsProvider>
   );
 };
 
