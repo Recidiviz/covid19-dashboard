@@ -11,18 +11,17 @@ const convertToDate = (timestamp: number) => {
   return fromUnixTime(timestamp);
 };
 
-const RtTimeseriesContainer: React.FC = () => {
-  // TODO: to avoid repeated fetches in different parts of the UI,
-  // this should probably be lifted out to a context somewhere?
+interface Props {
+  dates: number[];
+  cases: number[];
+}
+
+const RtTimeseriesContainer: React.FC<Props> = ({ dates, cases }) => {
   const [rtData, updateRtData] = useState<ChartData | undefined>();
 
   useEffect(() => {
     async function getRtData() {
-      // TODO: get real input data from the database
-      const fetchedData = await fetchRt({
-        dates: [1587422775, 1587509175, 1587595575, 1587681975],
-        cases: [5, 3, 0, 12],
-      });
+      const fetchedData = await fetchRt({ dates, cases });
 
       const cleanData = mapValues(fetchedData, (records) =>
         records
@@ -36,7 +35,7 @@ const RtTimeseriesContainer: React.FC = () => {
       updateRtData(cleanData);
     }
     getRtData();
-  }, []);
+  }, [dates, cases]);
 
   return rtData ? <RtTimeseries data={rtData} /> : <Loading />;
 };
