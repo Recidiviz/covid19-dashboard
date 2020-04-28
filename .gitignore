@@ -1,6 +1,7 @@
 # IDEs
-.idea/
 .history/
+.idea/
+.vscode/
 
 # Common OS files
 .DS_Store
@@ -32,3 +33,8 @@
 # other people from accidentally committing them.
 /package-lock.json
 /pnpm-lock.yaml
+
+# Python
+venv
+__pycache__
+.mypy_cache
