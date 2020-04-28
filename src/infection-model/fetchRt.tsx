@@ -9,6 +9,14 @@ type RawRtData = {
   high90: RawRecord[];
 };
 
+type ErrorResponse = {
+  error: string;
+};
+
+const isError = (obj: RawRtData | ErrorResponse): obj is ErrorResponse => {
+  return (obj as ErrorResponse).error !== undefined;
+};
+
 const getFetchUrl = () => {
   let url = "https://us-central1-c19-backend.cloudfunctions.net/calculate_rt";
   if (process.env.NODE_ENV !== "production") {
@@ -29,6 +37,11 @@ export default async function fetchRt(requestData: {
     },
     method: "POST",
   });
-  // TODO: error handling
-  return resp.json();
+
+  const responseData = await resp.json();
+
+  if (isError(responseData)) {
+    throw new Error(responseData.error);
+  }
+  return responseData;
 }
