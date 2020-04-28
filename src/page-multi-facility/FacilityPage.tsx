@@ -12,7 +12,6 @@ import FacilityInputForm from "./FacilityInputForm";
 const FacilityPageDiv = styled.div``;
 
 // TODO add section header tooltips
-// TODO add summary at bottom of Locale Information
 const FacilityPage: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
   const { facility } = useContext(FacilityContext);
