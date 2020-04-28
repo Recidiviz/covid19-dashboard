@@ -96,12 +96,6 @@ const FacilityInformation: React.FC = () => {
 
   return (
     <FacilityInformationDiv>
-      <Description>
-        This section collects basic information about facility staff and your
-        incarcerated population by age and medical vulnerability. If you don't
-        have your in-facility population available by age brackets, enter your
-        overall population count in "Age unknown".
-      </Description>
       <div>
         <FormGrid>
           <FormHeaderRow label="Staff Population" />
