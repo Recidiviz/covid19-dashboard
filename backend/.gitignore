@@ -1,1 +1,6 @@
 firebase-debug.log
+
+# Python
+venv
+__pycache__
+.mypy_cache

@@ -244,7 +244,7 @@ export function useEpidemicModelDispatch() {
 // calculation helpers
 // *******
 
-export function totalConfirmedCases(model: EpidemicModelState): number {
+export function totalConfirmedCases(model: ModelInputsPersistent): number {
   return sum(
     Object.values(
       pick(model, [

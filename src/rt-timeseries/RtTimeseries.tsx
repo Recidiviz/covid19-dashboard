@@ -7,29 +7,23 @@ import styled from "styled-components";
 import ChartTooltip from "../design-system/ChartTooltip";
 import ChartWrapper from "../design-system/ChartWrapper";
 import Colors, { lighten } from "../design-system/Colors";
-
-export type Record = {
-  date: Date;
-  value: number;
-};
+import { RtData, RtRecord } from "../infection-model/rt";
 
 interface Props {
-  data: {
-    Rt: Record[];
-    low90: Record[];
-    high90: Record[];
-  };
+  data: RtData;
 }
 
 type Line = {
   confidenceInterval?: boolean;
-  data: Record[];
+  data: RtRecord[];
   title: string;
 };
 
 const formatDate = timeFormat("%-d %B");
 
 const RtTimeseriesWrapper = styled(ChartWrapper)`
+  height: 300px;
+
   .uncertainty {
     fill: ${Colors.darkGray};
     fill-opacity: 0.3;
@@ -49,7 +43,7 @@ const TooltipValue = styled.div`
 `;
 
 const Tooltip: React.FC<{
-  data: Record;
+  data: RtRecord;
   parentLine: { title: string };
 }> = (props) => {
   const {

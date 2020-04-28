@@ -8,7 +8,10 @@ import createAuth0Client from "@auth0/auth0-spa-js";
 import { pick } from "lodash";
 
 import config from "../auth/auth_config.json";
-import { persistedKeys } from "../impact-dashboard/EpidemicModelContext";
+import {
+  EpidemicModelPersistent,
+  persistedKeys,
+} from "../impact-dashboard/EpidemicModelContext";
 import { Facility, Scenario } from "../page-multi-facility/types";
 
 // As long as there is just one Auth0 config, this endpoint will work with any environment (local, prod, etc.).
@@ -31,6 +34,11 @@ let firebaseConfig = {
 
 if (typeof window !== "undefined") {
   firebase.initializeApp(firebaseConfig);
+}
+
+interface ModelInputVersionDocData extends EpidemicModelPersistent {
+  observedAt: firebase.firestore.Timestamp;
+  updatedAt: firebase.firestore.Timestamp;
 }
 
 /**
@@ -260,6 +268,37 @@ export const getFacilities = async (
     console.error(error);
 
     return null;
+  }
+};
+
+export const getFacilityModelVersions = async ({
+  facilityId,
+  scenarioId,
+}: {
+  facilityId: string;
+  scenarioId: string;
+}): Promise<ModelInputVersionDocData[]> => {
+  const db = await getDb();
+
+  try {
+    const historyResults = await db
+      .collection(scenariosCollectionId)
+      .doc(scenarioId)
+      .collection(facilitiesCollectionId)
+      .doc(facilityId)
+      .collection(modelVersionCollectionId)
+      .orderBy("observedAt", "asc")
+      .get();
+
+    return historyResults.docs.map((doc) => {
+      return doc.data() as ModelInputVersionDocData;
+    });
+  } catch (error) {
+    console.error(
+      "Encountered error while attempting to retrieve facility model versions:",
+    );
+    console.error(error);
+    return [];
   }
 };
 
