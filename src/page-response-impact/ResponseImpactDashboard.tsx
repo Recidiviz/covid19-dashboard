@@ -3,6 +3,11 @@ import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
 import Loading from "../design-system/Loading";
+import {
+  LeftColumn,
+  PageContainer,
+  RightColumn,
+} from "../design-system/PageLayoutColumns";
 import useScenario from "../scenario-context/useScenario";
 
 const ResponseImpactDashboardContainer = styled.div``;
@@ -26,7 +31,12 @@ const ResponseImpactDashboard: React.FC = () => {
       {scenarioState.loading ? (
         <Loading />
       ) : (
-        <ScenarioName>{scenario?.name}</ScenarioName>
+        <PageContainer>
+          <LeftColumn>
+            <ScenarioName>{scenario?.name}</ScenarioName>
+          </LeftColumn>
+          <RightColumn />
+        </PageContainer>
       )}
     </ResponseImpactDashboardContainer>
   );
