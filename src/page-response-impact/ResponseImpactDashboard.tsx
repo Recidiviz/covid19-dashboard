@@ -5,6 +5,7 @@ import Colors from "../design-system/Colors";
 import Loading from "../design-system/Loading";
 import { Column, PageContainer } from "../design-system/PageColumn";
 import useScenario from "../scenario-context/useScenario";
+import PopulationImpactMetrics from "./PopulationImpactMetrics";
 
 const ResponseImpactDashboardContainer = styled.div``;
 const ScenarioName = styled.div`
@@ -69,6 +70,7 @@ const SectionSubheader = styled.h2`
   padding: 32px 0 24px;
   text-transform: uppercase;
 `;
+
 const ResponseImpactDashboard: React.FC = () => {
   const [scenarioState] = useScenario();
   const scenario = scenarioState.data;
@@ -91,7 +93,7 @@ const ResponseImpactDashboard: React.FC = () => {
             <SectionSubheader>
               Positive impact of releasing [X] incarcerated individuals
             </SectionSubheader>
-            <PlaceholderSpace />
+            <PopulationImpactMetrics />
             <SectionHeader>Community Resources Saved</SectionHeader>
             <ChartHeader>Change in rate of transmission R(0)</ChartHeader>
             <PlaceholderSpace />
