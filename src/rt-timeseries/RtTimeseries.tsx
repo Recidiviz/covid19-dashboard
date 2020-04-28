@@ -24,8 +24,6 @@ const formatDate = timeFormat("%B %-d");
 
 const borderStyle = `1px solid ${Colors.paleGreen}`;
 const RtTimeseriesWrapper = styled(ChartWrapper)`
-  border-top: ${borderStyle};
-
   .uncertainty {
     fill: ${Colors.darkGray};
     fill-opacity: 0.3;
@@ -33,10 +31,12 @@ const RtTimeseriesWrapper = styled(ChartWrapper)`
 `;
 
 const ChartTitle = styled.div`
+  border-bottom: ${borderStyle};
   color: ${hexAlpha(Colors.forest, 0.7)};
   font-family: "Poppins", sans-serif;
   font-size: 9px;
   font-weight: 600;
+  padding: 5px 0;
 `;
 
 const TooltipContents = styled.div`
@@ -96,8 +96,8 @@ const RtTimeseries: React.FC<Props> = ({ data }) => {
 
   return (
     <>
-      <ChartTitle>Rate of spread</ChartTitle>
       <RtTimeseriesWrapper>
+        <ChartTitle>Rate of Spread</ChartTitle>
         <ResponsiveXYFrame
           annotations={[
             {

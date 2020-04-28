@@ -133,6 +133,8 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
     updateShowDeleteModal(false);
   };
 
+  const rtTimeseriesData = rtData && facility ? rtData[facility.id] : undefined;
+
   return (
     <PageContainer>
       <Column width={"45%"}>
@@ -154,11 +156,12 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
         <div className="mt-5 mb-5 border-b border-gray-300" />
 
         <Flag name={["useRt"]}>
-          <RtChartContainer>
-            <RtTimeseries
-              data={rtData && facility ? rtData[facility.id] : undefined}
-            />
-          </RtChartContainer>
+          {// chart is unreadable with < 2 data points
+          rtTimeseriesData && rtTimeseriesData.Rt?.length > 1 && (
+            <RtChartContainer>
+              <RtTimeseries data={rtTimeseriesData} />
+            </RtChartContainer>
+          )}
         </Flag>
 
         <LocaleInformationSection
