@@ -6,7 +6,9 @@ import { getFacilities } from "../database";
 import Colors from "../design-system/Colors";
 import iconAddSrc from "../design-system/icons/ic_add.svg";
 import Loading from "../design-system/Loading";
+import { useFlag } from "../feature-flags";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
+import { getRtDataForFacility } from "../infection-model/rt";
 import { useLocaleDataState } from "../locale-data-context";
 import useScenario from "../scenario-context/useScenario";
 import { FacilityContext } from "./FacilityContext";
@@ -46,7 +48,8 @@ const MultiFacilityImpactDashboard: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
   const [scenario] = useScenario();
 
-  const { setFacility } = useContext(FacilityContext);
+  const { setFacility, rtData, dispatchRtData } = useContext(FacilityContext);
+  const useRt = useFlag(["useRt"]);
 
   const [facilities, setFacilities] = useState({
     data: [] as Facilities,
@@ -69,6 +72,28 @@ const MultiFacilityImpactDashboard: React.FC = () => {
   useEffect(() => {
     fetchFacilities();
   }, [scenario.data?.id]);
+
+  useEffect(
+    () => {
+      if (useRt) {
+        facilities.data.forEach(async (facility) => {
+          // don't fetch data if we already have it
+          if (rtData && rtData[facility.id]) return;
+
+          const facilityRtData = await getRtDataForFacility(facility);
+          dispatchRtData({
+            type: "add",
+            payload: { [facility.id]: facilityRtData },
+          });
+        });
+      }
+    },
+    // omitting dispatchRtData because it's not a stable reference,
+    // due to being initialized inside SiteProvider.
+    // TODO: may change as part of #163
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [facilities.data, useRt],
+  );
 
   const openAddFacilityPage = () => {
     setFacility(null);

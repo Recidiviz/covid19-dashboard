@@ -1,11 +1,15 @@
 import { navigate } from "gatsby";
-import React, { useState } from "react";
+import React, { useReducer, useState } from "react";
 
 import config from "../auth/auth_config.json";
 import { Auth0Provider } from "../auth/react-auth0-spa";
 import { FeatureFlagsProvider } from "../feature-flags";
 import { LocaleDataProvider } from "../locale-data-context";
-import { FacilityContext } from "../page-multi-facility/FacilityContext";
+import {
+  FacilityContext,
+  rtDataReducer,
+} from "../page-multi-facility/FacilityContext";
+import { Facility } from "../page-multi-facility/types";
 import { ScenarioProvider } from "../scenario-context";
 
 // A function that routes the user to the right place
@@ -19,7 +23,8 @@ const onRedirectCallback = (appState: any) => {
 };
 
 const SiteProvider: React.FC = (props) => {
-  const [facility, setFacility] = useState();
+  const [facility, setFacility] = useState<Facility | undefined>();
+  const [rtData, dispatchRtData] = useReducer(rtDataReducer, {});
 
   let redirectUri =
     typeof window === "undefined" ? undefined : window.location.origin;
@@ -35,7 +40,9 @@ const SiteProvider: React.FC = (props) => {
       >
         <LocaleDataProvider>
           <ScenarioProvider>
-            <FacilityContext.Provider value={{ facility, setFacility }}>
+            <FacilityContext.Provider
+              value={{ facility, setFacility, rtData, dispatchRtData }}
+            >
               {props.children}
             </FacilityContext.Provider>
           </ScenarioProvider>
