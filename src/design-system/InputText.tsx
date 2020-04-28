@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 
+import Colors from "./Colors";
 import { InputBaseProps, StyledInput, useInputValue } from "./Input";
 import InputLabelAndHelp from "./InputLabelAndHelp";
 
@@ -24,6 +25,7 @@ const WrappedInput = styled(StyledInput)`
     default sizing. Element will still flex as needed.
   */
   width: 0;
+  color: ${Colors.green};
 `;
 
 interface Props extends InputBaseProps<string> {
