@@ -6,6 +6,7 @@ import Loading from "../design-system/Loading";
 import { Column, PageContainer } from "../design-system/PageColumn";
 import useScenario from "../scenario-context/useScenario";
 import PopulationImpactMetrics from "./PopulationImpactMetrics";
+import ReducingR0ImpactMetrics from "./ReducingR0ImpactMetrics";
 
 const ResponseImpactDashboardContainer = styled.div``;
 const ScenarioName = styled.div`
@@ -100,7 +101,7 @@ const ResponseImpactDashboard: React.FC = () => {
             <SectionSubheader>
               Positive impact of Reducing R(0)
             </SectionSubheader>
-            <PlaceholderSpace />
+            <ReducingR0ImpactMetrics />
           </Column>
           <Column width={"45%"}>
             <ChartHeader>Original Projection</ChartHeader>

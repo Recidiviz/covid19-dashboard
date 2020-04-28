@@ -5,13 +5,7 @@ import Colors from "../design-system/Colors";
 import ambulanceIcon from "./icons/ic_ambulance.svg";
 import heartIcon from "./icons/ic_heart.svg";
 import ImpactMetricCard from "./ImpactMetricCard";
-
-const ImpactMetricsContainer = styled.div`
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: space-between;
-  margin-bottom: 16px;
-`;
+import ImpactMetricsContainer from "./ImpactMetricsContainer";
 
 const TitleSpan = styled.span`
   color: ${Colors.teal};
