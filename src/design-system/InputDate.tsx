@@ -80,7 +80,11 @@ const InputContainer = styled.div`
 
 const InputDate: React.FC<InputBaseProps<Date>> = (props) => {
   const { labelAbove, labelHelp, onValueChange } = props;
-  const inputValue = useInputValue(props);
+  let inputValue = useInputValue(props);
+
+  if (inputValue && "toDate" in inputValue) {
+    inputValue = (inputValue as any).toDate();
+  }
 
   return (
     <InputContainer>

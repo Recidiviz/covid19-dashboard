@@ -317,13 +317,6 @@ export const saveFacility = async (
       // the original.
       facility.modelInputs = pick(facility.modelInputs, persistedKeys);
 
-      // Convert the dates in plannedReleases to strings. Otherwise, Firestore
-      // will serialize these dates to timestamps in a way that is not
-      // compatible with our date picker library. Instead, save these dates
-      // values as strings in Firestore.
-      // https://github.com/Recidiviz/covid19-dashboard/issues/144
-      facility.modelInputs = JSON.parse(JSON.stringify(facility.modelInputs));
-
       facility.modelInputs.updatedAt = currrentTimestamp();
 
       // TODO: For now, this assumes we're always entering data as of "today"
