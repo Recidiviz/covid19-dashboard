@@ -95,52 +95,50 @@ const RtTimeseries: React.FC<Props> = ({ data }) => {
   };
 
   return (
-    <>
-      <RtTimeseriesWrapper>
-        <ChartTitle>Rate of Spread</ChartTitle>
-        <ResponsiveXYFrame
-          annotations={[
-            {
-              type: "area",
-              className: "uncertainty",
-              coordinates: [
-                // assuming these are sorted in date order this makes a clean shape
-                ...data.high90,
-                ...[...data.low90].reverse(),
-              ],
-            },
-            {
-              color: lighten(Colors.red, 30),
-              disable: ["connector"],
-              type: "y",
-              value: 1,
-            },
-          ]}
-          hoverAnnotation={[
-            {
-              type: "x",
-              disable: ["connector", "note"],
-              color: Colors.darkGray,
-            },
-            { type: "frame-hover" },
-          ]}
-          lineDataAccessor="data"
-          lines={getLines()}
-          lineStyle={(d: Line) => ({
-            stroke: Colors.forest,
-            strokeWidth: d.confidenceInterval ? 0 : 1,
-          })}
-          margin={{ left: 0, bottom: 0, right: 0, top: 0 }}
-          responsiveWidth
-          size={[300, 200]}
-          tooltipContent={Tooltip}
-          xAccessor="date"
-          xScaleType={scaleTime()}
-          yAccessor="value"
-          yExtent={[0]}
-        />
-      </RtTimeseriesWrapper>
-    </>
+    <RtTimeseriesWrapper>
+      <ChartTitle>Rate of Spread</ChartTitle>
+      <ResponsiveXYFrame
+        annotations={[
+          {
+            type: "area",
+            className: "uncertainty",
+            coordinates: [
+              // assuming these are sorted in date order this makes a clean shape
+              ...data.high90,
+              ...[...data.low90].reverse(),
+            ],
+          },
+          {
+            color: lighten(Colors.red, 30),
+            disable: ["connector"],
+            type: "y",
+            value: 1,
+          },
+        ]}
+        hoverAnnotation={[
+          {
+            type: "x",
+            disable: ["connector", "note"],
+            color: Colors.darkGray,
+          },
+          { type: "frame-hover" },
+        ]}
+        lineDataAccessor="data"
+        lines={getLines()}
+        lineStyle={(d: Line) => ({
+          stroke: Colors.forest,
+          strokeWidth: d.confidenceInterval ? 0 : 1,
+        })}
+        margin={{ left: 0, bottom: 0, right: 0, top: 0 }}
+        responsiveWidth
+        size={[300, 200]}
+        tooltipContent={Tooltip}
+        xAccessor="date"
+        xScaleType={scaleTime()}
+        yAccessor="value"
+        yExtent={[0]}
+      />
+    </RtTimeseriesWrapper>
   );
 };
 
