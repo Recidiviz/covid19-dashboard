@@ -1,4 +1,5 @@
 import React from "react";
+import styled from "styled-components";
 
 import Loading from "../design-system/Loading";
 import { RtData } from "../infection-model/rt";
@@ -9,7 +10,14 @@ interface Props {
 }
 
 const RtTimeseriesContainer: React.FC<Props> = ({ data }) => {
-  return data ? <RtTimeseries data={data} /> : <Loading />;
+  const notEnoughData = data && data.Rt.length < 2;
+  return data ? (
+    notEnoughData ? null : (
+      <RtTimeseries data={data} />
+    )
+  ) : (
+    <Loading />
+  );
 };
 
 export default RtTimeseriesContainer;

@@ -156,12 +156,9 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
         <div className="mt-5 mb-5 border-b border-gray-300" />
 
         <Flag name={["useRt"]}>
-          {// chart is unreadable with < 2 data points
-          rtTimeseriesData && rtTimeseriesData.Rt?.length > 1 ? (
-            <RtChartContainer>
-              <RtTimeseries data={rtTimeseriesData} />
-            </RtChartContainer>
-          ) : null}
+          <RtChartContainer>
+            <RtTimeseries data={rtTimeseriesData} />
+          </RtChartContainer>
         </Flag>
 
         <LocaleInformationSection
