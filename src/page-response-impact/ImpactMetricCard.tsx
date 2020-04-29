@@ -19,6 +19,7 @@ const CardTitle = styled.div`
   color: ${Colors.forest};
   font-family: "Poppins", sans serif;
   font-size: 13px;
+  font-weight: normal;
   letter-spacing: -0.02em;
   line-height: 16px;
   padding: 17px 13px 0;
