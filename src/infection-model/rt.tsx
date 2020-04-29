@@ -100,8 +100,14 @@ export const cleanRtData = (rawData: RawRtData) => {
 
 export const getRtDataForFacility = async (
   facility: Facility,
-): Promise<RtData> => {
-  const { cases, dates } = await getRtInputsForFacility(facility);
-  const fetchedData = await fetchRt({ dates, cases });
-  return cleanRtData(fetchedData);
+): Promise<RtData | null> => {
+  try {
+    const { cases, dates } = await getRtInputsForFacility(facility);
+    const fetchedData = await fetchRt({ dates, cases });
+    return cleanRtData(fetchedData);
+  } catch (error) {
+    console.error(`Error fetching R(t) data for facility ${facility.id}:`);
+    console.error(error);
+    return null;
+  }
 };

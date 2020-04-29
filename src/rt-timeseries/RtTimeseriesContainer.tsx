@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 
 import Loading from "../design-system/Loading";
 import { RtData } from "../infection-model/rt";
@@ -15,7 +14,7 @@ const RtTimeseriesContainer: React.FC<Props> = ({ data }) => {
     notEnoughData ? null : (
       <RtTimeseries data={data} />
     )
-  ) : (
+  ) : data === null ? null : (
     <Loading />
   );
 };
