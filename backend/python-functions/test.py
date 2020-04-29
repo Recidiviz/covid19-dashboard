@@ -14,8 +14,8 @@ class TestCalculateRt(TestCase):
 
     def test_happy_path(self):
         data = {
-        'dates': ['2020-04-15', '2020-04-16', '2020-04-18', '2020-04-19'],
-        'cases': [30, 50, 90, 150]
+            'dates': ['2020-04-15', '2020-04-16', '2020-04-18', '2020-04-19'],
+            'cases': [30, 50, 90, 150]
         }
         self.req.get_json.return_value = data
 
@@ -41,8 +41,8 @@ class TestCalculateRt(TestCase):
 
     def test_empty_input(self):
         data = {
-        'dates': [],
-        'cases': []
+            'dates': [],
+            'cases': []
         }
         self.req.get_json.return_value = data
 

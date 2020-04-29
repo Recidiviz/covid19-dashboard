@@ -51,7 +51,6 @@ def get_posteriors(sr, sigma=0.15):
     process_matrix /= process_matrix.sum(axis=0)
 
     # (4) Calculate the initial prior
-    #prior0 = sps.gamma(a=4).pdf(r_t_range)
     prior0 = np.ones_like(r_t_range)/len(r_t_range)
     prior0 /= prior0.sum()
 
@@ -76,7 +75,7 @@ def get_posteriors(sr, sigma=0.15):
         #(5b) Calculate the numerator of Bayes' Rule: P(k|R_t)P(R_t)
         numerator = likelihoods[current_day] * current_prior
 
-        #(5c) Calcluate the denominator of Bayes' Rule P(k)
+        #(5c) Calculate the denominator of Bayes' Rule P(k)
         denominator = np.sum(numerator)
 
         # Execute full Bayes' Rule
