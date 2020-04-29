@@ -3,7 +3,7 @@ import { pick } from "lodash";
 import React, { useContext, useState } from "react";
 import styled from "styled-components";
 
-import { saveFacility } from "../database/index";
+import { getFacilityModelVersions, saveFacility } from "../database/index";
 import Colors, { MarkColors as markColors } from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import iconEditSrc from "../design-system/icons/ic_edit.svg";
@@ -96,7 +96,7 @@ const FacilityRow: React.FC<Props> = ({
     navigate("/facility");
   };
 
-  const [model] = useModel();
+  const [model, updateModel] = useModel();
 
   // Open/close update case counts modal. Saves data on close.
   const [caseCountsModal, updateCaseCountsModal] = useState(false);
@@ -174,7 +174,7 @@ const FacilityRow: React.FC<Props> = ({
         title="Add Cases"
       >
         <ModalContents>
-          <AgeGroupGrid />
+          <AgeGroupGrid model={model} updateModel={updateModel} />
         </ModalContents>
       </ModalDialog>
     </>
