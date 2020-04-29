@@ -1,5 +1,5 @@
 import { ascending } from "d3-array";
-import { fromUnixTime } from "date-fns";
+import { formatISO, fromUnixTime, parseISO } from "date-fns";
 import mapValues from "lodash/mapValues";
 
 import { getFacilityModelVersions } from "../database";
@@ -7,7 +7,7 @@ import { totalConfirmedCases } from "../impact-dashboard/EpidemicModelContext";
 import { Facility } from "../page-multi-facility/types";
 
 type RawRtRecord = {
-  date: number; // timestamp
+  date: string; // timestamp
   value: number;
 };
 
@@ -22,7 +22,7 @@ type ErrorResponse = {
 };
 
 type RtInputs = {
-  dates: number[];
+  dates: string[];
   cases: number[];
 };
 
@@ -76,10 +76,14 @@ const getRtInputsForFacility = async (
   });
 
   const cases: number[] = [];
-  const dates: number[] = [];
+  const dates: string[] = [];
 
   modelVersions.forEach((model) => {
-    dates.push(model.observedAt.seconds);
+    dates.push(
+      formatISO(fromUnixTime(model.observedAt.seconds), {
+        representation: "date",
+      }),
+    );
     cases.push(totalConfirmedCases(model));
   });
 
@@ -90,7 +94,7 @@ export const cleanRtData = (rawData: RawRtData) => {
   return mapValues(rawData, (records) =>
     records
       .map(({ date, value }) => ({
-        date: fromUnixTime(date),
+        date: parseISO(date),
         value,
       }))
       // ensure records are sorted chronologically
