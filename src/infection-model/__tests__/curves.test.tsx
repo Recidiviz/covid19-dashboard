@@ -1,11 +1,6 @@
 import { range } from "d3-array";
 
-import { RateOfSpread } from "../../impact-dashboard/EpidemicModelContext";
-import {
-  calculateAllCurves,
-  CurveFunctionInputs,
-  getR0FromSize,
-} from "../index";
+import { calculateAllCurves, CurveFunctionInputs } from "../index";
 import { ageGroupIndex, seirIndex } from "../seir";
 
 describe("calculateAllCurves function", () => {
@@ -31,7 +26,8 @@ describe("calculateAllCurves function", () => {
       facilityDormitoryPct: 0.3,
       facilityOccupancyPct: 1.15,
       populationTurnover: 0,
-      rateOfSpreadFactor: RateOfSpread.low,
+      rateOfSpreadCells: 1.8,
+      rateOfSpreadDorms: 2.4,
       staffCases: 7,
       staffPopulation: 23,
       usePopulationSubsets: true,
@@ -76,54 +72,6 @@ describe("calculateAllCurves function", () => {
       );
       expect(totalPop).not.toBe(0);
       expect(totalPop).toBeCloseTo(sumOfCompartments, 5);
-    });
-  });
-
-  test("should accept explicit rate of spread numbers", () => {
-    const rateOfSpreadCells = 1.8;
-    const rateOfSpreadDorms = 2.4;
-    const rateOfSpreadDefaults = getR0FromSize(inputs.rateOfSpreadFactor);
-    // sanity check that these values are actually different from the defaults
-    expect({ rateOfSpreadCells, rateOfSpreadDorms }).not.toEqual(
-      rateOfSpreadDefaults,
-    );
-
-    const { projectionGrid: projectionGridDefault } = calculateAllCurves(
-      inputs,
-    );
-    const { projectionGrid: projectionGridExplicit } = calculateAllCurves({
-      ...inputs,
-      rateOfSpreadCells,
-      rateOfSpreadDorms,
-    });
-
-    // helper to get daily totals for a single compartment
-    function getCurveValues(
-      grid: typeof projectionGridDefault,
-      compartment: number,
-    ) {
-      return range(grid.shape[1]).map((day) =>
-        range(grid.shape[2]).reduce(
-          (sumOfCompartments, bracket) =>
-            (sumOfCompartments += grid.get(compartment, day, bracket)),
-          0,
-        ),
-      );
-    }
-
-    // we can't predict the exact effect but the curves should be different
-    range(projectionGridDefault.shape[0]).map((compartment) => {
-      const defaultCurve: number[] = getCurveValues(
-        projectionGridDefault,
-        compartment,
-      );
-      const explicitCurve: number[] = getCurveValues(
-        projectionGridExplicit,
-        compartment,
-      );
-
-      expect(defaultCurve.length).toEqual(explicitCurve.length);
-      expect(defaultCurve).not.toEqual(explicitCurve);
     });
   });
 });

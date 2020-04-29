@@ -3,7 +3,10 @@ import flatten from "lodash/flatten";
 import React from "react";
 
 import { useEpidemicModelState } from "../impact-dashboard/EpidemicModelContext";
-import { calculateAllCurves } from "../infection-model";
+import {
+  calculateAllCurves,
+  curveInputsFromUserInputs,
+} from "../infection-model";
 import { ageGroupIndex, seirIndex } from "../infection-model/seir";
 import ModelInspectionTable from "./ModelInspectionTable";
 
@@ -13,7 +16,7 @@ const ModelInspectionTableContainer: React.FC = () => {
     expectedPopulationChanges,
     projectionGrid,
     totalPopulationByDay,
-  } = calculateAllCurves(modelData);
+  } = calculateAllCurves(curveInputsFromUserInputs(modelData));
 
   const dataRows = flatten(
     range(projectionGrid.shape[0]).map((compartment) =>

@@ -1,5 +1,6 @@
 import { range, sum } from "d3-array";
 import ndarray from "ndarray";
+import { Omit } from "utility-types";
 
 import { EpidemicModelInputs } from "../impact-dashboard/EpidemicModelContext";
 import {
@@ -14,10 +15,13 @@ export type CurveData = {
   staff: ndarray;
 };
 
-export interface CurveFunctionInputs extends EpidemicModelInputs {
-  rateOfSpreadCells?: number;
-  rateOfSpreadDorms?: number;
-}
+export type CurveFunctionInputs = Omit<
+  EpidemicModelInputs,
+  "rateOfSpreadFactor"
+> & {
+  rateOfSpreadCells: number;
+  rateOfSpreadDorms: number;
+};
 
 function prepareAgeGroupPopulations({
   age0Population,
@@ -31,7 +35,7 @@ function prepareAgeGroupPopulations({
   staffPopulation,
   totalIncarcerated,
   usePopulationSubsets,
-}: EpidemicModelInputs): number[] {
+}: CurveFunctionInputs): number[] {
   const ageGroupPopulations = Array(ageGroupIndex.__length).fill(0);
   if (usePopulationSubsets) {
     ageGroupPopulations[ageGroupIndex.age0] = age0Population || 0;
@@ -62,11 +66,17 @@ enum R0Dorms {
   high = 7,
 }
 
-export function getR0FromSize(size: keyof typeof R0Cells) {
-  return {
-    rateOfSpreadCells: R0Cells[size],
-    rateOfSpreadDorms: R0Dorms[size],
+export function curveInputsFromUserInputs(
+  userInputs: EpidemicModelInputs,
+): CurveFunctionInputs {
+  // translate qualitative rate of spread factor into numbers
+  const rateOfSpreadDefaults = {
+    rateOfSpreadCells: R0Cells[userInputs.rateOfSpreadFactor],
+    rateOfSpreadDorms: R0Dorms[userInputs.rateOfSpreadFactor],
   };
+  const curveInputs = { ...userInputs, ...rateOfSpreadDefaults };
+  delete curveInputs.rateOfSpreadFactor;
+  return curveInputs;
 }
 
 function prepareCurveData(inputs: CurveFunctionInputs): CurveProjectionInputs {
@@ -86,7 +96,6 @@ function prepareCurveData(inputs: CurveFunctionInputs): CurveProjectionInputs {
     populationTurnover,
     rateOfSpreadCells,
     rateOfSpreadDorms,
-    rateOfSpreadFactor,
     staffCases,
     usePopulationSubsets,
   } = inputs;
@@ -110,9 +119,6 @@ function prepareCurveData(inputs: CurveFunctionInputs): CurveProjectionInputs {
     ageGroupInitiallyInfected[ageGroupIndex.ageUnknown] = confirmedCases || 0;
   }
 
-  // if numbers are explicitly provided, they will supersede these values
-  const rateOfSpreadDefaults = getR0FromSize(rateOfSpreadFactor);
-
   return {
     ageGroupPopulations,
     ageGroupInitiallyInfected,
@@ -121,10 +127,8 @@ function prepareCurveData(inputs: CurveFunctionInputs): CurveProjectionInputs {
     numDays,
     plannedReleases,
     populationTurnover,
-    rateOfSpreadCells:
-      rateOfSpreadCells || rateOfSpreadDefaults.rateOfSpreadCells,
-    rateOfSpreadDorms:
-      rateOfSpreadDorms || rateOfSpreadDefaults.rateOfSpreadDorms,
+    rateOfSpreadCells,
+    rateOfSpreadDorms,
   };
 }
 
