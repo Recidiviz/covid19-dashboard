@@ -1,4 +1,5 @@
 import { navigate } from "gatsby";
+import { pick } from "lodash";
 import React, { useContext, useState } from "react";
 import styled from "styled-components";
 
@@ -7,11 +8,15 @@ import Colors, { MarkColors as markColors } from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import iconEditSrc from "../design-system/icons/ic_edit.svg";
 import InputTextArea from "../design-system/InputTextArea";
+import ModalDialog from "../design-system/ModalDialog";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
 import {
+  persistedKeys as facilityModelKeys,
   totalConfirmedCases,
   useEpidemicModelState,
 } from "../impact-dashboard/EpidemicModelContext";
+import { AgeGroupGrid } from "../impact-dashboard/FacilityInformation";
+import useModel from "../impact-dashboard/useModel";
 import { FacilityContext } from "./FacilityContext";
 import { Facility } from "./types";
 
@@ -51,6 +56,16 @@ const CaseText = styled.div`
   color: ${Colors.darkRed};
 `;
 
+// Update case counts modal
+const ModalContents = styled.div`
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  font-weight: normal;
+  justify-content: flex-start;
+  margin-top: 30px;
+`;
+
 // TODO: validate the arguments?
 const handleSubClick = (fn?: Function, ...args: any[]) => {
   return (event: React.MouseEvent<Element>) => {
@@ -74,7 +89,6 @@ const FacilityRow: React.FC<Props> = ({
   const confirmedCases = totalConfirmedCases(useEpidemicModelState());
   const { setFacility } = useContext(FacilityContext);
   const [facility, updateFacility] = useState(initialFacility);
-
   const { id, name, updatedAt } = facility;
 
   const openFacilityPage = () => {
@@ -82,51 +96,88 @@ const FacilityRow: React.FC<Props> = ({
     navigate("/facility");
   };
 
+  const [model] = useModel();
+
+  // Open/close update case counts modal. Saves data on close.
+  const [caseCountsModal, updateCaseCountsModal] = useState(false);
+  const openCaseCountsModal = () => {
+    updateCaseCountsModal(true);
+  };
+  const closeCaseCountsModal = () => {
+    // Ensure that we don't insert keys (like `localeDataSource`) that is in model but not in the facility modelInputs
+    const modelInputs = pick(model, facilityModelKeys);
+    updateCaseCountsModal(false);
+    // Update local state so that the facility page has the updated info
+    updateFacility({ ...facility, modelInputs });
+    // Save to DB with only model changes
+    saveFacility(scenarioId, {
+      id,
+      modelInputs,
+    });
+  };
+
   return (
-    <div onClick={openFacilityPage} className="cursor-pointer">
-      <DataContainer className="flex flex-row mb-8 border-b">
-        <div className="w-2/5 flex flex-col justify-between">
-          <div className="flex flex-row h-full">
-            <CaseText className="w-1/4 font-bold">{confirmedCases}</CaseText>
-            <FacilityNameLabel onClick={handleSubClick()}>
-              <InputTextArea
-                inline={true}
-                fillVertical={true}
-                value={name}
-                onChange={(event) => {
-                  const newName = (event.target.value || "").replace(
-                    /(\r\n|\n|\r)/gm,
-                    "",
-                  );
-                  // this updates the local state
-                  updateFacility({ ...facility, name: newName });
-                  // this persists the changes to the database
-                  saveFacility(scenarioId, {
-                    id,
-                    name: newName,
-                  });
-                }}
-              />
-              <IconEdit alt="Edit facility name" src={iconEditSrc} />
-            </FacilityNameLabel>
-          </div>
-          <div className="text-xs text-gray-500 pb-4">
-            <div>
-              Last Update: <DateMMMMdyyyy date={new Date(updatedAt.toDate())} />
+    <>
+      <div onClick={openFacilityPage} className="cursor-pointer">
+        <DataContainer className="flex flex-row mb-8 border-b">
+          <div className="w-2/5 flex flex-col justify-between">
+            <div className="flex flex-row h-full">
+              <CaseText
+                className="w-1/4 font-bold"
+                onClick={handleSubClick(openCaseCountsModal)}
+              >
+                {confirmedCases}
+              </CaseText>
+              <FacilityNameLabel onClick={handleSubClick()}>
+                <InputTextArea
+                  inline={true}
+                  fillVertical={true}
+                  value={name}
+                  onChange={(event) => {
+                    const newName = (event.target.value || "").replace(
+                      /(\r\n|\n|\r)/gm,
+                      "",
+                    );
+                    // this updates the local state
+                    updateFacility({ ...facility, name: newName });
+                    // this persists the changes to the database
+                    saveFacility(scenarioId, {
+                      id,
+                      name: newName,
+                    });
+                  }}
+                />
+                <IconEdit alt="Edit facility name" src={iconEditSrc} />
+              </FacilityNameLabel>
             </div>
-            <div className="mr-8" />
+            <div className="text-xs text-gray-500 pb-4">
+              <div>
+                Last Update:{" "}
+                <DateMMMMdyyyy date={new Date(updatedAt.toDate())} />
+              </div>
+              <div className="mr-8" />
+            </div>
           </div>
-        </div>
-        <div className="w-3/5">
-          <CurveChartContainer
-            chartHeight={144}
-            hideAxes={true}
-            groupStatus={groupStatus}
-            markColors={markColors}
-          />
-        </div>
-      </DataContainer>
-    </div>
+          <div className="w-3/5">
+            <CurveChartContainer
+              chartHeight={144}
+              hideAxes={true}
+              groupStatus={groupStatus}
+              markColors={markColors}
+            />
+          </div>
+        </DataContainer>
+      </div>
+      <ModalDialog
+        closeModal={closeCaseCountsModal}
+        open={caseCountsModal}
+        title="Add Cases"
+      >
+        <ModalContents>
+          <AgeGroupGrid />
+        </ModalContents>
+      </ModalDialog>
+    </>
   );
 };
 
