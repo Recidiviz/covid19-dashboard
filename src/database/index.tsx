@@ -5,7 +5,7 @@ import "firebase/auth";
 import "firebase/firestore";
 
 import createAuth0Client from "@auth0/auth0-spa-js";
-import { pick } from "lodash";
+import { pick, sortBy } from "lodash";
 
 import config from "../auth/auth_config.json";
 import {
@@ -191,6 +191,33 @@ export const getScenario = async (
     console.error(error);
 
     return null;
+  }
+};
+
+export const getScenarios = async (): Promise<Scenario[]> => {
+  try {
+    const db = await getDb();
+
+    const scenarioResults = await db
+      .collection(scenariosCollectionId)
+      .where(`roles.${currrentUserId()}`, "in", ["owner"])
+      .get();
+
+    const scenarios = scenarioResults.docs.map((doc) => {
+      const scenario = doc.data() as Scenario;
+      scenario.id = doc.id;
+      return scenario;
+    });
+
+    // We're sorting in memory instead of in the query above due to a limitation
+    // in the way our data is currently modeled. See this issue for more details:
+    // https://github.com/Recidiviz/covid19-dashboard/issues/253
+    return sortBy(scenarios, "name");
+  } catch (error) {
+    console.error(`Encountered error while attempting to retrieve scenarios:`);
+    console.error(error);
+
+    return [];
   }
 };
 
