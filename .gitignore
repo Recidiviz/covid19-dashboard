@@ -2,6 +2,7 @@
 .history/
 .idea/
 .vscode/
+.mypy_cache
 
 # Common OS files
 .DS_Store

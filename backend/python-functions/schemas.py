@@ -8,7 +8,13 @@ number_array = {
 rt_input = {
     "type": "object",
     "properties": {
-        "dates": number_array,
+        "dates": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "format": "date",
+            },
+        },
         "cases": number_array,
     },
 }
@@ -18,8 +24,11 @@ rt_records = {
   "items": {
     "type": "object",
     "properties": {
-      "date": {"type": "number"},
-      "value": {"type": "number"},
+        "date": {
+            "type": "string",
+            "format": "date",
+        },
+        "value": {"type": "number"},
     },
   },
 }
