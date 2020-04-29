@@ -14,6 +14,11 @@ export type CurveData = {
   staff: ndarray;
 };
 
+export interface CurveFunctionInputs extends EpidemicModelInputs {
+  rateOfSpreadCells?: number;
+  rateOfSpreadDorms?: number;
+}
+
 function prepareAgeGroupPopulations({
   age0Population,
   age20Population,
@@ -45,7 +50,26 @@ function prepareAgeGroupPopulations({
   return ageGroupPopulations;
 }
 
-function prepareCurveData(inputs: EpidemicModelInputs): CurveProjectionInputs {
+enum R0Cells {
+  low = 2.4,
+  moderate = 3,
+  high = 3.7,
+}
+
+enum R0Dorms {
+  low = 3,
+  moderate = 5,
+  high = 7,
+}
+
+export function getR0FromSize(size: keyof typeof R0Cells) {
+  return {
+    rateOfSpreadCells: R0Cells[size],
+    rateOfSpreadDorms: R0Dorms[size],
+  };
+}
+
+function prepareCurveData(inputs: CurveFunctionInputs): CurveProjectionInputs {
   const {
     age0Cases,
     age20Cases,
@@ -60,6 +84,8 @@ function prepareCurveData(inputs: EpidemicModelInputs): CurveProjectionInputs {
     facilityOccupancyPct,
     plannedReleases,
     populationTurnover,
+    rateOfSpreadCells,
+    rateOfSpreadDorms,
     rateOfSpreadFactor,
     staffCases,
     usePopulationSubsets,
@@ -84,6 +110,9 @@ function prepareCurveData(inputs: EpidemicModelInputs): CurveProjectionInputs {
     ageGroupInitiallyInfected[ageGroupIndex.ageUnknown] = confirmedCases || 0;
   }
 
+  // if numbers are explicitly provided, they will supersede these values
+  const rateOfSpreadDefaults = getR0FromSize(rateOfSpreadFactor);
+
   return {
     ageGroupPopulations,
     ageGroupInitiallyInfected,
@@ -92,11 +121,14 @@ function prepareCurveData(inputs: EpidemicModelInputs): CurveProjectionInputs {
     numDays,
     plannedReleases,
     populationTurnover,
-    rateOfSpreadFactor,
+    rateOfSpreadCells:
+      rateOfSpreadCells || rateOfSpreadDefaults.rateOfSpreadCells,
+    rateOfSpreadDorms:
+      rateOfSpreadDorms || rateOfSpreadDefaults.rateOfSpreadDorms,
   };
 }
 
-export function calculateCurves(inputs: EpidemicModelInputs): CurveData {
+export function calculateCurves(inputs: CurveFunctionInputs): CurveData {
   const { projectionGrid } = getAllBracketCurves(prepareCurveData(inputs));
 
   // these will each produce a matrix with row = day and col = SEIR bucket,
@@ -135,11 +167,11 @@ export function calculateCurves(inputs: EpidemicModelInputs): CurveData {
   };
 }
 
-export function calculateAllCurves(inputs: EpidemicModelInputs) {
+export function calculateAllCurves(inputs: CurveFunctionInputs) {
   return getAllBracketCurves(prepareCurveData(inputs));
 }
 
-export function getAdjustedTotalPopulation(inputs: EpidemicModelInputs) {
+export function getAdjustedTotalPopulation(inputs: CurveFunctionInputs) {
   let ageGroupPopulations = prepareAgeGroupPopulations(inputs);
   ageGroupPopulations = adjustPopulations({
     ageGroupPopulations,
