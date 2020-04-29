@@ -17,6 +17,7 @@
 # Gatsby
 /.cache
 /public
+.env.*
 
 # Parcel. We don't use Parcel anymore but we used to, and people still have
 # these Parcel-generated files lying around.
@@ -34,3 +35,6 @@
 # other people from accidentally committing them.
 /package-lock.json
 /pnpm-lock.yaml
+
+# Vercel Now
+/.now
