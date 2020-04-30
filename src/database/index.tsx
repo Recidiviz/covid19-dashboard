@@ -5,15 +5,16 @@ import "firebase/auth";
 import "firebase/firestore";
 
 import createAuth0Client from "@auth0/auth0-spa-js";
-import { parseISO } from "date-fns";
 import { pick, sortBy } from "lodash";
 
 import config from "../auth/auth_config.json";
-import {
-  PlannedRelease,
-  persistedKeys,
-} from "../impact-dashboard/EpidemicModelContext";
+import { persistedKeys } from "../impact-dashboard/EpidemicModelContext";
 import { Facility, ModelInputs, Scenario } from "../page-multi-facility/types";
+import {
+  buildFacility,
+  buildModelInputs,
+  buildScenario,
+} from "./type-transforms";
 
 // As long as there is just one Auth0 config, this endpoint will work with any environment (local, prod, etc.).
 const tokenExchangeEndpoint =
@@ -117,68 +118,6 @@ const buildUpdatePayload = (entity: any) => {
   delete payload.id;
 
   return payload;
-};
-
-const timestampToDate = (timestamp: firebase.firestore.Timestamp): Date => {
-  return timestamp.toDate();
-};
-
-const buildPlannedRelease = (plannedReleaseData: any): PlannedRelease => {
-  let plannedRelease: PlannedRelease = plannedReleaseData;
-
-  const plannedReleaseDataDate = plannedReleaseData.date;
-  if (plannedReleaseDataDate instanceof firebase.firestore.Timestamp) {
-    plannedRelease.date = timestampToDate(plannedReleaseDataDate);
-  } else {
-    plannedRelease.date = parseISO(plannedReleaseDataDate);
-  }
-
-  return plannedRelease;
-};
-
-const buildModelInputs = (document: any): ModelInputs => {
-  let modelInputs: ModelInputs = document;
-
-  modelInputs.observedAt = timestampToDate(document.observedAt);
-  modelInputs.updatedAt = timestampToDate(document.updatedAt);
-
-  const plannedReleases = document.plannedReleases;
-  if (plannedReleases) {
-    modelInputs.plannedReleases = plannedReleases.map(
-      (plannedReleaseData: any) => {
-        return buildPlannedRelease(plannedReleaseData);
-      },
-    );
-  }
-
-  return modelInputs;
-};
-
-const buildFacility = (
-  scenarioId: string,
-  document: firebase.firestore.DocumentData,
-): Facility => {
-  const documentData = document.data();
-
-  let facility: Facility = documentData;
-  facility.id = document.id;
-  facility.scenarioId = scenarioId;
-  facility.createdAt = timestampToDate(documentData.createdAt);
-  facility.updatedAt = timestampToDate(documentData.updatedAt);
-  facility.modelInputs = buildModelInputs(documentData.modelInputs);
-
-  return facility;
-};
-
-const buildScenario = (document: firebase.firestore.DocumentData): Scenario => {
-  const documentData = document.data();
-
-  let scenario: Scenario = documentData;
-  scenario.id = document.id;
-  scenario.createdAt = timestampToDate(documentData.createdAt);
-  scenario.updatedAt = timestampToDate(documentData.updatedAt);
-
-  return scenario;
 };
 
 const getBaselineScenarioRef = async (): Promise<firebase.firestore.DocumentReference | void> => {
