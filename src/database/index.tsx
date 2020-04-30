@@ -5,14 +5,15 @@ import "firebase/auth";
 import "firebase/firestore";
 
 import createAuth0Client from "@auth0/auth0-spa-js";
+import { parseISO } from "date-fns";
 import { pick, sortBy } from "lodash";
 
 import config from "../auth/auth_config.json";
 import {
-  EpidemicModelPersistent,
+  PlannedRelease,
   persistedKeys,
 } from "../impact-dashboard/EpidemicModelContext";
-import { Facility, Scenario } from "../page-multi-facility/types";
+import { Facility, ModelInputs, Scenario } from "../page-multi-facility/types";
 
 // As long as there is just one Auth0 config, this endpoint will work with any environment (local, prod, etc.).
 const tokenExchangeEndpoint =
@@ -34,11 +35,6 @@ let firebaseConfig = {
 
 if (typeof window !== "undefined") {
   firebase.initializeApp(firebaseConfig);
-}
-
-interface ModelInputVersionDocData extends EpidemicModelPersistent {
-  observedAt: firebase.firestore.Timestamp;
-  updatedAt: firebase.firestore.Timestamp;
 }
 
 /**
@@ -123,6 +119,68 @@ const buildUpdatePayload = (entity: any) => {
   return payload;
 };
 
+const timestampToDate = (timestamp: firebase.firestore.Timestamp): Date => {
+  return timestamp.toDate();
+};
+
+const buildPlannedRelease = (plannedReleaseData: any): PlannedRelease => {
+  let plannedRelease: PlannedRelease = plannedReleaseData;
+
+  const plannedReleaseDataDate = plannedReleaseData.date;
+  if (plannedReleaseDataDate instanceof firebase.firestore.Timestamp) {
+    plannedRelease.date = timestampToDate(plannedReleaseDataDate);
+  } else {
+    plannedRelease.date = parseISO(plannedReleaseDataDate);
+  }
+
+  return plannedRelease;
+};
+
+const buildModelInputs = (document: any): ModelInputs => {
+  let modelInputs: ModelInputs = document;
+
+  modelInputs.observedAt = timestampToDate(document.observedAt);
+  modelInputs.updatedAt = timestampToDate(document.updatedAt);
+
+  const plannedReleases = document.plannedReleases;
+  if (plannedReleases) {
+    modelInputs.plannedReleases = plannedReleases.map(
+      (plannedReleaseData: any) => {
+        return buildPlannedRelease(plannedReleaseData);
+      },
+    );
+  }
+
+  return modelInputs;
+};
+
+const buildFacility = (
+  scenarioId: string,
+  document: firebase.firestore.DocumentData,
+): Facility => {
+  const documentData = document.data();
+
+  let facility: Facility = documentData;
+  facility.id = document.id;
+  facility.scenarioId = scenarioId;
+  facility.createdAt = timestampToDate(documentData.createdAt);
+  facility.updatedAt = timestampToDate(documentData.updatedAt);
+  facility.modelInputs = buildModelInputs(documentData.modelInputs);
+
+  return facility;
+};
+
+const buildScenario = (document: firebase.firestore.DocumentData): Scenario => {
+  const documentData = document.data();
+
+  let scenario: Scenario = documentData;
+  scenario.id = document.id;
+  scenario.createdAt = timestampToDate(documentData.createdAt);
+  scenario.updatedAt = timestampToDate(documentData.updatedAt);
+
+  return scenario;
+};
+
 const getBaselineScenarioRef = async (): Promise<firebase.firestore.DocumentReference | void> => {
   const db = await getDb();
 
@@ -146,10 +204,7 @@ export const getBaselineScenario = async (): Promise<Scenario | null> => {
   if (!baselineScenarioRef) return null;
 
   const result = await baselineScenarioRef.get();
-  let scenario: Scenario = result.data() as Scenario;
-  scenario.id = baselineScenarioRef.id;
-
-  return scenario;
+  return buildScenario(result);
 };
 
 const getScenarioRef = async (
@@ -180,10 +235,8 @@ export const getScenario = async (
     if (!scenarioRef) return null;
 
     const scenarioResult = await scenarioRef.get();
-    const scenario = scenarioResult.data() as Scenario;
-    scenario.id = scenarioResult.id;
 
-    return scenario;
+    return buildScenario(scenarioResult);
   } catch (error) {
     console.error(
       `Encountered error while attempting to retrieve the scenario (${scenarioId}):`,
@@ -204,9 +257,7 @@ export const getScenarios = async (): Promise<Scenario[]> => {
       .get();
 
     const scenarios = scenarioResults.docs.map((doc) => {
-      const scenario = doc.data() as Scenario;
-      scenario.id = doc.id;
-      return scenario;
+      return buildScenario(doc);
     });
 
     // We're sorting in memory instead of in the query above due to a limitation
@@ -282,10 +333,7 @@ export const getFacilities = async (
       .get();
 
     const facilities = facilitiesResults.docs.map((doc) => {
-      const facility = doc.data() as Facility;
-      facility.id = doc.id;
-      facility.scenarioId = scenario.id;
-      return facility;
+      return buildFacility(scenario.id, doc);
     });
 
     return facilities;
@@ -304,7 +352,7 @@ export const getFacilityModelVersions = async ({
 }: {
   facilityId: string;
   scenarioId: string;
-}): Promise<ModelInputVersionDocData[]> => {
+}): Promise<ModelInputs[]> => {
   const db = await getDb();
 
   try {
@@ -318,7 +366,7 @@ export const getFacilityModelVersions = async ({
       .get();
 
     return historyResults.docs.map((doc) => {
-      return doc.data() as ModelInputVersionDocData;
+      return buildModelInputs(doc.data());
     });
   } catch (error) {
     console.error(
@@ -382,13 +430,6 @@ export const saveFacility = async (
       // about. This also makes a copy of modelInputs, since we shouldn't mutate
       // the original.
       facility.modelInputs = pick(facility.modelInputs, persistedKeys);
-
-      // Convert the dates in plannedReleases to strings. Otherwise, Firestore
-      // will serialize these dates to timestamps in a way that is not
-      // compatible with our date picker library. Instead, save these dates
-      // values as strings in Firestore.
-      // https://github.com/Recidiviz/covid19-dashboard/issues/144
-      facility.modelInputs = JSON.parse(JSON.stringify(facility.modelInputs));
 
       facility.modelInputs.updatedAt = currrentTimestamp();
 
