@@ -2,7 +2,7 @@ import { sum } from "d3-array";
 import ndarray from "ndarray";
 import React from "react";
 
-import { calculateCurves, curveInputsFromUserInputs } from "../infection-model";
+import { CurveData } from "../infection-model";
 import {
   getAllValues,
   getColView,
@@ -101,13 +101,12 @@ function buildHospitalizedRow(data: ndarray): TableRow {
   return row;
 }
 
-const ImpactProjectionTableContainer: React.FC = () => {
-  const modelData = useEpidemicModelState();
-  const { hospitalBeds } = modelData;
-  // TODO: could this be stored on the context instead for reuse?
-  const { incarcerated, staff } = calculateCurves(
-    curveInputsFromUserInputs(modelData),
-  );
+const ImpactProjectionTableContainer: React.FC<{
+  projectionData: CurveData;
+}> = ({ projectionData }) => {
+  const { hospitalBeds } = useEpidemicModelState();
+
+  const { incarcerated, staff } = projectionData;
   const incarceratedData: TableRow[] = [
     buildTableRowFromCurves(incarcerated, "Cases", countCasesForDay),
   ];

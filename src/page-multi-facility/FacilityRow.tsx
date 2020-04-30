@@ -20,6 +20,7 @@ import {
 import { AgeGroupGrid } from "../impact-dashboard/FacilityInformation";
 import useModel from "../impact-dashboard/useModel";
 import { FacilityContext } from "./FacilityContext";
+import { useChartDataFromUserInput } from "./projectionCurveHooks";
 import { Facility } from "./types";
 
 const groupStatus = {
@@ -112,18 +113,19 @@ const FacilityRow: React.FC<Props> = ({
   facility: initialFacility,
   scenarioId: scenarioId,
 }) => {
+  const [model, updateModel] = useModel();
+
   const { setFacility } = useContext(FacilityContext);
   const [facility, updateFacility] = useState(initialFacility);
+  const chartData = useChartDataFromUserInput(model);
+
   const { id, name, updatedAt } = facility;
+  const confirmedCases = totalConfirmedCases(model);
 
   const openFacilityPage = () => {
     setFacility(facility);
     navigate("/facility");
   };
-
-  const [model, updateModel] = useModel();
-
-  const confirmedCases = totalConfirmedCases(model);
 
   let [modelDiff, fakeUpdateModel, resetModelDiff] = useModelDiff();
   const newModel = { ...model, ...modelDiff };
@@ -206,6 +208,7 @@ const FacilityRow: React.FC<Props> = ({
           </div>
           <div className="w-3/5">
             <CurveChartContainer
+              curveData={chartData}
               chartHeight={144}
               hideAxes={true}
               groupStatus={groupStatus}
