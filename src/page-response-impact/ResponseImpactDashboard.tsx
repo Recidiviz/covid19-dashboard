@@ -91,6 +91,12 @@ const CurveChartContainer = styled.div`
   margin-bottom: 50px;
 `;
 
+function getCurveInputs(modelInputs: EpidemicModelState[]) {
+  return modelInputs.map((modelInput) => {
+    return curveInputsFromUserInputs(modelInput);
+  });
+}
+
 function getModelInputs(facilities: Facilities, localeDataSource: LocaleData) {
   return facilities.map((facility) => {
     const modelInputs = facility.modelInputs;
@@ -102,12 +108,6 @@ function getModelInputs(facilities: Facilities, localeDataSource: LocaleData) {
         modelInputs.countyName,
       ),
     };
-  });
-}
-
-function getCurveInputs(modelInputs: EpidemicModelState[]) {
-  return modelInputs.map((modelInput) => {
-    return curveInputsFromUserInputs(modelInput);
   });
 }
 
