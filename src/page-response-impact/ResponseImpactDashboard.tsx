@@ -81,7 +81,9 @@ const SectionSubheader = styled.h2`
   padding: 32px 0 24px;
   text-transform: uppercase;
 `;
-
+const CurveChartContainer = styled.div`
+  margin-bottom: 50px;
+`;
 const ResponseImpactDashboard: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
   const [scenarioState] = useScenario();
@@ -159,7 +161,7 @@ const ResponseImpactDashboard: React.FC = () => {
         <Loading />
       ) : (
         <PageContainer>
-          <Column width={"55%"}>
+          <Column>
             <ScenarioName>{scenario?.name}</ScenarioName>
             <PageHeader>COVID-19 Response Impact as of [DATE]</PageHeader>
 
@@ -180,29 +182,34 @@ const ResponseImpactDashboard: React.FC = () => {
             </SectionSubheader>
             <PlaceholderSpace />
           </Column>
-          <Column width={"45%"}>
-            <ChartHeader>
-              Original Projection
-              <ProjectionsLegend />
-            </ChartHeader>
-            <CurveChart
-              chartHeight={144}
-              hideAxes={true}
-              hospitalBeds={systemWideData.hospitalBeds}
-              markColors={MarkColors}
-              curveData={getCurveChartData(originalModelInputs)}
-            />
-            <ChartHeader color={Colors.teal}>
-              Current Projection
-              <ProjectionsLegend />
-            </ChartHeader>
-            <CurveChart
-              chartHeight={144}
-              hideAxes={true}
-              hospitalBeds={systemWideData.hospitalBeds}
-              markColors={MarkColors}
-              curveData={getCurveChartData(modelInputs)}
-            />
+          <Column>
+            <CurveChartContainer>
+              <ChartHeader>
+                Original Projection
+                <ProjectionsLegend />
+              </ChartHeader>
+              <CurveChart
+                chartHeight={144}
+                hideAxes={true}
+                hospitalBeds={systemWideData.hospitalBeds}
+                markColors={MarkColors}
+                curveData={getCurveChartData(originalModelInputs)}
+              />
+            </CurveChartContainer>
+            <CurveChartContainer>
+              <ChartHeader color={Colors.teal}>
+                Current Projection
+                <ProjectionsLegend />
+              </ChartHeader>
+              <CurveChart
+                chartHeight={144}
+                hideAxes={true}
+                hospitalBeds={systemWideData.hospitalBeds}
+                markColors={MarkColors}
+                curveData={getCurveChartData(modelInputs)}
+              />
+            </CurveChartContainer>
+
           </Column>
         </PageContainer>
       )}
