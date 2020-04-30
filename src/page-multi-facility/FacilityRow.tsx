@@ -13,6 +13,7 @@ import {
   useEpidemicModelState,
 } from "../impact-dashboard/EpidemicModelContext";
 import { FacilityContext } from "./FacilityContext";
+import { useChartDataFromUserInput } from "./projectionCurveHooks";
 import { Facility } from "./types";
 
 const groupStatus = {
@@ -71,11 +72,13 @@ const FacilityRow: React.FC<Props> = ({
   facility: initialFacility,
   scenarioId: scenarioId,
 }) => {
-  const confirmedCases = totalConfirmedCases(useEpidemicModelState());
+  const modelData = useEpidemicModelState();
   const { setFacility } = useContext(FacilityContext);
   const [facility, updateFacility] = useState(initialFacility);
+  const chartData = useChartDataFromUserInput(modelData);
 
   const { id, name, updatedAt } = facility;
+  const confirmedCases = totalConfirmedCases(modelData);
 
   const openFacilityPage = () => {
     setFacility(facility);
@@ -119,6 +122,7 @@ const FacilityRow: React.FC<Props> = ({
         </div>
         <div className="w-3/5">
           <CurveChartContainer
+            curveData={chartData}
             chartHeight={144}
             hideAxes={true}
             groupStatus={groupStatus}
