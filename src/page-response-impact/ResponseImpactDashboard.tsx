@@ -1,10 +1,19 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
-import Colors from "../design-system/Colors";
+import { getFacilities } from "../database";
+import Colors, { MarkColors } from "../design-system/Colors";
 import Loading from "../design-system/Loading";
 import { Column, PageContainer } from "../design-system/PageColumn";
+import CurveChart from "../impact-dashboard/CurveChart";
+import {
+  EpidemicModelState,
+  getLocaleDefaults,
+} from "../impact-dashboard/EpidemicModelContext";
+import { useLocaleDataState } from "../locale-data-context";
+import { Facilities } from "../page-multi-facility/types";
 import useScenario from "../scenario-context/useScenario";
+import { getCurveChartData } from "./responseChartData";
 
 const ResponseImpactDashboardContainer = styled.div``;
 const ScenarioName = styled.div`
@@ -17,7 +26,6 @@ const ScenarioName = styled.div`
   color: ${Colors.green};
   padding: 10px 0;
 `;
-
 const PageHeader = styled.h1`
   color: ${Colors.forest};
   font-family: "Libre Baskerville";
@@ -27,7 +35,6 @@ const PageHeader = styled.h1`
   letter-spacing: -0.06em;
   padding: 24px 0;
 `;
-
 const SectionHeader = styled.h1`
   color: ${Colors.forest};
   border-top: 1px solid ${Colors.opacityGray};
@@ -38,7 +45,6 @@ const SectionHeader = styled.h1`
   letter-spacing: -0.06em;
   padding: 32px 0 24px;
 `;
-
 const PlaceholderSpace = styled.div`
   border: 1px solid ${Colors.gray};
   background-color: ${Colors.darkGray};
@@ -46,7 +52,6 @@ const PlaceholderSpace = styled.div`
   margin: 20px 0;
   width: 100%;
 `;
-
 const ChartHeader = styled.h3<{ color?: string }>`
   border-top: 1px solid ${Colors.opacityGray};
   border-bottom: 1px solid ${Colors.opacityGray};
@@ -58,7 +63,6 @@ const ChartHeader = styled.h3<{ color?: string }>`
   line-height: 16px;
   padding: 5px 0;
 `;
-
 const SectionSubheader = styled.h2`
   color: ${Colors.darkForest};
   font-family: "Poppins";
@@ -69,9 +73,57 @@ const SectionSubheader = styled.h2`
   padding: 32px 0 24px;
   text-transform: uppercase;
 `;
+
 const ResponseImpactDashboard: React.FC = () => {
+  const { data: localeDataSource } = useLocaleDataState();
   const [scenarioState] = useScenario();
+  const [modelInputs, setModelInputs] = useState([] as EpidemicModelState[]);
   const scenario = scenarioState.data;
+
+  const [, setFacilities] = useState({
+    data: [] as Facilities,
+    loading: true,
+  });
+
+  function getModelInputs(facilities: Facilities) {
+    return facilities.map((facility) => {
+      const modelInputs = facility.modelInputs;
+      return {
+        ...modelInputs,
+        ...getLocaleDefaults(
+          localeDataSource,
+          modelInputs.stateCode,
+          modelInputs.countyName,
+        ),
+      };
+    });
+  }
+
+  async function fetchFacilities() {
+    if (!scenarioState?.data?.id) return;
+    const facilitiesData = await getFacilities(scenarioState.data.id);
+    if (facilitiesData) {
+      setFacilities({
+        data: facilitiesData,
+        loading: false,
+      });
+
+      const modelInputs = getModelInputs(facilitiesData);
+      setModelInputs(modelInputs);
+    }
+  }
+
+  useEffect(() => {
+    fetchFacilities();
+  }, [scenarioState?.data?.id]);
+
+  function getHospitalBeds(modelInputs: EpidemicModelState[]) {
+    let sumHospitalBeds = 0;
+    modelInputs.forEach((input) => {
+      return (sumHospitalBeds += input.hospitalBeds || 0);
+    });
+    return sumHospitalBeds;
+  }
 
   return (
     <ResponseImpactDashboardContainer>
@@ -104,7 +156,15 @@ const ResponseImpactDashboard: React.FC = () => {
             <ChartHeader>Original Projection</ChartHeader>
             <PlaceholderSpace />
             <ChartHeader color={Colors.teal}>Current Projection</ChartHeader>
-            <PlaceholderSpace />
+            // Replace with CurveChartContainer after it's modified to take //
+            curve data as prop
+            <CurveChart
+              chartHeight={144}
+              hideAxes={true}
+              hospitalBeds={getHospitalBeds(modelInputs)}
+              markColors={MarkColors}
+              curveData={getCurveChartData(modelInputs)}
+            />
           </Column>
         </PageContainer>
       )}
