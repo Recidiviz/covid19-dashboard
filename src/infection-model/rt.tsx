@@ -79,8 +79,10 @@ const getRtInputsForFacility = async (
   const dates: string[] = [];
 
   modelVersions.forEach((model) => {
+    const seconds = model.observedAt.getTime() / 1000;
+
     dates.push(
-      formatISO(fromUnixTime(model.observedAt.seconds), {
+      formatISO(fromUnixTime(seconds), {
         representation: "date",
       }),
     );

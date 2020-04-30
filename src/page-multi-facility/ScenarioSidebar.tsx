@@ -48,7 +48,7 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
   const [scenarioState, dispatchScenarioUpdate] = useScenario();
   const scenario = scenarioState.data;
   const { numFacilities } = props;
-  const updatedAtDate = Number(scenario?.updatedAt.toDate());
+  const updatedAtDate = Number(scenario?.updatedAt);
 
   const handleScenarioChange = (scenarioChange: object) => {
     const changes = Object.assign({}, scenario, scenarioChange);
