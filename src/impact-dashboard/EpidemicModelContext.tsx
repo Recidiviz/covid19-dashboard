@@ -43,6 +43,7 @@ interface ModelInputsPersistent {
   rateOfSpreadFactor?: RateOfSpread;
   staffCases?: number;
   staffPopulation?: number;
+  observedAt?: firebase.firestore.Timestamp; //TODO: This should actually be Date, waiting on #245
 }
 
 interface ModelInputsUpdate extends ModelInputsPersistent {
@@ -103,6 +104,7 @@ export const persistedKeys: Array<keyof EpidemicModelPersistent> = [
   "rateOfSpreadFactor",
   "staffCases",
   "staffPopulation",
+  "observedAt",
 ];
 
 export type EpidemicModelUpdate = ModelInputsUpdate & MetadataPersistent;

@@ -85,6 +85,10 @@ const currrentTimestamp = () => {
   return firebase.firestore.FieldValue.serverTimestamp();
 };
 
+export const dateToTimestamp = (date: Date) => {
+  return firebase.firestore.Timestamp.fromDate(date);
+};
+
 const getDb = async () => {
   await authenticate();
 
@@ -373,7 +377,12 @@ export const saveFacility = async (
       // information.
       //
       // ** https://date-fns.org/v1.29.0/docs/startOfDay
-      facility.modelInputs.observedAt = new Date();
+      facility.modelInputs.observedAt = facility.modelInputs.observedAt
+        ? new firebase.firestore.Timestamp(
+            facility.modelInputs.observedAt.seconds,
+            facility.modelInputs.observedAt.nanoseconds,
+          ).toDate()
+        : new Date();
     }
 
     const db = await getDb();
@@ -390,7 +399,17 @@ export const saveFacility = async (
     if (facility.id) {
       const payload = buildUpdatePayload(facility);
       facilityDoc = facilitiesCollection.doc(facility.id);
-      batch.update(facilityDoc, payload);
+      // Only update the facility if the incoming observedAt date is > than the latest observedAt date in the existing facility
+      const incomingObservedAt = facility.modelInputs.observedAt;
+      const currentFacilityData = await facilityDoc.get();
+      let currentFacility: Facility = currentFacilityData.data() as Facility;
+      if (
+        currentFacility.modelInputs.observedAt &&
+        incomingObservedAt &&
+        incomingObservedAt > currentFacility.modelInputs.observedAt.toDate()
+      ) {
+        batch.update(facilityDoc, payload);
+      }
     } else {
       const payload = buildCreatePayload(facility);
       facilityDoc = facilitiesCollection.doc();
