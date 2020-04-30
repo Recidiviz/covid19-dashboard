@@ -6,7 +6,7 @@
  * (If/when ported to Jest, remove this directory from testPathIgnorePatterns
  * in Jest config.)
  */
-import { deleteFacility, saveFacility } from "../index";
+import { deleteFacility, saveFacility, saveScenario } from "../index";
 
 const scenarioId = "someScenarioId";
 
@@ -205,3 +205,17 @@ saveFacility(scenarioId, {
 deleteFacility(scenarioId, "NON-EXISTENT ID");
 
 // Firestore treats this as a no-op ✅
+
+// Scenario Saving
+
+saveScenario({
+  name: "High Release Scenario",
+  description:
+    "Modeling what the COVID-19 impact would be in a high release scenario",
+});
+
+saveScenario({
+  name: "Low Release Scenario",
+  description:
+    "Modeling what the COVID-19 impact would be in a low release scenario",
+});

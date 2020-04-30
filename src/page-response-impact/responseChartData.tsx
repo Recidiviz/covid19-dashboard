@@ -12,13 +12,13 @@ import { seirIndex } from "../infection-model/seir";
 import { Facilities } from "../page-multi-facility/types";
 
 interface SystemWideData {
-  staffPopulation: number;
-  prisonPopulation: number;
-  hospitalBeds: number;
+  staffPopulation: number,
+  prisonPopulation: number,
+  hospitalBeds: number
 }
 
 function originalEpidemicModelInputs(systemWideData: SystemWideData) {
-  const { staffPopulation, prisonPopulation } = systemWideData;
+  const { staffPopulation, prisonPopulation } = systemWideData
   return {
     staffCases: 1,
     staffPopulation: staffPopulation,
@@ -29,8 +29,8 @@ function originalEpidemicModelInputs(systemWideData: SystemWideData) {
     facilityDormitoryPct: 0.15,
     rateOfSpreadFactor: "High" as RateOfSpread,
     plannedReleases: undefined,
-  } as EpidemicModelInputs;
-}
+  } as EpidemicModelInputs
+};
 
 export const originalProjection = (systemWideData: SystemWideData) => {
   return [
@@ -42,19 +42,19 @@ export const originalProjection = (systemWideData: SystemWideData) => {
       updatedAt: { seconds: "", nanoseconds: "", toDate: () => "" },
       systemType: "State Prison",
       modelInputs: originalEpidemicModelInputs(systemWideData),
-    },
-  ] as Facilities;
-};
+    }
+  ]  as Facilities
+}
 
 export function getSystemWideSums(modelInputs: EpidemicModelState[]) {
   let sums = {
     hospitalBeds: 0,
-    staffPopulation: 0,
-  };
+    staffPopulation: 0
+  }
   modelInputs.forEach((input) => {
-    sums.hospitalBeds += input.hospitalBeds || 0;
-    sums.staffPopulation += input.staffPopulation || 0;
-    return sums;
+    sums.hospitalBeds += input.hospitalBeds || 0
+    sums.staffPopulation += input.staffPopulation || 0
+    return sums
   });
   return sums;
 }
@@ -69,10 +69,12 @@ function combineFacilitiesProjectionData(
   facilitiesProjectionData: CurveData[],
 ) {
   if (!facilitiesProjectionData.length) return ndarray([], []);
-  const incarceratedData = facilitiesProjectionData.map(
-    (output) => output.incarcerated.data,
-  );
-  const staffData = facilitiesProjectionData.map((output) => output.staff.data);
+  const incarceratedData = facilitiesProjectionData
+    .map((output) => output.incarcerated)
+    .map((output) => output.data);
+  const staffData = facilitiesProjectionData
+    .map((output) => output.staff)
+    .map((output) => output.data);
   const combinedData = zip(...incarceratedData, ...staffData);
   const summedData = combinedData.map((row) => {
     return row.reduce((sum, value) => {

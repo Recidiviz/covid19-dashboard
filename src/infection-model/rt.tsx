@@ -1,5 +1,5 @@
 import { ascending } from "d3-array";
-import { fromUnixTime } from "date-fns";
+import { formatISO, fromUnixTime, parseISO } from "date-fns";
 import mapValues from "lodash/mapValues";
 
 import { getFacilityModelVersions } from "../database";
@@ -7,7 +7,7 @@ import { totalConfirmedCases } from "../impact-dashboard/EpidemicModelContext";
 import { Facility } from "../page-multi-facility/types";
 
 type RawRtRecord = {
-  date: number; // timestamp
+  date: string; // timestamp
   value: number;
 };
 
@@ -22,7 +22,7 @@ type ErrorResponse = {
 };
 
 type RtInputs = {
-  dates: number[];
+  dates: string[];
   cases: number[];
 };
 
@@ -76,10 +76,16 @@ const getRtInputsForFacility = async (
   });
 
   const cases: number[] = [];
-  const dates: number[] = [];
+  const dates: string[] = [];
 
   modelVersions.forEach((model) => {
-    dates.push(model.observedAt.seconds);
+    const seconds = model.observedAt.getTime() / 1000;
+
+    dates.push(
+      formatISO(fromUnixTime(seconds), {
+        representation: "date",
+      }),
+    );
     cases.push(totalConfirmedCases(model));
   });
 
@@ -90,7 +96,7 @@ export const cleanRtData = (rawData: RawRtData) => {
   return mapValues(rawData, (records) =>
     records
       .map(({ date, value }) => ({
-        date: fromUnixTime(date),
+        date: parseISO(date),
         value,
       }))
       // ensure records are sorted chronologically
@@ -100,8 +106,14 @@ export const cleanRtData = (rawData: RawRtData) => {
 
 export const getRtDataForFacility = async (
   facility: Facility,
-): Promise<RtData> => {
-  const { cases, dates } = await getRtInputsForFacility(facility);
-  const fetchedData = await fetchRt({ dates, cases });
-  return cleanRtData(fetchedData);
+): Promise<RtData | null> => {
+  try {
+    const { cases, dates } = await getRtInputsForFacility(facility);
+    const fetchedData = await fetchRt({ dates, cases });
+    return cleanRtData(fetchedData);
+  } catch (error) {
+    console.error(`Error fetching R(t) data for facility ${facility.id}:`);
+    console.error(error);
+    return null;
+  }
 };

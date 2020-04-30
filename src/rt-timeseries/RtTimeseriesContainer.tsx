@@ -9,7 +9,14 @@ interface Props {
 }
 
 const RtTimeseriesContainer: React.FC<Props> = ({ data }) => {
-  return data ? <RtTimeseries data={data} /> : <Loading />;
+  const notEnoughData = data && data.Rt.length < 2;
+  return data ? (
+    notEnoughData ? null : (
+      <RtTimeseries data={data} />
+    )
+  ) : data === null ? null : (
+    <Loading />
+  );
 };
 
 export default RtTimeseriesContainer;

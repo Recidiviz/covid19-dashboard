@@ -5418,6 +5418,11 @@ dedent@^0.7.0:
   resolved "https://registry.yarnpkg.com/dedent/-/dedent-0.7.0.tgz#2495ddbaf6eb874abb0e1be9df22d2e5a544326c"
   integrity sha1-JJXduvbrh0q7Dhvp3yLS5aVEMmw=
 
+deep-computed@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/deep-computed/-/deep-computed-0.2.0.tgz#493170520e96fc7a971b36289744d3646c00d573"
+  integrity sha512-KLnX3qEoMZP+McYQSEfvLyHCkzuISoDG6zznkJcwVqLqTG3u0K3hJnfqp9WYSRYJxDEx3gs47XJVwDu8QwjGRQ==
+
 deep-equal@^1.0.1, deep-equal@^1.1.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/deep-equal/-/deep-equal-1.1.1.tgz#b5c98c942ceffaf7cb051e24e1434a25a2e6076a"
@@ -6985,6 +6990,16 @@ firebase@^7.14.0:
     "@firebase/remote-config" "0.1.18"
     "@firebase/storage" "0.3.31"
     "@firebase/util" "0.2.44"
+
+flag@^4.4.0:
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/flag/-/flag-4.4.0.tgz#03e4fc623348c4edf5db20c491b37e09fed0e125"
+  integrity sha512-dDqpnanBhtjcD+BLkYy4KDuv98MpIj1nU2CYHhh1c2FMRbiG3rqI7vfKE0jyJVsuN1HcduhwRhaqEgJjhvZvDw==
+  dependencies:
+    deep-computed "^0.2.0"
+    invariant "^2.2.4"
+    lodash "^4.17.11"
+    useful-types "^0.4.0"
 
 flat-cache@^2.0.1:
   version "2.0.1"
@@ -15538,6 +15553,11 @@ use@^3.1.0:
   resolved "https://registry.yarnpkg.com/use/-/use-3.1.1.tgz#d50c8cac79a19fbc20f2911f56eb973f4e10070f"
   integrity sha512-cwESVXlO3url9YWlFW/TA9cshCEhtu7IKJ/p5soJ/gGpj7vbvFrAY/eIioQ6Dw23KjZhYgiIo8HOs1nQ2vr/oQ==
 
+useful-types@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/useful-types/-/useful-types-0.4.0.tgz#b858dd3705013050e411b9ac431659227d207cef"
+  integrity sha512-ugsfWi6blP6Strp00QOsNmGa7xiNFKJMp+1hbyoD3TA+QS3lbDdeeqE6oFYaVUFaVsQukxyWB1574NcKqrnUsQ==
+
 util-deprecate@^1.0.1, util-deprecate@~1.0.1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/util-deprecate/-/util-deprecate-1.0.2.tgz#450d4dc9fa70de732762fbd2d4a28981419a0ccf"
@@ -15578,6 +15598,11 @@ utila@^0.4.0, utila@~0.4:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/utila/-/utila-0.4.0.tgz#8a16a05d445657a3aea5eecc5b12a4fa5379772c"
   integrity sha1-ihagXURWV6Oupe7MWxKk+lN5dyw=
+
+utility-types@^3.10.0:
+  version "3.10.0"
+  resolved "https://registry.yarnpkg.com/utility-types/-/utility-types-3.10.0.tgz#ea4148f9a741015f05ed74fd615e1d20e6bed82b"
+  integrity sha512-O11mqxmi7wMKCo6HKFt5AhO4BwY3VV68YU07tgxfz8zJTIxr4BpsezN49Ffwy9j3ZpwwJp4fkRwjRzq3uWE6Rg==
 
 utils-merge@1.0.1:
   version "1.0.1"

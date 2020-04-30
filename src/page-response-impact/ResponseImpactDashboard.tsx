@@ -10,7 +10,11 @@ import {
   EpidemicModelState,
   getLocaleDefaults,
 } from "../impact-dashboard/EpidemicModelContext";
-import { useLocaleDataState } from "../locale-data-context";
+import {
+  CurveFunctionInputs,
+  curveInputsFromUserInputs,
+} from "../infection-model";
+import { LocaleData, useLocaleDataState } from "../locale-data-context";
 import ProjectionsLegend from "../page-multi-facility/ProjectionsLegend";
 import { Facilities } from "../page-multi-facility/types";
 import useScenario from "../scenario-context/useScenario";
@@ -19,6 +23,8 @@ import {
   getSystemWideSums,
   originalProjection,
 } from "./responseChartData";
+import PopulationImpactMetrics from "./PopulationImpactMetrics";
+import ReducingR0ImpactMetrics from "./ReducingR0ImpactMetrics";
 
 const ResponseImpactDashboardContainer = styled.div``;
 const ScenarioName = styled.div`
@@ -84,9 +90,32 @@ const SectionSubheader = styled.h2`
 const CurveChartContainer = styled.div`
   margin-bottom: 50px;
 `;
+
+function getModelInputs(facilities: Facilities, localeDataSource: LocaleData) {
+  return facilities.map((facility) => {
+    const modelInputs = facility.modelInputs;
+    return {
+      ...modelInputs,
+      ...getLocaleDefaults(
+        localeDataSource,
+        modelInputs.stateCode,
+        modelInputs.countyName,
+      ),
+    };
+  });
+}
+
+function getCurveInputs(modelInputs: EpidemicModelState[]) {
+  return modelInputs.map((modelInput) => {
+    return curveInputsFromUserInputs(modelInput);
+  });
+}
+
 const ResponseImpactDashboard: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
   const [scenarioState] = useScenario();
+  const [curveInputs, setCurveInputs] = useState([] as CurveFunctionInputs[]);
+  const [originalCurveInputs, setOriginalCurveInputs] = useState([] as CurveFunctionInputs[]);
   const [modelInputs, setModelInputs] = useState([] as EpidemicModelState[]);
   const [originalModelInputs, setOriginalModelInputs] = useState(
     [] as EpidemicModelState[],
@@ -102,20 +131,6 @@ const ResponseImpactDashboard: React.FC = () => {
     loading: true,
   });
 
-  function getModelInputs(facilities: Facilities) {
-    return facilities.map((facility) => {
-      const modelInputs = facility.modelInputs;
-      return {
-        ...modelInputs,
-        ...getLocaleDefaults(
-          localeDataSource,
-          modelInputs.stateCode,
-          modelInputs.countyName,
-        ),
-      };
-    });
-  }
-
   async function fetchFacilities() {
     if (!scenarioState?.data?.id) return;
     const facilitiesData = await getFacilities(scenarioState.data.id);
@@ -125,8 +140,10 @@ const ResponseImpactDashboard: React.FC = () => {
         loading: false,
       });
 
-      const modelInputs = getModelInputs(facilitiesData);
+      const modelInputs = getModelInputs(facilitiesData, localeDataSource);
+      const curveInputs = getCurveInputs(modelInputs);
       setModelInputs(modelInputs);
+      setCurveInputs(curveInputs);
     }
   }
 
@@ -136,9 +153,10 @@ const ResponseImpactDashboard: React.FC = () => {
 
   useEffect(() => {
     if (modelInputs.length === 0) return;
-    let originalInputs = getModelInputs(originalProjection(systemWideData));
-
+    const originalInputs = getModelInputs(originalProjection(systemWideData), localeDataSource);
+    const originalCurveInputs = getCurveInputs(originalInputs)
     setOriginalModelInputs(originalInputs);
+    setOriginalCurveInputs(originalCurveInputs)
   }, [modelInputs, systemWideData]);
 
   useEffect(() => {
@@ -173,14 +191,14 @@ const ResponseImpactDashboard: React.FC = () => {
             <SectionSubheader>
               Positive impact of releasing [X] incarcerated individuals
             </SectionSubheader>
-            <PlaceholderSpace />
+            <PopulationImpactMetrics />
             <SectionHeader>Community Resources Saved</SectionHeader>
             <ChartHeader>Change in rate of transmission R(0)</ChartHeader>
             <PlaceholderSpace />
             <SectionSubheader>
               Positive impact of Reducing R(0)
             </SectionSubheader>
-            <PlaceholderSpace />
+            <ReducingR0ImpactMetrics />
           </Column>
           <Column>
             <CurveChartContainer>
@@ -193,7 +211,7 @@ const ResponseImpactDashboard: React.FC = () => {
                 hideAxes={true}
                 hospitalBeds={systemWideData.hospitalBeds}
                 markColors={MarkColors}
-                curveData={getCurveChartData(originalModelInputs)}
+                curveData={getCurveChartData(originalCurveInputs)}
               />
             </CurveChartContainer>
             <CurveChartContainer>
@@ -206,7 +224,7 @@ const ResponseImpactDashboard: React.FC = () => {
                 hideAxes={true}
                 hospitalBeds={systemWideData.hospitalBeds}
                 markColors={MarkColors}
-                curveData={getCurveChartData(modelInputs)}
+                curveData={getCurveChartData(curveInputs)}
               />
             </CurveChartContainer>
           </Column>

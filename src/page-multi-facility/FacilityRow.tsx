@@ -112,7 +112,7 @@ const FacilityRow: React.FC<Props> = ({
           </div>
           <div className="text-xs text-gray-500 pb-4">
             <div>
-              Last Update: <DateMMMMdyyyy date={new Date(updatedAt.toDate())} />
+              Last Update: <DateMMMMdyyyy date={updatedAt} />
             </div>
             <div className="mr-8" />
           </div>
