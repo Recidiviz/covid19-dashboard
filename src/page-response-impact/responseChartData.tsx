@@ -9,35 +9,55 @@ import {
 import { calculateCurves, CurveData } from "../infection-model";
 import { getAllValues, getColView } from "../infection-model/matrixUtils";
 import { seirIndex } from "../infection-model/seir";
-import { Facilities, Timestamp } from "../page-multi-facility/types";
+import { Facilities } from "../page-multi-facility/types";
 
-const originalModelInput = () => {
+interface SystemWideData {
+  staffPopulation: number;
+  prisonPopulation: number;
+  hospitalBeds: number;
+}
+
+function originalEpidemicModelInputs(systemWideData: SystemWideData) {
+  const { staffPopulation, prisonPopulation } = systemWideData;
   return {
     staffCases: 1,
-    // TODO import this
-    staffPopulation: 600,
+    staffPopulation: staffPopulation,
     ageUnknownCases: 1,
-    // TODO import this
-    ageUnknownPopulation: 20000,
+    ageUnknownPopulation: prisonPopulation,
     populationTurnover: 0,
     facilityOccupancyPct: 1,
     facilityDormitoryPct: 0.15,
     rateOfSpreadFactor: "High" as RateOfSpread,
     plannedReleases: undefined,
-  } as EpidemicModelInputs
+  } as EpidemicModelInputs;
+}
+
+export const originalProjection = (systemWideData: SystemWideData) => {
+  return [
+    {
+      id: "",
+      scenarioId: "",
+      name: "",
+      createdAt: { seconds: "", nanoseconds: "", toDate: () => "" },
+      updatedAt: { seconds: "", nanoseconds: "", toDate: () => "" },
+      systemType: "State Prison",
+      modelInputs: originalEpidemicModelInputs(systemWideData),
+    },
+  ] as Facilities;
 };
 
-export const originalFacility: Facilities = [
-  {
-    id: "",
-    scenarioId: "",
-    name: "",
-    createdAt: { seconds: "", nanoseconds: "", toDate: () => "" },
-    updatedAt: { seconds: "", nanoseconds: "", toDate: () => "" },
-    systemType: "State Prison",
-    modelInputs: originalModelInput(),
-  },
-];
+export function getSystemWideSums(modelInputs: EpidemicModelState[]) {
+  let sums = {
+    hospitalBeds: 0,
+    staffPopulation: 0,
+  };
+  modelInputs.forEach((input) => {
+    sums.hospitalBeds += input.hospitalBeds || 0;
+    sums.staffPopulation += input.staffPopulation || 0;
+    return sums;
+  });
+  return sums;
+}
 
 function calculateCurveData(facilitiesInputs: EpidemicModelState[]) {
   return facilitiesInputs.map((facilityInput) => {

@@ -13,7 +13,11 @@ import {
 import { useLocaleDataState } from "../locale-data-context";
 import { Facilities } from "../page-multi-facility/types";
 import useScenario from "../scenario-context/useScenario";
-import { getCurveChartData, originalFacility } from "./responseChartData";
+import {
+  getCurveChartData,
+  getSystemWideSums,
+  originalProjection,
+} from "./responseChartData";
 
 const ResponseImpactDashboardContainer = styled.div``;
 const ScenarioName = styled.div`
@@ -81,6 +85,11 @@ const ResponseImpactDashboard: React.FC = () => {
   const [originalModelInputs, setOriginalModelInputs] = useState(
     [] as EpidemicModelState[],
   );
+  const [systemWideData, setSystemWideData] = useState({
+    hospitalBeds: 0,
+    staffPopulation: 0,
+    prisonPopulation: 0,
+  });
   const scenario = scenarioState.data;
   const [, setFacilities] = useState({
     data: [] as Facilities,
@@ -117,17 +126,27 @@ const ResponseImpactDashboard: React.FC = () => {
 
   useEffect(() => {
     fetchFacilities();
-    setOriginalModelInputs(getModelInputs(originalFacility));
   }, [scenarioState?.data?.id]);
 
-  function getHospitalBeds(modelInputs: EpidemicModelState[]) {
-    let sumHospitalBeds = 0;
-    modelInputs.forEach((input) => {
-      return (sumHospitalBeds += input.hospitalBeds || 0);
+  useEffect(() => {
+    if (modelInputs.length === 0) return;
+    let originalInputs = getModelInputs(originalProjection(systemWideData));
+
+    setOriginalModelInputs(originalInputs);
+  }, [modelInputs, systemWideData]);
+
+  useEffect(() => {
+    if (modelInputs.length === 0) return;
+
+    setSystemWideData({
+      ...getSystemWideSums(modelInputs),
+      prisonPopulation: getLocaleDefaults(
+        localeDataSource,
+        modelInputs[0].stateCode,
+      ).totalIncarcerated,
     });
-    return sumHospitalBeds;
-  }
-  console.log(originalModelInputs);
+  }, [modelInputs]);
+
   // NOTE: Replace with CurveChart with CurveChartContainer
   // after it's modified to take curve data as prop
   return (
@@ -162,7 +181,7 @@ const ResponseImpactDashboard: React.FC = () => {
             <CurveChart
               chartHeight={144}
               hideAxes={true}
-              hospitalBeds={getHospitalBeds(modelInputs)}
+              hospitalBeds={systemWideData.hospitalBeds}
               markColors={MarkColors}
               curveData={getCurveChartData(originalModelInputs)}
             />
@@ -170,7 +189,7 @@ const ResponseImpactDashboard: React.FC = () => {
             <CurveChart
               chartHeight={144}
               hideAxes={true}
-              hospitalBeds={getHospitalBeds(modelInputs)}
+              hospitalBeds={systemWideData.hospitalBeds}
               markColors={MarkColors}
               curveData={getCurveChartData(modelInputs)}
             />
