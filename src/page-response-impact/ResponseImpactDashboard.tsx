@@ -209,7 +209,6 @@ const ResponseImpactDashboard: React.FC = () => {
                 curveData={getCurveChartData(modelInputs)}
               />
             </CurveChartContainer>
-
           </Column>
         </PageContainer>
       )}
