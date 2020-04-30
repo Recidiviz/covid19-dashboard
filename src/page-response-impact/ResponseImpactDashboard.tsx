@@ -143,7 +143,7 @@ const ResponseImpactDashboard: React.FC = () => {
       prisonPopulation: getLocaleDefaults(
         localeDataSource,
         modelInputs[0].stateCode,
-      ).totalIncarcerated,
+      ).totalPrisonPopulation,
     });
   }, [modelInputs]);
 

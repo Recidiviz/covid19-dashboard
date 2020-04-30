@@ -152,6 +152,9 @@ export function getLocaleDefaults(
     totalIncarcerated:
       dataSource.get(stateCode)?.get(countyName)?.totalIncarceratedPopulation ||
       0,
+    totalPrisonPopulation:
+      dataSource.get(stateCode)?.get(countyName)?.totalPrisonPopulation ||
+      0,
     // user input defaults
     rateOfSpreadFactor: RateOfSpread.high,
     facilityOccupancyPct: 1,
