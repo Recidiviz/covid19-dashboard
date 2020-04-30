@@ -2,9 +2,42 @@ import { zip } from "d3-array";
 import ndarray from "ndarray";
 
 import { EpidemicModelState } from "../impact-dashboard/EpidemicModelContext";
+import {
+  EpidemicModelInputs,
+  RateOfSpread,
+} from "../impact-dashboard/EpidemicModelContext";
 import { calculateCurves, CurveData } from "../infection-model";
 import { getAllValues, getColView } from "../infection-model/matrixUtils";
 import { seirIndex } from "../infection-model/seir";
+import { Facilities, Timestamp } from "../page-multi-facility/types";
+
+const originalModelInput = () => {
+  return {
+    staffCases: 1,
+    // TODO import this
+    staffPopulation: 600,
+    ageUnknownCases: 1,
+    // TODO import this
+    ageUnknownPopulation: 20000,
+    populationTurnover: 0,
+    facilityOccupancyPct: 1,
+    facilityDormitoryPct: 0.15,
+    rateOfSpreadFactor: "High" as RateOfSpread,
+    plannedReleases: undefined,
+  } as EpidemicModelInputs
+};
+
+export const originalFacility: Facilities = [
+  {
+    id: "",
+    scenarioId: "",
+    name: "",
+    createdAt: { seconds: "", nanoseconds: "", toDate: () => "" },
+    updatedAt: { seconds: "", nanoseconds: "", toDate: () => "" },
+    systemType: "State Prison",
+    modelInputs: originalModelInput(),
+  },
+];
 
 function calculateCurveData(facilitiesInputs: EpidemicModelState[]) {
   return facilitiesInputs.map((facilityInput) => {

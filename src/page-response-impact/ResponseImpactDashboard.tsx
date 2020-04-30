@@ -13,7 +13,7 @@ import {
 import { useLocaleDataState } from "../locale-data-context";
 import { Facilities } from "../page-multi-facility/types";
 import useScenario from "../scenario-context/useScenario";
-import { getCurveChartData } from "./responseChartData";
+import { getCurveChartData, originalFacility } from "./responseChartData";
 
 const ResponseImpactDashboardContainer = styled.div``;
 const ScenarioName = styled.div`
@@ -78,8 +78,10 @@ const ResponseImpactDashboard: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
   const [scenarioState] = useScenario();
   const [modelInputs, setModelInputs] = useState([] as EpidemicModelState[]);
+  const [originalModelInputs, setOriginalModelInputs] = useState(
+    [] as EpidemicModelState[],
+  );
   const scenario = scenarioState.data;
-
   const [, setFacilities] = useState({
     data: [] as Facilities,
     loading: true,
@@ -115,6 +117,7 @@ const ResponseImpactDashboard: React.FC = () => {
 
   useEffect(() => {
     fetchFacilities();
+    setOriginalModelInputs(getModelInputs(originalFacility));
   }, [scenarioState?.data?.id]);
 
   function getHospitalBeds(modelInputs: EpidemicModelState[]) {
@@ -124,6 +127,7 @@ const ResponseImpactDashboard: React.FC = () => {
     });
     return sumHospitalBeds;
   }
+  console.log(originalModelInputs);
   // NOTE: Replace with CurveChart with CurveChartContainer
   // after it's modified to take curve data as prop
   return (
@@ -155,7 +159,13 @@ const ResponseImpactDashboard: React.FC = () => {
           </Column>
           <Column width={"45%"}>
             <ChartHeader>Original Projection</ChartHeader>
-            <PlaceholderSpace />
+            <CurveChart
+              chartHeight={144}
+              hideAxes={true}
+              hospitalBeds={getHospitalBeds(modelInputs)}
+              markColors={MarkColors}
+              curveData={getCurveChartData(originalModelInputs)}
+            />
             <ChartHeader color={Colors.teal}>Current Projection</ChartHeader>
             <CurveChart
               chartHeight={144}
