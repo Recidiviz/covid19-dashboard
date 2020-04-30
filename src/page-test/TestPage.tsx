@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import useQueryParams, { QueryParams } from "../hooks/useQueryParams";
-import ImpactDashboard from "../impact-dashboard";
 import NewsFeed from "../news-feed-events/NewsFeed";
 import {
   FakeNewsFeedEvents,
@@ -50,10 +49,6 @@ const TestPage: React.FC = () => {
 
   return (
     <div>
-      <h2>Test of impact dashboard</h2>
-      <div>
-        <ImpactDashboard />
-      </div>
       <h2>Test of news feed with fake data:</h2>
       <NewsFeed events={FakeNewsFeedEvents} />
       <h2>Test of news feed with data pulled from spreadsheet:</h2>
