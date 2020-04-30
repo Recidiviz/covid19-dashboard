@@ -4,7 +4,7 @@ import mapValues from "lodash/mapValues";
 
 import { getFacilityModelVersions } from "../database";
 import { totalConfirmedCases } from "../impact-dashboard/EpidemicModelContext";
-import { Facility } from "../page-multi-facility/types";
+import { Facilities, Facility } from "../page-multi-facility/types";
 
 type RawRtRecord = {
   date: string; // timestamp
@@ -86,6 +86,7 @@ const getRtInputsForFacility = async (
         representation: "date",
       }),
     );
+
     cases.push(totalConfirmedCases(model));
   });
 
@@ -116,4 +117,12 @@ export const getRtDataForFacility = async (
     console.error(error);
     return null;
   }
+};
+
+export const getRtDataForFacilities = async (facilities: Facilities) => {
+  return await Promise.all(
+    facilities.map(async (facility) => {
+      return await getRtDataForFacility(facility);
+    }),
+  );
 };
