@@ -14,7 +14,7 @@ import {
   CurveFunctionInputs,
   curveInputsFromUserInputs,
 } from "../infection-model";
-import { useLocaleDataState } from "../locale-data-context";
+import { LocaleData, useLocaleDataState } from "../locale-data-context";
 import ProjectionsLegend from "../page-multi-facility/ProjectionsLegend";
 import { Facilities } from "../page-multi-facility/types";
 import useScenario from "../scenario-context/useScenario";
@@ -84,6 +84,34 @@ const SectionSubheader = styled.h2`
   text-transform: uppercase;
 `;
 
+function getModelInputs(facilities: Facilities, localeDataSource: LocaleData) {
+  return facilities.map((facility) => {
+    const modelInputs = facility.modelInputs;
+    return {
+      ...modelInputs,
+      ...getLocaleDefaults(
+        localeDataSource,
+        modelInputs.stateCode,
+        modelInputs.countyName,
+      ),
+    };
+  });
+}
+
+function getCurveInputs(modelInputs: EpidemicModelState[]) {
+  return modelInputs.map((modelInput) => {
+    return curveInputsFromUserInputs(modelInput);
+  });
+}
+
+function getHospitalBeds(modelInputs: EpidemicModelState[]) {
+  let sumHospitalBeds = 0;
+  modelInputs.forEach((input) => {
+    return (sumHospitalBeds += input.hospitalBeds || 0);
+  });
+  return sumHospitalBeds;
+}
+
 const ResponseImpactDashboard: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
   const [scenarioState] = useScenario();
@@ -95,26 +123,6 @@ const ResponseImpactDashboard: React.FC = () => {
     loading: true,
   });
 
-  function getModelInputs(facilities: Facilities) {
-    return facilities.map((facility) => {
-      const modelInputs = facility.modelInputs;
-      return {
-        ...modelInputs,
-        ...getLocaleDefaults(
-          localeDataSource,
-          modelInputs.stateCode,
-          modelInputs.countyName,
-        ),
-      };
-    });
-  }
-
-  function getCurveInputs(modelInputs: EpidemicModelState[]) {
-    return modelInputs.map((modelInput) => {
-      return curveInputsFromUserInputs(modelInput);
-    });
-  }
-
   async function fetchFacilities() {
     if (!scenarioState?.data?.id) return;
     const facilitiesData = await getFacilities(scenarioState.data.id);
@@ -124,7 +132,7 @@ const ResponseImpactDashboard: React.FC = () => {
         loading: false,
       });
 
-      const modelInputs = getModelInputs(facilitiesData);
+      const modelInputs = getModelInputs(facilitiesData, localeDataSource);
       const curveInputs = getCurveInputs(modelInputs);
       setModelInputs(modelInputs);
       setCurveInputs(curveInputs);
@@ -135,13 +143,6 @@ const ResponseImpactDashboard: React.FC = () => {
     fetchFacilities();
   }, [scenarioState?.data?.id]);
 
-  function getHospitalBeds(modelInputs: EpidemicModelState[]) {
-    let sumHospitalBeds = 0;
-    modelInputs.forEach((input) => {
-      return (sumHospitalBeds += input.hospitalBeds || 0);
-    });
-    return sumHospitalBeds;
-  }
   // NOTE: Replace with CurveChart with CurveChartContainer
   // after it's modified to take curve data as prop
   return (
