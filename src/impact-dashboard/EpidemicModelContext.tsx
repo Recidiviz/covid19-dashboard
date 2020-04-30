@@ -44,6 +44,7 @@ interface ModelInputsPersistent {
   staffCases?: number;
   staffPopulation?: number;
   observedAt?: Date;
+  updatedAt?: Date;
 }
 
 interface ModelInputsUpdate extends ModelInputsPersistent {
@@ -105,6 +106,7 @@ export const persistedKeys: Array<keyof EpidemicModelPersistent> = [
   "staffCases",
   "staffPopulation",
   "observedAt",
+  "updatedAt",
 ];
 
 export type EpidemicModelUpdate = ModelInputsUpdate & MetadataPersistent;

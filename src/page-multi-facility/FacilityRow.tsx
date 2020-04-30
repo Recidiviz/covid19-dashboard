@@ -3,7 +3,7 @@ import { pick } from "lodash";
 import React, { useContext, useState } from "react";
 import styled from "styled-components";
 
-import { dateToTimestamp, saveFacility } from "../database/index";
+import { saveFacility } from "../database/index";
 import Colors, { MarkColors as markColors } from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import iconEditSrc from "../design-system/icons/ic_edit.svg";
@@ -149,8 +149,8 @@ const FacilityRow: React.FC<Props> = ({
     // This needs to happen so that facility data will show the most updated data w/o requiring a hard reload.
     if (
       newModel.observedAt &&
-      model.observedAt &&
-      newModel.observedAt >= model.observedAt
+      model.updatedAt &&
+      newModel.observedAt >= model.updatedAt
     ) {
       updateFacility({ ...facility, modelInputs });
       updateModel(modelDiff);
@@ -169,7 +169,12 @@ const FacilityRow: React.FC<Props> = ({
         <DataContainer className="flex flex-row mb-8 border-b">
           <div className="w-2/5 flex flex-col justify-between">
             <div className="flex flex-row h-full">
-              <CaseText className="w-1/4 font-bold">{confirmedCases}</CaseText>
+              <CaseText
+                className="w-1/4 font-bold"
+                onClick={handleSubClick(openCaseCountsModal)}
+              >
+                {confirmedCases}
+              </CaseText>
               <FacilityNameLabel onClick={handleSubClick()}>
                 <InputTextArea
                   inline={true}
@@ -198,14 +203,14 @@ const FacilityRow: React.FC<Props> = ({
               </div>
               <div className="mr-8" />
             </div>
-            <div className="w-3/5">
-              <CurveChartContainer
-                chartHeight={144}
-                hideAxes={true}
-                groupStatus={groupStatus}
-                markColors={markColors}
-              />
-            </div>
+          </div>
+          <div className="w-3/5">
+            <CurveChartContainer
+              chartHeight={144}
+              hideAxes={true}
+              groupStatus={groupStatus}
+              markColors={markColors}
+            />
           </div>
         </DataContainer>
       </div>

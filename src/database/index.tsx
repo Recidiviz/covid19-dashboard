@@ -82,10 +82,6 @@ const currrentTimestamp = () => {
   return firebase.firestore.FieldValue.serverTimestamp();
 };
 
-export const dateToTimestamp = (date: Date) => {
-  return firebase.firestore.Timestamp.fromDate(date);
-};
-
 const getDb = async () => {
   await authenticate();
 
@@ -376,20 +372,14 @@ export const saveFacility = async (
 
       facility.modelInputs.updatedAt = currrentTimestamp();
 
-      // TODO: For now, this assumes we're always entering data as of "today"
-      // However, in the near future, we should allow for a user submitted
-      // observed at value.  If it is not provided default to today. For dates
+      // Use observedAt if available. If it is not provided default to today. For dates
       // observed in the past we'll have to assume the time portion of the
       // timestamp is startOfDay** since we won't otherwise have any time
       // information.
       //
       // ** https://date-fns.org/v1.29.0/docs/startOfDay
-      facility.modelInputs.observedAt = facility.modelInputs.observedAt
-        ? new firebase.firestore.Timestamp(
-            facility.modelInputs.observedAt.seconds,
-            facility.modelInputs.observedAt.nanoseconds,
-          ).toDate()
-        : new Date();
+      facility.modelInputs.observedAt =
+        facility.modelInputs.observedAt || new Date();
     }
 
     const db = await getDb();
@@ -406,14 +396,14 @@ export const saveFacility = async (
     if (facility.id) {
       const payload = buildUpdatePayload(facility);
       facilityDoc = facilitiesCollection.doc(facility.id);
-      // Only update the facility if the incoming observedAt date is > than the latest observedAt date in the existing facility
+      // Only update the facility if the incoming observedAt date is > than the current updatedAt date in the existing facility
       const incomingObservedAt = facility.modelInputs.observedAt;
       const currentFacilityData = await facilityDoc.get();
-      let currentFacility: Facility = currentFacilityData.data() as Facility;
+      const currentFacility = buildFacility(scenarioId, currentFacilityData);
       if (
-        currentFacility.modelInputs.observedAt &&
         incomingObservedAt &&
-        incomingObservedAt > currentFacility.modelInputs.observedAt
+        currentFacility.modelInputs.updatedAt &&
+        incomingObservedAt > currentFacility.modelInputs.updatedAt
       ) {
         batch.update(facilityDoc, payload);
       }
