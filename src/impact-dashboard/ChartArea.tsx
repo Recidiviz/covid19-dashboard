@@ -3,6 +3,8 @@ import { useState } from "react";
 import styled from "styled-components";
 
 import { MarkColors as markColors } from "../design-system/Colors";
+import { CurveData } from "../infection-model";
+import { useChartDataFromProjectionData } from "../page-multi-facility/projectionCurveHooks";
 import CurveChart from "./CurveChartContainer";
 import CurveChartLegend from "./CurveChartLegend";
 
@@ -27,7 +29,9 @@ const LegendContainer = styled.div`
   flex: 0 0 auto;
 `;
 
-const ChartArea: React.FC = () => {
+const ChartArea: React.FC<{
+  projectionData: CurveData;
+}> = ({ projectionData }) => {
   const [groupStatus, setGroupStatus] = useState({
     exposed: true,
     fatalities: true,
@@ -38,6 +42,8 @@ const ChartArea: React.FC = () => {
   const toggleGroup = (groupName: keyof typeof groupStatus) => {
     setGroupStatus({ ...groupStatus, [groupName]: !groupStatus[groupName] });
   };
+
+  const chartData = useChartDataFromProjectionData(projectionData);
 
   return (
     <Container>
@@ -50,7 +56,11 @@ const ChartArea: React.FC = () => {
           />
         </LegendContainer>
       </LegendAndActions>
-      <CurveChart markColors={markColors} groupStatus={groupStatus} />
+      <CurveChart
+        curveData={chartData}
+        groupStatus={groupStatus}
+        markColors={markColors}
+      />
     </Container>
   );
 };
