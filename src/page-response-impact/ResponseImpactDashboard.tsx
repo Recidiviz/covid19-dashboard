@@ -14,6 +14,7 @@ import {
   CurveFunctionInputs,
   curveInputsFromUserInputs,
 } from "../infection-model";
+import { getRtDataForFacilities, RtData } from "../infection-model/rt";
 import { LocaleData, useLocaleDataState } from "../locale-data-context";
 import ProjectionsLegend from "../page-multi-facility/ProjectionsLegend";
 import { Facilities } from "../page-multi-facility/types";
@@ -21,6 +22,7 @@ import useScenario from "../scenario-context/useScenario";
 import PopulationImpactMetrics from "./PopulationImpactMetrics";
 import ReducingR0ImpactMetrics from "./ReducingR0ImpactMetrics";
 import { getCurveChartData } from "./responseChartData";
+import RtSummaryStats from "./RtSummaryStats";
 
 const ResponseImpactDashboardContainer = styled.div``;
 const ScenarioName = styled.div`
@@ -117,6 +119,9 @@ const ResponseImpactDashboard: React.FC = () => {
   const [scenarioState] = useScenario();
   const [curveInputs, setCurveInputs] = useState([] as CurveFunctionInputs[]);
   const [modelInputs, setModelInputs] = useState([] as EpidemicModelState[]);
+  const [rtFacilitiesData, setRtFacilitiesData] = useState(
+    [] as (RtData | null)[],
+  );
   const scenario = scenarioState.data;
   const [, setFacilities] = useState({
     data: [] as Facilities,
@@ -132,8 +137,11 @@ const ResponseImpactDashboard: React.FC = () => {
         loading: false,
       });
 
+      const rtFacilitiesData =
+        (await getRtDataForFacilities(facilitiesData)) || [];
       const modelInputs = getModelInputs(facilitiesData, localeDataSource);
       const curveInputs = getCurveInputs(modelInputs);
+      setRtFacilitiesData(rtFacilitiesData);
       setModelInputs(modelInputs);
       setCurveInputs(curveInputs);
     }
@@ -166,7 +174,7 @@ const ResponseImpactDashboard: React.FC = () => {
             <PopulationImpactMetrics />
             <SectionHeader>Community Resources Saved</SectionHeader>
             <ChartHeader>Change in rate of transmission R(0)</ChartHeader>
-            <PlaceholderSpace />
+            <RtSummaryStats rtFacilitiesData={rtFacilitiesData} />
             <SectionSubheader>
               Positive impact of Reducing R(0)
             </SectionSubheader>

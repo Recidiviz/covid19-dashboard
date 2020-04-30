@@ -1,9 +1,9 @@
-import { RtData, RtRecord } from "../../infection-model/rt";
+import { RtRecord } from "../../infection-model/rt";
 import {
   averageRtReductionAcrossFacilities,
   maxRtChange,
   numFacilitiesWithRtLessThan1,
-} from "../rtSummaries";
+} from "../rtStatistics";
 
 describe("Rt Summary Statistics", () => {
   let facilitiesRtRecords: RtRecord[][];
