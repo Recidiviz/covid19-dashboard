@@ -7,6 +7,7 @@ import { dateToTimestamp, saveFacility } from "../database/index";
 import Colors, { MarkColors as markColors } from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import iconEditSrc from "../design-system/icons/ic_edit.svg";
+import InputButton from "../design-system/InputButton";
 import InputDate from "../design-system/InputDate";
 import InputTextArea from "../design-system/InputTextArea";
 import ModalDialog from "../design-system/ModalDialog";
@@ -57,14 +58,20 @@ const CaseText = styled.div`
   color: ${Colors.darkRed};
 `;
 
-// Update case counts modal
 const ModalContents = styled.div`
-  align-items: center;
+  align-items: flex-start;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   font-weight: normal;
   justify-content: flex-start;
   margin-top: 30px;
+`;
+
+const HorizRule = styled.div`
+  border-bottom: 0.5px solid ${Colors.darkGray};
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  width: 100%;
 `;
 
 // TODO: validate the arguments?
@@ -127,9 +134,13 @@ const FacilityRow: React.FC<Props> = ({
     updateCaseCountsModal(true);
   };
   const closeCaseCountsModal = () => {
+    resetModelDiff();
+    updateCaseCountsModal(false);
+  };
+
+  const save = () => {
     // Ensure that we don't insert keys (like `localeDataSource`) that is in model but not in the facility modelInputs
     const modelInputs = pick(newModel, facilityModelKeys);
-    updateCaseCountsModal(false);
     // Update the local state iff
     // The observedAt date in the modal is more recent than the observedAt date in the current modelInputs.
     // This needs to happen so that facility data will show the most updated data w/o requiring a hard reload.
@@ -146,7 +157,7 @@ const FacilityRow: React.FC<Props> = ({
       id,
       modelInputs,
     });
-    resetModelDiff();
+    closeCaseCountsModal();
   };
 
   return (
@@ -216,7 +227,10 @@ const FacilityRow: React.FC<Props> = ({
             }}
             valueEntered={newModel.observedAt?.toDate() || new Date()}
           />
+          <HorizRule />
           <AgeGroupGrid model={newModel} updateModel={fakeUpdateModel} />
+          <HorizRule />
+          <InputButton label="Save" onClick={save} />
         </ModalContents>
       </ModalDialog>
     </>
