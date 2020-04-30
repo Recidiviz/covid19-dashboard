@@ -10,10 +10,14 @@ import {
   EpidemicModelState,
   getLocaleDefaults,
 } from "../impact-dashboard/EpidemicModelContext";
+import {
+  countEverHospitalizedForDay,
+  getFatalitiesForDay,
+} from "../impact-dashboard/ImpactProjectionTableContainer";
 import { useLocaleDataState } from "../locale-data-context";
 import { Facilities } from "../page-multi-facility/types";
 import useScenario from "../scenario-context/useScenario";
-import { getCurveChartData } from "./responseChartData";
+import { calculateCurveData, getCurveChartData } from "./responseChartData";
 
 const ResponseImpactDashboardContainer = styled.div``;
 const ScenarioName = styled.div`
@@ -74,10 +78,36 @@ const SectionSubheader = styled.h2`
   text-transform: uppercase;
 `;
 
+type releaseCardDataType = {
+  original: {
+    incarcerated: {
+      hospitalized: number | null;
+      fatalities: number | null;
+    };
+    staff: {
+      hospitalized: number | null;
+      fatalities: number | null;
+    };
+  };
+  current: {
+    incarcerated: {
+      hospitalized: number | null;
+      fatalities: number | null;
+    };
+    staff: {
+      hospitalized: number | null;
+      fatalities: number | null;
+    };
+  };
+};
+
 const ResponseImpactDashboard: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
   const [scenarioState] = useScenario();
   const [modelInputs, setModelInputs] = useState([] as EpidemicModelState[]);
+  const [releaseCardData, setReleaseCardData] = useState<
+    releaseCardDataType | undefined
+  >();
   const scenario = scenarioState.data;
 
   const [, setFacilities] = useState({
@@ -112,6 +142,74 @@ const ResponseImpactDashboard: React.FC = () => {
       setModelInputs(modelInputs);
     }
   }
+
+  useEffect(() => {
+    const curveDataPerFacility = calculateCurveData(modelInputs);
+    console.log("modelInputs", modelInputs);
+
+    // will need to loop over original scenario AND current scenario
+    let incarceratedHospitalizedSum = 0;
+    let incarceratedFatalitiesSum = 0;
+    let staffHospitalizedSum = 0;
+    let staffFatalitiesSum = 0;
+
+    curveDataPerFacility.forEach((data) => {
+      const incarceratedData = data.incarcerated;
+      const staffData = data.staff;
+
+      const incarceratedHospitalized = countEverHospitalizedForDay(
+        incarceratedData,
+        incarceratedData.shape[0] - 1,
+      );
+      const incarceratedFatalities = getFatalitiesForDay(
+        incarceratedData,
+        incarceratedData.shape[0] - 1,
+      );
+      // console.log("incarceratedHospitalized", incarceratedHospitalized);
+      // console.log("incarceratedFatalities", incarceratedFatalities);
+      incarceratedHospitalizedSum += incarceratedHospitalized;
+      incarceratedFatalitiesSum += incarceratedFatalities;
+
+      const staffHospitalized = countEverHospitalizedForDay(
+        staffData,
+        staffData.shape[0] - 1,
+      );
+      const staffFatalities = getFatalitiesForDay(
+        staffData,
+        staffData.shape[0] - 1,
+      );
+      // console.log("staffHospitalized", staffHospitalized);
+      // console.log("staffFatalities", staffFatalities);
+      staffHospitalizedSum += staffHospitalized;
+      staffFatalitiesSum += staffFatalities;
+      // console.log("---");
+    });
+
+    const releaseCardObj: releaseCardDataType = {
+      original: {
+        incarcerated: {
+          hospitalized: 0,
+          fatalities: 0,
+        },
+        staff: {
+          hospitalized: 0,
+          fatalities: 0,
+        },
+      },
+      current: {
+        incarcerated: {
+          hospitalized: incarceratedHospitalizedSum,
+          fatalities: incarceratedFatalitiesSum,
+        },
+        staff: {
+          hospitalized: staffHospitalizedSum,
+          fatalities: staffFatalitiesSum,
+        },
+      },
+    };
+    console.log("releaseCardObj", releaseCardObj);
+    setReleaseCardData(releaseCardObj);
+  }, [modelInputs]);
 
   useEffect(() => {
     fetchFacilities();

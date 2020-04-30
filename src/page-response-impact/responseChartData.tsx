@@ -6,7 +6,7 @@ import { calculateCurves, CurveData } from "../infection-model";
 import { getAllValues, getColView } from "../infection-model/matrixUtils";
 import { seirIndex } from "../infection-model/seir";
 
-function calculateCurveData(facilitiesInputs: EpidemicModelState[]) {
+export function calculateCurveData(facilitiesInputs: EpidemicModelState[]) {
   return facilitiesInputs.map((facilityInput) => {
     return calculateCurves(facilityInput);
   });
