@@ -10,10 +10,16 @@ import {
   EpidemicModelState,
   getLocaleDefaults,
 } from "../impact-dashboard/EpidemicModelContext";
+import {
+  CurveFunctionInputs,
+  curveInputsFromUserInputs,
+} from "../infection-model";
 import { useLocaleDataState } from "../locale-data-context";
 import ProjectionsLegend from "../page-multi-facility/ProjectionsLegend";
 import { Facilities } from "../page-multi-facility/types";
 import useScenario from "../scenario-context/useScenario";
+import PopulationImpactMetrics from "./PopulationImpactMetrics";
+import ReducingR0ImpactMetrics from "./ReducingR0ImpactMetrics";
 import { getCurveChartData } from "./responseChartData";
 
 const ResponseImpactDashboardContainer = styled.div``;
@@ -81,9 +87,9 @@ const SectionSubheader = styled.h2`
 const ResponseImpactDashboard: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
   const [scenarioState] = useScenario();
+  const [curveInputs, setCurveInputs] = useState([] as CurveFunctionInputs[]);
   const [modelInputs, setModelInputs] = useState([] as EpidemicModelState[]);
   const scenario = scenarioState.data;
-
   const [, setFacilities] = useState({
     data: [] as Facilities,
     loading: true,
@@ -103,6 +109,12 @@ const ResponseImpactDashboard: React.FC = () => {
     });
   }
 
+  function getCurveInputs(modelInputs: EpidemicModelState[]) {
+    return modelInputs.map((modelInput) => {
+      return curveInputsFromUserInputs(modelInput);
+    });
+  }
+
   async function fetchFacilities() {
     if (!scenarioState?.data?.id) return;
     const facilitiesData = await getFacilities(scenarioState.data.id);
@@ -113,7 +125,9 @@ const ResponseImpactDashboard: React.FC = () => {
       });
 
       const modelInputs = getModelInputs(facilitiesData);
+      const curveInputs = getCurveInputs(modelInputs);
       setModelInputs(modelInputs);
+      setCurveInputs(curveInputs);
     }
   }
 
@@ -148,14 +162,14 @@ const ResponseImpactDashboard: React.FC = () => {
             <SectionSubheader>
               Positive impact of releasing [X] incarcerated individuals
             </SectionSubheader>
-            <PlaceholderSpace />
+            <PopulationImpactMetrics />
             <SectionHeader>Community Resources Saved</SectionHeader>
             <ChartHeader>Change in rate of transmission R(0)</ChartHeader>
             <PlaceholderSpace />
             <SectionSubheader>
               Positive impact of Reducing R(0)
             </SectionSubheader>
-            <PlaceholderSpace />
+            <ReducingR0ImpactMetrics />
           </Column>
           <Column width={"45%"}>
             <ChartHeader>
@@ -172,7 +186,7 @@ const ResponseImpactDashboard: React.FC = () => {
               hideAxes={false}
               hospitalBeds={getHospitalBeds(modelInputs)}
               markColors={MarkColors}
-              curveData={getCurveChartData(modelInputs)}
+              curveData={getCurveChartData(curveInputs)}
             />
           </Column>
         </PageContainer>

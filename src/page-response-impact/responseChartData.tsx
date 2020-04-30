@@ -1,12 +1,15 @@
 import { zip } from "d3-array";
 import ndarray from "ndarray";
 
-import { EpidemicModelState } from "../impact-dashboard/EpidemicModelContext";
-import { calculateCurves, CurveData } from "../infection-model";
+import {
+  calculateCurves,
+  CurveData,
+  CurveFunctionInputs,
+} from "../infection-model";
 import { getAllValues, getColView } from "../infection-model/matrixUtils";
 import { seirIndex } from "../infection-model/seir";
 
-function calculateCurveData(facilitiesInputs: EpidemicModelState[]) {
+function calculateCurveData(facilitiesInputs: CurveFunctionInputs[]) {
   return facilitiesInputs.map((facilityInput) => {
     return calculateCurves(facilityInput);
   });
@@ -29,7 +32,7 @@ function combineFacilitiesProjectionData(
   return ndarray(summedData, [90, 9]);
 }
 
-export function getCurveChartData(facilitiesInputs: EpidemicModelState[]) {
+export function getCurveChartData(facilitiesInputs: CurveFunctionInputs[]) {
   if (!facilitiesInputs.length)
     return {
       // NOTE: We should guard against this in the dashboard and remove

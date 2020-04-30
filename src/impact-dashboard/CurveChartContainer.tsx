@@ -4,7 +4,11 @@ import React from "react";
 import { useEffect, useState } from "react";
 
 import Loading from "../design-system/Loading";
-import { calculateCurves, CurveData } from "../infection-model";
+import {
+  calculateCurves,
+  CurveData,
+  curveInputsFromUserInputs,
+} from "../infection-model";
 import { getAllValues, getColView } from "../infection-model/matrixUtils";
 import { seirIndex } from "../infection-model/seir";
 import { MarkColors } from "./ChartArea";
@@ -41,7 +45,9 @@ const CurveChartContainer: React.FC<Props> = ({
 
   useEffect(() => {
     // TODO: could this be stored on the context instead for reuse?
-    const projectionData = calculateCurves(modelData);
+    const projectionData = calculateCurves(
+      curveInputsFromUserInputs(modelData),
+    );
     // merge and filter the curve data to only what we need for the chart
     updateCurveData({
       exposed: combinePopulations(projectionData, seirIndex.exposed),

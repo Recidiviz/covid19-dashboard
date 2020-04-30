@@ -10,11 +10,13 @@ import InputNameWithIcon from "../design-system/InputNameWithIcon";
 import ModalDialog from "../design-system/ModalDialog";
 import { Column, PageContainer } from "../design-system/PageColumn";
 import PopUpMenu from "../design-system/PopUpMenu";
+import { Flag } from "../feature-flags";
 import ChartArea from "../impact-dashboard/ChartArea";
 import FacilityInformation from "../impact-dashboard/FacilityInformation";
 import ImpactProjectionTable from "../impact-dashboard/ImpactProjectionTableContainer";
 import MitigationInformation from "../impact-dashboard/MitigationInformation";
 import useModel from "../impact-dashboard/useModel";
+import RtTimeseries from "../rt-timeseries";
 import { FacilityContext } from "./FacilityContext";
 import LocaleInformationSection from "./LocaleInformationSection";
 
@@ -80,6 +82,8 @@ export const SectionHeader = styled.header`
   border-top: ${borderStyle};
 `;
 
+const RtChartContainer = styled.div``;
+
 interface Props {
   scenarioId: string;
 }
@@ -89,7 +93,7 @@ interface Props {
 }
 
 const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
-  const { facility } = useContext(FacilityContext);
+  const { facility, rtData } = useContext(FacilityContext);
   const [facilityName, setFacilityName] = useState(facility?.name || undefined);
   const [description, setDescription] = useState(
     facility?.description || undefined,
@@ -129,6 +133,8 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
     updateShowDeleteModal(false);
   };
 
+  const rtTimeseriesData = rtData && facility ? rtData[facility.id] : undefined;
+
   return (
     <PageContainer>
       <Column width={"45%"}>
@@ -148,6 +154,12 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
           </PopUpMenuWrapper>
         </DescRow>
         <div className="mt-5 mb-5 border-b border-gray-300" />
+
+        <Flag name={["useRt"]}>
+          <RtChartContainer>
+            <RtTimeseries data={rtTimeseriesData} />
+          </RtChartContainer>
+        </Flag>
 
         <LocaleInformationSection
           systemType={systemType}
