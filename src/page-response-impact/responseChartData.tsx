@@ -16,12 +16,10 @@ function combineFacilitiesProjectionData(
   facilitiesProjectionData: CurveData[],
 ) {
   if (!facilitiesProjectionData.length) return ndarray([], []);
-  const incarceratedData = facilitiesProjectionData
-    .map((output) => output.incarcerated)
-    .map((output) => output.data);
-  const staffData = facilitiesProjectionData
-    .map((output) => output.staff)
-    .map((output) => output.data);
+  const incarceratedData = facilitiesProjectionData.map(
+    (output) => output.incarcerated.data,
+  );
+  const staffData = facilitiesProjectionData.map((output) => output.staff.data);
   const combinedData = zip(...incarceratedData, ...staffData);
   const summedData = combinedData.map((row) => {
     return row.reduce((sum, value) => {
