@@ -2,10 +2,7 @@ import { zip } from "d3-array";
 import ndarray from "ndarray";
 
 import { EpidemicModelState } from "../impact-dashboard/EpidemicModelContext";
-import {
-  EpidemicModelInputs,
-  RateOfSpread,
-} from "../impact-dashboard/EpidemicModelContext";
+import { RateOfSpread } from "../impact-dashboard/EpidemicModelContext";
 import { calculateCurves, CurveData } from "../infection-model";
 import { getAllValues, getColView } from "../infection-model/matrixUtils";
 import { seirIndex } from "../infection-model/seir";
@@ -27,9 +24,11 @@ function originalEpidemicModelInputs(systemWideData: SystemWideData) {
     populationTurnover: 0,
     facilityOccupancyPct: 1,
     facilityDormitoryPct: 0.15,
-    rateOfSpreadFactor: "High" as RateOfSpread,
+    rateOfSpreadFactor: RateOfSpread.high,
     plannedReleases: undefined,
-  } as EpidemicModelInputs
+    observedAt: new Date(),
+    updatedAt: new Date(),
+  }
 };
 
 export const originalProjection = (systemWideData: SystemWideData) => {
@@ -38,8 +37,8 @@ export const originalProjection = (systemWideData: SystemWideData) => {
       id: "",
       scenarioId: "",
       name: "",
-      createdAt: { seconds: "", nanoseconds: "", toDate: () => "" },
-      updatedAt: { seconds: "", nanoseconds: "", toDate: () => "" },
+      createdAt: new Date(),
+      updatedAt: new Date(),
       systemType: "State Prison",
       modelInputs: originalEpidemicModelInputs(systemWideData),
     }
