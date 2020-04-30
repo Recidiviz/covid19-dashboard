@@ -174,8 +174,6 @@ const ResponseImpactDashboard: React.FC = () => {
     });
   }, [modelInputs, localeDataSource]);
 
-  // NOTE: Replace with CurveChart with CurveChartContainer
-  // after it's modified to take curve data as prop
   return (
     <ResponseImpactDashboardContainer>
       {scenarioState.loading ? (
