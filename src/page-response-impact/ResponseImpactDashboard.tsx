@@ -18,13 +18,13 @@ import { LocaleData, useLocaleDataState } from "../locale-data-context";
 import ProjectionsLegend from "../page-multi-facility/ProjectionsLegend";
 import { Facilities } from "../page-multi-facility/types";
 import useScenario from "../scenario-context/useScenario";
+import PopulationImpactMetrics from "./PopulationImpactMetrics";
+import ReducingR0ImpactMetrics from "./ReducingR0ImpactMetrics";
 import {
   getCurveChartData,
   getSystemWideSums,
   originalProjection,
 } from "./responseChartData";
-import PopulationImpactMetrics from "./PopulationImpactMetrics";
-import ReducingR0ImpactMetrics from "./ReducingR0ImpactMetrics";
 
 const ResponseImpactDashboardContainer = styled.div``;
 const ScenarioName = styled.div`
@@ -115,11 +115,10 @@ const ResponseImpactDashboard: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
   const [scenarioState] = useScenario();
   const [curveInputs, setCurveInputs] = useState([] as CurveFunctionInputs[]);
-  const [originalCurveInputs, setOriginalCurveInputs] = useState([] as CurveFunctionInputs[]);
-  const [modelInputs, setModelInputs] = useState([] as EpidemicModelState[]);
-  const [originalModelInputs, setOriginalModelInputs] = useState(
-    [] as EpidemicModelState[],
+  const [originalCurveInputs, setOriginalCurveInputs] = useState(
+    [] as CurveFunctionInputs[],
   );
+  const [modelInputs, setModelInputs] = useState([] as EpidemicModelState[]);
   const [systemWideData, setSystemWideData] = useState({
     hospitalBeds: 0,
     staffPopulation: 0,
@@ -153,10 +152,12 @@ const ResponseImpactDashboard: React.FC = () => {
 
   useEffect(() => {
     if (modelInputs.length === 0) return;
-    const originalInputs = getModelInputs(originalProjection(systemWideData), localeDataSource);
-    const originalCurveInputs = getCurveInputs(originalInputs)
-    setOriginalModelInputs(originalInputs);
-    setOriginalCurveInputs(originalCurveInputs)
+    const originalInputs = getModelInputs(
+      originalProjection(systemWideData),
+      localeDataSource,
+    );
+    const originalCurveInputs = getCurveInputs(originalInputs);
+    setOriginalCurveInputs(originalCurveInputs);
   }, [modelInputs, systemWideData]);
 
   useEffect(() => {

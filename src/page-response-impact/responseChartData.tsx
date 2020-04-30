@@ -3,19 +3,23 @@ import ndarray from "ndarray";
 
 import { EpidemicModelState } from "../impact-dashboard/EpidemicModelContext";
 import { RateOfSpread } from "../impact-dashboard/EpidemicModelContext";
-import { calculateCurves, CurveData } from "../infection-model";
+import {
+  calculateCurves,
+  CurveData,
+  CurveFunctionInputs,
+} from "../infection-model";
 import { getAllValues, getColView } from "../infection-model/matrixUtils";
 import { seirIndex } from "../infection-model/seir";
 import { Facilities } from "../page-multi-facility/types";
 
 interface SystemWideData {
-  staffPopulation: number,
-  prisonPopulation: number,
-  hospitalBeds: number
+  staffPopulation: number;
+  prisonPopulation: number;
+  hospitalBeds: number;
 }
 
 function originalEpidemicModelInputs(systemWideData: SystemWideData) {
-  const { staffPopulation, prisonPopulation } = systemWideData
+  const { staffPopulation, prisonPopulation } = systemWideData;
   return {
     staffCases: 1,
     staffPopulation: staffPopulation,
@@ -28,8 +32,8 @@ function originalEpidemicModelInputs(systemWideData: SystemWideData) {
     plannedReleases: undefined,
     observedAt: new Date(),
     updatedAt: new Date(),
-  }
-};
+  };
+}
 
 export const originalProjection = (systemWideData: SystemWideData) => {
   return [
@@ -41,24 +45,24 @@ export const originalProjection = (systemWideData: SystemWideData) => {
       updatedAt: new Date(),
       systemType: "State Prison",
       modelInputs: originalEpidemicModelInputs(systemWideData),
-    }
-  ]  as Facilities
-}
+    },
+  ] as Facilities;
+};
 
 export function getSystemWideSums(modelInputs: EpidemicModelState[]) {
   let sums = {
     hospitalBeds: 0,
-    staffPopulation: 0
-  }
+    staffPopulation: 0,
+  };
   modelInputs.forEach((input) => {
-    sums.hospitalBeds += input.hospitalBeds || 0
-    sums.staffPopulation += input.staffPopulation || 0
-    return sums
+    sums.hospitalBeds += input.hospitalBeds || 0;
+    sums.staffPopulation += input.staffPopulation || 0;
+    return sums;
   });
   return sums;
 }
 
-function calculateCurveData(facilitiesInputs: EpidemicModelState[]) {
+function calculateCurveData(facilitiesInputs: CurveFunctionInputs[]) {
   return facilitiesInputs.map((facilityInput) => {
     return calculateCurves(facilityInput);
   });
@@ -68,12 +72,10 @@ function combineFacilitiesProjectionData(
   facilitiesProjectionData: CurveData[],
 ) {
   if (!facilitiesProjectionData.length) return ndarray([], []);
-  const incarceratedData = facilitiesProjectionData
-    .map((output) => output.incarcerated)
-    .map((output) => output.data);
-  const staffData = facilitiesProjectionData
-    .map((output) => output.staff)
-    .map((output) => output.data);
+  const incarceratedData = facilitiesProjectionData.map(
+    (output) => output.incarcerated.data,
+  );
+  const staffData = facilitiesProjectionData.map((output) => output.staff.data);
   const combinedData = zip(...incarceratedData, ...staffData);
   const summedData = combinedData.map((row) => {
     return row.reduce((sum, value) => {
@@ -83,7 +85,7 @@ function combineFacilitiesProjectionData(
   return ndarray(summedData, [90, 9]);
 }
 
-export function getCurveChartData(facilitiesInputs: EpidemicModelState[]) {
+export function getCurveChartData(facilitiesInputs: CurveFunctionInputs[]) {
   if (!facilitiesInputs.length)
     return {
       // NOTE: We should guard against this in the dashboard and remove
