@@ -43,7 +43,7 @@ interface ModelInputsPersistent {
   rateOfSpreadFactor?: RateOfSpread;
   staffCases?: number;
   staffPopulation?: number;
-  observedAt?: firebase.firestore.Timestamp; //TODO: This should actually be Date, waiting on #245
+  observedAt?: Date;
 }
 
 interface ModelInputsUpdate extends ModelInputsPersistent {

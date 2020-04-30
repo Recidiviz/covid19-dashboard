@@ -19,6 +19,17 @@ Serves from <http://localhost:8000/>.
 
 If you want to a specific port, like 1234, just add `--port 1234`.
 
+### Environment variables
+
+Default environment variables (for feature flags, etc) for local development can be found
+in `.env-example`. You should copy them to `.env.development` (untracked) to properly configure
+your development environment; this file will be consumed by Gatsby dev builds. Edit your local
+`.env.development` as needed and commit new env vars to the example file when appropriate.
+
+Environment variables for deployments are configured by Now. Let admins know when there are
+new env vars that need to be set for Preview or Production deployments. (You can test them in
+production builds locally with a `.env.production` file, also untracked.)
+
 ### Production
 
 ```sh

@@ -3,6 +3,7 @@ from flask import json
 
 from helpers import cloudfunction
 from schemas import rt_input, rt_output
+from realtime_rt import compute_r_t
 
 @cloudfunction(
     in_schema=rt_input,
@@ -16,10 +17,12 @@ def calculate_rt(request_json):
     """
     resp = defaultdict(list)
 
-    # TODO: real calculation
-    for date in request_json['dates']:
-        resp['Rt'].append({'date': date, 'value': 1.8})
-        resp['low90'].append({'date': date, 'value': 0.6})
-        resp['high90'].append({'date': date, 'value': 3.7})
+    result_df = compute_r_t(request_json)
+
+    for day in result_df.index:
+        date_str = day.strftime("%Y-%m-%d")
+        resp['Rt'].append({'date': date_str, 'value': result_df.loc[day, 'ML']})
+        resp['low90'].append({'date': date_str, 'value': result_df.loc[day, 'Low_90']})
+        resp['high90'].append({'date': date_str, 'value': result_df.loc[day, 'High_90']})
 
     return resp

@@ -4,7 +4,10 @@ import styled from "styled-components";
 
 import InputTextNumeric from "../design-system/InputTextNumeric";
 import TextLabel from "../design-system/TextLabel";
-import { getAdjustedTotalPopulation } from "../infection-model";
+import {
+  curveInputsFromUserInputs,
+  getAdjustedTotalPopulation,
+} from "../infection-model";
 import Description from "./Description";
 import {
   EpidemicModelState,
@@ -214,7 +217,11 @@ const FacilityInformation: React.FC = () => {
                 {model.populationTurnover !== 0 && (
                   <InputNote>
                     Your updated total population impacted is{" "}
-                    {numeral(getAdjustedTotalPopulation(model)).format("0,0")}
+                    {numeral(
+                      getAdjustedTotalPopulation(
+                        curveInputsFromUserInputs(model),
+                      ),
+                    ).format("0,0")}
                   </InputNote>
                 )}
               </>,

@@ -1,2 +1,5 @@
 Flask==1.0.2
 jsonschema==3.2.0
+numpy==1.18.3
+pandas==1.0.3
+scipy==1.4.1

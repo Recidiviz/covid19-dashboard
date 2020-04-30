@@ -140,14 +140,17 @@ const FacilityRow: React.FC<Props> = ({
 
   const save = () => {
     // Ensure that we don't insert keys (like `localeDataSource`) that is in model but not in the facility modelInputs
-    const modelInputs = pick(newModel, facilityModelKeys);
+    const modelInputs = {
+      ...facility.modelInputs,
+      ...pick(newModel, facilityModelKeys),
+    };
     // Update the local state iff
     // The observedAt date in the modal is more recent than the observedAt date in the current modelInputs.
     // This needs to happen so that facility data will show the most updated data w/o requiring a hard reload.
     if (
       newModel.observedAt &&
       model.observedAt &&
-      newModel.observedAt.toDate() >= model.observedAt.toDate()
+      newModel.observedAt >= model.observedAt
     ) {
       updateFacility({ ...facility, modelInputs });
       updateModel(modelDiff);
@@ -166,12 +169,7 @@ const FacilityRow: React.FC<Props> = ({
         <DataContainer className="flex flex-row mb-8 border-b">
           <div className="w-2/5 flex flex-col justify-between">
             <div className="flex flex-row h-full">
-              <CaseText
-                className="w-1/4 font-bold"
-                onClick={handleSubClick(openCaseCountsModal)}
-              >
-                {confirmedCases}
-              </CaseText>
+              <CaseText className="w-1/4 font-bold">{confirmedCases}</CaseText>
               <FacilityNameLabel onClick={handleSubClick()}>
                 <InputTextArea
                   inline={true}
@@ -196,19 +194,18 @@ const FacilityRow: React.FC<Props> = ({
             </div>
             <div className="text-xs text-gray-500 pb-4">
               <div>
-                Last Update:{" "}
-                <DateMMMMdyyyy date={new Date(updatedAt.toDate())} />
+                Last Update: <DateMMMMdyyyy date={updatedAt} />
               </div>
               <div className="mr-8" />
             </div>
-          </div>
-          <div className="w-3/5">
-            <CurveChartContainer
-              chartHeight={144}
-              hideAxes={true}
-              groupStatus={groupStatus}
-              markColors={markColors}
-            />
+            <div className="w-3/5">
+              <CurveChartContainer
+                chartHeight={144}
+                hideAxes={true}
+                groupStatus={groupStatus}
+                markColors={markColors}
+              />
+            </div>
           </div>
         </DataContainer>
       </div>
@@ -222,10 +219,10 @@ const FacilityRow: React.FC<Props> = ({
             labelAbove={"Data observed"}
             onValueChange={(date) => {
               if (date) {
-                fakeUpdateModel({ observedAt: dateToTimestamp(date) });
+                fakeUpdateModel({ observedAt: date });
               }
             }}
-            valueEntered={newModel.observedAt?.toDate() || new Date()}
+            valueEntered={newModel.observedAt || new Date()}
           />
           <HorizRule />
           <AgeGroupGrid model={newModel} updateModel={fakeUpdateModel} />
