@@ -11,6 +11,7 @@ import {
   getLocaleDefaults,
 } from "../impact-dashboard/EpidemicModelContext";
 import { useLocaleDataState } from "../locale-data-context";
+import ProjectionsLegend from "../page-multi-facility/ProjectionsLegend";
 import { Facilities } from "../page-multi-facility/types";
 import useScenario from "../scenario-context/useScenario";
 import {
@@ -60,11 +61,14 @@ const ChartHeader = styled.h3<{ color?: string }>`
   border-top: 1px solid ${Colors.opacityGray};
   border-bottom: 1px solid ${Colors.opacityGray};
   color: ${(props) => props.color || Colors.opacityForest};
+  display: flex;
   font-family: "Poppins";
   font-style: normal;
   font-weight: 600;
   font-size: 9px;
+  justify-content: space-between;
   line-height: 16px;
+  margin-bottom: 15px;
   padding: 5px 0;
 `;
 const SectionSubheader = styled.h2`
@@ -177,7 +181,10 @@ const ResponseImpactDashboard: React.FC = () => {
             <PlaceholderSpace />
           </Column>
           <Column width={"45%"}>
-            <ChartHeader>Original Projection</ChartHeader>
+            <ChartHeader>
+              Original Projection
+              <ProjectionsLegend />
+            </ChartHeader>
             <CurveChart
               chartHeight={144}
               hideAxes={true}
@@ -185,7 +192,10 @@ const ResponseImpactDashboard: React.FC = () => {
               markColors={MarkColors}
               curveData={getCurveChartData(originalModelInputs)}
             />
-            <ChartHeader color={Colors.teal}>Current Projection</ChartHeader>
+            <ChartHeader color={Colors.teal}>
+              Current Projection
+              <ProjectionsLegend />
+            </ChartHeader>
             <CurveChart
               chartHeight={144}
               hideAxes={true}
