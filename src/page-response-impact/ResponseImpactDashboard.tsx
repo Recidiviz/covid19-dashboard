@@ -124,7 +124,8 @@ const ResponseImpactDashboard: React.FC = () => {
     });
     return sumHospitalBeds;
   }
-
+  // NOTE: Replace with CurveChart with CurveChartContainer
+  // after it's modified to take curve data as prop
   return (
     <ResponseImpactDashboardContainer>
       {scenarioState.loading ? (
@@ -156,8 +157,6 @@ const ResponseImpactDashboard: React.FC = () => {
             <ChartHeader>Original Projection</ChartHeader>
             <PlaceholderSpace />
             <ChartHeader color={Colors.teal}>Current Projection</ChartHeader>
-            // Replace with CurveChartContainer after it's modified to take //
-            curve data as prop
             <CurveChart
               chartHeight={144}
               hideAxes={true}
