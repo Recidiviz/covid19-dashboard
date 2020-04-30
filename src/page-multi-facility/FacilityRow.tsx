@@ -7,6 +7,7 @@ import Colors, { MarkColors as markColors } from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import iconEditSrc from "../design-system/icons/ic_edit.svg";
 import InputTextArea from "../design-system/InputTextArea";
+import TextLabel from "../design-system/TextLabel";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
 import {
   totalConfirmedCases,
@@ -88,26 +89,12 @@ const FacilityRow: React.FC<Props> = ({
         <div className="w-2/5 flex flex-col justify-between">
           <div className="flex flex-row h-full">
             <CaseText className="w-1/4 font-bold">{confirmedCases}</CaseText>
-            <FacilityNameLabel onClick={handleSubClick()}>
+            <FacilityNameLabel>
               <InputTextArea
                 inline={true}
                 fillVertical={true}
-                value={name}
-                onChange={(event) => {
-                  const newName = (event.target.value || "").replace(
-                    /(\r\n|\n|\r)/gm,
-                    "",
-                  );
-                  // this updates the local state
-                  updateFacility({ ...facility, name: newName });
-                  // this persists the changes to the database
-                  saveFacility(scenarioId, {
-                    id,
-                    name: newName,
-                  });
-                }}
+                value={name ? name : "Unnamed Facility"}
               />
-              <IconEdit alt="Edit facility name" src={iconEditSrc} />
             </FacilityNameLabel>
           </div>
           <div className="text-xs text-gray-500 pb-4">
