@@ -63,7 +63,7 @@ export function buildResponseImpactCardData(
     );
     // console.log("staffHospitalized", staffHospitalized);
     // console.log("staffFatalities", staffFatalities);
-    console.log("---");
+    // console.log("---");
     staffHospitalizedSum += staffHospitalized;
     staffFatalitiesSum += staffFatalities;
   });
