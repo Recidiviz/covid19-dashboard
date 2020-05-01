@@ -1,7 +1,6 @@
 import { zip } from "d3-array";
 import { useEffect, useState } from "react";
 
-import { ChartData } from "../impact-dashboard/CurveChart";
 import { EpidemicModelInputs } from "../impact-dashboard/EpidemicModelContext";
 import {
   calculateCurves,
@@ -70,15 +69,6 @@ export const useChartDataFromProjectionData = (projectionData?: CurveData) => {
   useEffect(() => {
     updateCurveData(buildCurves(projectionData));
   }, [projectionData]);
-
-  return curveData;
-};
-
-export const useChartDataFromUserInput = (
-  input: EpidemicModelInputs,
-): ChartData => {
-  const projectionData = useProjectionFromUserInput(input);
-  const curveData = useChartDataFromProjectionData(projectionData);
 
   return curveData;
 };

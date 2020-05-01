@@ -15,6 +15,10 @@ export type CurveData = {
   staff: ndarray;
 };
 
+export const isCurveData = (arg: CurveData | undefined): arg is CurveData => {
+  return arg !== undefined;
+};
+
 export type CurveFunctionInputs = Omit<
   EpidemicModelInputs,
   "rateOfSpreadFactor"
