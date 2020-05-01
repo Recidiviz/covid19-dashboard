@@ -37,11 +37,11 @@ const ToggleButtonContainer = styled.label<{ toggled?: boolean }>`
   border-radius: 10px;
   cursor: pointer;
   display: flex;
-  height: 15px;
+  height: 14px;
   justify-content: space-between;
   position: relative;
   transition: background-color 0.2s;
-  width: 22px;
+  width: 24px;
 `;
 
 const ToggleButton = styled.span<{ toggled?: boolean }>`
@@ -50,13 +50,13 @@ const ToggleButton = styled.span<{ toggled?: boolean }>`
   border-radius: 50%;
   content: "";
   cursor: pointer;
-  height: 10px;
+  height: 8px;
   left: ${(props) => (props.toggled ? "calc(100% - 3px)" : "3px")};
   position: absolute;
-  top: 2px;
+  top: 3px;
   transition: 0.2s;
   ${(props) => (props.toggled ? `transform: translateX(-100%);` : null)}
-  width: 10px
+  width: 8px;
 `;
 
 const InputToggle: React.FC<Props> = (props) => {

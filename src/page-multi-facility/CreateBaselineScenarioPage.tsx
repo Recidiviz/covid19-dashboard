@@ -1,11 +1,12 @@
+import { navigate } from "gatsby";
 import React from "react";
-import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
-import { createBaselineScenario } from "../database";
+import { saveScenario } from "../database";
 import Colors from "../design-system/Colors";
 import InputButton from "../design-system/InputButton";
 import ModalDialog from "../design-system/ModalDialog";
+import useScenario from "../scenario-context/useScenario";
 
 const CreateBaselineScenarioPageContainer = styled.div``;
 
@@ -33,12 +34,29 @@ const ModalContent = styled.div`
 `;
 
 const CreateBaselineScenarioPage: React.FC = () => {
-  const history = useHistory();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, dispatchScenarioUpdate] = useScenario();
+
   const handleOnClick = async () => {
-    const baselineScenarioRef = await createBaselineScenario();
-    if (baselineScenarioRef) {
-      // Redirect to new facility page after exiting welcome modal
-      history.push("/facility");
+    const baselineScenarioDefaults = {
+      name: "Baseline Scenario",
+      baseline: true,
+      dataSharing: false,
+      dailyReports: false,
+      promoStatuses: {
+        dataSharing: true,
+        dailyReports: true,
+        addFacilities: true,
+      },
+      description:
+        "Welcome to your new scenario. To get started, add in facility data on the right-hand side of the page. Your initial scenario is also your 'Baseline' - meaning this is where you should keep real-world numbers about the current state of your facilities, their cases, and mitigation steps.",
+    };
+
+    const scenario = await saveScenario(baselineScenarioDefaults);
+
+    if (scenario) {
+      dispatchScenarioUpdate(scenario);
+      navigate("/facility");
     }
   };
 

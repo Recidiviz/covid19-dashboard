@@ -1,24 +1,25 @@
 import { EpidemicModelPersistent } from "../impact-dashboard/EpidemicModelContext";
 
+export interface ModelInputs extends EpidemicModelPersistent {
+  observedAt: Date;
+  updatedAt: Date;
+}
+
 export type Facility = {
-  id?: string;
+  id: string;
+  scenarioId: string;
   name: string;
   description?: string;
   systemType?: string;
-  modelInputs: EpidemicModelPersistent;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
-};
-
-type Timestamp = {
-  seconds: string;
-  nanoseconds: string;
-  toDate: () => string;
+  modelInputs: ModelInputs;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 export type Facilities = Facility[];
 
 export type Scenario = {
+  id: string;
   name: string;
   baseline: boolean;
   dataSharing: boolean;
@@ -26,8 +27,8 @@ export type Scenario = {
   promoStatuses?: PromoStatuses | undefined;
   description: string;
   roles: object;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 export type PromoStatuses = {

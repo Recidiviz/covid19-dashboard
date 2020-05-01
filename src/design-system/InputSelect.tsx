@@ -50,7 +50,7 @@ const StyledSelect = styled(StyledInput)`
 const InputSelect: React.FC<Props> = (props) => {
   return (
     <SelectContainer>
-      <TextLabel>{props.label}</TextLabel>
+      {props.label && <TextLabel>{props.label}</TextLabel>}
       <SelectWrapper>
         <StyledSelect
           as="select"

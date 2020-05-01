@@ -127,7 +127,6 @@ const MitigationInformation: React.FC = () => {
         <FormGridRow>
           <FormGridCell>
             <InputSelect
-              label="Rate of spread"
               onChange={(e) =>
                 updateModel({
                   rateOfSpreadFactor: e.target.value as RateOfSpread,

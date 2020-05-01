@@ -1,5 +1,6 @@
+import { useLocation } from "@reach/router";
+import { navigate } from "gatsby";
 import React, { useEffect } from "react";
-import { Redirect, useLocation } from "react-router-dom";
 
 import Loading from "../design-system/Loading";
 import { useAuth0 } from "./react-auth0-spa";
@@ -24,7 +25,8 @@ const AuthWall: React.FC = (props) => {
   }
 
   if (user && !user.email_verified) {
-    return <Redirect to="/verify" />;
+    navigate("/verify", { replace: true });
+    return null;
   }
 
   // We could be here if loginWithRedirect hasn't completed yet.

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import styled, { css } from "styled-components";
 
+import Colors from "./Colors";
 import TextLabel from "./TextLabel";
 
 interface Props {
@@ -32,7 +33,7 @@ const TextAreaInput = styled.textarea<InputProps>`
   background: #e0e4e4;
   border-radius: 2px;
   font-size: ${(props) => props.fontSize || "16px"};
-  color: ${(props) => props.color || "#00413e"};
+  color: ${(props) => props.color || Colors.green};
   resize: none;
   font-family: ${(props) => props.fontFamily || '"Poppins", sans-serif'};
   width: 100%;

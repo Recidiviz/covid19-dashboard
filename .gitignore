@@ -1,5 +1,8 @@
 # IDEs
+.history/
 .idea/
+.vscode/
+.mypy_cache
 
 # Common OS files
 .DS_Store
@@ -8,13 +11,16 @@
 # rather than matching a pattern. This helps makes it easier for us to know when
 # it's okay to remove lines from this file.
 
-# Custom
-/bin/**
-
 # Eslint
 /.eslintcache
 
-# Parcel
+# Gatsby
+/.cache
+/public
+.env.*
+
+# Parcel. We don't use Parcel anymore but we used to, and people still have
+# these Parcel-generated files lying around.
 /.cache
 /.parcel-cache
 /dist
@@ -29,3 +35,6 @@
 # other people from accidentally committing them.
 /package-lock.json
 /pnpm-lock.yaml
+
+# Vercel Now
+/.now

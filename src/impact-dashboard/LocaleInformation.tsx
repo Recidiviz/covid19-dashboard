@@ -4,6 +4,7 @@ import styled from "styled-components";
 
 import InputSelect from "../design-system/InputSelect";
 import InputTextNumeric from "../design-system/InputTextNumeric";
+import LocaleDetails from "../page-multi-facility/LocaleDetails";
 import useModel from "./useModel";
 
 const LocaleInformationDiv = styled.div`
@@ -50,50 +51,56 @@ const LocaleInformation: React.FC = () => {
   }, [model.localeDataSource, model.stateCode]);
 
   return (
-    <LocaleInformationDiv>
-      <LocaleInputDiv>
-        <InputSelect
-          label="State"
-          value={model.stateCode}
-          onChange={(event) => {
-            updateModel({ stateCode: event.target.value });
-          }}
-        >
-          {stateList.map(({ value }) => (
-            <option key={value} value={value}>
-              {value}
-            </option>
-          ))}
-        </InputSelect>
-      </LocaleInputDiv>
-      <LocaleInputDiv>
-        <InputSelect
-          label="County"
-          value={model.countyName}
-          onChange={(event) => {
-            updateModel({
-              stateCode: model.stateCode,
-              countyName: event.target.value,
-            });
-          }}
-        >
-          {countyList.map(({ value }) => (
-            <option key={value} value={value}>
-              {value}
-            </option>
-          ))}
-        </InputSelect>
-      </LocaleInputDiv>
-      <LocaleInputDiv>
-        <InputTextNumeric
-          type="number"
-          labelAbove="Confirmed case count"
-          labelHelp="Based on NYTimes data. Replace with your most up-to-date data."
-          valueEntered={model.confirmedCases}
-          onValueChange={(value) => updateModel({ confirmedCases: value })}
-        />
-      </LocaleInputDiv>
-    </LocaleInformationDiv>
+    <>
+      <LocaleInformationDiv>
+        <LocaleInputDiv>
+          <InputSelect
+            label="State"
+            value={model.stateCode}
+            onChange={(event) => {
+              updateModel({ stateCode: event.target.value });
+            }}
+          >
+            {stateList.map(({ value }) => (
+              <option key={value} value={value}>
+                {value}
+              </option>
+            ))}
+          </InputSelect>
+        </LocaleInputDiv>
+        <LocaleInputDiv>
+          <InputSelect
+            label="County"
+            value={model.countyName}
+            onChange={(event) => {
+              updateModel({
+                stateCode: model.stateCode,
+                countyName: event.target.value,
+              });
+            }}
+          >
+            {countyList.map(({ value }) => (
+              <option key={value} value={value}>
+                {value}
+              </option>
+            ))}
+          </InputSelect>
+        </LocaleInputDiv>
+        <LocaleInputDiv>
+          <InputTextNumeric
+            type="number"
+            labelAbove="Confirmed case count"
+            labelHelp="Based on NYTimes data. Replace with your most up-to-date data."
+            valueEntered={model.confirmedCases}
+            onValueChange={(value) => updateModel({ confirmedCases: value })}
+          />
+        </LocaleInputDiv>
+      </LocaleInformationDiv>
+      <LocaleDetails
+        stateCode={model.stateCode}
+        countyName={model.countyName}
+      />
+    </>
   );
 };
 

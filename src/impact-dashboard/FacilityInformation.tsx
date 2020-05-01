@@ -4,9 +4,15 @@ import styled from "styled-components";
 
 import InputTextNumeric from "../design-system/InputTextNumeric";
 import TextLabel from "../design-system/TextLabel";
-import { getAdjustedTotalPopulation } from "../infection-model";
+import {
+  curveInputsFromUserInputs,
+  getAdjustedTotalPopulation,
+} from "../infection-model";
 import Description from "./Description";
-import { EpidemicModelUpdate } from "./EpidemicModelContext";
+import {
+  EpidemicModelState,
+  EpidemicModelUpdate,
+} from "./EpidemicModelContext";
 import { FormGrid, FormGridCell, FormGridRow } from "./FormGrid";
 import useModel from "./useModel";
 
@@ -59,14 +65,85 @@ const FormHeaderRow: React.FC<FormHeaderRowProps> = (props) => (
   </LabelRow>
 );
 
+interface AgeGroupGridProps {
+  model: EpidemicModelState;
+  updateModel: (update: EpidemicModelUpdate) => void;
+}
+
+export const AgeGroupGrid: React.FC<AgeGroupGridProps> = (props) => (
+  <FormGrid>
+    <FormGridRow />
+    <FormHeaderRow label="Staff Population" />
+    <AgeGroupRow
+      label="Facility Staff"
+      leftKey="staffCases"
+      rightKey="staffPopulation"
+      {...props}
+    />
+    {/* empty row for spacing */}
+    <FormGridRow />
+    <FormHeaderRow label="Total Population" />
+    <AgeGroupRow
+      label="Ages Unknown"
+      leftKey="ageUnknownCases"
+      rightKey="ageUnknownPopulation"
+      {...props}
+    />
+    <AgeGroupRow
+      label="Ages 0-19"
+      leftKey="age0Cases"
+      rightKey="age0Population"
+      {...props}
+    />
+    <AgeGroupRow
+      label="Ages 20-44"
+      leftKey="age20Cases"
+      rightKey="age20Population"
+      {...props}
+    />
+    <AgeGroupRow
+      label="Ages 45-54"
+      leftKey="age45Cases"
+      rightKey="age45Population"
+      {...props}
+    />
+    <AgeGroupRow
+      label="Ages 55-64"
+      leftKey="age55Cases"
+      rightKey="age55Population"
+      {...props}
+    />
+    <AgeGroupRow
+      label="Ages 65-74"
+      leftKey="age65Cases"
+      rightKey="age65Population"
+      {...props}
+    />
+    <AgeGroupRow
+      label="Ages 75-84"
+      leftKey="age75Cases"
+      rightKey="age75Population"
+      {...props}
+    />
+    <AgeGroupRow
+      label="Ages 85+"
+      leftKey="age85Cases"
+      rightKey="age85Population"
+      {...props}
+    />
+  </FormGrid>
+);
+
 interface AgeGroupRowProps {
   label: string;
   leftKey: keyof EpidemicModelUpdate;
   rightKey: keyof EpidemicModelUpdate;
+  model: EpidemicModelState;
+  updateModel: (update: EpidemicModelUpdate) => void;
 }
 
 const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
-  const [model, updateModel] = useModel();
+  const { model, updateModel } = props;
 
   return (
     <FormGridRow>
@@ -96,64 +173,8 @@ const FacilityInformation: React.FC = () => {
 
   return (
     <FacilityInformationDiv>
-      <Description>
-        This section collects basic information about facility staff and your
-        incarcerated population by age and medical vulnerability. If you don't
-        have your in-facility population available by age brackets, enter your
-        overall population count in "Age unknown".
-      </Description>
       <div>
-        <FormGrid>
-          <FormHeaderRow label="Staff Population" />
-          <AgeGroupRow
-            label="Facility Staff"
-            leftKey="staffCases"
-            rightKey="staffPopulation"
-          />
-          {/* empty row for spacing */}
-          <FormGridRow />
-          <FormHeaderRow label="Total Population" />
-          <AgeGroupRow
-            label="Ages Unknown"
-            leftKey="ageUnknownCases"
-            rightKey="ageUnknownPopulation"
-          />
-          <AgeGroupRow
-            label="Ages 0-19"
-            leftKey="age0Cases"
-            rightKey="age0Population"
-          />
-          <AgeGroupRow
-            label="Ages 20-44"
-            leftKey="age20Cases"
-            rightKey="age20Population"
-          />
-          <AgeGroupRow
-            label="Ages 45-54"
-            leftKey="age45Cases"
-            rightKey="age45Population"
-          />
-          <AgeGroupRow
-            label="Ages 55-64"
-            leftKey="age55Cases"
-            rightKey="age55Population"
-          />
-          <AgeGroupRow
-            label="Ages 65-74"
-            leftKey="age65Cases"
-            rightKey="age65Population"
-          />
-          <AgeGroupRow
-            label="Ages 75-84"
-            leftKey="age75Cases"
-            rightKey="age75Population"
-          />
-          <AgeGroupRow
-            label="Ages 85+"
-            leftKey="age85Cases"
-            rightKey="age85Population"
-          />
-        </FormGrid>
+        <AgeGroupGrid model={model} updateModel={updateModel} />
         <FormGrid>
           <FormRow
             inputs={[
@@ -196,7 +217,11 @@ const FacilityInformation: React.FC = () => {
                 {model.populationTurnover !== 0 && (
                   <InputNote>
                     Your updated total population impacted is{" "}
-                    {numeral(getAdjustedTotalPopulation(model)).format("0,0")}
+                    {numeral(
+                      getAdjustedTotalPopulation(
+                        curveInputsFromUserInputs(model),
+                      ),
+                    ).format("0,0")}
                   </InputNote>
                 )}
               </>,
