@@ -28,10 +28,6 @@ const DescRow = styled.div`
   justify-content: space-between;
 `;
 
-const PopUpMenuWrapper = styled.div`
-  padding-top: 12px;
-`;
-
 // Delete Modal elements
 const ModalContents = styled.div`
   align-items: center;
@@ -142,15 +138,15 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
           setName={setFacilityName}
           placeholderValue="Unnamed Facility"
         />
+        <div className="mt-5" />
         <DescRow>
           <InputDescription
             description={description}
             setDescription={setDescription}
             placeholderValue="Enter a description (optional)"
           />
-          <PopUpMenuWrapper>
-            <PopUpMenu items={popupItems} />
-          </PopUpMenuWrapper>
+          <div className="mr-5" />
+          <PopUpMenu items={popupItems} />
         </DescRow>
         <div className="mt-5 mb-5 border-b border-gray-300" />
 

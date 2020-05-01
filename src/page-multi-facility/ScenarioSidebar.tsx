@@ -70,12 +70,14 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
           placeholderValue={scenario?.name}
           persistChanges={handleScenarioChange}
         />
+        <div className="mt-5" />
         <InputDescription
           description={description}
           setDescription={setDescription}
           placeholderValue={scenario?.description}
           persistChanges={handleScenarioChange}
         />
+        <div className="mb-5" />
         <div>
           <p className="text-xs text-gray-500">
             Last Update:{" "}
