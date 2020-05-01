@@ -6,6 +6,7 @@ import { saveFacility } from "../database/index";
 import Colors, { MarkColors as markColors } from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import InputDescription from "../design-system/InputDescription";
+import { Spacer } from "../design-system/Spacer";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
 import {
   totalConfirmedCases,
@@ -99,7 +100,7 @@ const FacilityRow: React.FC<Props> = ({
             <div>
               Last Update: <DateMMMMdyyyy date={updatedAt} />
             </div>
-            <div className="mr-8" />
+            <Spacer x={32} />
           </div>
         </div>
         <div className="w-3/5">

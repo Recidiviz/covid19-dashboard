@@ -10,6 +10,7 @@ import InputNameWithIcon from "../design-system/InputNameWithIcon";
 import ModalDialog from "../design-system/ModalDialog";
 import { Column, PageContainer } from "../design-system/PageColumn";
 import PopUpMenu from "../design-system/PopUpMenu";
+import { Spacer } from "../design-system/Spacer";
 import { Flag } from "../feature-flags";
 import FacilityInformation from "../impact-dashboard/FacilityInformation";
 import MitigationInformation from "../impact-dashboard/MitigationInformation";
@@ -138,14 +139,14 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
           setName={setFacilityName}
           placeholderValue="Unnamed Facility"
         />
-        <div className="mt-5" />
+        <Spacer y={20} />
         <DescRow>
           <InputDescription
             description={description}
             setDescription={setDescription}
             placeholderValue="Enter a description (optional)"
           />
-          <div className="mr-5" />
+          <Spacer x={20} />
           <PopUpMenu items={popupItems} />
         </DescRow>
         <div className="mt-5 mb-5 border-b border-gray-300" />

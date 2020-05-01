@@ -5,6 +5,7 @@ import { saveScenario } from "../database";
 import InputDescription from "../design-system/InputDescription";
 import InputNameWithIcon from "../design-system/InputNameWithIcon";
 import PromoBoxWithButton from "../design-system/PromoBoxWithButton";
+import { Spacer } from "../design-system/Spacer";
 import useScenario from "../scenario-context/useScenario";
 import ToggleRow from "./ToggleRow";
 import { Scenario } from "./types";
@@ -70,14 +71,14 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
           placeholderValue={scenario?.name}
           persistChanges={handleScenarioChange}
         />
-        <div className="mt-5" />
+        <Spacer y={20} />
         <InputDescription
           description={description}
           setDescription={setDescription}
           placeholderValue={scenario?.description}
           persistChanges={handleScenarioChange}
         />
-        <div className="mb-5" />
+        <Spacer y={20} />
         <div>
           <p className="text-xs text-gray-500">
             Last Update:{" "}
