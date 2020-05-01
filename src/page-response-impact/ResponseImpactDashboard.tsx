@@ -21,10 +21,16 @@ import useScenario from "../scenario-context/useScenario";
 import PopulationImpactMetrics from "./PopulationImpactMetrics";
 import ReducingR0ImpactMetrics from "./ReducingR0ImpactMetrics";
 import {
+  calculateCurveData,
   getCurveChartData,
   getSystemWideSums,
   originalProjection,
 } from "./responseChartData";
+import {
+  buildReductionData,
+  buildResponseImpactCardData,
+  reductionCardDataType,
+} from "./utils/ResponseImpactCardStateUtils";
 
 const ResponseImpactDashboardContainer = styled.div``;
 const ScenarioName = styled.div`
@@ -91,6 +97,12 @@ const CurveChartContainer = styled.div`
   margin-bottom: 50px;
 `;
 
+function getCurveInputs(modelInputs: EpidemicModelState[]) {
+  return modelInputs.map((modelInput) => {
+    return curveInputsFromUserInputs(modelInput);
+  });
+}
+
 function getModelInputs(facilities: Facilities, localeDataSource: LocaleData) {
   return facilities.map((facility) => {
     const modelInputs = facility.modelInputs;
@@ -105,15 +117,11 @@ function getModelInputs(facilities: Facilities, localeDataSource: LocaleData) {
   });
 }
 
-function getCurveInputs(modelInputs: EpidemicModelState[]) {
-  return modelInputs.map((modelInput) => {
-    return curveInputsFromUserInputs(modelInput);
-  });
-}
-
 const ResponseImpactDashboard: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
   const [scenarioState] = useScenario();
+  const scenario = scenarioState.data;
+  const scenarioId = scenarioState?.data?.id; // linter wants this to be its own var since it is a useEffect dep
   const [currentCurveInputs, setCurrentCurveInputs] = useState(
     [] as CurveFunctionInputs[],
   );
@@ -126,32 +134,50 @@ const ResponseImpactDashboard: React.FC = () => {
     staffPopulation: 0,
     prisonPopulation: 0,
   });
-  const scenario = scenarioState.data;
+  const [reductionCardData, setreductionCardData] = useState<
+    reductionCardDataType | undefined
+  >();
   const [, setFacilities] = useState({
     data: [] as Facilities,
     loading: true,
   });
 
-  async function fetchFacilities() {
-    if (!scenarioState?.data?.id) return;
-    const facilitiesData = await getFacilities(scenarioState.data.id);
-    if (facilitiesData) {
-      setFacilities({
-        data: facilitiesData,
-        loading: false,
-      });
-
-      const modelInputs = getModelInputs(facilitiesData, localeDataSource);
-      const currentCurveInputs = getCurveInputs(modelInputs);
-      setModelInputs(modelInputs);
-      setCurrentCurveInputs(currentCurveInputs);
-    }
-  }
-
   useEffect(() => {
-    fetchFacilities();
-  }, [scenarioState?.data?.id]);
+    async function fetchFacilities() {
+      if (!scenarioId) return;
+      const facilitiesData = await getFacilities(scenarioId);
+      if (facilitiesData) {
+        setFacilities({
+          data: facilitiesData,
+          loading: false,
+        });
 
+        const modelInputs = getModelInputs(facilitiesData, localeDataSource);
+        const currentCurveInputs = getCurveInputs(modelInputs);
+        setModelInputs(modelInputs);
+        setCurrentCurveInputs(currentCurveInputs);
+      }
+    }
+
+    fetchFacilities();
+  }, [scenarioId, localeDataSource]);
+
+  // calculate data for cards
+  useEffect(() => {
+    const originalCurveDataPerFacility = calculateCurveData(
+      originalCurveInputs,
+    );
+    const origData = buildResponseImpactCardData(originalCurveDataPerFacility);
+    const currentCurveDataPerFacility = calculateCurveData(currentCurveInputs);
+    const currData = buildResponseImpactCardData(currentCurveDataPerFacility);
+
+    // positive value is a reduction
+    const reduction = buildReductionData(origData, currData);
+
+    setreductionCardData(reduction);
+  }, [originalCurveInputs, currentCurveInputs]);
+
+  // calculate original and current curves
   useEffect(() => {
     if (modelInputs.length === 0) return;
     const originalInputs = getModelInputs(
@@ -162,6 +188,7 @@ const ResponseImpactDashboard: React.FC = () => {
     setOriginalCurveInputs(originalCurveInputs);
   }, [modelInputs, systemWideData, localeDataSource]);
 
+  // set system wide data
   useEffect(() => {
     if (modelInputs.length === 0) return;
 
@@ -174,8 +201,6 @@ const ResponseImpactDashboard: React.FC = () => {
     });
   }, [modelInputs, localeDataSource]);
 
-  // NOTE: Replace with CurveChart with CurveChartContainer
-  // after it's modified to take curve data as prop
   return (
     <ResponseImpactDashboardContainer>
       {scenarioState.loading ? (
@@ -194,7 +219,11 @@ const ResponseImpactDashboard: React.FC = () => {
             <SectionSubheader>
               Positive impact of releasing [X] incarcerated individuals
             </SectionSubheader>
-            <PopulationImpactMetrics />
+            <PopulationImpactMetrics
+              reductionData={reductionCardData}
+              staffPopulation={systemWideData.staffPopulation}
+              incarceratedPopulation={systemWideData.prisonPopulation}
+            />
             <SectionHeader>Community Resources Saved</SectionHeader>
             <ChartHeader>Change in rate of transmission R(0)</ChartHeader>
             <PlaceholderSpace />

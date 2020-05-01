@@ -66,7 +66,7 @@ export function getSystemWideSums(modelInputs: EpidemicModelState[]) {
   return sums;
 }
 
-function calculateCurveData(facilitiesInputs: CurveFunctionInputs[]) {
+export function calculateCurveData(facilitiesInputs: CurveFunctionInputs[]) {
   return facilitiesInputs.map((facilityInput) => {
     return calculateCurves(facilityInput);
   });
