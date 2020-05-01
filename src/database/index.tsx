@@ -5,6 +5,7 @@ import "firebase/auth";
 import "firebase/firestore";
 
 import createAuth0Client from "@auth0/auth0-spa-js";
+import { startOfToday } from "date-fns";
 import { pick, sortBy } from "lodash";
 
 import config from "../auth/auth_config.json";
@@ -379,7 +380,7 @@ export const saveFacility = async (
       //
       // ** https://date-fns.org/v1.29.0/docs/startOfDay
       facility.modelInputs.observedAt =
-        facility.modelInputs.observedAt || new Date();
+        facility.modelInputs.observedAt || startOfToday();
     }
 
     const db = await getDb();
@@ -396,14 +397,15 @@ export const saveFacility = async (
     if (facility.id) {
       const payload = buildUpdatePayload(facility);
       facilityDoc = facilitiesCollection.doc(facility.id);
-      // Only update the facility if the incoming observedAt date is > than the current updatedAt date in the existing facility
+      // Only update the facility if the incoming observedAt date is > than the current observedAt date in the existing facility
       const incomingObservedAt = facility.modelInputs.observedAt;
       const currentFacilityData = await facilityDoc.get();
       const currentFacility = buildFacility(scenarioId, currentFacilityData);
       if (
         incomingObservedAt &&
-        currentFacility.modelInputs.updatedAt &&
-        incomingObservedAt > currentFacility.modelInputs.updatedAt
+        currentFacility.modelInputs.observedAt &&
+        incomingObservedAt.getDate() >=
+          currentFacility.modelInputs.observedAt.getDate()
       ) {
         batch.update(facilityDoc, payload);
       }

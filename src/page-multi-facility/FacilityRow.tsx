@@ -1,3 +1,4 @@
+import { startOfDay, startOfToday } from "date-fns";
 import { navigate } from "gatsby";
 import { pick } from "lodash";
 import React, { useContext, useState } from "react";
@@ -151,8 +152,8 @@ const FacilityRow: React.FC<Props> = ({
     // This needs to happen so that facility data will show the most updated data w/o requiring a hard reload.
     if (
       newModel.observedAt &&
-      model.updatedAt &&
-      newModel.observedAt >= model.updatedAt
+      model.observedAt &&
+      startOfDay(newModel.observedAt) >= startOfDay(model.observedAt)
     ) {
       updateFacility({ ...facility, modelInputs });
       updateModel(modelDiff);
@@ -224,13 +225,13 @@ const FacilityRow: React.FC<Props> = ({
       >
         <ModalContents>
           <InputDate
-            labelAbove={"Data observed"}
+            labelAbove={"Date observed"}
             onValueChange={(date) => {
               if (date) {
                 fakeUpdateModel({ observedAt: date });
               }
             }}
-            valueEntered={newModel.observedAt || new Date()}
+            valueEntered={newModel.observedAt || startOfToday()}
           />
           <HorizRule />
           <AgeGroupGrid model={newModel} updateModel={fakeUpdateModel} />
