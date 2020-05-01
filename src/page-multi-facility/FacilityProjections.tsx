@@ -10,9 +10,11 @@ import { useProjectionData } from "./projectionCurveHooks";
 const FacilityProjections: React.FC = () => {
   const { facility, rtData } = useContext(FacilityContext);
   let useRt, facilityRtData;
-  if (useFlag(["useRt"])) {
+  // when creating a new facility, we'll never have Rt,
+  // so fall back to unflagged behavior
+  if (useFlag(["useRt"]) && facility) {
     useRt = true;
-    facilityRtData = rtData && facility ? rtData[facility.id] : undefined;
+    facilityRtData = rtData ? rtData[facility.id] : undefined;
   }
   const projectionData = useProjectionData(
     useEpidemicModelState(),
