@@ -114,7 +114,9 @@ function getCurveInputs(modelInputs: EpidemicModelState[]) {
 const ResponseImpactDashboard: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
   const [scenarioState] = useScenario();
-  const [curveInputs, setCurveInputs] = useState([] as CurveFunctionInputs[]);
+  const [currentCurveInputs, setCurrentCurveInputs] = useState(
+    [] as CurveFunctionInputs[],
+  );
   const [originalCurveInputs, setOriginalCurveInputs] = useState(
     [] as CurveFunctionInputs[],
   );
@@ -140,9 +142,9 @@ const ResponseImpactDashboard: React.FC = () => {
       });
 
       const modelInputs = getModelInputs(facilitiesData, localeDataSource);
-      const curveInputs = getCurveInputs(modelInputs);
+      const currentCurveInputs = getCurveInputs(modelInputs);
       setModelInputs(modelInputs);
-      setCurveInputs(curveInputs);
+      setCurrentCurveInputs(currentCurveInputs);
     }
   }
 
@@ -158,7 +160,7 @@ const ResponseImpactDashboard: React.FC = () => {
     );
     const originalCurveInputs = getCurveInputs(originalInputs);
     setOriginalCurveInputs(originalCurveInputs);
-  }, [modelInputs, systemWideData]);
+  }, [modelInputs, systemWideData, localeDataSource]);
 
   useEffect(() => {
     if (modelInputs.length === 0) return;
@@ -170,7 +172,7 @@ const ResponseImpactDashboard: React.FC = () => {
         modelInputs[0].stateCode,
       ).totalPrisonPopulation,
     });
-  }, [modelInputs]);
+  }, [modelInputs, localeDataSource]);
 
   // NOTE: Replace with CurveChart with CurveChartContainer
   // after it's modified to take curve data as prop
@@ -225,7 +227,7 @@ const ResponseImpactDashboard: React.FC = () => {
                 hideAxes={true}
                 hospitalBeds={systemWideData.hospitalBeds}
                 markColors={MarkColors}
-                curveData={getCurveChartData(curveInputs)}
+                curveData={getCurveChartData(currentCurveInputs)}
               />
             </CurveChartContainer>
           </Column>
