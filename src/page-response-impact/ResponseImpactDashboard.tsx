@@ -121,7 +121,7 @@ const ResponseImpactDashboard: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
   const [scenarioState] = useScenario();
   const scenario = scenarioState.data;
-  const scenarioId = scenarioState?.data?.id; // hooks wants this to be its own var
+  const scenarioId = scenarioState?.data?.id; // linter wants this to be its own var since it is a useEffect dep
   const [currentCurveInputs, setCurrentCurveInputs] = useState(
     [] as CurveFunctionInputs[],
   );
@@ -142,29 +142,25 @@ const ResponseImpactDashboard: React.FC = () => {
     loading: true,
   });
 
-  async function fetchFacilities() {
-    if (!scenarioState?.data?.id) return;
-    const facilitiesData = await getFacilities(scenarioState.data.id);
-    if (facilitiesData) {
-      setFacilities({
-        data: facilitiesData,
-        loading: false,
-      });
+  useEffect(() => {
+    async function fetchFacilities() {
+      if (!scenarioId) return;
+      const facilitiesData = await getFacilities(scenarioId);
+      if (facilitiesData) {
+        setFacilities({
+          data: facilitiesData,
+          loading: false,
+        });
 
-      const modelInputs = getModelInputs(facilitiesData, localeDataSource);
-      const currentCurveInputs = getCurveInputs(modelInputs);
-      setModelInputs(modelInputs);
-      setCurrentCurveInputs(currentCurveInputs);
+        const modelInputs = getModelInputs(facilitiesData, localeDataSource);
+        const currentCurveInputs = getCurveInputs(modelInputs);
+        setModelInputs(modelInputs);
+        setCurrentCurveInputs(currentCurveInputs);
+      }
     }
-  }
 
-  useEffect(
-    () => {
-      fetchFacilities();
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [scenarioId],
-  );
+    fetchFacilities();
+  }, [scenarioId, localeDataSource]);
 
   // calculate data for cards
   useEffect(() => {
