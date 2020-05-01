@@ -4,7 +4,7 @@ import {
 } from "../../impact-dashboard/ImpactProjectionTableContainer";
 import { CurveData } from "../../infection-model";
 
-export type releaseCardDataType = {
+export type reductionCardDataType = {
   incarcerated: {
     hospitalized: number;
     fatalities: number;
@@ -16,9 +16,9 @@ export type releaseCardDataType = {
 };
 
 export function buildReductionData(
-  origData: releaseCardDataType,
-  currData: releaseCardDataType,
-): releaseCardDataType {
+  origData: reductionCardDataType,
+  currData: reductionCardDataType,
+): reductionCardDataType {
   // positive value is a reduction
   return {
     incarcerated: {
@@ -40,7 +40,7 @@ export function buildReductionData(
 
 export function buildResponseImpactCardData(
   curveDataArr: CurveData[],
-): releaseCardDataType {
+): reductionCardDataType {
   // for a given scenario, iterate over facilities and produce data for staff/inc. - hosp./fat.
   let incarceratedHospitalizedSum = 0;
   let incarceratedFatalitiesSum = 0;
@@ -74,7 +74,7 @@ export function buildResponseImpactCardData(
     staffFatalitiesSum += staffFatalities;
   });
 
-  const scenarioSum: releaseCardDataType = {
+  const scenarioSum: reductionCardDataType = {
     incarcerated: {
       hospitalized: incarceratedHospitalizedSum,
       fatalities: incarceratedFatalitiesSum,

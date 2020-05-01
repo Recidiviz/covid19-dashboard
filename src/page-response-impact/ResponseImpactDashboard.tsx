@@ -29,7 +29,7 @@ import {
 import {
   buildReductionData,
   buildResponseImpactCardData,
-  releaseCardDataType,
+  reductionCardDataType,
 } from "./utils/ResponseImpactCardStateUtils";
 
 const ResponseImpactDashboardContainer = styled.div``;
@@ -133,8 +133,8 @@ const ResponseImpactDashboard: React.FC = () => {
     staffPopulation: 0,
     prisonPopulation: 0,
   });
-  const [releaseCardData, setReleaseCardData] = useState<
-    releaseCardDataType | undefined
+  const [reductionCardData, setreductionCardData] = useState<
+    reductionCardDataType | undefined
   >();
   const [, setFacilities] = useState({
     data: [] as Facilities,
@@ -173,7 +173,7 @@ const ResponseImpactDashboard: React.FC = () => {
     // positive value is a reduction
     const reduction = buildReductionData(origData, currData);
 
-    setReleaseCardData(reduction);
+    setreductionCardData(reduction);
   }, [originalCurveInputs, currentCurveInputs]);
 
   // calculate original and current curves
@@ -218,7 +218,11 @@ const ResponseImpactDashboard: React.FC = () => {
             <SectionSubheader>
               Positive impact of releasing [X] incarcerated individuals
             </SectionSubheader>
-            <PopulationImpactMetrics />
+            <PopulationImpactMetrics
+              reductionData={reductionCardData}
+              staffPopulation={systemWideData.staffPopulation}
+              incarceratedPopulation={systemWideData.prisonPopulation}
+            />
             <SectionHeader>Community Resources Saved</SectionHeader>
             <ChartHeader>Change in rate of transmission R(0)</ChartHeader>
             <PlaceholderSpace />
