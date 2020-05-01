@@ -7,6 +7,7 @@ import {
   calculateCurves,
   CurveData,
   CurveFunctionInputs,
+  isCurveData,
 } from "../infection-model";
 import { getAllValues, getColView } from "../infection-model/matrixUtils";
 import { seirIndex } from "../infection-model/seir";
@@ -100,7 +101,7 @@ export function getCurveChartData(facilitiesInputs: CurveFunctionInputs[]) {
     };
   const facilitiesProjectionData = calculateCurveData(facilitiesInputs);
   const combinedData: ndarray = combineFacilitiesProjectionData(
-    facilitiesProjectionData,
+    facilitiesProjectionData.filter(isCurveData),
   );
   return {
     exposed: getAllValues(getColView(combinedData, seirIndex.exposed)),

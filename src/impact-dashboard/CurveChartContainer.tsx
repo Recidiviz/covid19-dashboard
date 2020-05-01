@@ -12,7 +12,7 @@ interface Props {
   groupStatus: Record<string, any>;
   hideAxes?: boolean;
   markColors: MarkColors;
-  curveData: ChartData;
+  curveData?: ChartData;
 }
 
 const CurveChartContainer: React.FC<Props> = ({
@@ -26,6 +26,8 @@ const CurveChartContainer: React.FC<Props> = ({
   const [curveDataFiltered, setCurveDataFiltered] = useState(curveData);
 
   useEffect(() => {
+    if (!curveData) return;
+
     if (isEmpty(curveData)) {
       setCurveDataFiltered({});
       return;

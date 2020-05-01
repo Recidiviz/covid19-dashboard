@@ -12,6 +12,7 @@ import InputDate from "../design-system/InputDate";
 import InputDescription from "../design-system/InputDescription";
 import ModalDialog from "../design-system/ModalDialog";
 import { Spacer } from "../design-system/Spacer";
+import { useFlag } from "../feature-flags";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
 import {
   EpidemicModelUpdate,
@@ -21,7 +22,10 @@ import {
 import { AgeGroupGrid } from "../impact-dashboard/FacilityInformation";
 import useModel from "../impact-dashboard/useModel";
 import { FacilityContext } from "./FacilityContext";
-import { useChartDataFromUserInput } from "./projectionCurveHooks";
+import {
+  useChartDataFromProjectionData,
+  useProjectionData,
+} from "./projectionCurveHooks";
 import { Facility } from "./types";
 
 const groupStatus = {
@@ -104,9 +108,16 @@ const FacilityRow: React.FC<Props> = ({
 }) => {
   const [model, updateModel] = useModel();
 
-  const { setFacility } = useContext(FacilityContext);
+  const { rtData, setFacility } = useContext(FacilityContext);
   const [facility, updateFacility] = useState(initialFacility);
-  const chartData = useChartDataFromUserInput(model);
+  let useRt, facilityRtData;
+  if (useFlag(["useRt"])) {
+    useRt = true;
+    facilityRtData = rtData ? rtData[facility.id] : undefined;
+  }
+  const chartData = useChartDataFromProjectionData(
+    useProjectionData(model, useRt, facilityRtData),
+  );
 
   const { id, name, updatedAt } = facility;
   const confirmedCases = totalConfirmedCases(model);

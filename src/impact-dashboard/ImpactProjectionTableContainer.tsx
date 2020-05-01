@@ -2,6 +2,7 @@ import { sum } from "d3-array";
 import ndarray from "ndarray";
 import React from "react";
 
+import Loading from "../design-system/Loading";
 import { CurveData } from "../infection-model";
 import {
   getAllValues,
@@ -102,9 +103,11 @@ function buildHospitalizedRow(data: ndarray): TableRow {
 }
 
 const ImpactProjectionTableContainer: React.FC<{
-  projectionData: CurveData;
+  projectionData?: CurveData;
 }> = ({ projectionData }) => {
   const { hospitalBeds } = useEpidemicModelState();
+
+  if (!projectionData) return <Loading />;
 
   const { incarcerated, staff } = projectionData;
   const incarceratedData: TableRow[] = [
