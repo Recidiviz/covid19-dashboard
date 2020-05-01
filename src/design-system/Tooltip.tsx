@@ -20,12 +20,14 @@ const TooltipReferenceDiv = styled.div`
 const TooltipContentsDiv = styled.div`
   background: ${Colors.forest};
   color: white;
+  font-size: 12px;
+  font-weight: 100;
 
   border-radius: 5px;
   min-width: 20px;
   min-height: 20px;
   max-width: 400px;
-  padding: 5px;
+  padding: 10px;
   margin-left: 5px;
   z-index: 100;
 `;

@@ -67,10 +67,12 @@ const Tooltip: React.FC<TooltipProps> = ({
   );
 };
 
+export interface ChartData {
+  [key: string]: number[] | undefined;
+}
+
 interface CurveChartProps {
-  curveData: {
-    [propName: string]: number[];
-  };
+  curveData: ChartData;
   chartHeight?: number;
   hospitalBeds: number;
   markColors: MarkColors;

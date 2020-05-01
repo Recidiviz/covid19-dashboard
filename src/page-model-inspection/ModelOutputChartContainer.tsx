@@ -1,8 +1,13 @@
 import { sum, zip } from "d3-array";
 import React from "react";
 
+import Loading from "../design-system/Loading";
 import { useEpidemicModelState } from "../impact-dashboard/EpidemicModelContext";
-import { calculateCurves, CurveData } from "../infection-model";
+import {
+  calculateCurves,
+  CurveData,
+  curveInputsFromUserInputs,
+} from "../infection-model";
 import { getAllValues, getColView } from "../infection-model/matrixUtils";
 import { seirIndex, seirIndexList } from "../infection-model/seir";
 import ModelOutputChart from "./ModelOutputChart";
@@ -18,7 +23,8 @@ function combinePopulations(data: CurveData, compartment: seirIndex) {
 const ModelOutputChartContainer: React.FC = () => {
   const modelData = useEpidemicModelState();
   // TODO: could this be stored on the context instead for reuse?
-  const projectionData = calculateCurves(modelData);
+  const projectionData = calculateCurves(curveInputsFromUserInputs(modelData));
+  if (!projectionData) return <Loading />;
   // merge and filter the curve data to only what we need for the chart
   const curveData: { [key: string]: number[] } = {};
   seirIndexList.forEach((i) => {

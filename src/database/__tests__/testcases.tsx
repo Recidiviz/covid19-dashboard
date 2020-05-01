@@ -6,13 +6,15 @@
  * (If/when ported to Jest, remove this directory from testPathIgnorePatterns
  * in Jest config.)
  */
-import { deleteFacility, saveFacility } from "../index";
+import { deleteFacility, saveFacility, saveScenario } from "../index";
+
+const scenarioId = "someScenarioId";
 
 // 1. Full Form Submission - New Facility
 //
 // Note: some fields get submitted along with the form submission
 // that aren't actually valid model inputs (i.e. localeDataSource)
-saveFacility({
+saveFacility(scenarioId, {
   name: "Ascension Correctional Facility",
   modelInputs: {
     stateCode: "Louisiana",
@@ -66,7 +68,7 @@ saveFacility({
 //  - For booleans I'm just toggling them
 //  - For number I'm incrementing them by 1 or .1
 //  - For dates I'm adding a day
-saveFacility({
+saveFacility(scenarioId, {
   id: "ID FROM EXISTING FACILITY",
   name: "Ascension Correctional Facility - u",
   modelInputs: {
@@ -115,7 +117,7 @@ saveFacility({
 
 // 3. Shallow Name Change
 
-saveFacility({
+saveFacility(scenarioId, {
   id: "ID FROM EXISTING FACILITY",
   name: "Arlington Correctional Facility",
 });
@@ -124,7 +126,7 @@ saveFacility({
 
 // 4. Shallow model input change
 
-saveFacility({
+saveFacility(scenarioId, {
   id: "ID FROM EXISTING FACILITY",
   modelInputs: {
     age0Population: 26,
@@ -136,7 +138,7 @@ saveFacility({
 
 // 5.  Update only the age0Population
 
-saveFacility({
+saveFacility(scenarioId, {
   id: "HKdRt67o21iU11KqNbXt",
   modelInputs: {
     stateCode: "Virginia",
@@ -185,13 +187,13 @@ saveFacility({
 
 // 6.  Delete a facility
 
-deleteFacility("EXISTING FACILITY ID");
+deleteFacility(scenarioId, "EXISTING FACILITY ID");
 
 // Works as expected ✅
 
 // 7.  Attempt to update an non-existent facility
 
-saveFacility({
+saveFacility(scenarioId, {
   id: "NON-EXISTENT ID",
   name: "Broken",
 });
@@ -200,6 +202,20 @@ saveFacility({
 
 // 8.  Attempt to delete a non-existent facility
 
-deleteFacility("NON-EXISTENT ID");
+deleteFacility(scenarioId, "NON-EXISTENT ID");
 
 // Firestore treats this as a no-op ✅
+
+// Scenario Saving
+
+saveScenario({
+  name: "High Release Scenario",
+  description:
+    "Modeling what the COVID-19 impact would be in a high release scenario",
+});
+
+saveScenario({
+  name: "Low Release Scenario",
+  description:
+    "Modeling what the COVID-19 impact would be in a low release scenario",
+});

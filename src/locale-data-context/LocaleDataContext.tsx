@@ -3,13 +3,15 @@ import { rollup } from "d3-array";
 import numeral from "numeral";
 import React from "react";
 
-type LocaleRecord = {
+export type LocaleRecord = {
   county: string;
   estimatedIncarceratedCases: number;
   hospitalBeds: number;
   reportedCases: number;
   state: string;
   totalIncarceratedPopulation: number;
+  icuBeds: number;
+  totalPrisonPopulation?: number;
 };
 
 export type LocaleData = Map<string, Map<string, LocaleRecord>>;
@@ -88,6 +90,9 @@ export const LocaleDataProvider: React.FC<{ children: React.ReactNode }> = ({
             const estimatedTotalCases: number =
               reportedCases * (1 / caseReportingRate);
             // TODO: distinguish jail vs prison?
+            const totalPrisonPopulation: number = numeral(
+              row["Prison Population"],
+            ).value();
             const totalIncarceratedPopulation: number =
               numeral(row["Total Incarcerated Population"]).value() || 0;
             const totalPopulation: number =
@@ -105,6 +110,8 @@ export const LocaleDataProvider: React.FC<{ children: React.ReactNode }> = ({
                       estimatedTotalCases
                   : 0,
               ),
+              icuBeds: numeral(row["ICU Beds"]).value() || 0,
+              ...(totalPrisonPopulation && { totalPrisonPopulation }),
             };
           }).filter((row) => row !== undefined);
 
@@ -151,7 +158,6 @@ export const LocaleDataProvider: React.FC<{ children: React.ReactNode }> = ({
 
 export function useLocaleDataState() {
   const context = React.useContext(StateContext);
-
   if (context === undefined) {
     throw new Error(
       "useLocaleDataState must be used within a LocaleDataProvider",

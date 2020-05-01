@@ -1,16 +1,17 @@
 import { format } from "date-fns";
 import React, { useState } from "react";
 
+import { saveScenario } from "../database";
 import InputDescription from "../design-system/InputDescription";
 import InputNameWithIcon from "../design-system/InputNameWithIcon";
 import PromoBoxWithButton from "../design-system/PromoBoxWithButton";
+import { Spacer } from "../design-system/Spacer";
+import useScenario from "../scenario-context/useScenario";
 import ToggleRow from "./ToggleRow";
 import { Scenario } from "./types";
 
 interface Props {
   numFacilities?: number | null;
-  scenario?: Scenario | null;
-  updateScenario: (scenario: Scenario) => void;
 }
 
 export function getEnabledPromoType(
@@ -45,11 +46,16 @@ export function getPromoText(promoType: string | null) {
 }
 
 const ScenarioSidebar: React.FC<Props> = (props) => {
-  const { scenario, updateScenario, numFacilities } = props;
-  const updatedAtDate = Number(scenario?.updatedAt.toDate());
+  const [scenarioState, dispatchScenarioUpdate] = useScenario();
+  const scenario = scenarioState.data;
+  const { numFacilities } = props;
+  const updatedAtDate = Number(scenario?.updatedAt);
 
   const handleScenarioChange = (scenarioChange: object) => {
-    updateScenario(Object.assign({}, scenario, scenarioChange));
+    const changes = Object.assign({}, scenario, scenarioChange);
+    saveScenario(changes).then((_) => {
+      dispatchScenarioUpdate(changes);
+    });
   };
   const [name, setName] = useState(scenario?.name);
   const [promoDismissed, setPromoDismissed] = useState(false);
@@ -65,12 +71,14 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
           placeholderValue={scenario?.name}
           persistChanges={handleScenarioChange}
         />
+        <Spacer y={20} />
         <InputDescription
           description={description}
           setDescription={setDescription}
           placeholderValue={scenario?.description}
           persistChanges={handleScenarioChange}
         />
+        <Spacer y={20} />
         <div>
           <p className="text-xs text-gray-500">
             Last Update:{" "}
