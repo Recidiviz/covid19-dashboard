@@ -139,14 +139,14 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
           setName={setFacilityName}
           placeholderValue="Unnamed Facility"
         />
-        <Spacer y={1.25} />
+        <Spacer y={20} />
         <DescRow>
           <InputDescription
             description={description}
             setDescription={setDescription}
             placeholderValue="Enter a description (optional)"
           />
-          <Spacer x={1.25} />
+          <Spacer x={20} />
           <PopUpMenu items={popupItems} />
         </DescRow>
         <div className="mt-5 mb-5 border-b border-gray-300" />

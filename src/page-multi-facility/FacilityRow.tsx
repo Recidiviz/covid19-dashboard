@@ -100,7 +100,7 @@ const FacilityRow: React.FC<Props> = ({
             <div>
               Last Update: <DateMMMMdyyyy date={updatedAt} />
             </div>
-            <Spacer x={2} />
+            <Spacer x={32} />
           </div>
         </div>
         <div className="w-3/5">

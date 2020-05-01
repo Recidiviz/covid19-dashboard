@@ -6,6 +6,6 @@ interface Props {
 }
 
 export const Spacer = styled.div<Props>`
-  width: ${(props) => (props.x == null ? 0 : props.x + "rem")};
-  height: ${(props) => (props.y == null ? 0 : props.y + "rem")};
+  width: ${(props) => (props.x == null ? 0 : props.x + "px")};
+  height: ${(props) => (props.y == null ? 0 : props.y + "px")};
 `;

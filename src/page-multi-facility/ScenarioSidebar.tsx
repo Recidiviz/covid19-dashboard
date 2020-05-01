@@ -71,14 +71,14 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
           placeholderValue={scenario?.name}
           persistChanges={handleScenarioChange}
         />
-        <Spacer y={1.25} />
+        <Spacer y={20} />
         <InputDescription
           description={description}
           setDescription={setDescription}
           placeholderValue={scenario?.description}
           persistChanges={handleScenarioChange}
         />
-        <Spacer y={1.25} />
+        <Spacer y={20} />
         <div>
           <p className="text-xs text-gray-500">
             Last Update:{" "}
