@@ -20,7 +20,11 @@ import { Facilities } from "../page-multi-facility/types";
 import useScenario from "../scenario-context/useScenario";
 import PopulationImpactMetrics from "./PopulationImpactMetrics";
 import ReducingR0ImpactMetrics from "./ReducingR0ImpactMetrics";
-import { getCurveChartData } from "./responseChartData";
+import {
+  getCurveChartData,
+  getSystemWideSums,
+  originalProjection,
+} from "./responseChartData";
 
 const ResponseImpactDashboardContainer = styled.div``;
 const ScenarioName = styled.div`
@@ -83,6 +87,9 @@ const SectionSubheader = styled.h2`
   padding: 32px 0 24px;
   text-transform: uppercase;
 `;
+const CurveChartContainer = styled.div`
+  margin-bottom: 50px;
+`;
 
 function getModelInputs(facilities: Facilities, localeDataSource: LocaleData) {
   return facilities.map((facility) => {
@@ -104,19 +111,21 @@ function getCurveInputs(modelInputs: EpidemicModelState[]) {
   });
 }
 
-function getHospitalBeds(modelInputs: EpidemicModelState[]) {
-  let sumHospitalBeds = 0;
-  modelInputs.forEach((input) => {
-    return (sumHospitalBeds += input.hospitalBeds || 0);
-  });
-  return sumHospitalBeds;
-}
-
 const ResponseImpactDashboard: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
   const [scenarioState] = useScenario();
-  const [curveInputs, setCurveInputs] = useState([] as CurveFunctionInputs[]);
+  const [currentCurveInputs, setCurrentCurveInputs] = useState(
+    [] as CurveFunctionInputs[],
+  );
+  const [originalCurveInputs, setOriginalCurveInputs] = useState(
+    [] as CurveFunctionInputs[],
+  );
   const [modelInputs, setModelInputs] = useState([] as EpidemicModelState[]);
+  const [systemWideData, setSystemWideData] = useState({
+    hospitalBeds: 0,
+    staffPopulation: 0,
+    prisonPopulation: 0,
+  });
   const scenario = scenarioState.data;
   const [, setFacilities] = useState({
     data: [] as Facilities,
@@ -133,15 +142,37 @@ const ResponseImpactDashboard: React.FC = () => {
       });
 
       const modelInputs = getModelInputs(facilitiesData, localeDataSource);
-      const curveInputs = getCurveInputs(modelInputs);
+      const currentCurveInputs = getCurveInputs(modelInputs);
       setModelInputs(modelInputs);
-      setCurveInputs(curveInputs);
+      setCurrentCurveInputs(currentCurveInputs);
     }
   }
 
   useEffect(() => {
     fetchFacilities();
   }, [scenarioState?.data?.id]);
+
+  useEffect(() => {
+    if (modelInputs.length === 0) return;
+    const originalInputs = getModelInputs(
+      originalProjection(systemWideData),
+      localeDataSource,
+    );
+    const originalCurveInputs = getCurveInputs(originalInputs);
+    setOriginalCurveInputs(originalCurveInputs);
+  }, [modelInputs, systemWideData, localeDataSource]);
+
+  useEffect(() => {
+    if (modelInputs.length === 0) return;
+
+    setSystemWideData({
+      ...getSystemWideSums(modelInputs),
+      prisonPopulation: getLocaleDefaults(
+        localeDataSource,
+        modelInputs[0].stateCode,
+      ).totalPrisonPopulation,
+    });
+  }, [modelInputs, localeDataSource]);
 
   // NOTE: Replace with CurveChart with CurveChartContainer
   // after it's modified to take curve data as prop
@@ -151,7 +182,7 @@ const ResponseImpactDashboard: React.FC = () => {
         <Loading />
       ) : (
         <PageContainer>
-          <Column width={"55%"}>
+          <Column>
             <ScenarioName>{scenario?.name}</ScenarioName>
             <PageHeader>COVID-19 Response Impact as of [DATE]</PageHeader>
 
@@ -172,23 +203,33 @@ const ResponseImpactDashboard: React.FC = () => {
             </SectionSubheader>
             <ReducingR0ImpactMetrics />
           </Column>
-          <Column width={"45%"}>
-            <ChartHeader>
-              Original Projection
-              <ProjectionsLegend />
-            </ChartHeader>
-            <PlaceholderSpace />
-            <ChartHeader color={Colors.teal}>
-              Current Projection
-              <ProjectionsLegend />
-            </ChartHeader>
-            <CurveChart
-              chartHeight={250}
-              hideAxes={false}
-              hospitalBeds={getHospitalBeds(modelInputs)}
-              markColors={MarkColors}
-              curveData={getCurveChartData(curveInputs)}
-            />
+          <Column>
+            <CurveChartContainer>
+              <ChartHeader>
+                Original Projection
+                <ProjectionsLegend />
+              </ChartHeader>
+              <CurveChart
+                chartHeight={144}
+                hideAxes={true}
+                hospitalBeds={systemWideData.hospitalBeds}
+                markColors={MarkColors}
+                curveData={getCurveChartData(originalCurveInputs)}
+              />
+            </CurveChartContainer>
+            <CurveChartContainer>
+              <ChartHeader color={Colors.teal}>
+                Current Projection
+                <ProjectionsLegend />
+              </ChartHeader>
+              <CurveChart
+                chartHeight={144}
+                hideAxes={true}
+                hospitalBeds={systemWideData.hospitalBeds}
+                markColors={MarkColors}
+                curveData={getCurveChartData(currentCurveInputs)}
+              />
+            </CurveChartContainer>
           </Column>
         </PageContainer>
       )}
