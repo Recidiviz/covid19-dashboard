@@ -102,7 +102,6 @@ function getModelInputs(facilities: Facilities, localeDataSource: LocaleData) {
         modelInputs.stateCode,
         modelInputs.countyName,
       ),
-      systemType: facility.systemType,
     };
   });
 }
