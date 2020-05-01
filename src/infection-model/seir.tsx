@@ -2,10 +2,7 @@ import { range, sum, zip } from "d3-array";
 import differenceInCalendarDays from "date-fns/differenceInCalendarDays";
 import ndarray from "ndarray";
 
-import {
-  PlannedReleases,
-  RateOfSpread,
-} from "../impact-dashboard/EpidemicModelContext";
+import { PlannedReleases } from "../impact-dashboard/EpidemicModelContext";
 import {
   getAllValues,
   getColView,
@@ -22,9 +19,10 @@ export interface CurveProjectionInputs extends SimulationInputs {
   numDays: number;
   ageGroupInitiallyInfected: number[];
   facilityOccupancyPct: number;
-  rateOfSpreadFactor: RateOfSpread;
   plannedReleases?: PlannedReleases;
   populationTurnover: number;
+  rateOfSpreadCells: number;
+  rateOfSpreadDorms: number;
 }
 
 interface SingleDayInputs {
@@ -203,18 +201,6 @@ function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
   ];
 }
 
-enum R0Cells {
-  low = 2.4,
-  moderate = 3,
-  high = 3.7,
-}
-
-enum R0Dorms {
-  low = 3,
-  moderate = 5,
-  high = 7,
-}
-
 export const adjustPopulations = ({
   ageGroupPopulations,
   populationTurnover,
@@ -234,11 +220,11 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
     ageGroupInitiallyInfected,
     ageGroupPopulations,
     facilityDormitoryPct,
-    facilityOccupancyPct,
     numDays,
     plannedReleases,
     populationTurnover,
-    rateOfSpreadFactor,
+    rateOfSpreadCells,
+    rateOfSpreadDorms,
   } = inputs;
 
   // 3d array. D1 = SEIR compartment. D2 = day. D3 = age bracket
@@ -270,20 +256,6 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
   ageGroupFatalityRates[ageGroupIndex.age75] = 0.074;
   ageGroupFatalityRates[ageGroupIndex.age85] = 0.1885;
   ageGroupFatalityRates[ageGroupIndex.staff] = 0.026;
-
-  // calculate R0 adjusted for housing type and capacity
-  let rateOfSpreadCells = R0Cells[rateOfSpreadFactor];
-  const rateOfSpreadCellsAdjustment = 0.8; // magic constant
-  rateOfSpreadCells =
-    rateOfSpreadCells -
-    (1 - facilityOccupancyPct) *
-      (rateOfSpreadCells - rateOfSpreadCellsAdjustment);
-  let rateOfSpreadDorms = R0Dorms[rateOfSpreadFactor];
-  const rateOfSpreadDormsAdjustment = 1.7; // magic constant
-  rateOfSpreadDorms =
-    rateOfSpreadDorms -
-    (1 - facilityOccupancyPct) *
-      (rateOfSpreadDorms - rateOfSpreadDormsAdjustment);
 
   // adjust population figures based on expected turnover
   ageGroupPopulations = adjustPopulations({

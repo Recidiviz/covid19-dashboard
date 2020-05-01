@@ -1,6 +1,6 @@
+import { Link } from "gatsby";
 import hexAlpha from "hex-alpha";
 import React from "react";
-import { Link } from "react-router-dom";
 import styled from "styled-components";
 
 import { useAuth0 } from "../auth/react-auth0-spa";

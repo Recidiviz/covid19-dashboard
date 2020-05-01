@@ -13,7 +13,7 @@ const inputTextAreaStyle = {
 
 const DescriptionDiv = styled.div`
   min-height: 100px;
-  padding: 20px 0;
+  width: 100%;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -43,7 +43,7 @@ interface Props {
   description?: string | undefined;
   setDescription: (description?: string) => void;
   placeholderValue?: string | undefined;
-  persistChanges?: (changes: object) => void;
+  persistChanges?: (changes: { description: string | undefined }) => void;
 }
 
 const InputDescription: React.FC<Props> = ({
