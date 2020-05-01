@@ -129,7 +129,13 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
     updateShowDeleteModal(false);
   };
 
-  const rtTimeseriesData = rtData && facility ? rtData[facility.id] : undefined;
+  const rtTimeseriesData = facility
+    ? rtData
+      ? rtData[facility.id]
+      : undefined
+    : // when creating a new facility, there will never be Rt data;
+      // setting this value to null will suppress the chart
+      null;
 
   return (
     <PageContainer>
