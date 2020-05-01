@@ -2,7 +2,7 @@ import {
   countEverHospitalizedForDay,
   getFatalitiesForDay,
 } from "../../impact-dashboard/ImpactProjectionTableContainer";
-import { CurveData } from "../../infection-model";
+import { CurveData, isCurveData } from "../../infection-model";
 
 export type reductionCardDataType = {
   incarcerated: {
@@ -39,7 +39,7 @@ export function buildReductionData(
 }
 
 export function buildResponseImpactCardData(
-  curveDataArr: CurveData[],
+  curveDataArr: (CurveData | undefined)[],
 ): reductionCardDataType {
   // for a given scenario, iterate over facilities and produce data for staff/inc. - hosp./fat.
   let incarceratedHospitalizedSum = 0;
@@ -47,7 +47,7 @@ export function buildResponseImpactCardData(
   let staffHospitalizedSum = 0;
   let staffFatalitiesSum = 0;
 
-  curveDataArr.forEach((data) => {
+  curveDataArr.filter(isCurveData).forEach((data) => {
     const incarceratedData = data.incarcerated;
     const staffData = data.staff;
 
