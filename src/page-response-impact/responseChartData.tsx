@@ -12,6 +12,9 @@ import { getAllValues, getColView } from "../infection-model/matrixUtils";
 import { seirIndex } from "../infection-model/seir";
 import { Facilities } from "../page-multi-facility/types";
 
+const NUM_DAYS = 90;
+const NUM_SEIR_CATEGORIES = 9;
+
 interface SystemWideData {
   staffPopulation: number;
   prisonPopulation: number;
@@ -82,7 +85,7 @@ function combineFacilitiesProjectionData(
       return (sum += value);
     }, 0);
   });
-  return ndarray(summedData, [90, 9]);
+  return ndarray(summedData, [NUM_DAYS, NUM_SEIR_CATEGORIES]);
 }
 
 export function getCurveChartData(facilitiesInputs: CurveFunctionInputs[]) {
