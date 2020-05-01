@@ -124,8 +124,9 @@ def compute_r_t(historical_case_counts):
 
     _, smoothed = prepare_cases(case_df, cutoff=25)
 
-    # Raise an error if there are no valid cases to use
-    if len(smoothed) == 0:
+    # Raise an error if there are not enough valid cases to use
+    # we need at least two days to represent change over time
+    if len(smoothed) < 2:
         raise ValueError('Input has too few cases to compute R(t)')
 
     # Note that we're fixing sigma to a value just for the example
