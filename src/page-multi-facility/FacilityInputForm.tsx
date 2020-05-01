@@ -11,13 +11,12 @@ import ModalDialog from "../design-system/ModalDialog";
 import { Column, PageContainer } from "../design-system/PageColumn";
 import PopUpMenu from "../design-system/PopUpMenu";
 import { Flag } from "../feature-flags";
-import ChartArea from "../impact-dashboard/ChartArea";
 import FacilityInformation from "../impact-dashboard/FacilityInformation";
-import ImpactProjectionTable from "../impact-dashboard/ImpactProjectionTableContainer";
 import MitigationInformation from "../impact-dashboard/MitigationInformation";
 import useModel from "../impact-dashboard/useModel";
 import RtTimeseries from "../rt-timeseries";
 import { FacilityContext } from "./FacilityContext";
+import FacilityProjections from "./FacilityProjections";
 import LocaleInformationSection from "./LocaleInformationSection";
 
 const ButtonSection = styled.div`
@@ -175,8 +174,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
         <div className="mt-8" />
       </Column>
       <Column width={"55%"}>
-        <ChartArea />
-        <ImpactProjectionTable />
+        <FacilityProjections />
       </Column>
 
       {/* MODAL */}
