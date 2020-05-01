@@ -397,16 +397,25 @@ export const saveFacility = async (
     if (facility.id) {
       const payload = buildUpdatePayload(facility);
       facilityDoc = facilitiesCollection.doc(facility.id);
-      // Only update the facility if the incoming observedAt date is > than the current observedAt date in the existing facility
-      const incomingObservedAt = facility.modelInputs.observedAt;
-      const currentFacilityData = await facilityDoc.get();
-      const currentFacility = buildFacility(scenarioId, currentFacilityData);
-      if (
-        incomingObservedAt &&
-        currentFacility.modelInputs.observedAt &&
-        startOfDay(incomingObservedAt) >=
-          startOfDay(currentFacility.modelInputs.observedAt)
-      ) {
+
+      // Handle facility updates in a context where we are also updating
+      // modelInputs (i.e. Facility Details Page, Add Cases Shortcut)
+      if (facility.modelInputs) {
+        // Only update the facility if the incoming observedAt date is > than the current observedAt date in the existing facility
+        const incomingObservedAt = facility.modelInputs.observedAt;
+        const currentFacilityData = await facilityDoc.get();
+        const currentFacility = buildFacility(scenarioId, currentFacilityData);
+        if (
+          incomingObservedAt &&
+          currentFacility.modelInputs.observedAt &&
+          startOfDay(incomingObservedAt) >=
+            startOfDay(currentFacility.modelInputs.observedAt)
+        ) {
+          batch.update(facilityDoc, payload);
+        }
+        // Handle facility updates from a context where we are not also updating
+        // modelInputs (i.e. renaming a facility in the FacilityRow).
+      } else {
         batch.update(facilityDoc, payload);
       }
     } else {
