@@ -27,6 +27,7 @@ import {
   originalProjection,
 } from "./responseChartData";
 import {
+  buildReductionData,
   buildResponseImpactCardData,
   releaseCardDataType,
 } from "./utils/ResponseImpactCardStateUtils";
@@ -119,6 +120,7 @@ function getModelInputs(facilities: Facilities, localeDataSource: LocaleData) {
 const ResponseImpactDashboard: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
   const [scenarioState] = useScenario();
+  const scenario = scenarioState.data;
   const [currentCurveInputs, setCurrentCurveInputs] = useState(
     [] as CurveFunctionInputs[],
   );
@@ -134,10 +136,6 @@ const ResponseImpactDashboard: React.FC = () => {
   const [releaseCardData, setReleaseCardData] = useState<
     releaseCardDataType | undefined
   >();
-  const [statePrisonPopulation, setStatePrisonPopulation] = useState<
-    number | undefined
-  >();
-  const scenario = scenarioState.data;
   const [, setFacilities] = useState({
     data: [] as Facilities,
     loading: true,
@@ -159,31 +157,26 @@ const ResponseImpactDashboard: React.FC = () => {
     }
   }
 
-  // calculate data for cards
-  useEffect(() => {
-    const curveDataPerFacility = calculateCurveData(currentCurveInputs);
-    const releaseCardObj = buildResponseImpactCardData(curveDataPerFacility);
-
-    setReleaseCardData(releaseCardObj);
-  }, [currentCurveInputs]);
-
-  // calculate state prison population
-  useEffect(() => {
-    // get state total prison population
-    if (modelInputs.length) {
-      const state = modelInputs[0].stateCode;
-      const statePrisonPop: number | undefined = localeDataSource
-        .get(state)
-        ?.get("Total")?.totalPrisonPopulation;
-
-      setStatePrisonPopulation(statePrisonPop);
-    }
-  }, [modelInputs, localeDataSource]);
-
   useEffect(() => {
     fetchFacilities();
   }, [scenarioState?.data?.id]);
 
+  // calculate data for cards
+  useEffect(() => {
+    const originalCurveDataPerFacility = calculateCurveData(
+      originalCurveInputs,
+    );
+    const origData = buildResponseImpactCardData(originalCurveDataPerFacility);
+    const currentCurveDataPerFacility = calculateCurveData(currentCurveInputs);
+    const currData = buildResponseImpactCardData(currentCurveDataPerFacility);
+
+    // positive value is a reduction
+    const reduction = buildReductionData(origData, currData);
+
+    setReleaseCardData(reduction);
+  }, [originalCurveInputs, currentCurveInputs]);
+
+  // calculate original and current curves
   useEffect(() => {
     if (modelInputs.length === 0) return;
     const originalInputs = getModelInputs(
@@ -194,6 +187,7 @@ const ResponseImpactDashboard: React.FC = () => {
     setOriginalCurveInputs(originalCurveInputs);
   }, [modelInputs, systemWideData, localeDataSource]);
 
+  // set system wide data
   useEffect(() => {
     if (modelInputs.length === 0) return;
 
