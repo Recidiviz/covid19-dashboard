@@ -1,12 +1,26 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
-import Colors from "../design-system/Colors";
+import { getFacilities } from "../database";
+import Colors, { MarkColors } from "../design-system/Colors";
 import Loading from "../design-system/Loading";
 import { Column, PageContainer } from "../design-system/PageColumn";
+import CurveChart from "../impact-dashboard/CurveChart";
+import {
+  EpidemicModelState,
+  getLocaleDefaults,
+} from "../impact-dashboard/EpidemicModelContext";
+import {
+  CurveFunctionInputs,
+  curveInputsFromUserInputs,
+} from "../infection-model";
+import { LocaleData, useLocaleDataState } from "../locale-data-context";
+import ProjectionsLegend from "../page-multi-facility/ProjectionsLegend";
+import { Facilities } from "../page-multi-facility/types";
 import useScenario from "../scenario-context/useScenario";
 import PopulationImpactMetrics from "./PopulationImpactMetrics";
 import ReducingR0ImpactMetrics from "./ReducingR0ImpactMetrics";
+import { getCurveChartData } from "./responseChartData";
 
 const ResponseImpactDashboardContainer = styled.div``;
 const ScenarioName = styled.div`
@@ -19,7 +33,6 @@ const ScenarioName = styled.div`
   color: ${Colors.green};
   padding: 10px 0;
 `;
-
 const PageHeader = styled.h1`
   color: ${Colors.forest};
   font-family: "Libre Baskerville";
@@ -29,7 +42,6 @@ const PageHeader = styled.h1`
   letter-spacing: -0.06em;
   padding: 24px 0;
 `;
-
 const SectionHeader = styled.h1`
   color: ${Colors.forest};
   border-top: 1px solid ${Colors.opacityGray};
@@ -40,7 +52,6 @@ const SectionHeader = styled.h1`
   letter-spacing: -0.06em;
   padding: 32px 0 24px;
 `;
-
 const PlaceholderSpace = styled.div`
   border: 1px solid ${Colors.gray};
   background-color: ${Colors.darkGray};
@@ -48,19 +59,20 @@ const PlaceholderSpace = styled.div`
   margin: 20px 0;
   width: 100%;
 `;
-
 const ChartHeader = styled.h3<{ color?: string }>`
   border-top: 1px solid ${Colors.opacityGray};
   border-bottom: 1px solid ${Colors.opacityGray};
   color: ${(props) => props.color || Colors.opacityForest};
+  display: flex;
   font-family: "Poppins";
   font-style: normal;
   font-weight: 600;
   font-size: 9px;
+  justify-content: space-between;
   line-height: 16px;
+  margin-bottom: 15px;
   padding: 5px 0;
 `;
-
 const SectionSubheader = styled.h2`
   color: ${Colors.darkForest};
   font-family: "Poppins";
@@ -72,10 +84,67 @@ const SectionSubheader = styled.h2`
   text-transform: uppercase;
 `;
 
-const ResponseImpactDashboard: React.FC = () => {
-  const [scenarioState] = useScenario();
-  const scenario = scenarioState.data;
+function getModelInputs(facilities: Facilities, localeDataSource: LocaleData) {
+  return facilities.map((facility) => {
+    const modelInputs = facility.modelInputs;
+    return {
+      ...modelInputs,
+      ...getLocaleDefaults(
+        localeDataSource,
+        modelInputs.stateCode,
+        modelInputs.countyName,
+      ),
+    };
+  });
+}
 
+function getCurveInputs(modelInputs: EpidemicModelState[]) {
+  return modelInputs.map((modelInput) => {
+    return curveInputsFromUserInputs(modelInput);
+  });
+}
+
+function getHospitalBeds(modelInputs: EpidemicModelState[]) {
+  let sumHospitalBeds = 0;
+  modelInputs.forEach((input) => {
+    return (sumHospitalBeds += input.hospitalBeds || 0);
+  });
+  return sumHospitalBeds;
+}
+
+const ResponseImpactDashboard: React.FC = () => {
+  const { data: localeDataSource } = useLocaleDataState();
+  const [scenarioState] = useScenario();
+  const [curveInputs, setCurveInputs] = useState([] as CurveFunctionInputs[]);
+  const [modelInputs, setModelInputs] = useState([] as EpidemicModelState[]);
+  const scenario = scenarioState.data;
+  const [, setFacilities] = useState({
+    data: [] as Facilities,
+    loading: true,
+  });
+
+  async function fetchFacilities() {
+    if (!scenarioState?.data?.id) return;
+    const facilitiesData = await getFacilities(scenarioState.data.id);
+    if (facilitiesData) {
+      setFacilities({
+        data: facilitiesData,
+        loading: false,
+      });
+
+      const modelInputs = getModelInputs(facilitiesData, localeDataSource);
+      const curveInputs = getCurveInputs(modelInputs);
+      setModelInputs(modelInputs);
+      setCurveInputs(curveInputs);
+    }
+  }
+
+  useEffect(() => {
+    fetchFacilities();
+  }, [scenarioState?.data?.id]);
+
+  // NOTE: Replace with CurveChart with CurveChartContainer
+  // after it's modified to take curve data as prop
   return (
     <ResponseImpactDashboardContainer>
       {scenarioState.loading ? (
@@ -104,10 +173,22 @@ const ResponseImpactDashboard: React.FC = () => {
             <ReducingR0ImpactMetrics />
           </Column>
           <Column width={"45%"}>
-            <ChartHeader>Original Projection</ChartHeader>
+            <ChartHeader>
+              Original Projection
+              <ProjectionsLegend />
+            </ChartHeader>
             <PlaceholderSpace />
-            <ChartHeader color={Colors.teal}>Current Projection</ChartHeader>
-            <PlaceholderSpace />
+            <ChartHeader color={Colors.teal}>
+              Current Projection
+              <ProjectionsLegend />
+            </ChartHeader>
+            <CurveChart
+              chartHeight={250}
+              hideAxes={false}
+              hospitalBeds={getHospitalBeds(modelInputs)}
+              markColors={MarkColors}
+              curveData={getCurveChartData(curveInputs)}
+            />
           </Column>
         </PageContainer>
       )}
