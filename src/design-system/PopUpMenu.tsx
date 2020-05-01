@@ -29,7 +29,6 @@ const PopUpMenuIcon = styled.div`
   font-size: 24px;
   font-weight: 600;
   color: ${Colors.forest};
-  padding: 8px;
 `;
 
 const PopUpMenuContents = styled.div`

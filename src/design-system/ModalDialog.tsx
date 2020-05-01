@@ -25,6 +25,8 @@ const ModalContainer = styled.div`
   width: 65vw;
   padding: 35px;
   position: static;
+  max-height: 90%;
+  overflow-y: auto;
 `;
 
 interface Props {

@@ -43,6 +43,8 @@ interface ModelInputsPersistent {
   rateOfSpreadFactor?: RateOfSpread;
   staffCases?: number;
   staffPopulation?: number;
+  observedAt?: Date;
+  updatedAt?: Date;
 }
 
 interface ModelInputsUpdate extends ModelInputsPersistent {
@@ -103,6 +105,8 @@ export const persistedKeys: Array<keyof EpidemicModelPersistent> = [
   "rateOfSpreadFactor",
   "staffCases",
   "staffPopulation",
+  "observedAt",
+  "updatedAt",
 ];
 
 export type EpidemicModelUpdate = ModelInputsUpdate & MetadataPersistent;
@@ -152,6 +156,8 @@ export function getLocaleDefaults(
     totalIncarcerated:
       dataSource.get(stateCode)?.get(countyName)?.totalIncarceratedPopulation ||
       0,
+    totalPrisonPopulation:
+      dataSource.get(stateCode)?.get(countyName)?.totalPrisonPopulation || 0,
     // user input defaults
     rateOfSpreadFactor: RateOfSpread.high,
     facilityOccupancyPct: 1,
