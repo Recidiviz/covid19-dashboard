@@ -69,12 +69,28 @@ enum R0Dorms {
 export function curveInputsFromUserInputs(
   userInputs: EpidemicModelInputs,
 ): CurveFunctionInputs {
+  const { facilityOccupancyPct, rateOfSpreadFactor } = userInputs;
   // translate qualitative rate of spread factor into numbers
-  const rateOfSpreadDefaults = {
-    rateOfSpreadCells: R0Cells[userInputs.rateOfSpreadFactor],
-    rateOfSpreadDorms: R0Dorms[userInputs.rateOfSpreadFactor],
+  let rateOfSpreadCells = R0Cells[rateOfSpreadFactor];
+  let rateOfSpreadDorms = R0Dorms[rateOfSpreadFactor];
+
+  // adjust rate of spread for housing type and capacity
+  const rateOfSpreadCellsAdjustment = 0.8; // magic constant
+  rateOfSpreadCells =
+    rateOfSpreadCells -
+    (1 - facilityOccupancyPct) *
+      (rateOfSpreadCells - rateOfSpreadCellsAdjustment);
+
+  const rateOfSpreadDormsAdjustment = 1.7; // magic constant
+  rateOfSpreadDorms =
+    rateOfSpreadDorms -
+    (1 - facilityOccupancyPct) *
+      (rateOfSpreadDorms - rateOfSpreadDormsAdjustment);
+
+  const curveInputs = {
+    ...userInputs,
+    ...{ rateOfSpreadCells, rateOfSpreadDorms },
   };
-  const curveInputs = { ...userInputs, ...rateOfSpreadDefaults };
   delete curveInputs.rateOfSpreadFactor;
   return curveInputs;
 }
