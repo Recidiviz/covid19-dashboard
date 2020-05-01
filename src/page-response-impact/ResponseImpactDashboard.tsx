@@ -120,6 +120,7 @@ function getModelInputs(facilities: Facilities, localeDataSource: LocaleData) {
 const ResponseImpactDashboard: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
   const [scenarioState] = useScenario();
+  const scenarioId = scenarioState?.data?.id;
   const scenario = scenarioState.data;
   const [currentCurveInputs, setCurrentCurveInputs] = useState(
     [] as CurveFunctionInputs[],
@@ -159,7 +160,7 @@ const ResponseImpactDashboard: React.FC = () => {
 
   useEffect(() => {
     fetchFacilities();
-  }, [scenarioState?.data?.id]);
+  }, [scenarioId, fetchFacilities]);
 
   // calculate data for cards
   useEffect(() => {
