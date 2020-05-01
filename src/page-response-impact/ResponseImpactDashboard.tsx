@@ -121,6 +121,7 @@ const ResponseImpactDashboard: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
   const [scenarioState] = useScenario();
   const scenario = scenarioState.data;
+  const scenarioId = scenarioState?.data?.id; // hooks wants this to be its own var
   const [currentCurveInputs, setCurrentCurveInputs] = useState(
     [] as CurveFunctionInputs[],
   );
@@ -157,9 +158,13 @@ const ResponseImpactDashboard: React.FC = () => {
     }
   }
 
-  useEffect(() => {
-    fetchFacilities();
-  }, [scenarioState?.data?.id]);
+  useEffect(
+    () => {
+      fetchFacilities();
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [scenarioId],
+  );
 
   // calculate data for cards
   useEffect(() => {
