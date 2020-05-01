@@ -1,9 +1,15 @@
 import { render } from "@testing-library/react";
+import ndarray from "ndarray";
 import React from "react";
 
 import { EpidemicModelInputs } from "../../impact-dashboard/EpidemicModelContext";
+import { CurveData } from "../../infection-model";
 import { RtData } from "../../infection-model/rt";
-import { useProjectionData } from "../projectionCurveHooks";
+import { ageGroupIndex, seirIndex } from "../../infection-model/seir";
+import {
+  useChartDataFromProjectionData,
+  useProjectionData,
+} from "../projectionCurveHooks";
 
 describe("useProjectionData", () => {
   let input: any;
@@ -97,5 +103,48 @@ describe("useProjectionData", () => {
 
     render(<TestComponent input={input} />);
     expect(returnVal).toBeDefined();
+  });
+});
+
+describe("useChartDataFromProjectionData", () => {
+  let input: CurveData;
+  let returnVal: any;
+
+  function TestComponent({ input }: { input: CurveData }) {
+    returnVal = useChartDataFromProjectionData(input);
+    return null;
+  }
+
+  beforeEach(() => {
+    const days = 90;
+    input = {
+      incarcerated: ndarray(
+        new Array(seirIndex.__length * days * ageGroupIndex.__length - 1).fill(
+          0,
+        ),
+        [seirIndex.__length, days, ageGroupIndex.__length - 1],
+      ),
+      staff: ndarray(new Array(seirIndex.__length * days).fill(0), [
+        seirIndex.__length,
+        days,
+        1,
+      ]),
+    };
+  });
+
+  test("reference remains stable with same input", () => {
+    const { rerender } = render(<TestComponent input={input} />);
+    const firstReturnVal = returnVal;
+
+    rerender(<TestComponent input={input} />);
+    expect(firstReturnVal).toBe(returnVal);
+  });
+
+  test("reference changes with new input", () => {
+    const { rerender } = render(<TestComponent input={input} />);
+    const firstReturnVal = returnVal;
+
+    rerender(<TestComponent input={{ ...input }} />);
+    expect(firstReturnVal).not.toBe(returnVal);
   });
 });
