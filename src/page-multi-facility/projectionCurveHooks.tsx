@@ -7,20 +7,40 @@ import {
   calculateCurves,
   CurveData,
   curveInputsFromUserInputs,
+  curveInputsWithRt,
 } from "../infection-model";
 import { getAllValues, getColView } from "../infection-model/matrixUtils";
+import { RtData } from "../infection-model/rt";
 import { seirIndex } from "../infection-model/seir";
 
-export const useProjectionFromUserInput = (
+function getCurves(
   input: EpidemicModelInputs,
-): CurveData => {
-  const [curves, updateCurves] = useState(
-    calculateCurves(curveInputsFromUserInputs(input)),
+  useRt?: boolean,
+  latestRt?: number,
+) {
+  return calculateCurves(
+    useRt
+      ? curveInputsWithRt(input, latestRt)
+      : curveInputsFromUserInputs(input),
   );
+}
+
+export const useProjectionData = (
+  input: EpidemicModelInputs,
+  useRt?: boolean,
+  rtData?: RtData,
+): CurveData | undefined => {
+  let latestRt: number | undefined;
+
+  if (useRt) {
+    latestRt = rtData?.Rt[rtData.Rt.length - 1].value;
+  }
+
+  const [curves, updateCurves] = useState(getCurves(input, useRt, latestRt));
 
   useEffect(() => {
-    updateCurves(calculateCurves(curveInputsFromUserInputs(input)));
-  }, [input]);
+    updateCurves(getCurves(input, useRt, latestRt));
+  }, [input, latestRt, useRt]);
 
   return curves;
 };
@@ -32,7 +52,9 @@ function combinePopulations(data: CurveData, columnIndex: number) {
   ).map(([incarcerated, staff]) => incarcerated + staff);
 }
 
-function buildCurves(projectionData: CurveData) {
+function buildCurves(projectionData?: CurveData) {
+  if (!projectionData) return {};
+
   // merge and filter the curve data to only what we need for the chart
   return {
     exposed: combinePopulations(projectionData, seirIndex.exposed),
@@ -42,7 +64,7 @@ function buildCurves(projectionData: CurveData) {
   };
 }
 
-export const useChartDataFromProjectionData = (projectionData: CurveData) => {
+export const useChartDataFromProjectionData = (projectionData?: CurveData) => {
   const [curveData, updateCurveData] = useState(buildCurves(projectionData));
 
   useEffect(() => {

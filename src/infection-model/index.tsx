@@ -79,6 +79,23 @@ export function curveInputsFromUserInputs(
   return curveInputs;
 }
 
+export function curveInputsWithRt(
+  userInputs: EpidemicModelInputs,
+  rt?: number,
+): CurveFunctionInputs | undefined {
+  if (rt === undefined) {
+    return;
+  }
+  // with Rt there is no distinction between these rates
+  const rateOfSpreadValues = {
+    rateOfSpreadCells: rt,
+    rateOfSpreadDorms: rt,
+  };
+  const curveInputs = { ...userInputs, ...rateOfSpreadValues };
+  delete curveInputs.rateOfSpreadFactor;
+  return curveInputs;
+}
+
 function prepareCurveData(inputs: CurveFunctionInputs): CurveProjectionInputs {
   const {
     age0Cases,
@@ -132,7 +149,11 @@ function prepareCurveData(inputs: CurveFunctionInputs): CurveProjectionInputs {
   };
 }
 
-export function calculateCurves(inputs: CurveFunctionInputs): CurveData {
+export function calculateCurves(
+  inputs?: CurveFunctionInputs,
+): CurveData | undefined {
+  if (!inputs) return;
+
   const { projectionGrid } = getAllBracketCurves(prepareCurveData(inputs));
 
   // these will each produce a matrix with row = day and col = SEIR bucket,

@@ -7,13 +7,17 @@ import Colors, { MarkColors as markColors } from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import iconEditSrc from "../design-system/icons/ic_edit.svg";
 import InputTextArea from "../design-system/InputTextArea";
+import { useFlag } from "../feature-flags";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
 import {
   totalConfirmedCases,
   useEpidemicModelState,
 } from "../impact-dashboard/EpidemicModelContext";
 import { FacilityContext } from "./FacilityContext";
-import { useChartDataFromUserInput } from "./projectionCurveHooks";
+import {
+  useChartDataFromProjectionData,
+  useProjectionData,
+} from "./projectionCurveHooks";
 import { Facility } from "./types";
 
 const groupStatus = {
@@ -73,9 +77,17 @@ const FacilityRow: React.FC<Props> = ({
   scenarioId: scenarioId,
 }) => {
   const modelData = useEpidemicModelState();
-  const { setFacility } = useContext(FacilityContext);
+  const { setFacility, rtData } = useContext(FacilityContext);
   const [facility, updateFacility] = useState(initialFacility);
-  const chartData = useChartDataFromUserInput(modelData);
+
+  let useRt, facilityRtData;
+  if (useFlag(["useRt"])) {
+    useRt = true;
+    facilityRtData = rtData ? rtData[facility.id] : undefined;
+  }
+  const chartData = useChartDataFromProjectionData(
+    useProjectionData(modelData, useRt, facilityRtData),
+  );
 
   const { id, name, updatedAt } = facility;
   const confirmedCases = totalConfirmedCases(modelData);
