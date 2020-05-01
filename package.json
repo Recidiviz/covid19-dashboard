@@ -1,9 +1,9 @@
 {
   "private": true,
   "scripts": {
-    "build": "parcel build index.html && echo && parcel build --target node src/entry-point-static/build.tsx && node src/entry-point-static/fixSourceMap.tsx && echo && node --enable-source-maps dist/build.js && rm -f dist/build.js dist/build.js.map",
-    "clean": "rm -rf dist && rm -rf .cache",
-    "dev": "parcel serve index.html",
+    "build": "gatsby build",
+    "clean": "gatsby clean",
+    "dev": "gatsby develop",
     "lint-all-check": "npm-run-all -s --continue-on-error lint-tsc-check lint-eslint-check lint-prettier-check",
     "lint-all-fix": "npm-run-all -s lint-eslint-fix lint-prettier-fix",
     "lint-eslint-check": "eslint --ignore-path .gitignore 'src/**/*.{js,ts,tsx}'",
@@ -11,15 +11,13 @@
     "lint-prettier-check": "prettier --check --ignore-path .gitignore src",
     "lint-prettier-fix": "prettier --write --ignore-path .gitignore src",
     "lint-tsc-check": "tsc",
-    "postinstall": "touch node_modules/.bin/.keep",
+    "serve": "gatsby serve",
     "test": "jest"
   },
   "dependencies": {
     "@auth0/auth0-spa-js": "~1.6.5",
-    "@babel/runtime": "^7.9.2",
-    "@hot-loader/react-dom": "^16.13.0",
     "@popperjs/core": "^2.2.1",
-    "@types/camelcase-keys": "^5.1.1",
+    "@reach/router": "^1.3.3",
     "@types/classnames": "^2.2.10",
     "@types/d3": "^5.7.2",
     "@types/d3-array": "^2.0.0",
@@ -28,8 +26,10 @@
     "@types/node": "^12.12.31",
     "@types/numeral": "^0.0.26",
     "@types/qs": "^6.9.1",
+    "@types/reach__router": "^1.3.4",
     "@types/react": "^16.9.26",
     "@types/react-dom": "^16.9.5",
+    "@types/react-helmet": "^5.0.15",
     "@types/react-hot-loader": "^4.1.1",
     "@types/react-router-dom": "^5.1.3",
     "@types/react-virtualized": "^9.21.8",
@@ -37,8 +37,6 @@
     "@types/styled-components": "^5.0.1",
     "@typescript-eslint/eslint-plugin": "^2.25.0",
     "@typescript-eslint/parser": "^2.25.0",
-    "babel-plugin-styled-components": "^1.10.7",
-    "camelcase-keys": "^6.2.2",
     "chalk": "^3.0.0",
     "change-case": "^4.1.1",
     "classnames": "^2.2.6",
@@ -54,6 +52,15 @@
     "eslint-plugin-react-hooks": "^3.0.0",
     "eslint-plugin-simple-import-sort": "^5.0.2",
     "firebase": "^7.14.0",
+    "flag": "^4.4.0",
+    "gatsby": "^2.20.35",
+    "gatsby-plugin-google-analytics": "^2.2.5",
+    "gatsby-plugin-manifest": "^2.3.7",
+    "gatsby-plugin-postcss": "^2.2.4",
+    "gatsby-plugin-prefetch-google-fonts": "^1.4.3",
+    "gatsby-plugin-react-helmet": "^3.2.5",
+    "gatsby-plugin-styled-components": "^3.2.4",
+    "gatsby-plugin-typescript": "^2.3.5",
     "hex-alpha": "^1.0.2",
     "husky": "^4.2.3",
     "lint-staged": "^10.0.9",
@@ -62,16 +69,15 @@
     "ndarray": "^1.0.19",
     "npm-run-all": "^4.1.5",
     "numeral": "^2.0.6",
-    "parcel": "^1.12.4",
     "prettier": "^2.0.2",
     "qs": "^6.9.3",
     "react": "^16.0.0",
     "react-date-picker": "^8.0.1",
     "react-dom": "^16.0.0",
+    "react-helmet": "^6.0.0",
     "react-hot-loader": "^4.12.20",
     "react-is": "^16.13.1",
     "react-popper": "^2.1.0",
-    "react-router-dom": "^5.1.2",
     "react-spinners": "^0.8.1",
     "react-virtualized": "^9.21.2",
     "react-virtualized-auto-sizer": "^1.0.2",
@@ -79,11 +85,11 @@
     "resize-observer-polyfill": "^1.5.1",
     "semiotic": "^1.20.5",
     "styled-components": "^5.0.1",
+    "tailwindcss": "^1.3.5",
     "typescript": "^3.8.3",
-    "us-zcta-counties": "^0.0.2"
-  },
-  "alias": {
-    "react-dom": "@hot-loader/react-dom"
+    "us-zcta-counties": "^0.0.2",
+    "utility-types": "^3.10.0",
+    "whatwg-fetch": "^3.0.0"
   },
   "husky": {
     "hooks": {
@@ -94,7 +100,7 @@
     "!(*.d).ts": [
       "false -- Please use .tsx instead of .ts!"
     ],
-    "*.js": [
+    "*/**/*.js": [
       "false -- Please use .tsx with `// @ts-nocheck` instead of .js!"
     ],
     "*.{html,json,md,webmanifest}": [

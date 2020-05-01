@@ -25,6 +25,8 @@ const ModalContainer = styled.div`
   width: 65vw;
   padding: 35px;
   position: static;
+  max-height: 90%;
+  overflow-y: auto;
 `;
 
 interface Props {
@@ -62,7 +64,7 @@ const ModalDialog: React.FC<Props> = (props) => {
         {children}
       </ModalContainer>
     </BackgroundAside>,
-    document.getElementById("app") as HTMLElement,
+    document.getElementById("___gatsby") as HTMLElement,
   );
 };
 

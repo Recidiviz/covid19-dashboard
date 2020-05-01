@@ -51,7 +51,8 @@ export const StyledInput = styled.input<InputProps>`
   box-sizing: border-box;
   color: ${Colors.forest};
   flex: 1 1 auto;
-  font: 16px/1.2 "Rubik", sans-serif;
+  font: 13px/16px "Poppins", sans-serif;
+  letter-spacing: -0.02em;
   height: 48px;
   margin-top: 8px;
   outline: 0 solid transparent;

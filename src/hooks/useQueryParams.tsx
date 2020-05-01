@@ -1,7 +1,11 @@
+import { useLocation } from "@reach/router";
+import { navigate } from "gatsby";
 import { isEqual as isGenerallyEqual } from "lodash";
 import qs from "qs";
 import { useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
+
+import { prepareForStorage, prepareFromStorage } from "../database/utils";
+import { EpidemicModelPersistent } from "../impact-dashboard/EpidemicModelContext";
 
 import { prepareForStorage, prepareFromStorage } from "../database/utils";
 import { EpidemicModelPersistent } from "../impact-dashboard/EpidemicModelContext";
@@ -44,9 +48,9 @@ const useQueryParams = (
   defaultValues: QueryParams,
   validKeys?: string[],
 ): UseQueryParamsOutput => {
-  const history = useHistory();
+  const location = useLocation();
 
-  const defaultQueryParams = parse(history.location.search) as QueryParams;
+  const defaultQueryParams = parse(location.search) as QueryParams;
   const hasExistingURLQueryParams = Object.keys(defaultQueryParams).length > 0;
 
   const initialValues = hasExistingURLQueryParams
@@ -57,18 +61,16 @@ const useQueryParams = (
 
   // If values have been updated, also set the query params
   useEffect(() => {
-    const currentQuery = parse(history.location.search) as QueryParams;
+    const currentQuery = parse(location.search) as QueryParams;
 
     if (!isEqual(currentQuery, values, validKeys)) {
-      const newLocation = {
-        ...history.location,
-        search: stringify(values),
-      };
+      const newLocation = new URL("?" + stringify(values), location.href).href;
+
       if (action == "replace") {
-        history.replace(newLocation);
+        navigate(newLocation, { replace: true });
       }
       if (action == "push") {
-        history.push(newLocation);
+        navigate(newLocation);
       }
     }
   }, [values]);
@@ -80,7 +82,7 @@ const useQueryParams = (
     if (!isEqual(values, nextValues, validKeys)) {
       setValues(nextValues);
     }
-  }, [history.location.search]);
+  }, [location.search]);
 
   // replaceValues will replace the current entry on history
   const replaceValues = (newValues: QueryParams) => {

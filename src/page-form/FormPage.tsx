@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import { ContainerTint1 } from "../styles";
+import { ContainerTint1 } from "../site-styles/styles";
 import Form from "./components/Form";
 
 const FormSection = styled.div`
