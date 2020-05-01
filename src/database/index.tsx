@@ -5,10 +5,11 @@ import "firebase/auth";
 import "firebase/firestore";
 
 import createAuth0Client from "@auth0/auth0-spa-js";
-import { startOfDay, startOfToday } from "date-fns";
+import { format, startOfDay, startOfToday } from "date-fns";
 import { pick, sortBy } from "lodash";
 
 import config from "../auth/auth_config.json";
+import { MMMMdyyyy } from "../constants";
 import { persistedKeys } from "../impact-dashboard/EpidemicModelContext";
 import { Facility, ModelInputs, Scenario } from "../page-multi-facility/types";
 import {
@@ -257,11 +258,14 @@ export const saveScenario = async (scenario: any): Promise<Scenario | null> => {
 
 export const getFacilities = async (
   scenarioId: string,
-): Promise<Array<Facility> | null> => {
+): Promise<Facility[]> => {
   try {
     const scenario = await getScenario(scenarioId);
 
-    if (!scenario) return null;
+    if (!scenario) {
+      console.error(`No scenario found for scenario: ${scenarioId}`);
+      return [];
+    }
 
     const db = await getDb();
 
@@ -282,7 +286,7 @@ export const getFacilities = async (
 
     console.error(error);
 
-    return null;
+    return [];
   }
 };
 
@@ -480,5 +484,77 @@ export const deleteFacility = async (
       `Encountered error while attempting to delete the facility (${facilityId}):`,
     );
     console.error(error);
+  }
+};
+
+export const duplicateScenario = async (
+  scenarioId: string,
+): Promise<Scenario | void> => {
+  try {
+    const scenario = await getScenario(scenarioId);
+
+    if (!scenario) {
+      console.error(`No scenario found for scenario: ${scenarioId}`);
+      return;
+    }
+
+    const userId = currrentUserId();
+    const timestamp = currrentTimestamp();
+    const db = await getDb();
+    const batch = db.batch();
+
+    // Duplicate and save the Scenario
+    const scenarioDoc = db.collection(scenariosCollectionId).doc();
+
+    batch.set(scenarioDoc, {
+      name: `Copy of ${scenario.name}`,
+      description: `This is a copy of the '${
+        scenario.name
+      }' scenario, made on ${format(new Date(), MMMMdyyyy)}`,
+      baseline: false,
+      dailyReports: false,
+      dataSharing: false,
+      promoStatuses: {},
+      roles: {
+        [userId]: "owner",
+      },
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    });
+
+    // Duplicate and save all of the Facilities
+    const facilities = await getFacilities(scenarioId);
+    for (const facility of facilities) {
+      const facilityCopy = Object.assign({}, facility);
+      delete facilityCopy.id;
+      delete facilityCopy.scenarioId;
+
+      const facilityDoc = scenarioDoc.collection(facilitiesCollectionId).doc();
+
+      batch.set(facilityDoc, facilityCopy);
+
+      // Duplicate and save all of the facility's modelVersions
+      const modelVersions = await getFacilityModelVersions({
+        scenarioId: scenario.id,
+        facilityId: facility.id,
+      });
+
+      modelVersions.forEach((modelVersion) => {
+        const modelVersionDoc = facilityDoc
+          .collection(modelVersionCollectionId)
+          .doc();
+
+        batch.set(modelVersionDoc, modelVersion);
+      });
+    }
+
+    batch.commit();
+  } catch (error) {
+    debugger;
+    console.error(
+      `Encountered error while attempting to duplicate scenario: ${scenarioId}`,
+    );
+    console.error(error);
+    return;
   }
 };
