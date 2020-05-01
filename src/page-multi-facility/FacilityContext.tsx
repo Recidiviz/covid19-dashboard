@@ -4,7 +4,7 @@ import { RtData } from "../infection-model/rt";
 import { Facility } from "./types";
 
 export type RtDataMapping = {
-  [key in Facility["id"]]: RtData;
+  [key in Facility["id"]]: RtData | null;
 };
 
 interface FacilityContextProps {

@@ -27,12 +27,17 @@ function getCurves(
 export const useProjectionData = (
   input: EpidemicModelInputs,
   useRt?: boolean,
-  rtData?: RtData,
+  rtData?: RtData | null,
 ): CurveData | undefined => {
   let latestRt: number | undefined;
 
   if (useRt) {
-    latestRt = rtData?.Rt[rtData.Rt.length - 1].value;
+    // a null value indicates Rt fetching failed
+    if (rtData === null) {
+      useRt = false;
+    } else {
+      latestRt = rtData?.Rt[rtData.Rt.length - 1].value;
+    }
   }
 
   const [curves, updateCurves] = useState(getCurves(input, useRt, latestRt));
