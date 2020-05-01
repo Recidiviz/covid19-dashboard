@@ -5,7 +5,7 @@ import "firebase/auth";
 import "firebase/firestore";
 
 import createAuth0Client from "@auth0/auth0-spa-js";
-import { startOfToday } from "date-fns";
+import { startOfDay, startOfToday } from "date-fns";
 import { pick, sortBy } from "lodash";
 
 import config from "../auth/auth_config.json";
@@ -404,8 +404,8 @@ export const saveFacility = async (
       if (
         incomingObservedAt &&
         currentFacility.modelInputs.observedAt &&
-        incomingObservedAt.getDate() >=
-          currentFacility.modelInputs.observedAt.getDate()
+        startOfDay(incomingObservedAt) >=
+          startOfDay(currentFacility.modelInputs.observedAt)
       ) {
         batch.update(facilityDoc, payload);
       }
