@@ -136,7 +136,7 @@ interface ResetPayload {
   countyName?: string;
 }
 
-function getLocaleDefaults(
+export function getLocaleDefaults(
   dataSource: LocaleData,
   stateCode = "US Total",
   countyName = "Total",
