@@ -134,6 +134,9 @@ const ResponseImpactDashboard: React.FC = () => {
   const [releaseCardData, setReleaseCardData] = useState<
     releaseCardDataType | undefined
   >();
+  const [statePrisonPopulation, setStatePrisonPopulation] = useState<
+    number | undefined
+  >();
   const scenario = scenarioState.data;
   const [, setFacilities] = useState({
     data: [] as Facilities,
@@ -160,9 +163,22 @@ const ResponseImpactDashboard: React.FC = () => {
   useEffect(() => {
     const curveDataPerFacility = calculateCurveData(currentCurveInputs);
     const releaseCardObj = buildResponseImpactCardData(curveDataPerFacility);
-    console.log("releaseCardObj", releaseCardObj);
+
     setReleaseCardData(releaseCardObj);
   }, [currentCurveInputs]);
+
+  // calculate state prison population
+  useEffect(() => {
+    // get state total prison population
+    if (modelInputs.length) {
+      const state = modelInputs[0].stateCode;
+      const statePrisonPop: number | undefined = localeDataSource
+        .get(state)
+        ?.get("Total")?.totalPrisonPopulation;
+
+      setStatePrisonPopulation(statePrisonPop);
+    }
+  }, [modelInputs, localeDataSource]);
 
   useEffect(() => {
     fetchFacilities();
