@@ -258,14 +258,11 @@ export const saveScenario = async (scenario: any): Promise<Scenario | null> => {
 
 export const getFacilities = async (
   scenarioId: string,
-): Promise<Facility[]> => {
+): Promise<Array<Facility> | null> => {
   try {
     const scenario = await getScenario(scenarioId);
 
-    if (!scenario) {
-      console.error(`No scenario found for scenario: ${scenarioId}`);
-      return [];
-    }
+    if (!scenario) return null;
 
     const db = await getDb();
 
@@ -286,7 +283,7 @@ export const getFacilities = async (
 
     console.error(error);
 
-    return [];
+    return null;
   }
 };
 
@@ -524,7 +521,7 @@ export const duplicateScenario = async (
 
     // Duplicate and save all of the Facilities
     const facilities = await getFacilities(scenarioId);
-    for (const facility of facilities) {
+    for (const facility of facilities || []) {
       const facilityCopy = Object.assign({}, facility);
       delete facilityCopy.id;
       delete facilityCopy.scenarioId;
@@ -550,7 +547,6 @@ export const duplicateScenario = async (
 
     batch.commit();
   } catch (error) {
-    debugger;
     console.error(
       `Encountered error while attempting to duplicate scenario: ${scenarioId}`,
     );
