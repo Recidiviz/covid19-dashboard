@@ -7,11 +7,11 @@ import styled from "styled-components";
 import { saveFacility } from "../database/index";
 import Colors, { MarkColors as markColors } from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
-import iconEditSrc from "../design-system/icons/ic_edit.svg";
 import InputButton from "../design-system/InputButton";
 import InputDate from "../design-system/InputDate";
-import InputTextArea from "../design-system/InputTextArea";
+import InputDescription from "../design-system/InputDescription";
 import ModalDialog from "../design-system/ModalDialog";
+import { Spacer } from "../design-system/Spacer";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
 import {
   EpidemicModelUpdate,
@@ -38,18 +38,6 @@ const FacilityNameLabel = styled.label`
   height: 100%;
   padding-right: 25px;
   width: 75%;
-`;
-
-const IconEdit = styled.img`
-  align-self: flex-start;
-  flex: 0 0 auto;
-  height: 10px;
-  margin-left: 10px;
-  visibility: hidden;
-  width: 10px;
-  ${FacilityNameLabel}:hover & {
-    visibility: visible;
-  }
 `;
 
 const DataContainer = styled.div`
@@ -179,15 +167,10 @@ const FacilityRow: React.FC<Props> = ({
                 {confirmedCases}
               </CaseText>
               <FacilityNameLabel onClick={handleSubClick()}>
-                <InputTextArea
-                  inline={true}
-                  fillVertical={true}
-                  value={name}
-                  onChange={(event) => {
-                    const newName = (event.target.value || "").replace(
-                      /(\r\n|\n|\r)/gm,
-                      "",
-                    );
+                <InputDescription
+                  description={name}
+                  setDescription={(name) => {
+                    const newName = (name || "").replace(/(\r\n|\n|\r)/gm, "");
                     // this updates the local state
                     updateFacility({ ...facility, name: newName });
                     // this persists the changes to the database
@@ -196,15 +179,15 @@ const FacilityRow: React.FC<Props> = ({
                       name: newName,
                     });
                   }}
+                  placeholderValue="Unnamed Facility"
                 />
-                <IconEdit alt="Edit facility name" src={iconEditSrc} />
               </FacilityNameLabel>
             </div>
             <div className="text-xs text-gray-500 pb-4">
               <div>
                 Last Update: <DateMMMMdyyyy date={updatedAt} />
               </div>
-              <div className="mr-8" />
+              <Spacer x={32} />
             </div>
           </div>
           <div className="w-3/5">
