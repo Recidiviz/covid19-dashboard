@@ -25,6 +25,7 @@ import {
   getSystemWideSums,
   originalProjection,
 } from "./responseChartData";
+import ValidDataWrapper from "./ValidDataWrapper";
 
 const ResponseImpactDashboardContainer = styled.div``;
 const ScenarioName = styled.div`
@@ -101,6 +102,7 @@ function getModelInputs(facilities: Facilities, localeDataSource: LocaleData) {
         modelInputs.stateCode,
         modelInputs.countyName,
       ),
+      systemType: facility.systemType,
     };
   });
 }
@@ -127,7 +129,7 @@ const ResponseImpactDashboard: React.FC = () => {
     prisonPopulation: 0,
   });
   const scenario = scenarioState.data;
-  const [, setFacilities] = useState({
+  const [facilities, setFacilities] = useState({
     data: [] as Facilities,
     loading: true,
   });
@@ -178,60 +180,61 @@ const ResponseImpactDashboard: React.FC = () => {
   // after it's modified to take curve data as prop
   return (
     <ResponseImpactDashboardContainer>
-      {scenarioState.loading ? (
+      {modelInputs.length === 0 ? (
         <Loading />
       ) : (
-        <PageContainer>
-          <Column>
-            <ScenarioName>{scenario?.name}</ScenarioName>
-            <PageHeader>COVID-19 Response Impact as of [DATE]</PageHeader>
-
-            <SectionHeader>Safety of Overall Population</SectionHeader>
-            <ChartHeader>
-              Reduction in the number of incarcerated individuals
-            </ChartHeader>
-            <PlaceholderSpace />
-            <SectionSubheader>
-              Positive impact of releasing [X] incarcerated individuals
-            </SectionSubheader>
-            <PopulationImpactMetrics />
-            <SectionHeader>Community Resources Saved</SectionHeader>
-            <ChartHeader>Change in rate of transmission R(0)</ChartHeader>
-            <PlaceholderSpace />
-            <SectionSubheader>
-              Positive impact of Reducing R(0)
-            </SectionSubheader>
-            <ReducingR0ImpactMetrics />
-          </Column>
-          <Column>
-            <CurveChartContainer>
+        <ValidDataWrapper facilities={facilities.data}>
+          <PageContainer>
+            <Column>
+              <ScenarioName>{scenario?.name}</ScenarioName>
+              <PageHeader>COVID-19 Response Impact as of [DATE]</PageHeader>
+              <SectionHeader>Safety of Overall Population</SectionHeader>
               <ChartHeader>
-                Original Projection
-                <ProjectionsLegend />
+                Reduction in the number of incarcerated individuals
               </ChartHeader>
-              <CurveChart
-                chartHeight={144}
-                hideAxes={true}
-                hospitalBeds={systemWideData.hospitalBeds}
-                markColors={MarkColors}
-                curveData={getCurveChartData(originalCurveInputs)}
-              />
-            </CurveChartContainer>
-            <CurveChartContainer>
-              <ChartHeader color={Colors.teal}>
-                Current Projection
-                <ProjectionsLegend />
-              </ChartHeader>
-              <CurveChart
-                chartHeight={144}
-                hideAxes={true}
-                hospitalBeds={systemWideData.hospitalBeds}
-                markColors={MarkColors}
-                curveData={getCurveChartData(currentCurveInputs)}
-              />
-            </CurveChartContainer>
-          </Column>
-        </PageContainer>
+              <PlaceholderSpace />
+              <SectionSubheader>
+                Positive impact of releasing [X] incarcerated individuals
+              </SectionSubheader>
+              <PopulationImpactMetrics />
+              <SectionHeader>Community Resources Saved</SectionHeader>
+              <ChartHeader>Change in rate of transmission R(0)</ChartHeader>
+              <PlaceholderSpace />
+              <SectionSubheader>
+                Positive impact of Reducing R(0)
+              </SectionSubheader>
+              <ReducingR0ImpactMetrics />
+            </Column>
+            <Column>
+              <CurveChartContainer>
+                <ChartHeader>
+                  Original Projection
+                  <ProjectionsLegend />
+                </ChartHeader>
+                <CurveChart
+                  chartHeight={144}
+                  hideAxes={true}
+                  hospitalBeds={systemWideData.hospitalBeds}
+                  markColors={MarkColors}
+                  curveData={getCurveChartData(originalCurveInputs)}
+                />
+              </CurveChartContainer>
+              <CurveChartContainer>
+                <ChartHeader color={Colors.teal}>
+                  Current Projection
+                  <ProjectionsLegend />
+                </ChartHeader>
+                <CurveChart
+                  chartHeight={144}
+                  hideAxes={true}
+                  hospitalBeds={systemWideData.hospitalBeds}
+                  markColors={MarkColors}
+                  curveData={getCurveChartData(currentCurveInputs)}
+                />
+              </CurveChartContainer>
+            </Column>
+          </PageContainer>
+        </ValidDataWrapper>
       )}
     </ResponseImpactDashboardContainer>
   );
