@@ -44,7 +44,7 @@ interface Props {
   description?: string | undefined;
   setDescription: (description?: string) => void;
   placeholderValue?: string | undefined;
-  persistChanges?: (changes: object) => void;
+  persistChanges?: (changes: { description: string | undefined }) => void;
 }
 
 const InputDescription: React.FC<Props> = ({
