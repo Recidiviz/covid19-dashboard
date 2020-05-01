@@ -43,6 +43,8 @@ interface ModelInputsPersistent {
   rateOfSpreadFactor?: RateOfSpread;
   staffCases?: number;
   staffPopulation?: number;
+  observedAt?: Date;
+  updatedAt?: Date;
 }
 
 interface ModelInputsUpdate extends ModelInputsPersistent {
@@ -103,6 +105,8 @@ export const persistedKeys: Array<keyof EpidemicModelPersistent> = [
   "rateOfSpreadFactor",
   "staffCases",
   "staffPopulation",
+  "observedAt",
+  "updatedAt",
 ];
 
 export type EpidemicModelUpdate = ModelInputsUpdate & MetadataPersistent;

@@ -5,6 +5,7 @@ import "firebase/auth";
 import "firebase/firestore";
 
 import createAuth0Client from "@auth0/auth0-spa-js";
+import { startOfDay, startOfToday } from "date-fns";
 import { pick, sortBy } from "lodash";
 
 import config from "../auth/auth_config.json";
@@ -372,15 +373,14 @@ export const saveFacility = async (
 
       facility.modelInputs.updatedAt = currrentTimestamp();
 
-      // TODO: For now, this assumes we're always entering data as of "today"
-      // However, in the near future, we should allow for a user submitted
-      // observed at value.  If it is not provided default to today. For dates
+      // Use observedAt if available. If it is not provided default to today. For dates
       // observed in the past we'll have to assume the time portion of the
       // timestamp is startOfDay** since we won't otherwise have any time
       // information.
       //
       // ** https://date-fns.org/v1.29.0/docs/startOfDay
-      facility.modelInputs.observedAt = new Date();
+      facility.modelInputs.observedAt =
+        facility.modelInputs.observedAt || startOfToday();
     }
 
     const db = await getDb();
@@ -397,7 +397,18 @@ export const saveFacility = async (
     if (facility.id) {
       const payload = buildUpdatePayload(facility);
       facilityDoc = facilitiesCollection.doc(facility.id);
-      batch.update(facilityDoc, payload);
+      // Only update the facility if the incoming observedAt date is > than the current observedAt date in the existing facility
+      const incomingObservedAt = facility.modelInputs.observedAt;
+      const currentFacilityData = await facilityDoc.get();
+      const currentFacility = buildFacility(scenarioId, currentFacilityData);
+      if (
+        incomingObservedAt &&
+        currentFacility.modelInputs.observedAt &&
+        startOfDay(incomingObservedAt) >=
+          startOfDay(currentFacility.modelInputs.observedAt)
+      ) {
+        batch.update(facilityDoc, payload);
+      }
     } else {
       const payload = buildCreatePayload(facility);
       facilityDoc = facilitiesCollection.doc();

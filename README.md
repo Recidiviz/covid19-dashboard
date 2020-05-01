@@ -68,9 +68,9 @@ yarn test --watch  # re-run tests as you make changes. Pass any Jest options you
 
 ### Miscellaneous
 
-* You'll want to install the [React Dev Tools](https://reactjs.org/tutorial/tutorial.html#developer-tools) in the browser
-* If you're using VSCode, you may find these extensions helpful:
-  * https://marketplace.visualstudio.com/items?itemName=mgmcdermott.vscode-language-babel
-  * https://marketplace.visualstudio.com/items?itemName=jpoissonnier.vscode-styled-components
-  * https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint
-  * https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode
+- You'll want to install the [React Dev Tools](https://reactjs.org/tutorial/tutorial.html#developer-tools) in the browser
+- If you're using VSCode, you may find these extensions helpful:
+  - https://marketplace.visualstudio.com/items?itemName=mgmcdermott.vscode-language-babel
+  - https://marketplace.visualstudio.com/items?itemName=jpoissonnier.vscode-styled-components
+  - https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint
+  - https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode
