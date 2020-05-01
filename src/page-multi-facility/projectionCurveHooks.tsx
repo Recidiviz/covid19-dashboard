@@ -53,7 +53,7 @@ function combinePopulations(data: CurveData, columnIndex: number) {
 }
 
 function buildCurves(projectionData?: CurveData) {
-  if (!projectionData) return {};
+  if (!projectionData) return undefined;
 
   // merge and filter the curve data to only what we need for the chart
   return {
