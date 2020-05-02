@@ -4,6 +4,7 @@ import { pick } from "lodash";
 import React, { useContext, useState } from "react";
 import styled from "styled-components";
 
+import { RateOfSpreadType } from "../constants/EpidemicModel";
 import { saveFacility } from "../database/index";
 import Colors, { MarkColors as markColors } from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
@@ -11,6 +12,7 @@ import InputButton from "../design-system/InputButton";
 import InputDate from "../design-system/InputDate";
 import InputDescription from "../design-system/InputDescription";
 import ModalDialog from "../design-system/ModalDialog";
+import PillCircle from "../design-system/PillCircle";
 import { Spacer } from "../design-system/Spacer";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
 import {
@@ -48,6 +50,13 @@ const CaseText = styled.div`
   color: ${Colors.darkRed};
 `;
 
+const CaseTextLabel = styled.div`
+  font-size: 9px;
+  line-height: 16px;
+  opacity: 0.7;
+  color: ${Colors.forest};
+`;
+
 const ModalContents = styled.div`
   align-items: flex-start;
   display: flex;
@@ -80,6 +89,17 @@ interface Props {
   scenarioId: string;
 }
 
+const chartRtType = (rtValue: number) => {
+  // if (!rtValue) {
+  //   return RateOfSpreadType.MISSING;
+  // } else
+  if (rtValue > 1) {
+    return RateOfSpreadType.INFECTIOUS;
+  } else {
+    return RateOfSpreadType.CONTROLLED;
+  }
+};
+
 // Create a diff of the model to store changes in the update cases modal.
 // This is necessary so that we don't update the current modal if the modal is thrown away w/o saving or
 // if the date added in the modal is prior to the current date (backfill)
@@ -103,6 +123,8 @@ const FacilityRow: React.FC<Props> = ({
   scenarioId: scenarioId,
 }) => {
   const [model, updateModel] = useModel();
+
+  const tempRtValue = 1;
 
   const { setFacility } = useContext(FacilityContext);
   const [facility, updateFacility] = useState(initialFacility);
@@ -165,6 +187,7 @@ const FacilityRow: React.FC<Props> = ({
                 onClick={handleSubClick(openCaseCountsModal)}
               >
                 {confirmedCases}
+                <CaseTextLabel>Cases</CaseTextLabel>
               </CaseText>
               <FacilityNameLabel onClick={handleSubClick()}>
                 <InputDescription
@@ -190,7 +213,10 @@ const FacilityRow: React.FC<Props> = ({
               <Spacer x={32} />
             </div>
           </div>
-          <div className="w-3/5">
+          <div className="w-3/5 relative">
+            <PillCircle circleType={chartRtType(tempRtValue)}>
+              {tempRtValue}
+            </PillCircle>
             <CurveChartContainer
               curveData={chartData}
               chartHeight={144}
