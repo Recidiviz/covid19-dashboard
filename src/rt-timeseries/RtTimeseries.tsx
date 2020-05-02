@@ -1,5 +1,5 @@
 import { scaleTime, timeFormat } from "d3";
-import hexAlpha from "hex-alpha";
+import { opacify } from "polished";
 // no type defs for Semiotic
 const ResponsiveXYFrame = require("semiotic/lib/ResponsiveXYFrame") as any;
 import React from "react";
@@ -32,7 +32,7 @@ const RtTimeseriesWrapper = styled(ChartWrapper)`
 
 const ChartTitle = styled.div`
   border-bottom: ${borderStyle};
-  color: ${hexAlpha(Colors.forest, 0.7)};
+  color: ${opacify(0.7, Colors.forest)};
   font-family: "Poppins", sans-serif;
   font-size: 9px;
   font-weight: 600;

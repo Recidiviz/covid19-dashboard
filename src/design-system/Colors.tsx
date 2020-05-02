@@ -1,5 +1,5 @@
 import { lab } from "d3";
-import hexAlpha from "hex-alpha";
+import { opacify } from "polished";
 
 export function darken(color: string, amount: number) {
   // good to use Lab color because it's perceptually uniform
@@ -14,25 +14,26 @@ export function lighten(color: string, amount: number) {
 }
 
 const Colors = {
-  black: "#000",
+  white: "#ffffff",
+  lightGray: "#E1E3E3",
+  gray: "#E0E4E4",
+  opacityGray: `${opacify(0.2, "#467472")}`,
   slate: "#e9ebeb",
-  forest: "#005450",
-  opacityForest: `${hexAlpha("#005450", 0.7)}`,
+  red: "#FF464A",
+  orange: "#E76F00",
+  darkRed: "#CB2500",
+  green: "#006C67",
+  paleGreen: "#D2DBDB",
   darkForest: "#033342",
   paleForest: "#667c7b",
+  forest: "#005450",
+  opacityForest: `${opacify(0.7, "#005450")}`,
+  darkGreen: "#00413E",
   teal: "#25b894",
   darkTeal: "#759f9e",
-  gray: "#E0E4E4",
-  darkGray: "#c8d3d3",
-  opacityGray: `${hexAlpha("#467472", 0.2)}`,
-  lightGray: "#E1E3E3",
-  green: "#006C67",
   lightBlue: "#33B6FF",
-  paleGreen: "#D2DBDB",
-  red: "#FF464A",
-  darkRed: "#CB2500",
-  white: "#ffffff",
-  darkGreen: "#00413E",
+  darkGray: "#c8d3d3",
+  black: "#000",
 };
 
 // Shared colors for the Projection charts

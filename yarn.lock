@@ -8208,11 +8208,6 @@ header-case@^2.0.3:
     capital-case "^1.0.3"
     tslib "^1.10.0"
 
-hex-alpha@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/hex-alpha/-/hex-alpha-1.0.2.tgz#be7d25a8568b81453a4c20a5e5ad989fdb78374d"
-  integrity sha512-SLamqjcx6V+vfSeacgoaZIv/3a7vO8OuJNwTpq1qcUhKmt5UAHqyXrwQ4KGp5uiU5Oe8YwrQL46ezX4iqEdzbg==
-
 hex-color-regex@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/hex-color-regex/-/hex-color-regex-1.1.0.tgz#4c06fccb4602fe2602b3c93df82d7e7dbf1a8a8e"
@@ -12009,6 +12004,13 @@ pnp-webpack-plugin@^1.6.4:
   integrity sha512-7Wjy+9E3WwLOEL30D+m8TSTF7qJJUJLONBnwQp0518siuMxUQUbgZwssaFX+QKlZkjHZcw/IpZCt/H0srrntSg==
   dependencies:
     ts-pnp "^1.1.6"
+
+polished@^3.5.2:
+  version "3.5.2"
+  resolved "https://registry.yarnpkg.com/polished/-/polished-3.5.2.tgz#ca132b8cd68f7ffa95ae9d423f03e7a14fda1062"
+  integrity sha512-vWoRDg3gY5RQBtUfcj9MRN10VCIf4EkdUikGxyXItg2Hnwk+eIVtdBiLajN0ldFeT3Vq4r/QNbjrQdhqBKrTug==
+  dependencies:
+    "@babel/runtime" "^7.8.7"
 
 polygon-offset@0.3.1:
   version "0.3.1"

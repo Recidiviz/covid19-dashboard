@@ -4,7 +4,7 @@
 // and import the "nostyle" version of the package below
 import "./InputDate.css";
 
-import hexAlpha from "hex-alpha";
+import { opacify } from "polished";
 import React from "react";
 import DatePicker from "react-date-picker/dist/entry.nostyle";
 import styled from "styled-components";
@@ -44,7 +44,7 @@ const InputContainer = styled.div`
         &:enabled {
           &:hover,
           &:focus {
-            background: ${hexAlpha(Colors.paleGreen, 0.5)};
+            background: ${opacify(0.5, Colors.paleGreen)};
           }
         }
       }
@@ -52,16 +52,16 @@ const InputContainer = styled.div`
 
     &__tile {
       &:hover {
-        background: ${hexAlpha(Colors.paleGreen, 0.5)};
+        background: ${opacify(0.5, Colors.paleGreen)};
       }
       &--hasActive {
-        background: ${hexAlpha(Colors.green, 0.3)};
+        background: ${opacify(0.3, Colors.green)};
       }
       &--now {
-        background: ${hexAlpha(Colors.green, 0.1)};
+        background: ${opacify(0.1, Colors.green)};
 
         &:hover {
-          background: ${hexAlpha(Colors.green, 0.2)};
+          background: ${opacify(0.2, Colors.green)};
         }
       }
     }
