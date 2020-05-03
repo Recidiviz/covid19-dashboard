@@ -220,7 +220,6 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
     ageGroupInitiallyInfected,
     ageGroupPopulations,
     facilityDormitoryPct,
-    facilityOccupancyPct,
     numDays,
     plannedReleases,
     populationTurnover,
@@ -257,18 +256,6 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
   ageGroupFatalityRates[ageGroupIndex.age75] = 0.074;
   ageGroupFatalityRates[ageGroupIndex.age85] = 0.1885;
   ageGroupFatalityRates[ageGroupIndex.staff] = 0.026;
-
-  // calculate R0 adjusted for housing type and capacity
-  const rateOfSpreadCellsAdjustment = 0.8; // magic constant
-  const rateOfSpreadCellsAdjusted =
-    rateOfSpreadCells -
-    (1 - facilityOccupancyPct) *
-      (rateOfSpreadCells - rateOfSpreadCellsAdjustment);
-  const rateOfSpreadDormsAdjustment = 1.7; // magic constant
-  const rateOfSpreadDormsAdjusted =
-    rateOfSpreadDorms -
-    (1 - facilityOccupancyPct) *
-      (rateOfSpreadDorms - rateOfSpreadDormsAdjustment);
 
   // adjust population figures based on expected turnover
   ageGroupPopulations = adjustPopulations({
@@ -356,8 +343,8 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
         priorSimulation: getAllValues(getRowView(singleDayState, ageGroup)),
         totalPopulation,
         totalInfectious,
-        rateOfSpreadCells: rateOfSpreadCellsAdjusted,
-        rateOfSpreadDorms: rateOfSpreadDormsAdjusted,
+        rateOfSpreadCells,
+        rateOfSpreadDorms,
         pFatalityRate: rate,
         facilityDormitoryPct,
         simulateStaff: ageGroup === ageGroupIndex.staff,

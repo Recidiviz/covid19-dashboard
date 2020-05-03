@@ -122,10 +122,11 @@ def compute_r_t(historical_case_counts):
     case_df.index = pd.to_datetime(case_df.index)
     case_df.index.name = 'date'
 
-    _, smoothed = prepare_cases(case_df, cutoff=25)
+    _, smoothed = prepare_cases(case_df, cutoff=10)
 
-    # Raise an error if there are no valid cases to use
-    if len(smoothed) == 0:
+    # Raise an error if there are not enough valid cases to use
+    # we need at least two days to represent change over time
+    if len(smoothed) < 2:
         raise ValueError('Input has too few cases to compute R(t)')
 
     # Note that we're fixing sigma to a value just for the example

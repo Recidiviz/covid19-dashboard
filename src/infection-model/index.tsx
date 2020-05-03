@@ -15,6 +15,10 @@ export type CurveData = {
   staff: ndarray;
 };
 
+export const isCurveData = (arg: CurveData | undefined): arg is CurveData => {
+  return arg !== undefined;
+};
+
 export type CurveFunctionInputs = Omit<
   EpidemicModelInputs,
   "rateOfSpreadFactor"
@@ -69,12 +73,45 @@ enum R0Dorms {
 export function curveInputsFromUserInputs(
   userInputs: EpidemicModelInputs,
 ): CurveFunctionInputs {
+  const { facilityOccupancyPct, rateOfSpreadFactor } = userInputs;
   // translate qualitative rate of spread factor into numbers
-  const rateOfSpreadDefaults = {
-    rateOfSpreadCells: R0Cells[userInputs.rateOfSpreadFactor],
-    rateOfSpreadDorms: R0Dorms[userInputs.rateOfSpreadFactor],
+  let rateOfSpreadCells = R0Cells[rateOfSpreadFactor];
+  let rateOfSpreadDorms = R0Dorms[rateOfSpreadFactor];
+
+  // adjust rate of spread for housing type and capacity
+  const rateOfSpreadCellsAdjustment = 0.8; // magic constant
+  rateOfSpreadCells =
+    rateOfSpreadCells -
+    (1 - facilityOccupancyPct) *
+      (rateOfSpreadCells - rateOfSpreadCellsAdjustment);
+
+  const rateOfSpreadDormsAdjustment = 1.7; // magic constant
+  rateOfSpreadDorms =
+    rateOfSpreadDorms -
+    (1 - facilityOccupancyPct) *
+      (rateOfSpreadDorms - rateOfSpreadDormsAdjustment);
+
+  const curveInputs = {
+    ...userInputs,
+    ...{ rateOfSpreadCells, rateOfSpreadDorms },
   };
-  const curveInputs = { ...userInputs, ...rateOfSpreadDefaults };
+  delete curveInputs.rateOfSpreadFactor;
+  return curveInputs;
+}
+
+export function curveInputsWithRt(
+  userInputs: EpidemicModelInputs,
+  rt?: number,
+): CurveFunctionInputs | undefined {
+  if (rt === undefined) {
+    return;
+  }
+  // with Rt there is no distinction between these rates
+  const rateOfSpreadValues = {
+    rateOfSpreadCells: rt,
+    rateOfSpreadDorms: rt,
+  };
+  const curveInputs = { ...userInputs, ...rateOfSpreadValues };
   delete curveInputs.rateOfSpreadFactor;
   return curveInputs;
 }
@@ -132,7 +169,11 @@ function prepareCurveData(inputs: CurveFunctionInputs): CurveProjectionInputs {
   };
 }
 
-export function calculateCurves(inputs: CurveFunctionInputs): CurveData {
+export function calculateCurves(
+  inputs?: CurveFunctionInputs,
+): CurveData | undefined {
+  if (!inputs) return;
+
   const { projectionGrid } = getAllBracketCurves(prepareCurveData(inputs));
 
   // these will each produce a matrix with row = day and col = SEIR bucket,

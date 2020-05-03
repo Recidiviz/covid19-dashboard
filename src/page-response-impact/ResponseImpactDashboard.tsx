@@ -1,165 +1,140 @@
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
 
 import { getFacilities } from "../database";
-import Colors, { MarkColors } from "../design-system/Colors";
 import Loading from "../design-system/Loading";
 import { Column, PageContainer } from "../design-system/PageColumn";
-import CurveChart from "../impact-dashboard/CurveChart";
 import {
   EpidemicModelState,
   getLocaleDefaults,
 } from "../impact-dashboard/EpidemicModelContext";
-import {
-  CurveFunctionInputs,
-  curveInputsFromUserInputs,
-} from "../infection-model";
+import { CurveFunctionInputs } from "../infection-model";
 import { getRtDataForFacilities, RtData } from "../infection-model/rt";
-import { LocaleData, useLocaleDataState } from "../locale-data-context";
-import ProjectionsLegend from "../page-multi-facility/ProjectionsLegend";
+import { useLocaleDataState } from "../locale-data-context";
 import { Facilities } from "../page-multi-facility/types";
 import useScenario from "../scenario-context/useScenario";
 import PopulationImpactMetrics from "./PopulationImpactMetrics";
+import ProjectionCharts from "./ProjectionCharts";
 import ReducingR0ImpactMetrics from "./ReducingR0ImpactMetrics";
-import { getCurveChartData } from "./responseChartData";
+import {
+  calculateCurveData,
+  getCurveInputs,
+  getModelInputs,
+  getSystemWideSums,
+  originalProjection,
+} from "./responseChartData";
 import RtSummaryStats from "./RtSummaryStats";
-
-const ResponseImpactDashboardContainer = styled.div``;
-const ScenarioName = styled.div`
-  font-family: Poppins;
-  font-size: 10px;
-  font-weight: normal;
-  line-height: 150%;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: ${Colors.green};
-  padding: 10px 0;
-`;
-const PageHeader = styled.h1`
-  color: ${Colors.forest};
-  font-family: "Libre Baskerville";
-  font-weight: normal;
-  font-size: 24px;
-  line-height: 24px;
-  letter-spacing: -0.06em;
-  padding: 24px 0;
-`;
-const SectionHeader = styled.h1`
-  color: ${Colors.forest};
-  border-top: 1px solid ${Colors.opacityGray};
-  font-family: "Libre Baskerville";
-  font-weight: normal;
-  font-size: 19px;
-  line-height: 24px;
-  letter-spacing: -0.06em;
-  padding: 32px 0 24px;
-`;
-const PlaceholderSpace = styled.div`
-  border: 1px solid ${Colors.gray};
-  background-color: ${Colors.darkGray};
-  height: 200px;
-  margin: 20px 0;
-  width: 100%;
-`;
-const ChartHeader = styled.h3<{ color?: string }>`
-  border-top: 1px solid ${Colors.opacityGray};
-  border-bottom: 1px solid ${Colors.opacityGray};
-  color: ${(props) => props.color || Colors.opacityForest};
-  display: flex;
-  font-family: "Poppins";
-  font-style: normal;
-  font-weight: 600;
-  font-size: 9px;
-  justify-content: space-between;
-  line-height: 16px;
-  margin-bottom: 15px;
-  padding: 5px 0;
-`;
-const SectionSubheader = styled.h2`
-  color: ${Colors.darkForest};
-  font-family: "Poppins";
-  font-weight: normal;
-  font-size: 10px;
-  line-height: 150%;
-  letter-spacing: 0.15em;
-  padding: 32px 0 24px;
-  text-transform: uppercase;
-`;
-
-function getModelInputs(facilities: Facilities, localeDataSource: LocaleData) {
-  return facilities.map((facility) => {
-    const modelInputs = facility.modelInputs;
-    return {
-      ...modelInputs,
-      ...getLocaleDefaults(
-        localeDataSource,
-        modelInputs.stateCode,
-        modelInputs.countyName,
-      ),
-    };
-  });
-}
-
-function getCurveInputs(modelInputs: EpidemicModelState[]) {
-  return modelInputs.map((modelInput) => {
-    return curveInputsFromUserInputs(modelInput);
-  });
-}
-
-function getHospitalBeds(modelInputs: EpidemicModelState[]) {
-  let sumHospitalBeds = 0;
-  modelInputs.forEach((input) => {
-    return (sumHospitalBeds += input.hospitalBeds || 0);
-  });
-  return sumHospitalBeds;
-}
+import {
+  ChartHeader,
+  PageHeader,
+  PlaceholderSpace,
+  ResponseImpactDashboardContainer,
+  ScenarioName,
+  SectionHeader,
+  SectionSubheader,
+} from "./styles";
+import {
+  buildReductionData,
+  buildResponseImpactCardData,
+  reductionCardDataType,
+} from "./utils/ResponseImpactCardStateUtils";
 
 const ResponseImpactDashboard: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
   const [scenarioState] = useScenario();
-  const [curveInputs, setCurveInputs] = useState([] as CurveFunctionInputs[]);
-  const [modelInputs, setModelInputs] = useState([] as EpidemicModelState[]);
   const [rtFacilitiesData, setRtFacilitiesData] = useState(
     [] as (RtData | null)[],
   );
   const scenario = scenarioState.data;
+  const scenarioId = scenarioState?.data?.id; // linter wants this to be its own var since it is a useEffect dep
+  const [currentCurveInputs, setCurrentCurveInputs] = useState(
+    [] as CurveFunctionInputs[],
+  );
+  const [originalCurveInputs, setOriginalCurveInputs] = useState(
+    [] as CurveFunctionInputs[],
+  );
+  const [modelInputs, setModelInputs] = useState([] as EpidemicModelState[]);
+  const [systemWideData, setSystemWideData] = useState({
+    hospitalBeds: 0,
+    staffPopulation: 0,
+    prisonPopulation: 0,
+  });
+  const [reductionCardData, setreductionCardData] = useState<
+    reductionCardDataType | undefined
+  >();
   const [, setFacilities] = useState({
     data: [] as Facilities,
     loading: true,
   });
 
-  async function fetchFacilities() {
-    if (!scenarioState?.data?.id) return;
-    const facilitiesData = await getFacilities(scenarioState.data.id);
-    if (facilitiesData) {
-      setFacilities({
-        data: facilitiesData,
-        loading: false,
-      });
-
-      const rtFacilitiesData =
-        (await getRtDataForFacilities(facilitiesData)) || [];
-      const modelInputs = getModelInputs(facilitiesData, localeDataSource);
-      const curveInputs = getCurveInputs(modelInputs);
-      setRtFacilitiesData(rtFacilitiesData);
-      setModelInputs(modelInputs);
-      setCurveInputs(curveInputs);
-    }
-  }
-
   useEffect(() => {
-    fetchFacilities();
-  }, [scenarioState?.data?.id]);
+    async function fetchFacilities() {
+      if (!scenarioId) return;
+      const facilitiesData = await getFacilities(scenarioId);
+      if (facilitiesData) {
+        setFacilities({
+          data: facilitiesData,
+          loading: false,
+        });
 
-  // NOTE: Replace with CurveChart with CurveChartContainer
-  // after it's modified to take curve data as prop
+        const rtFacilitiesData =
+          (await getRtDataForFacilities(facilitiesData)) || [];
+        const modelInputs = getModelInputs(facilitiesData, localeDataSource);
+        const currentCurveInputs = getCurveInputs(modelInputs);
+        setRtFacilitiesData(rtFacilitiesData);
+        setModelInputs(modelInputs);
+        setCurrentCurveInputs(currentCurveInputs);
+      }
+    }
+
+    fetchFacilities();
+  }, [scenarioId, localeDataSource]);
+
+  // calculate data for cards
+  useEffect(() => {
+    const originalCurveDataPerFacility = calculateCurveData(
+      originalCurveInputs,
+    );
+    const origData = buildResponseImpactCardData(originalCurveDataPerFacility);
+    const currentCurveDataPerFacility = calculateCurveData(currentCurveInputs);
+    const currData = buildResponseImpactCardData(currentCurveDataPerFacility);
+
+    // positive value is a reduction
+    const reduction = buildReductionData(origData, currData);
+
+    setreductionCardData(reduction);
+  }, [originalCurveInputs, currentCurveInputs]);
+
+  // calculate original and current curves
+  useEffect(() => {
+    if (modelInputs.length === 0) return;
+    const originalInputs = getModelInputs(
+      originalProjection(systemWideData),
+      localeDataSource,
+    );
+    const originalCurveInputs = getCurveInputs(originalInputs);
+    setOriginalCurveInputs(originalCurveInputs);
+  }, [modelInputs, systemWideData, localeDataSource]);
+
+  // set system wide data
+  useEffect(() => {
+    if (modelInputs.length === 0) return;
+
+    setSystemWideData({
+      ...getSystemWideSums(modelInputs),
+      prisonPopulation: getLocaleDefaults(
+        localeDataSource,
+        modelInputs[0].stateCode,
+      ).totalPrisonPopulation,
+    });
+  }, [modelInputs, localeDataSource]);
+
   return (
     <ResponseImpactDashboardContainer>
       {scenarioState.loading ? (
         <Loading />
       ) : (
         <PageContainer>
-          <Column width={"55%"}>
+          <Column>
             <ScenarioName>{scenario?.name}</ScenarioName>
             <PageHeader>COVID-19 Response Impact as of [DATE]</PageHeader>
 
@@ -171,7 +146,11 @@ const ResponseImpactDashboard: React.FC = () => {
             <SectionSubheader>
               Positive impact of releasing [X] incarcerated individuals
             </SectionSubheader>
-            <PopulationImpactMetrics />
+            <PopulationImpactMetrics
+              reductionData={reductionCardData}
+              staffPopulation={systemWideData.staffPopulation}
+              incarceratedPopulation={systemWideData.prisonPopulation}
+            />
             <SectionHeader>Community Resources Saved</SectionHeader>
             <ChartHeader>Change in rate of transmission R(0)</ChartHeader>
             <RtSummaryStats rtFacilitiesData={rtFacilitiesData} />
@@ -180,22 +159,11 @@ const ResponseImpactDashboard: React.FC = () => {
             </SectionSubheader>
             <ReducingR0ImpactMetrics />
           </Column>
-          <Column width={"45%"}>
-            <ChartHeader>
-              Original Projection
-              <ProjectionsLegend />
-            </ChartHeader>
-            <PlaceholderSpace />
-            <ChartHeader color={Colors.teal}>
-              Current Projection
-              <ProjectionsLegend />
-            </ChartHeader>
-            <CurveChart
-              chartHeight={250}
-              hideAxes={false}
-              hospitalBeds={getHospitalBeds(modelInputs)}
-              markColors={MarkColors}
-              curveData={getCurveChartData(curveInputs)}
+          <Column>
+            <ProjectionCharts
+              systemWideData={systemWideData}
+              originalCurveInputs={originalCurveInputs}
+              currentCurveInputs={currentCurveInputs}
             />
           </Column>
         </PageContainer>

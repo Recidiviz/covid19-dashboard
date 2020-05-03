@@ -10,6 +10,7 @@ import InputNameWithIcon from "../design-system/InputNameWithIcon";
 import ModalDialog from "../design-system/ModalDialog";
 import { Column, PageContainer } from "../design-system/PageColumn";
 import PopUpMenu from "../design-system/PopUpMenu";
+import { Spacer } from "../design-system/Spacer";
 import { Flag } from "../feature-flags";
 import FacilityInformation from "../impact-dashboard/FacilityInformation";
 import MitigationInformation from "../impact-dashboard/MitigationInformation";
@@ -26,10 +27,6 @@ const ButtonSection = styled.div`
 const DescRow = styled.div`
   display: flex;
   justify-content: space-between;
-`;
-
-const PopUpMenuWrapper = styled.div`
-  padding-top: 12px;
 `;
 
 // Delete Modal elements
@@ -132,7 +129,13 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
     updateShowDeleteModal(false);
   };
 
-  const rtTimeseriesData = rtData && facility ? rtData[facility.id] : undefined;
+  const rtTimeseriesData = facility
+    ? rtData
+      ? rtData[facility.id]
+      : undefined
+    : // when creating a new facility, there will never be Rt data;
+      // setting this value to null will suppress the chart
+      null;
 
   return (
     <PageContainer>
@@ -142,15 +145,15 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
           setName={setFacilityName}
           placeholderValue="Unnamed Facility"
         />
+        <Spacer y={20} />
         <DescRow>
           <InputDescription
             description={description}
             setDescription={setDescription}
             placeholderValue="Enter a description (optional)"
           />
-          <PopUpMenuWrapper>
-            <PopUpMenu items={popupItems} />
-          </PopUpMenuWrapper>
+          <Spacer x={20} />
+          <PopUpMenu items={popupItems} />
         </DescRow>
         <div className="mt-5 mb-5 border-b border-gray-300" />
 
