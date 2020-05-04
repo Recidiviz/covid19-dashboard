@@ -1,7 +1,6 @@
 import { RtRecord } from "../../infection-model/rt";
 import {
   averageRtReductionAcrossFacilities,
-  maxRtChange,
   numFacilitiesWithRtLessThan1,
 } from "../rtStatistics";
 
@@ -45,18 +44,5 @@ describe("Rt Summary Statistics", () => {
       // (1.5 + -1 + .4) / 3
       expect(output).toEqual(0.3);
     });
-  });
-
-  describe("maxRtChange", () => {
-    it(
-      "should return difference between R(t) of facility with original max " +
-        "and facility with current max",
-      () => {
-        const output = maxRtChange(facilitiesRtRecords);
-        // original max value from facility 1 = 5
-        // current max value from facility 2 = 4
-        expect(output).toEqual(1);
-      },
-    );
   });
 });

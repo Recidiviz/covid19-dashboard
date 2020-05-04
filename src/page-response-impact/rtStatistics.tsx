@@ -28,15 +28,3 @@ export function averageRtReductionAcrossFacilities(
   );
   return sumDifferences / numFacilities;
 }
-
-export function maxRtChange(facilitiesRtRecords: RtRecord[][]) {
-  const oldestRtValues = facilitiesRtRecords.map((rtRecords: RtRecord[]) => {
-    return rtRecords[rtRecords.length - 1].value;
-  });
-  const latestRtValues = facilitiesRtRecords.map((rtRecords: RtRecord[]) => {
-    return rtRecords[0].value;
-  });
-  const maxOldestRtValue = Math.max(...oldestRtValues);
-  const maxLatestRtValue = Math.max(...latestRtValues);
-  return maxOldestRtValue - maxLatestRtValue;
-}

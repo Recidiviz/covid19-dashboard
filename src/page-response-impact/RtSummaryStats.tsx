@@ -22,7 +22,6 @@ const RtSummaryStats: React.FC<Props> = ({ rtFacilitiesData }) => {
   const averageRtReductionAcrossFacilities = rtStats.averageRtReductionAcrossFacilities(
     facilitiesRtRecords,
   );
-  const maxRtChange = rtStats.maxRtChange(facilitiesRtRecords);
   return (
     <div>
       <p className="mt-5 mb-5">{`${numFacilitiesWithRtLessThan1} of ${numFacilities} facilities currently ${
@@ -32,7 +31,6 @@ const RtSummaryStats: React.FC<Props> = ({ rtFacilitiesData }) => {
         Average R(t) reduction across facilities:{" "}
         {averageRtReductionAcrossFacilities}
       </p>
-      <p className="mt-5 mb-5">Max R(t) change: {maxRtChange}</p>
     </div>
   );
 };
