@@ -1,5 +1,3 @@
-import { sum } from "d3";
-import { pick } from "lodash";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
@@ -17,22 +15,7 @@ const ErrorMessage = styled.div`
   width: 60%;
 `;
 
-function sumAgeGroupPopulations(facility: Facility): number {
-  return sum(
-    Object.values(
-      pick(facility.modelInputs, [
-        "age0Population",
-        "age20Population",
-        "age45Population",
-        "age55Population",
-        "age65Population",
-        "age75Population",
-        "age85Population",
-        "ageUnknownPopulation",
-      ]),
-    ),
-  );
-}
+
 
 interface Props {
   children?: React.ReactElement<any>;
