@@ -191,6 +191,9 @@ const FacilityRow: React.FC<Props> = ({
                     });
                   }}
                   placeholderValue="Unnamed Facility"
+                  placeholderText="Facility name is required"
+                  maxLengthValue={124}
+                  requiredFlag={true}
                 />
               </FacilityNameLabel>
             </div>
