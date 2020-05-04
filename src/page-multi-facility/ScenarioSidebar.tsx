@@ -54,6 +54,7 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
   const handleScenarioChange = (scenarioChange: any) => {
     if (scenarioChange.name || scenarioChange.description) {
       const changes = Object.assign({}, scenario, scenarioChange);
+      /*eslint no-unused-vars: ["error", { "argsIgnorePattern": "^_" }]*/
       saveScenario(changes).then((_) => {
         dispatchScenarioUpdate(changes);
       });
