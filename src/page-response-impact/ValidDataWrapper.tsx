@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
-import { Facilities, Facility } from "../page-multi-facility/types";
+import { Facilities } from "../page-multi-facility/types";
+import { sumAgeGroupPopulations } from "../impact-dashboard/EpidemicModelContext"
 const POPULATION_DATA_ERROR_MSG =
-  "Impact could not be generated because one or more of your facilities does not have a staff or incarcerated population count. Please add population numbers and try again.";
+  "Impact could not be generated because one or more of your facilities does not have an incarcerated population count. Please add population numbers and try again.";
 const LOCALE_DATA_ERROR_MSG =
   "Impact could not be generated because locale information does not match across facilities.";
 
@@ -39,8 +40,7 @@ const ValidDataWrapper: React.FC<Props> = ({ children, facilities = [] }) => {
 
   function validatePopulationData(facilities: Facilities) {
     return facilities.some((f) => {
-      const staffPopulation = f.modelInputs.staffPopulation || 0;
-      return staffPopulation === 0 || sumAgeGroupPopulations(f) === 0;
+      return sumAgeGroupPopulations(f) === 0;
     });
   }
 
