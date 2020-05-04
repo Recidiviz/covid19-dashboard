@@ -1,24 +1,53 @@
 import { zip } from "d3-array";
 import ndarray from "ndarray";
 
-import { EpidemicModelState } from "../impact-dashboard/EpidemicModelContext";
+import {
+  EpidemicModelState,
+  getLocaleDefaults,
+} from "../impact-dashboard/EpidemicModelContext";
 import { RateOfSpread } from "../impact-dashboard/EpidemicModelContext";
 import {
   calculateCurves,
   CurveData,
   CurveFunctionInputs,
+  curveInputsFromUserInputs,
+  isCurveData,
 } from "../infection-model";
 import { getAllValues, getColView } from "../infection-model/matrixUtils";
 import { seirIndex } from "../infection-model/seir";
+import { LocaleData } from "../locale-data-context";
 import { Facilities } from "../page-multi-facility/types";
 
 const NUM_DAYS = 90;
 const NUM_SEIR_CATEGORIES = 9;
 
-interface SystemWideData {
+export type SystemWideData = {
   staffPopulation: number;
   prisonPopulation: number;
   hospitalBeds: number;
+};
+
+export function getModelInputs(
+  facilities: Facilities,
+  localeDataSource: LocaleData,
+) {
+  return facilities.map((facility) => {
+    const modelInputs = facility.modelInputs;
+    return {
+      ...modelInputs,
+      ...getLocaleDefaults(
+        localeDataSource,
+        modelInputs.stateCode,
+        modelInputs.countyName,
+      ),
+    };
+  });
+}
+
+export function getCurveInputs(modelInputs: EpidemicModelState[]) {
+  return modelInputs.map((modelInput) => {
+    return curveInputsFromUserInputs(modelInput);
+  });
 }
 
 function originalEpidemicModelInputs(systemWideData: SystemWideData) {
@@ -65,7 +94,7 @@ export function getSystemWideSums(modelInputs: EpidemicModelState[]) {
   return sums;
 }
 
-function calculateCurveData(facilitiesInputs: CurveFunctionInputs[]) {
+export function calculateCurveData(facilitiesInputs: CurveFunctionInputs[]) {
   return facilitiesInputs.map((facilityInput) => {
     return calculateCurves(facilityInput);
   });
@@ -100,7 +129,7 @@ export function getCurveChartData(facilitiesInputs: CurveFunctionInputs[]) {
     };
   const facilitiesProjectionData = calculateCurveData(facilitiesInputs);
   const combinedData: ndarray = combineFacilitiesProjectionData(
-    facilitiesProjectionData,
+    facilitiesProjectionData.filter(isCurveData),
   );
   return {
     exposed: getAllValues(getColView(combinedData, seirIndex.exposed)),

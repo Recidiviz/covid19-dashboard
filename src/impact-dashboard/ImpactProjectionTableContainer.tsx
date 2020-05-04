@@ -2,6 +2,7 @@ import { sum } from "d3-array";
 import ndarray from "ndarray";
 import React from "react";
 
+import Loading from "../design-system/Loading";
 import { CurveData } from "../infection-model";
 import {
   getAllValues,
@@ -33,7 +34,7 @@ function buildTableRowFromCurves(
   };
 }
 
-function countEverHospitalizedForDay(data: ndarray, day: number) {
+export function countEverHospitalizedForDay(data: ndarray, day: number) {
   // includes people who are currently hospitalized or were previously
   const everHospitalized = [
     seirIndex.hospitalized,
@@ -51,11 +52,11 @@ function countCasesForDay(data: ndarray, day: number): number {
   return Math.round(sum(row.filter((d, i) => !notCases.includes(i))));
 }
 
-function getHospitalizedForDay(data: ndarray, day: number): number {
+export function getHospitalizedForDay(data: ndarray, day: number): number {
   return Math.round(data.get(day, seirIndex.hospitalized));
 }
 
-function getFatalitiesForDay(data: ndarray, day: number): number {
+export function getFatalitiesForDay(data: ndarray, day: number): number {
   return Math.round(data.get(day, seirIndex.fatalities));
 }
 
@@ -102,9 +103,11 @@ function buildHospitalizedRow(data: ndarray): TableRow {
 }
 
 const ImpactProjectionTableContainer: React.FC<{
-  projectionData: CurveData;
+  projectionData?: CurveData;
 }> = ({ projectionData }) => {
   const { hospitalBeds } = useEpidemicModelState();
+
+  if (!projectionData) return <Loading />;
 
   const { incarcerated, staff } = projectionData;
   const incarceratedData: TableRow[] = [

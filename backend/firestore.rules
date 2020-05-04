@@ -19,7 +19,8 @@ service cloud.firestore {
       allow read, write: if userCanAccess(resource);
 
       match /{documents=**} {
-        allow read, write: if userCanAccess(get(/databases/$(database)/documents/scenarios/$(scenario)));
+        allow read, delete, update: if userCanAccess(get(/databases/$(database)/documents/scenarios/$(scenario)));
+        allow create: if userCanAccess(getAfter(/databases/$(database)/documents/scenarios/$(scenario)));
       }
     }
   }

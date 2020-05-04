@@ -5,7 +5,7 @@ import { RtData } from "../infection-model/rt";
 import RtTimeseries from "./RtTimeseries";
 
 interface Props {
-  data?: RtData;
+  data?: RtData | null;
 }
 
 const RtTimeseriesContainer: React.FC<Props> = ({ data }) => {
