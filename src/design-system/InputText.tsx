@@ -29,16 +29,16 @@ const WrappedInput = styled(StyledInput)`
   
   // make placeholder font size smaller than the input's
   &::-webkit-input-placeholder {
-    font-size: 18px;
+    ${props => props.headerStyle ? "font-size: 18px" : ""}
   }
   &::-moz-placeholder {
-    font-size: 18px;
+    ${props => props.headerStyle ? "font-size: 18px" : ""}
   }
   &:-ms-input-placeholder {
-    font-size: 18px;
+    ${props => props.headerStyle ? "font-size: 18px" : ""}
   }
   &:-moz-placeholder {
-    font-size: 18px;
+    ${props => props.headerStyle ? "font-size: 18px" : ""}
   }
 `;
 
@@ -56,7 +56,7 @@ interface Props extends InputBaseProps<string> {
 
 const InputText: React.FC<Props> = (props) => {
   let inputValue = useInputValue(props);
-
+  const placeholder = props.valuePlaceholder ?? props.labelPlaceholder;
   const nameInput = useRef() as React.MutableRefObject<HTMLInputElement>;
 
   useEffect(() => {
@@ -74,7 +74,7 @@ const InputText: React.FC<Props> = (props) => {
           ref={nameInput}
           value={inputValue ?? ""}
           headerStyle={!!props.headerStyle}
-          placeholder={props.placeholder ?? props.labelPlaceholder}
+          placeholder={props.placeholder ?? placeholder}
           maxLength={props.maxLength}
           required={props.required}
           onChange={(e) => props.onValueChange(e.target.value)}
