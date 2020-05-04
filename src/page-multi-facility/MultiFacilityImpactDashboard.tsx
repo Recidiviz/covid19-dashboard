@@ -96,6 +96,8 @@ const ScenarioPanels: React.FC<ScenarioPanelsProps> = (props) => {
   return <ScenarioPanelsDiv>{panelChildren}</ScenarioPanelsDiv>;
 };
 
+// Boolean to switch off "Rate of Projections" tab if necessary
+
 const MultiFacilityImpactDashboard: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
   const [scenario] = useScenario();
@@ -179,7 +181,7 @@ const MultiFacilityImpactDashboard: React.FC = () => {
   );
 
   const rateOfSpreadPanel = <> </>;
-
+  const showRateOfSpreadTab = useFlag(["showRateOfSpreadTab"]);
   return (
     <MultiFacilityImpactDashboardContainer>
       {scenario.loading ? (
@@ -197,14 +199,16 @@ const MultiFacilityImpactDashboard: React.FC = () => {
             <Tabs selectedIndex={selectedTab} onSelect={setSelectedTab}>
               <TabList>
                 <Tab>
-                  <TextLabel>Projections</TextLabel>
+                  <TextLabel padding={false}>Projections</TextLabel>
                 </Tab>
-                <Tab>
-                  <TextLabel>Rate of spread</TextLabel>
-                </Tab>
+                {showRateOfSpreadTab ? (
+                  <Tab>
+                    <TextLabel padding={false}>Rate of spread</TextLabel>
+                  </Tab>
+                ) : null}
               </TabList>
               <TabPanel />
-              <TabPanel />
+              {showRateOfSpreadTab ? <TabPanel /> : null}
             </Tabs>
           </ScenarioTabs>
         </div>
