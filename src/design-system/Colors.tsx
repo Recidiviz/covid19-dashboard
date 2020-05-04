@@ -13,27 +13,34 @@ export function lighten(color: string, amount: number) {
   return lab(l + amount, a, b).hex();
 }
 
-const Colors = {
-  white: "#ffffff",
-  lightGray: "#E1E3E3",
-  gray: "#E0E4E4",
-  opacityGray: `${opacify(0.2, "#467472")}`,
-  slate: "#e9ebeb",
-  red: "#FF464A",
-  orange: "#E76F00",
-  darkRed: "#CB2500",
-  green: "#006C67",
-  paleGreen: "#D2DBDB",
+const BaseColors = {
+  orange: "#e76f00",
+  red: "#ff464a",
+  darkRed: "#cb2500",
+  lightBlue: "#33b6ff",
+  teal: "#25b894",
+  green: "#006c67",
+  forest: "#005450",
+  forestGray: "#467472",
+  darkGreen: "#00413e",
   darkForest: "#033342",
   paleForest: "#667c7b",
-  forest: "#005450",
-  opacityForest: `${opacify(0.7, "#005450")}`,
-  darkGreen: "#00413E",
-  teal: "#25b894",
   darkTeal: "#759f9e",
-  lightBlue: "#33B6FF",
   darkGray: "#c8d3d3",
+  paleGreen: "#d2dbdb",
+  gray: "#e0e4e4",
+  slate: "#e9ebeb",
+  lightGray: "#e1e3e3",
+  white: "#fff",
   black: "#000",
+};
+
+const Colors = {
+  ...BaseColors,
+  opacityGray: opacify(0.2, BaseColors.forestGray),
+  opacityForest: opacify(0.7, BaseColors.forest),
+  forest50: opacify(0.5, BaseColors.forest),
+  forest30: opacify(0.5, BaseColors.forest),
 };
 
 // Shared colors for the Projection charts

@@ -8,6 +8,7 @@ import { RateOfSpreadType } from "../constants/EpidemicModel";
 import { saveFacility } from "../database/index";
 import Colors, { MarkColors as markColors } from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
+import FontSizes from "../design-system/FontSizes";
 import InputButton from "../design-system/InputButton";
 import InputDate from "../design-system/InputDate";
 import InputDescription from "../design-system/InputDescription";
@@ -23,6 +24,7 @@ import {
 } from "../impact-dashboard/EpidemicModelContext";
 import { AgeGroupGrid } from "../impact-dashboard/FacilityInformation";
 import useModel from "../impact-dashboard/useModel";
+import { RtData } from "../infection-model/rt";
 import { FacilityContext } from "./FacilityContext";
 import {
   useChartDataFromProjectionData,
@@ -36,6 +38,27 @@ const groupStatus = {
   hospitalized: true,
   infectious: true,
 };
+
+const pillTextColor: { [x: string]: string } = {
+  [RateOfSpreadType.CONTROLLED]: Colors.green,
+  [RateOfSpreadType.INFECTIOUS]: Colors.darkRed,
+  [RateOfSpreadType.MISSING]: Colors.forest,
+};
+
+const pillBorderColor: { [x: string]: string } = {
+  [RateOfSpreadType.CONTROLLED]: Colors.teal,
+  [RateOfSpreadType.INFECTIOUS]: Colors.orange,
+  [RateOfSpreadType.MISSING]: Colors.forest30,
+};
+
+const LastUpdatedLabel = styled.div`
+  color: ${Colors.forest50};
+  font-family: Poppins;
+  font-style: normal;
+  font-weight: 600;
+  font-size: ${FontSizes.Charts.labelText}px;
+  line-height: 16px;
+`;
 
 const FacilityNameLabel = styled.label`
   cursor: pointer;
@@ -77,6 +100,19 @@ const HorizRule = styled.div`
   width: 100%;
 `;
 
+const FacilityRowRtValuePill = styled.div<{ spreadType: string }>`
+  .pill-circle {
+    border-color: ${(props) =>
+      !!props.spreadType
+        ? pillBorderColor[props.spreadType]
+        : pillBorderColor.controlled};
+    color: ${(props) =>
+      !!props.spreadType
+        ? pillTextColor[props.spreadType]
+        : pillTextColor.controlled};
+  }
+`;
+
 // TODO: validate the arguments?
 const handleSubClick = (fn?: Function, ...args: any[]) => {
   return (event: React.MouseEvent<Element>) => {
@@ -93,15 +129,18 @@ interface Props {
   scenarioId: string;
 }
 
-const chartRtType = (rtValue: number) => {
-  // if (!rtValue) {
-  //   return RateOfSpreadType.MISSING;
-  // } else
-  if (rtValue > 1) {
+const rtSpreadType = (latestRt: number | null) => {
+  if (!latestRt) {
+    return RateOfSpreadType.MISSING;
+  } else if (latestRt > 1) {
     return RateOfSpreadType.INFECTIOUS;
   } else {
     return RateOfSpreadType.CONTROLLED;
   }
+};
+
+const displayRtValue = (latestRt: number | null) => {
+  return !latestRt ? "?" : latestRt;
 };
 
 // Create a diff of the model to store changes in the update cases modal.
@@ -128,15 +167,19 @@ const FacilityRow: React.FC<Props> = ({
 }) => {
   const [model, updateModel] = useModel();
 
-  const tempRtValue = 1;
-
   const { rtData, setFacility } = useContext(FacilityContext);
 
   const [facility, updateFacility] = useState(initialFacility);
-  let useRt, facilityRtData;
+  let useRt,
+    facilityRtData,
+    latestRt = null;
   if (useFlag(["useRt"])) {
     useRt = true;
-    facilityRtData = rtData ? rtData[facility.id] : undefined;
+    facilityRtData = rtData ? rtData[facility.id] : null;
+
+    if (facilityRtData) {
+      latestRt = facilityRtData?.Rt[facilityRtData.Rt.length - 1].value;
+    }
   }
   const chartData = useChartDataFromProjectionData(
     useProjectionData(model, useRt, facilityRtData),
@@ -219,16 +262,18 @@ const FacilityRow: React.FC<Props> = ({
               </FacilityNameLabel>
             </div>
             <div className="text-xs text-gray-500 pb-4">
-              <div>
+              <LastUpdatedLabel>
                 Last Update: <DateMMMMdyyyy date={updatedAt} />
-              </div>
+              </LastUpdatedLabel>
               <Spacer x={32} />
             </div>
           </div>
           <div className="w-3/5 relative">
-            <PillCircle circleType={chartRtType(tempRtValue)}>
-              {tempRtValue}
-            </PillCircle>
+            <FacilityRowRtValuePill spreadType={rtSpreadType(latestRt)}>
+              <PillCircle className="pill-circle">
+                {displayRtValue(latestRt)}
+              </PillCircle>
+            </FacilityRowRtValuePill>
             <CurveChartContainer
               curveData={chartData}
               chartHeight={144}

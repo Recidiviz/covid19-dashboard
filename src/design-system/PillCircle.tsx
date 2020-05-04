@@ -1,32 +1,17 @@
 import styled from "styled-components";
 
-import { RateOfSpreadType } from "../constants/EpidemicModel";
-import Colors, { lighten } from "./Colors";
+import Colors from "./Colors";
 import FontSizes from "./FontSizes";
 
 const pillDimensions = "24px";
 
-const textColor: { [x: string]: string } = {
-  [RateOfSpreadType.CONTROLLED]: Colors.green,
-  [RateOfSpreadType.INFECTIOUS]: Colors.darkRed,
-  [RateOfSpreadType.MISSING]: Colors.darkRed,
-};
-
-const borderColor: { [x: string]: string } = {
-  [RateOfSpreadType.CONTROLLED]: Colors.teal,
-  [RateOfSpreadType.INFECTIOUS]: Colors.orange,
-  [RateOfSpreadType.MISSING]: lighten(Colors.teal, 30),
-};
-
-const PillCircle = styled.div<{ circleType: string }>`
+const PillCircle = styled.div`
   min-width: ${pillDimensions};
   height: ${pillDimensions};
   background: ${Colors.slate};
-  border: 1px solid
-    ${(props) =>
-      !!props.circleType
-        ? borderColor[props.circleType]
-        : borderColor.controlled};
+  border-width: 1px;
+  border-style: solid;
+  border-color: ${Colors.teal};
   border-radius: ${pillDimensions};
   box-sizing: border-box;
   position: absolute;
@@ -35,8 +20,6 @@ const PillCircle = styled.div<{ circleType: string }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${(props) =>
-    !!props.circleType ? textColor[props.circleType] : textColor.controlled};
   font-family: Poppins;
   font-style: normal;
   font-weight: 600;
