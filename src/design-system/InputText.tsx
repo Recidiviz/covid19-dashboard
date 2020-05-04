@@ -51,6 +51,7 @@ interface Props extends InputBaseProps<string> {
   maxLength?: number;
   placeholder?: string;
   required?: boolean;
+  style?: object;
 }
 
 const InputText: React.FC<Props> = (props) => {
@@ -67,7 +68,7 @@ const InputText: React.FC<Props> = (props) => {
   return (
     <TextInputContainer>
       <InputLabelAndHelp label={props.labelAbove} labelHelp={props.labelHelp} />
-      <InputWrapper as="div">
+      <InputWrapper as="div" style={props.style}>
         <WrappedInput
           type={props.type}
           ref={nameInput}

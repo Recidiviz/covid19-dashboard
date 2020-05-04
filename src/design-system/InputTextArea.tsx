@@ -25,12 +25,13 @@ interface InputProps {
   fontFamily?: string;
   fontSize?: string;
   color?: string;
+  outline?: string;
 }
 
 const TextAreaInput = styled.textarea<InputProps>`
   margin-top: 8px;
   border: none;
-  outline: none;
+  outline: ${(props) => props.outline || "none"};
   padding: 16px;
   background: #e0e4e4;
   border-radius: 2px;

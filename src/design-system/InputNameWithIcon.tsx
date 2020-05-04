@@ -6,6 +6,10 @@ import iconEditSrc from "./icons/ic_edit.svg";
 import iconFolderSrc from "./icons/ic_folder.svg";
 import InputText from "./InputText";
 
+const requiredInputStyle = {
+  outline: "none"
+};
+
 const borderStyle = `1px solid ${Colors.paleGreen}`;
 
 const NameLabelDiv = styled.label`
@@ -69,6 +73,10 @@ const InputNameWithIcon: React.FC<Props> = ({
 }) => {
   const [editingName, setEditingName] = useState(false);
   const [value, setValue] = useState(name);
+
+  // Reset Name field border
+  if (!editingName) requiredInputStyle.outline = "none";
+
   const onEnterPress = (event: React.KeyboardEvent, onEnter: Function) => {
     if (event.key !== "Enter") return;
     onEnter();
@@ -87,6 +95,12 @@ const InputNameWithIcon: React.FC<Props> = ({
       if (persistChanges) {
         persistChanges({ name: '' });
       }
+    }
+
+    if (requiredFlag && !value?.trim()) {
+      requiredInputStyle.outline = `1px solid ${ Colors.red }`;
+    } else {
+      requiredInputStyle.outline = "none";
     }
   };
 
@@ -109,6 +123,7 @@ const InputNameWithIcon: React.FC<Props> = ({
           maxLength={maxLengthValue}
           placeholder={placeholderText || ""}
           required={requiredFlag}
+          style={requiredInputStyle}
         />
       )}
       <IconEdit alt="Name" src={iconEditSrc} />

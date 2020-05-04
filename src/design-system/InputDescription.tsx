@@ -9,6 +9,7 @@ const inputTextAreaStyle = {
   fontFamily: "Helvetica Neue",
   fontSize: "13px",
   color: Colors.forest,
+  outline: "none"
 };
 
 const DescriptionDiv = styled.div`
@@ -60,6 +61,10 @@ const InputDescription: React.FC<Props> = ({
 }) => {
   const [editingDescription, setEditingDescription] = useState(false);
   const [value, setValue] = useState(description);
+
+  // Reset Description field border
+  if (!editingDescription) inputTextAreaStyle.outline = "none";
+
   const onEnterPress = (event: React.KeyboardEvent, onEnter: Function) => {
     if (event.key !== "Enter") return;
     onEnter();
@@ -78,6 +83,12 @@ const InputDescription: React.FC<Props> = ({
       if (persistChanges) {
         persistChanges({ description: '' });
       }
+    }
+
+    if (requiredFlag && !value?.trim()) {
+      inputTextAreaStyle.outline = `1px solid ${ Colors.red }`;
+    } else {
+      inputTextAreaStyle.outline = "none";
     }
   };
 
