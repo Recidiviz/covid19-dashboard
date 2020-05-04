@@ -4,7 +4,7 @@ import { getRtDataForFacility } from "../infection-model/rt";
 import { FacilityContext } from "../page-multi-facility/FacilityContext";
 import { Facilities } from "../page-multi-facility/types";
 
-const useFacilitiesRtData = (facilities: Facilities, useRt = false) => {
+const useFacilitiesRtData = (facilities: Facilities | null, useRt = false) => {
   const { rtData, dispatchRtData } = useContext(FacilityContext);
 
   async function getRtDataForFacilities(facilities: Facilities) {
@@ -24,7 +24,7 @@ const useFacilitiesRtData = (facilities: Facilities, useRt = false) => {
 
   useEffect(
     () => {
-      if (useRt && facilities) {
+      if (facilities && useRt) {
         getRtDataForFacilities(facilities);
       }
     },
