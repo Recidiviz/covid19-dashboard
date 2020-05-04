@@ -100,15 +100,19 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   const model = useModel();
 
   const save = () => {
-    saveFacility(scenarioId, {
-      id: facility?.id,
-      name: facilityName || null,
-      description: description || null,
-      systemType: systemType || null,
-      modelInputs: model[0],
-    }).then(() => {
-      navigate("/");
-    });
+    if (facilityName) {
+      saveFacility(scenarioId, {
+        id: facility?.id,
+        name: facilityName || null,
+        description: description || null,
+        systemType: systemType || null,
+        modelInputs: model[0],
+      }).then(() => {
+        navigate("/");
+      });
+    } else {
+      window.scroll({ top: 0, left: 0, behavior: 'smooth' });
+    }
   };
 
   // delete modal stuff
@@ -144,6 +148,9 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
           name={facilityName}
           setName={setFacilityName}
           placeholderValue="Unnamed Facility"
+          placeholderText="Facility name is required"
+          maxLengthValue={124}
+          requiredFlag={true}
         />
         <Spacer y={20} />
         <DescRow>

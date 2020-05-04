@@ -51,11 +51,13 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
   const { numFacilities } = props;
   const updatedAtDate = Number(scenario?.updatedAt);
 
-  const handleScenarioChange = (scenarioChange: object) => {
-    const changes = Object.assign({}, scenario, scenarioChange);
-    saveScenario(changes).then((_) => {
-      dispatchScenarioUpdate(changes);
-    });
+  const handleScenarioChange = (scenarioChange: any) => {
+    if (scenarioChange.name || scenarioChange.description) {
+      const changes = Object.assign({}, scenario, scenarioChange);
+      saveScenario(changes).then((_) => {
+        dispatchScenarioUpdate(changes);
+      });
+    }
   };
   const [name, setName] = useState(scenario?.name);
   const [promoDismissed, setPromoDismissed] = useState(false);
@@ -69,6 +71,9 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
           name={name}
           setName={setName}
           placeholderValue={scenario?.name}
+          placeholderText="Scenario name is required"
+          maxLengthValue={124}
+          requiredFlag={true}
           persistChanges={handleScenarioChange}
         />
         <Spacer y={20} />
@@ -76,6 +81,9 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
           description={description}
           setDescription={setDescription}
           placeholderValue={scenario?.description}
+          placeholderText="Scenario description is required"
+          maxLengthValue={500}
+          requiredFlag={true}
           persistChanges={handleScenarioChange}
         />
         <Spacer y={20} />

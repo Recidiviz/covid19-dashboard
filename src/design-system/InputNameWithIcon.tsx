@@ -52,6 +52,9 @@ interface Props {
   name?: string | undefined;
   setName: (name?: string) => void;
   placeholderValue?: string | undefined;
+  placeholderText?: string | undefined;
+  maxLengthValue?: number | undefined;
+  requiredFlag?: boolean;
   persistChanges?: (changes: object) => void;
 }
 
@@ -59,7 +62,10 @@ const InputNameWithIcon: React.FC<Props> = ({
   name,
   setName,
   placeholderValue,
-  persistChanges,
+  placeholderText,
+  maxLengthValue,
+  requiredFlag,
+  persistChanges
 }) => {
   const [editingName, setEditingName] = useState(false);
   const [value, setValue] = useState(name);
@@ -69,16 +75,24 @@ const InputNameWithIcon: React.FC<Props> = ({
   };
 
   const updateName = () => {
-    setEditingName(false);
-    setName(value);
-    if (persistChanges) {
-      persistChanges({ name: value });
+    if (requiredFlag && value?.trim() || !requiredFlag) {
+      setEditingName(false);
+      setName(value);
+      if (persistChanges) {
+        persistChanges({ name: value });
+      }
+    } else {
+      setEditingName(true);
+      setName('');
+      if (persistChanges) {
+        persistChanges({ name: '' });
+      }
     }
   };
 
   return (
     <NameLabelDiv>
-      {!editingName ? (
+      {!editingName && ((requiredFlag && name) || !requiredFlag) ? (
         <Heading onClick={() => setEditingName(true)}>
           <IconFolder alt="folder" src={iconFolderSrc} />
           <span>{value || placeholderValue}</span>
@@ -92,6 +106,9 @@ const InputNameWithIcon: React.FC<Props> = ({
           onValueChange={(value) => setValue(value)}
           onBlur={() => updateName()}
           onKeyDown={(event) => onEnterPress(event, updateName)}
+          maxLength={maxLengthValue}
+          placeholder={placeholderText || ""}
+          required={requiredFlag}
         />
       )}
       <IconEdit alt="Name" src={iconEditSrc} />
