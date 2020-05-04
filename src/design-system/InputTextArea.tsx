@@ -15,6 +15,8 @@ interface Props {
   inline?: boolean;
   fillVertical?: boolean;
   style?: object;
+  maxLength?: number;
+  required?: boolean;
 }
 
 interface InputProps {
@@ -23,12 +25,13 @@ interface InputProps {
   fontFamily?: string;
   fontSize?: string;
   color?: string;
+  outline?: string;
 }
 
 const TextAreaInput = styled.textarea<InputProps>`
   margin-top: 8px;
   border: none;
-  outline: none;
+  outline: ${(props) => props.outline || "none"};
   padding: 16px;
   background: #e0e4e4;
   border-radius: 2px;
@@ -50,6 +53,20 @@ const TextAreaInput = styled.textarea<InputProps>`
     css`
       height: 100%;
     `};
+
+  // make placeholder font size smaller than the textarea's
+  &::-webkit-input-placeholder {
+    font-size: 18px;
+  }
+  &::-moz-placeholder {
+    font-size: 18px;
+  }
+  &:-ms-input-placeholder {
+    font-size: 18px;
+  }
+  &:-moz-placeholder {
+    font-size: 18px;
+  }
 `;
 
 interface TextAreaContainer {
@@ -95,6 +112,8 @@ const InputTextArea: React.FC<Props> = (props) => {
         onBlur={props.onBlur}
         value={props.value}
         placeholder={props.placeholder}
+        maxLength={props.maxLength}
+        required={props.required}
         name={props.label}
         onKeyDown={props.onKeyDown}
         {...props.style}
