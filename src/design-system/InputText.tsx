@@ -26,19 +26,19 @@ const WrappedInput = styled(StyledInput)`
   */
   width: 0;
   color: ${Colors.green};
-  
+
   // make placeholder font size smaller than the input's
   &::-webkit-input-placeholder {
-    ${props => props.headerStyle ? "font-size: 18px" : ""}
+    ${(props) => (props.headerStyle ? "font-size: 18px" : "")}
   }
   &::-moz-placeholder {
-    ${props => props.headerStyle ? "font-size: 18px" : ""}
+    ${(props) => (props.headerStyle ? "font-size: 18px" : "")}
   }
   &:-ms-input-placeholder {
-    ${props => props.headerStyle ? "font-size: 18px" : ""}
+    ${(props) => (props.headerStyle ? "font-size: 18px" : "")}
   }
   &:-moz-placeholder {
-    ${props => props.headerStyle ? "font-size: 18px" : ""}
+    ${(props) => (props.headerStyle ? "font-size: 18px" : "")}
   }
 `;
 

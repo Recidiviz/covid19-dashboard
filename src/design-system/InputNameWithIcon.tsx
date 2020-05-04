@@ -7,7 +7,7 @@ import iconFolderSrc from "./icons/ic_folder.svg";
 import InputText from "./InputText";
 
 const requiredInputStyle = {
-  outline: "none"
+  outline: "none",
 };
 
 const borderStyle = `1px solid ${Colors.paleGreen}`;
@@ -69,7 +69,7 @@ const InputNameWithIcon: React.FC<Props> = ({
   placeholderText,
   maxLengthValue,
   requiredFlag,
-  persistChanges
+  persistChanges,
 }) => {
   const [editingName, setEditingName] = useState(false);
   const [value, setValue] = useState(name);
@@ -83,7 +83,7 @@ const InputNameWithIcon: React.FC<Props> = ({
   };
 
   const updateName = () => {
-    if (requiredFlag && value?.trim() || !requiredFlag) {
+    if ((requiredFlag && value?.trim()) || !requiredFlag) {
       setEditingName(false);
       setName(value);
       if (persistChanges) {
@@ -91,14 +91,14 @@ const InputNameWithIcon: React.FC<Props> = ({
       }
     } else {
       setEditingName(true);
-      setName('');
+      setName("");
       if (persistChanges) {
-        persistChanges({ name: '' });
+        persistChanges({ name: "" });
       }
     }
 
     if (requiredFlag && !value?.trim()) {
-      requiredInputStyle.outline = `1px solid ${ Colors.red }`;
+      requiredInputStyle.outline = `1px solid ${Colors.red}`;
     } else {
       requiredInputStyle.outline = "none";
     }
