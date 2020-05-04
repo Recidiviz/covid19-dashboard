@@ -67,6 +67,10 @@ const InputDescription: React.FC<Props> = ({
 
   const onEnterPress = (event: React.KeyboardEvent, onEnter: Function) => {
     if (event.key !== "Enter") return;
+    else if (event.key === "Enter" && requiredFlag && !value?.trim()) {
+      event.preventDefault();
+      return;
+    }
     onEnter();
   };
 
