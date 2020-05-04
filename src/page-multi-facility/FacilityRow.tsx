@@ -182,7 +182,10 @@ const FacilityRow: React.FC<Props> = ({
                   description={name}
                   setDescription={(name) => {
                     if (name) {
-                      const newName = (name || "").replace(/(\r\n|\n|\r)/gm, "");
+                      const newName = (name || "").replace(
+                        /(\r\n|\n|\r)/gm,
+                        "",
+                      );
                       // this updates the local state
                       updateFacility({ ...facility, name: newName });
                       // this persists the changes to the database

@@ -9,7 +9,7 @@ const inputTextAreaStyle = {
   fontFamily: "Helvetica Neue",
   fontSize: "13px",
   color: Colors.forest,
-  outline: "none"
+  outline: "none",
 };
 
 const DescriptionDiv = styled.div`
@@ -57,7 +57,7 @@ const InputDescription: React.FC<Props> = ({
   placeholderText,
   maxLengthValue,
   requiredFlag,
-  persistChanges
+  persistChanges,
 }) => {
   const [editingDescription, setEditingDescription] = useState(false);
   const [value, setValue] = useState(description);
@@ -75,7 +75,7 @@ const InputDescription: React.FC<Props> = ({
   };
 
   const updateDescription = () => {
-    if (requiredFlag && value?.trim() || !requiredFlag) {
+    if ((requiredFlag && value?.trim()) || !requiredFlag) {
       setEditingDescription(false);
       setDescription(value);
       if (persistChanges) {
@@ -83,14 +83,14 @@ const InputDescription: React.FC<Props> = ({
       }
     } else {
       setEditingDescription(true);
-      setDescription('');
+      setDescription("");
       if (persistChanges) {
-        persistChanges({ description: '' });
+        persistChanges({ description: "" });
       }
     }
 
     if (requiredFlag && !value?.trim()) {
-      inputTextAreaStyle.outline = `1px solid ${ Colors.red }`;
+      inputTextAreaStyle.outline = `1px solid ${Colors.red}`;
     } else {
       inputTextAreaStyle.outline = "none";
     }
