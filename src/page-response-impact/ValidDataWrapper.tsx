@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
+import { sumAgeGroupPopulations } from "../impact-dashboard/EpidemicModelContext";
 import { Facilities } from "../page-multi-facility/types";
-import { sumAgeGroupPopulations } from "../impact-dashboard/EpidemicModelContext"
 const POPULATION_DATA_ERROR_MSG =
   "Impact could not be generated because one or more of your facilities does not have an incarcerated population count. Please add population numbers and try again.";
 const LOCALE_DATA_ERROR_MSG =
@@ -15,8 +15,6 @@ const ErrorMessage = styled.div`
   color: ${Colors.darkForest};
   width: 60%;
 `;
-
-
 
 interface Props {
   children?: React.ReactElement<any>;

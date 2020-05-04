@@ -3,7 +3,7 @@ import { pick } from "lodash";
 import React from "react";
 
 import { LocaleData } from "../locale-data-context";
-import { Facility } from "../page-multi-facility/types"
+import { Facility } from "../page-multi-facility/types";
 
 export type PlannedRelease = { date?: Date; count?: number };
 export type PlannedReleases = PlannedRelease[];

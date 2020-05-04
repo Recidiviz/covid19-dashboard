@@ -5,10 +5,11 @@ import "firebase/auth";
 import "firebase/firestore";
 
 import createAuth0Client from "@auth0/auth0-spa-js";
-import { startOfDay, startOfToday } from "date-fns";
+import { format, startOfDay, startOfToday } from "date-fns";
 import { pick, sortBy } from "lodash";
 
 import config from "../auth/auth_config.json";
+import { MMMMdyyyy } from "../constants";
 import { persistedKeys } from "../impact-dashboard/EpidemicModelContext";
 import { Facility, ModelInputs, Scenario } from "../page-multi-facility/types";
 import {
@@ -397,16 +398,25 @@ export const saveFacility = async (
     if (facility.id) {
       const payload = buildUpdatePayload(facility);
       facilityDoc = facilitiesCollection.doc(facility.id);
-      // Only update the facility if the incoming observedAt date is > than the current observedAt date in the existing facility
-      const incomingObservedAt = facility.modelInputs.observedAt;
-      const currentFacilityData = await facilityDoc.get();
-      const currentFacility = buildFacility(scenarioId, currentFacilityData);
-      if (
-        incomingObservedAt &&
-        currentFacility.modelInputs.observedAt &&
-        startOfDay(incomingObservedAt) >=
-          startOfDay(currentFacility.modelInputs.observedAt)
-      ) {
+
+      // Handle facility updates in a context where we are also updating
+      // modelInputs (i.e. Facility Details Page, Add Cases Shortcut)
+      if (facility.modelInputs) {
+        // Only update the facility if the incoming observedAt date is > than the current observedAt date in the existing facility
+        const incomingObservedAt = facility.modelInputs.observedAt;
+        const currentFacilityData = await facilityDoc.get();
+        const currentFacility = buildFacility(scenarioId, currentFacilityData);
+        if (
+          incomingObservedAt &&
+          currentFacility.modelInputs.observedAt &&
+          startOfDay(incomingObservedAt) >=
+            startOfDay(currentFacility.modelInputs.observedAt)
+        ) {
+          batch.update(facilityDoc, payload);
+        }
+        // Handle facility updates from a context where we are not also updating
+        // modelInputs (i.e. renaming a facility in the FacilityRow).
+      } else {
         batch.update(facilityDoc, payload);
       }
     } else {
@@ -469,6 +479,118 @@ export const deleteFacility = async (
   } catch (error) {
     console.error(
       `Encountered error while attempting to delete the facility (${facilityId}):`,
+    );
+    console.error(error);
+  }
+};
+
+export const duplicateScenario = async (
+  scenarioId: string,
+): Promise<Scenario | void> => {
+  try {
+    const scenario = await getScenario(scenarioId);
+
+    if (!scenario) {
+      console.error(`No scenario found for scenario: ${scenarioId}`);
+      return;
+    }
+
+    const userId = currrentUserId();
+    const timestamp = currrentTimestamp();
+    const db = await getDb();
+    const batch = db.batch();
+
+    // Duplicate and save the Scenario
+    const scenarioDoc = db.collection(scenariosCollectionId).doc();
+
+    batch.set(scenarioDoc, {
+      name: `Copy of ${scenario.name}`,
+      description: `This is a copy of the '${
+        scenario.name
+      }' scenario, made on ${format(new Date(), MMMMdyyyy)}`,
+      baseline: false,
+      dailyReports: false,
+      dataSharing: false,
+      promoStatuses: {},
+      roles: {
+        [userId]: "owner",
+      },
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    });
+
+    // Duplicate and save all of the Facilities
+    const facilities = await getFacilities(scenarioId);
+    for (const facility of facilities || []) {
+      const facilityCopy = Object.assign({}, facility);
+      delete facilityCopy.id;
+      delete facilityCopy.scenarioId;
+
+      const facilityDoc = scenarioDoc.collection(facilitiesCollectionId).doc();
+
+      batch.set(facilityDoc, facilityCopy);
+
+      // Duplicate and save all of the facility's modelVersions
+      const modelVersions = await getFacilityModelVersions({
+        scenarioId: scenario.id,
+        facilityId: facility.id,
+      });
+
+      modelVersions.forEach((modelVersion) => {
+        const modelVersionDoc = facilityDoc
+          .collection(modelVersionCollectionId)
+          .doc();
+
+        batch.set(modelVersionDoc, modelVersion);
+      });
+    }
+
+    batch.commit();
+  } catch (error) {
+    console.error(
+      `Encountered error while attempting to duplicate scenario: ${scenarioId}`,
+    );
+    console.error(error);
+    return;
+  }
+};
+
+export const deleteScenario = async (
+  scenarioId: string,
+): Promise<Scenario | void> => {
+  try {
+    const scenarioRef = await getScenarioRef(scenarioId);
+
+    if (!scenarioRef) {
+      console.error(`No scenario found for scenario: ${scenarioId}`);
+      return;
+    }
+
+    const db = await getDb();
+    const batch = db.batch();
+
+    const facilities = await scenarioRef
+      .collection(facilitiesCollectionId)
+      .get();
+
+    for (const facility of facilities.docs || []) {
+      const modelVersions = await facility.ref
+        .collection(modelVersionCollectionId)
+        .get();
+
+      modelVersions.docs.forEach((doc) => {
+        batch.delete(doc.ref);
+      });
+
+      batch.delete(facility.ref);
+    }
+
+    batch.delete(scenarioRef);
+
+    await batch.commit();
+  } catch (error) {
+    console.error(
+      `Encountered error while attempting to delete scenario: ${scenarioId}`,
     );
     console.error(error);
   }

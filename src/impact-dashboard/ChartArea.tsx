@@ -30,7 +30,7 @@ const LegendContainer = styled.div`
 `;
 
 const ChartArea: React.FC<{
-  projectionData: CurveData;
+  projectionData?: CurveData;
 }> = ({ projectionData }) => {
   const [groupStatus, setGroupStatus] = useState({
     exposed: true,
