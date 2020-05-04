@@ -554,3 +554,44 @@ export const duplicateScenario = async (
     return;
   }
 };
+
+export const deleteScenario = async (
+  scenarioId: string,
+): Promise<Scenario | void> => {
+  try {
+    const scenarioRef = await getScenarioRef(scenarioId);
+
+    if (!scenarioRef) {
+      console.error(`No scenario found for scenario: ${scenarioId}`);
+      return;
+    }
+
+    const db = await getDb();
+    const batch = db.batch();
+
+    const facilities = await scenarioRef
+      .collection(facilitiesCollectionId)
+      .get();
+
+    for (const facility of facilities.docs || []) {
+      const modelVersions = await facility.ref
+        .collection(modelVersionCollectionId)
+        .get();
+
+      modelVersions.docs.forEach((doc) => {
+        batch.delete(doc.ref);
+      });
+
+      batch.delete(facility.ref);
+    }
+
+    batch.delete(scenarioRef);
+
+    await batch.commit();
+  } catch (error) {
+    console.error(
+      `Encountered error while attempting to delete scenario: ${scenarioId}`,
+    );
+    console.error(error);
+  }
+};
