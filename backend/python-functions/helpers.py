@@ -1,9 +1,11 @@
 # adapted from https://codereview.stackexchange.com/questions/217303/decorate-a-python-function-to-work-as-a-google-cloud-function
 import functools
 from flask import json
+import jsonschema
+import logging
 import traceback
 
-import jsonschema
+log = logging.getLogger("cloudLogger")
 
 
 def cloudfunction(in_schema=None, out_schema=None):
@@ -37,6 +39,7 @@ def cloudfunction(in_schema=None, out_schema=None):
             try:
                 if in_schema:
                     request_json = request.get_json()
+                    log.info("Request JSON: %s", request_json)
                     jsonschema.validate(request_json, in_schema)
                     function_output = f(request_json)
                 else:
@@ -46,9 +49,12 @@ def cloudfunction(in_schema=None, out_schema=None):
                     jsonschema.validate(function_output, out_schema)
 
                 response_json = json.dumps(function_output)
+                log.info("Response JSON: %s", response_json)
                 return (response_json, 200, headers)
             except:
-                return (json.dumps({'error': traceback.format_exc()}), 500, headers)
+                response_json = json.dumps({'error': traceback.format_exc()})
+                log.error("Error response JSON: %s", response_json)
+                return (response_json, 500, headers)
 
         return wrapped
 
