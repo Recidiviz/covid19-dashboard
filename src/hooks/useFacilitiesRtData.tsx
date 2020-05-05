@@ -11,7 +11,7 @@ const useFacilitiesRtData = (facilities: Facilities | null, useRt = false) => {
     return await Promise.all(
       [...facilities].map(async (facility) => {
         // don't fetch data if we already have it
-        if (rtData && rtData[facility.id]) return;
+        if (rtData && rtData.hasOwnProperty(facility.id)) return;
 
         const facilityRtData = await getRtDataForFacility(facility);
         dispatchRtData({
