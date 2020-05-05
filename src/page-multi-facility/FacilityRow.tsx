@@ -38,18 +38,6 @@ const groupStatus = {
   infectious: true,
 };
 
-const pillTextColor: { [x: string]: string } = {
-  [RateOfSpreadType.CONTROLLED]: Colors.green,
-  [RateOfSpreadType.INFECTIOUS]: Colors.darkRed,
-  [RateOfSpreadType.MISSING]: Colors.forest,
-};
-
-const pillBorderColor: { [x: string]: string } = {
-  [RateOfSpreadType.CONTROLLED]: Colors.teal,
-  [RateOfSpreadType.INFECTIOUS]: Colors.orange,
-  [RateOfSpreadType.MISSING]: Colors.forest30,
-};
-
 const LastUpdatedLabel = styled.div`
   color: ${Colors.forest50};
   font-family: Poppins;
@@ -143,8 +131,8 @@ const FacilityRow: React.FC<Props> = ({
 
   const [facility, updateFacility] = useState(initialFacility);
   let useRt,
-    facilityRtData,
-    latestRt = null;
+    facilityRtData = undefined,
+    latestRt = undefined;
   if (useFlag(["useRt"])) {
     useRt = true;
     facilityRtData = rtData ? rtData[facility.id] : null;
@@ -249,7 +237,9 @@ const FacilityRow: React.FC<Props> = ({
             </div>
           </div>
           <div className="w-3/5 relative">
-            <FacilityRowRtValuePill latestRt={latestRt} />
+            {facilityRtData !== undefined && (
+              <FacilityRowRtValuePill latestRt={latestRt} />
+            )}
             <CurveChartContainer
               curveData={chartData}
               chartHeight={144}
