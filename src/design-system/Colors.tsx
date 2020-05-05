@@ -1,4 +1,5 @@
 import { lab } from "d3";
+import hexAlpha from "hex-alpha";
 import { opacify } from "polished";
 
 export function darken(color: string, amount: number) {
@@ -37,8 +38,8 @@ const BaseColors = {
 
 const Colors = {
   ...BaseColors,
-  opacityGray: opacify(0.2, BaseColors.forestGray),
-  opacityForest: opacify(0.7, BaseColors.forest),
+  opacityForest: `${hexAlpha(BaseColors.forest, 0.7)}`,
+  opacityGray: `${hexAlpha(BaseColors.forestGray, 0.2)}`,
   forest50: opacify(0.5, BaseColors.forest),
   forest30: opacify(0.5, BaseColors.forest),
 };
