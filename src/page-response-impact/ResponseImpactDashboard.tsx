@@ -152,7 +152,9 @@ const ResponseImpactDashboard: React.FC = () => {
               incarceratedPopulation={systemWideData.prisonPopulation}
             />
             <SectionHeader>Community Resources Saved</SectionHeader>
-            <ChartHeader>Change in rate of transmission R(0)</ChartHeader>
+            <ChartHeader>
+              Rate of spread (R(t)) for modelled facilities
+            </ChartHeader>
             {rtData && <RtSummaryStats rtData={rtData} />}
             <SectionSubheader>
               Positive impact of Reducing R(0)
