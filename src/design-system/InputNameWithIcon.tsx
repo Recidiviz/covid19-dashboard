@@ -60,6 +60,7 @@ interface Props {
   maxLengthValue?: number | undefined;
   requiredFlag?: boolean;
   persistChanges?: (changes: object) => void;
+  showIcon?: boolean;
 }
 
 const InputNameWithIcon: React.FC<Props> = ({
@@ -70,6 +71,7 @@ const InputNameWithIcon: React.FC<Props> = ({
   maxLengthValue,
   requiredFlag,
   persistChanges,
+  showIcon,
 }) => {
   const [editingName, setEditingName] = useState(false);
   const [value, setValue] = useState(name);
@@ -108,7 +110,7 @@ const InputNameWithIcon: React.FC<Props> = ({
     <NameLabelDiv>
       {!editingName && ((requiredFlag && name) || !requiredFlag) ? (
         <Heading onClick={() => setEditingName(true)}>
-          <IconFolder alt="folder" src={iconFolderSrc} />
+          {showIcon && <IconFolder alt="folder" src={iconFolderSrc} />}
           <span>{value || placeholderValue}</span>
         </Heading>
       ) : (
