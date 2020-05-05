@@ -9,6 +9,7 @@ const inputTextAreaStyle = {
   fontFamily: "Helvetica Neue",
   fontSize: "13px",
   color: Colors.forest,
+  outline: "none",
 };
 
 const DescriptionDiv = styled.div`
@@ -43,6 +44,9 @@ interface Props {
   description?: string | undefined;
   setDescription: (description?: string) => void;
   placeholderValue?: string | undefined;
+  placeholderText?: string | undefined;
+  maxLengthValue?: number | undefined;
+  requiredFlag?: boolean;
   persistChanges?: (changes: { description: string | undefined }) => void;
 }
 
@@ -50,26 +54,51 @@ const InputDescription: React.FC<Props> = ({
   description,
   setDescription,
   placeholderValue,
+  placeholderText,
+  maxLengthValue,
+  requiredFlag,
   persistChanges,
 }) => {
   const [editingDescription, setEditingDescription] = useState(false);
   const [value, setValue] = useState(description);
+
+  // Reset Description field border
+  if (!editingDescription) inputTextAreaStyle.outline = "none";
+
   const onEnterPress = (event: React.KeyboardEvent, onEnter: Function) => {
     if (event.key !== "Enter") return;
+    else if (event.key === "Enter" && requiredFlag && !value?.trim()) {
+      event.preventDefault();
+      return;
+    }
     onEnter();
   };
 
   const updateDescription = () => {
-    setEditingDescription(false);
-    setDescription(value);
-    if (persistChanges) {
-      persistChanges({ description: value });
+    if ((requiredFlag && value?.trim()) || !requiredFlag) {
+      setEditingDescription(false);
+      setDescription(value);
+      if (persistChanges) {
+        persistChanges({ description: value });
+      }
+    } else {
+      setEditingDescription(true);
+      setDescription("");
+      if (persistChanges) {
+        persistChanges({ description: "" });
+      }
+    }
+
+    if (requiredFlag && !value?.trim()) {
+      inputTextAreaStyle.outline = `1px solid ${Colors.red}`;
+    } else {
+      inputTextAreaStyle.outline = "none";
     }
   };
 
   return (
     <DescriptionDiv>
-      {!editingDescription ? (
+      {!editingDescription && ((requiredFlag && value) || !requiredFlag) ? (
         <Description onClick={() => setEditingDescription(true)}>
           <span>{value || placeholderValue}</span>
         </Description>
@@ -80,7 +109,9 @@ const InputDescription: React.FC<Props> = ({
             style={inputTextAreaStyle}
             autoResizeVertically
             value={value}
-            placeholder={""}
+            placeholder={placeholderText || ""}
+            maxLength={maxLengthValue}
+            required={requiredFlag}
             onBlur={updateDescription}
             onChange={(event) => setValue(event.target.value)}
             onKeyDown={(event) => {
