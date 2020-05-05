@@ -31,13 +31,13 @@ const pillColors: {
 };
 
 const RtValuePill = styled.div<{ spreadType: RateOfSpreadType }>`
-  .pill-circle {
+  ${PillCircle} {
     border-color: ${(props) => pillColors[props.spreadType].border};
     color: ${(props) => pillColors[props.spreadType].text};
   }
 
   &:hover {
-    .tooltip-wrapper {
+    ${ChartTooltip} {
       display: block;
     }
   }
@@ -46,7 +46,7 @@ const RtValuePill = styled.div<{ spreadType: RateOfSpreadType }>`
 const PillTooltip = styled.div`
   position: relative;
 
-  .tooltip-wrapper {
+  ${ChartTooltip} {
     display: none;
     max-width: 260px;
     position: absolute;
@@ -57,7 +57,8 @@ const PillTooltip = styled.div`
       left: calc(100% - 21px);
     }
   }
-  .tooltip-label-content {
+
+  ${TooltipLabel} {
     white-space: pre-wrap;
   }
 `;
@@ -90,20 +91,18 @@ const FacilityRowRtValuePill: React.FC<Props> = ({ latestRt: latestRt }) => {
     <>
       <RtValuePill spreadType={rtSpreadType(latestRt)}>
         <PillTooltip>
-          <ChartTooltip className="tooltip-wrapper">
+          <ChartTooltip>
             <TooltipContents>
               <TooltipValue>
                 {!!latestRt ? hasDataTitle : needsDataTitle}
               </TooltipValue>
-              <TooltipLabel className="tooltip-label-content">
+              <TooltipLabel>
                 {!!latestRt ? hasDataBody : needsDataBody}
               </TooltipLabel>
             </TooltipContents>
           </ChartTooltip>
         </PillTooltip>
-        <PillCircle className="pill-circle">
-          {displayRtValue(latestRt)}
-        </PillCircle>
+        <PillCircle>{displayRtValue(latestRt)}</PillCircle>
       </RtValuePill>
     </>
   );
