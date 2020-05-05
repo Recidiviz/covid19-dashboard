@@ -45,11 +45,12 @@ const IconEdit = styled.img`
 
 const Heading = styled.h1`
   color: ${Colors.forest};
+  flex: 1 1 auto;
   font-size: 24px;
-  line-height: 24px;
   font-family: Libre Baskerville;
   font-weight: normal;
   letter-spacing: -0.06em;
+  line-height: 24px;
 `;
 
 interface Props {
