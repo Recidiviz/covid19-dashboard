@@ -34,7 +34,6 @@ interface Props {
   title?: TitleProps["title"];
   open?: boolean;
   closeModal?: (e: React.MouseEvent<HTMLElement>) => void | null;
-  children?: React.ReactElement<any>;
 }
 
 const isOutsideModal = (
