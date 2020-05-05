@@ -6,6 +6,10 @@ import iconEditSrc from "./icons/ic_edit.svg";
 import iconFolderSrc from "./icons/ic_folder.svg";
 import InputText from "./InputText";
 
+const requiredInputStyle = {
+  outline: "none",
+};
+
 const borderStyle = `1px solid ${Colors.paleGreen}`;
 
 const NameLabelDiv = styled.label`
@@ -52,6 +56,9 @@ interface Props {
   name?: string | undefined;
   setName: (name?: string) => void;
   placeholderValue?: string | undefined;
+  placeholderText?: string | undefined;
+  maxLengthValue?: number | undefined;
+  requiredFlag?: boolean;
   persistChanges?: (changes: object) => void;
 }
 
@@ -59,26 +66,47 @@ const InputNameWithIcon: React.FC<Props> = ({
   name,
   setName,
   placeholderValue,
+  placeholderText,
+  maxLengthValue,
+  requiredFlag,
   persistChanges,
 }) => {
   const [editingName, setEditingName] = useState(false);
   const [value, setValue] = useState(name);
+
+  // Reset Name field border
+  if (!editingName) requiredInputStyle.outline = "none";
+
   const onEnterPress = (event: React.KeyboardEvent, onEnter: Function) => {
     if (event.key !== "Enter") return;
     onEnter();
   };
 
   const updateName = () => {
-    setEditingName(false);
-    setName(value);
-    if (persistChanges) {
-      persistChanges({ name: value });
+    if ((requiredFlag && value?.trim()) || !requiredFlag) {
+      setEditingName(false);
+      setName(value);
+      if (persistChanges) {
+        persistChanges({ name: value });
+      }
+    } else {
+      setEditingName(true);
+      setName("");
+      if (persistChanges) {
+        persistChanges({ name: "" });
+      }
+    }
+
+    if (requiredFlag && !value?.trim()) {
+      requiredInputStyle.outline = `1px solid ${Colors.red}`;
+    } else {
+      requiredInputStyle.outline = "none";
     }
   };
 
   return (
     <NameLabelDiv>
-      {!editingName ? (
+      {!editingName && ((requiredFlag && name) || !requiredFlag) ? (
         <Heading onClick={() => setEditingName(true)}>
           <IconFolder alt="folder" src={iconFolderSrc} />
           <span>{value || placeholderValue}</span>
@@ -92,6 +120,10 @@ const InputNameWithIcon: React.FC<Props> = ({
           onValueChange={(value) => setValue(value)}
           onBlur={() => updateName()}
           onKeyDown={(event) => onEnterPress(event, updateName)}
+          maxLength={maxLengthValue}
+          placeholder={placeholderText || ""}
+          required={requiredFlag}
+          style={requiredInputStyle}
         />
       )}
       <IconEdit alt="Name" src={iconEditSrc} />

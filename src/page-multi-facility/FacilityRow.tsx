@@ -248,16 +248,24 @@ const FacilityRow: React.FC<Props> = ({
                 <InputDescription
                   description={name}
                   setDescription={(name) => {
-                    const newName = (name || "").replace(/(\r\n|\n|\r)/gm, "");
-                    // this updates the local state
-                    updateFacility({ ...facility, name: newName });
-                    // this persists the changes to the database
-                    saveFacility(scenarioId, {
-                      id,
-                      name: newName,
-                    });
+                    if (name) {
+                      const newName = (name || "").replace(
+                        /(\r\n|\n|\r)/gm,
+                        "",
+                      );
+                      // this updates the local state
+                      updateFacility({ ...facility, name: newName });
+                      // this persists the changes to the database
+                      saveFacility(scenarioId, {
+                        id,
+                        name: newName,
+                      });
+                    }
                   }}
                   placeholderValue="Unnamed Facility"
+                  placeholderText="Facility name is required"
+                  maxLengthValue={124}
+                  requiredFlag={true}
                 />
               </FacilityNameLabel>
             </div>
