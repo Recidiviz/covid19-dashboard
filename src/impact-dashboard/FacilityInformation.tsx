@@ -76,7 +76,7 @@ interface AgeGroupGridProps {
 }
 
 export const AgeGroupGrid: React.FC<AgeGroupGridProps> = ({
-  collapsible = true,
+  collapsible = false,
   ...props
 }) => {
   const [collapsed, setCollapsed] = useState(collapsible);
