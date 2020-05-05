@@ -1,6 +1,6 @@
 import { ascending } from "d3-array";
-import { formatISO, fromUnixTime, parseISO } from "date-fns";
-import { mapValues, orderBy, uniqBy } from "lodash";
+import { compareAsc, formatISO, fromUnixTime, parseISO } from "date-fns";
+import { mapValues, maxBy, minBy, orderBy, uniqBy } from "lodash";
 
 import { getFacilityModelVersions } from "../database";
 import { totalConfirmedCases } from "../impact-dashboard/EpidemicModelContext";
@@ -135,10 +135,10 @@ export const getRtDataForFacility = async (
   }
 };
 
-export const getRtDataForFacilities = async (facilities: Facilities) => {
-  return await Promise.all(
-    facilities.map(async (facility) => {
-      return await getRtDataForFacility(facility);
-    }),
-  );
+export const getOldestRt = (rtRecords: RtRecord[]) => {
+  return minBy(rtRecords, (rtRecord) => rtRecord.date);
+};
+
+export const getNewestRt = (rtRecords: RtRecord[]) => {
+  return maxBy(rtRecords, (rtRecord) => rtRecord.date);
 };
