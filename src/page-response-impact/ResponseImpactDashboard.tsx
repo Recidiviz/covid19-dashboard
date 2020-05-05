@@ -3,7 +3,6 @@ import React, { useContext, useEffect, useState } from "react";
 import { getFacilities } from "../database";
 import Loading from "../design-system/Loading";
 import { Column, PageContainer } from "../design-system/PageColumn";
-import { useFlag } from "../feature-flags/featureFlags";
 import useFacilitiesRtData from "../hooks/useFacilitiesRtData";
 import {
   EpidemicModelState,
@@ -44,7 +43,6 @@ const ResponseImpactDashboard: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
   const [scenarioState] = useScenario();
   const { rtData } = useContext(FacilityContext);
-  const useRt = useFlag(["useRt"]);
   const scenario = scenarioState.data;
   const scenarioId = scenarioState?.data?.id; // linter wants this to be its own var since it is a useEffect dep
   const [currentCurveInputs, setCurrentCurveInputs] = useState(
@@ -87,7 +85,7 @@ const ResponseImpactDashboard: React.FC = () => {
     fetchFacilities();
   }, [scenarioId, localeDataSource]);
 
-  useFacilitiesRtData(facilities.data, useRt);
+  useFacilitiesRtData(facilities.data, true);
 
   // calculate data for cards
   useEffect(() => {
