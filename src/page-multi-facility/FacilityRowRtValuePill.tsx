@@ -5,25 +5,29 @@ import { RateOfSpreadType } from "../constants/EpidemicModel";
 import Colors from "../design-system/Colors";
 import PillCircle from "../design-system/PillCircle";
 
-const pillColors: { [x: string]: { [x: string]: string } } = {
-  [RateOfSpreadType.CONTROLLED]: { text: Colors.green, border: Colors.teal },
+const pillColors: {
+  [x: string]: {
+    [x: string]: string;
+  };
+} = {
+  [RateOfSpreadType.CONTROLLED]: {
+    text: Colors.green,
+    border: Colors.teal,
+  },
   [RateOfSpreadType.INFECTIOUS]: {
     text: Colors.darkRed,
     border: Colors.orange,
   },
-  [RateOfSpreadType.MISSING]: { text: Colors.forest, border: Colors.forest30 },
+  [RateOfSpreadType.MISSING]: {
+    text: Colors.forest,
+    border: Colors.forest30,
+  },
 };
 
 const RtValuePill = styled.div<{ spreadType: string }>`
   .pill-circle {
-    border-color: ${(props) =>
-      !!props.spreadType
-        ? pillColors.border[props.spreadType]
-        : pillColors.border[RateOfSpreadType.CONTROLLED]};
-    color: ${(props) =>
-      !!props.spreadType
-        ? pillColors.text[props.spreadType]
-        : pillColors.text[RateOfSpreadType.CONTROLLED]};
+    border-color: ${(props) => pillColors[props.spreadType].border};
+    color: ${(props) => pillColors[props.spreadType].text};
   }
 `;
 
