@@ -79,8 +79,11 @@ const rtSpreadType = (latestRt: number | null | undefined) => {
   }
 };
 
+const isValidRt = (rtValue: number | null | undefined) =>
+  rtValue !== null && rtValue !== undefined;
+
 const displayRtValue = (latestRt: number | null | undefined) => {
-  return numeral(latestRt).format("0.0") || "?";
+  return isValidRt(latestRt) ? numeral(latestRt).format("0.0") : "?";
 };
 
 const FacilityRowRtValuePill: React.FC<Props> = ({ latestRt: latestRt }) => {
@@ -96,10 +99,10 @@ const FacilityRowRtValuePill: React.FC<Props> = ({ latestRt: latestRt }) => {
           <ChartTooltip>
             <TooltipContents>
               <TooltipValue>
-                {!!latestRt ? hasDataTitle : needsDataTitle}
+                {isValidRt(latestRt) ? hasDataTitle : needsDataTitle}
               </TooltipValue>
               <TooltipLabel>
-                {!!latestRt ? hasDataBody : needsDataBody}
+                {isValidRt(latestRt) ? hasDataBody : needsDataBody}
               </TooltipLabel>
             </TooltipContents>
           </ChartTooltip>
