@@ -90,7 +90,7 @@ function rtDonutChartAnnotation(d: any) {
 
 const RtSummaryStats: React.FC<Props> = ({ rtData }) => {
   const rtDataValues: (RtData | null)[] = Object.values(rtData);
-  const totalFacilities = rtDataValues.length;
+  const totalFacilitiesInScenario = rtDataValues.length;
 
   const facilitiesRtRecords: RtRecord[][] = rtDataValues
     .filter(filterRtData)
@@ -102,7 +102,8 @@ const RtSummaryStats: React.FC<Props> = ({ rtData }) => {
   const averageRtReductionAcrossFacilities =
     rtStats.averageRtReductionAcrossFacilities(facilitiesRtRecords) || 0;
 
-  const numFacilitiesWithRtGt1 = totalFacilities - numFacilitiesWithRtLt1;
+  const numFacilitiesWithRtGt1 =
+    totalFacilitiesInScenario - numFacilitiesWithRtLt1;
 
   const frameProps = {
     type: { type: "bar", innerRadius: 70 },
@@ -119,7 +120,7 @@ const RtSummaryStats: React.FC<Props> = ({ rtData }) => {
     annotations: [
       {
         type: "chart-title",
-        title: `${numFacilitiesWithRtLt1} of ${totalFacilities} facilities`,
+        title: `${numFacilitiesWithRtLt1} of ${totalFacilitiesInScenario} facilities`,
         subtitle: "with R(t) < 1.0",
       },
     ],
