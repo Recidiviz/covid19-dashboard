@@ -1,10 +1,10 @@
 import { ascending } from "d3-array";
-import { compareAsc, formatISO, fromUnixTime, parseISO } from "date-fns";
+import { formatISO, fromUnixTime, parseISO } from "date-fns";
 import { mapValues, maxBy, minBy, orderBy, uniqBy } from "lodash";
 
 import { getFacilityModelVersions } from "../database";
 import { totalConfirmedCases } from "../impact-dashboard/EpidemicModelContext";
-import { Facilities, Facility } from "../page-multi-facility/types";
+import { Facility } from "../page-multi-facility/types";
 
 type RawRtRecord = {
   date: string; // timestamp
