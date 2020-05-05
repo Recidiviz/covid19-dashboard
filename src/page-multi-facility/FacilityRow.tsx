@@ -236,7 +236,11 @@ const FacilityRow: React.FC<Props> = ({
             valueEntered={newModel.observedAt || startOfToday()}
           />
           <HorizRule />
-          <AgeGroupGrid model={newModel} updateModel={fakeUpdateModel} />
+          <AgeGroupGrid
+            model={newModel}
+            updateModel={fakeUpdateModel}
+            collapsible={true}
+          />
           <HorizRule />
           <InputButton label="Save" onClick={save} />
         </ModalContents>

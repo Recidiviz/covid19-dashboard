@@ -1,5 +1,5 @@
 import numeral from "numeral";
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 
 import InputTextNumeric from "../design-system/InputTextNumeric";
@@ -20,6 +20,10 @@ const FacilityInformationDiv = styled.div``;
 
 const LabelRow = styled(FormGridRow)`
   margin-bottom: 0;
+`;
+
+const CollapseIcon = styled.span`
+  font-size: xx-small;
 `;
 
 const LabelCell: React.FC = (props) => (
@@ -68,71 +72,95 @@ const FormHeaderRow: React.FC<FormHeaderRowProps> = (props) => (
 interface AgeGroupGridProps {
   model: EpidemicModelState;
   updateModel: (update: EpidemicModelUpdate) => void;
+  collapsible?: boolean;
 }
 
-export const AgeGroupGrid: React.FC<AgeGroupGridProps> = (props) => (
-  <FormGrid>
-    <FormGridRow />
-    <FormHeaderRow label="Staff Population" />
-    <AgeGroupRow
-      label="Facility Staff"
-      leftKey="staffCases"
-      rightKey="staffPopulation"
-      {...props}
-    />
-    {/* empty row for spacing */}
-    <FormGridRow />
-    <FormHeaderRow label="Total Population" />
-    <AgeGroupRow
-      label="Ages Unknown"
-      leftKey="ageUnknownCases"
-      rightKey="ageUnknownPopulation"
-      {...props}
-    />
-    <AgeGroupRow
-      label="Ages 0-19"
-      leftKey="age0Cases"
-      rightKey="age0Population"
-      {...props}
-    />
-    <AgeGroupRow
-      label="Ages 20-44"
-      leftKey="age20Cases"
-      rightKey="age20Population"
-      {...props}
-    />
-    <AgeGroupRow
-      label="Ages 45-54"
-      leftKey="age45Cases"
-      rightKey="age45Population"
-      {...props}
-    />
-    <AgeGroupRow
-      label="Ages 55-64"
-      leftKey="age55Cases"
-      rightKey="age55Population"
-      {...props}
-    />
-    <AgeGroupRow
-      label="Ages 65-74"
-      leftKey="age65Cases"
-      rightKey="age65Population"
-      {...props}
-    />
-    <AgeGroupRow
-      label="Ages 75-84"
-      leftKey="age75Cases"
-      rightKey="age75Population"
-      {...props}
-    />
-    <AgeGroupRow
-      label="Ages 85+"
-      leftKey="age85Cases"
-      rightKey="age85Population"
-      {...props}
-    />
-  </FormGrid>
-);
+export const AgeGroupGrid: React.FC<AgeGroupGridProps> = ({
+  collapsible = true,
+  ...props
+}) => {
+  const [collapsed, setCollapsed] = useState(collapsible);
+  const ageSpecificCaseCounts = (
+    <>
+      <AgeGroupRow
+        label="Ages 0-19"
+        leftKey="age0Cases"
+        rightKey="age0Population"
+        {...props}
+      />
+      <AgeGroupRow
+        label="Ages 20-44"
+        leftKey="age20Cases"
+        rightKey="age20Population"
+        {...props}
+      />
+      <AgeGroupRow
+        label="Ages 45-54"
+        leftKey="age45Cases"
+        rightKey="age45Population"
+        {...props}
+      />
+      <AgeGroupRow
+        label="Ages 55-64"
+        leftKey="age55Cases"
+        rightKey="age55Population"
+        {...props}
+      />
+      <AgeGroupRow
+        label="Ages 65-74"
+        leftKey="age65Cases"
+        rightKey="age65Population"
+        {...props}
+      />
+      <AgeGroupRow
+        label="Ages 75-84"
+        leftKey="age75Cases"
+        rightKey="age75Population"
+        {...props}
+      />
+      <AgeGroupRow
+        label="Ages 85+"
+        leftKey="age85Cases"
+        rightKey="age85Population"
+        {...props}
+      />
+    </>
+  );
+  return (
+    <FormGrid>
+      <FormGridRow />
+      <FormHeaderRow label="Staff Population" />
+      <AgeGroupRow
+        label="Facility Staff"
+        leftKey="staffCases"
+        rightKey="staffPopulation"
+        {...props}
+      />
+      {/* empty row for spacing */}
+      <FormGridRow />
+      <FormHeaderRow label="Total Population" />
+      <AgeGroupRow
+        label="Ages Unknown"
+        leftKey="ageUnknownCases"
+        rightKey="ageUnknownPopulation"
+        {...props}
+      />
+      {collapsed ? (
+        <div
+          className="flex flex-row justify-center mt-8 cursor-pointer"
+          onClick={() => {
+            setCollapsed(false);
+          }}
+        >
+          <TextLabel>Add residents and cases by age</TextLabel>
+          <CollapseIcon>▾</CollapseIcon>
+        </div>
+      ) : (
+        ageSpecificCaseCounts
+      )}
+    </FormGrid>
+  );
+};
 
 interface AgeGroupRowProps {
   label: string;
