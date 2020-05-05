@@ -140,7 +140,7 @@ export const AgeGroupGrid: React.FC<AgeGroupGridProps> = ({
       <FormGridRow />
       <FormHeaderRow label="Total Population" />
       <AgeGroupRow
-        label="Ages Unknown"
+        label="Resident population (ages unknown)"
         leftKey="ageUnknownCases"
         rightKey="ageUnknownPopulation"
         {...props}
