@@ -1,3 +1,4 @@
+import numeral from "numeral";
 import React from "react";
 import { ResponsiveOrdinalFrame } from "semiotic";
 import styled from "styled-components";
@@ -143,7 +144,10 @@ const RtSummaryStats: React.FC<Props> = ({ rtData }) => {
         </LegendContainer>
         <RtSummaryText className="mt-5 mb-5">
           Average R(t) reduction across all facilities since first confirmed
-          case: <strong>{averageRtReductionAcrossFacilities}</strong>
+          case:{" "}
+          <strong>
+            {numeral(averageRtReductionAcrossFacilities).format("0.0")}
+          </strong>
         </RtSummaryText>
       </RtSummaryTextContainer>
     </RtSummaryStatsContainer>
