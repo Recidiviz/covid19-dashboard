@@ -61,6 +61,7 @@
     "gatsby-plugin-react-helmet": "^3.2.5",
     "gatsby-plugin-styled-components": "^3.2.4",
     "gatsby-plugin-typescript": "^2.3.5",
+    "hex-alpha": "^1.0.2",
     "husky": "^4.2.3",
     "lint-staged": "^10.0.9",
     "lodash": "^4.17.15",

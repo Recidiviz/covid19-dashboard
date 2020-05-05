@@ -1,7 +1,5 @@
 import { scaleTime, timeFormat } from "d3";
-import numeral from "numeral";
-import { opacify } from "polished";
-
+import hexAlpha from "hex-alpha";
 // no type defs for Semiotic
 const ResponsiveXYFrame = require("semiotic/lib/ResponsiveXYFrame") as any;
 import React from "react";
@@ -34,7 +32,7 @@ const RtTimeseriesWrapper = styled(ChartWrapper)`
 
 const ChartTitle = styled.div`
   border-bottom: ${borderStyle};
-  color: ${opacify(0.7, Colors.forest)};
+  color: ${hexAlpha(Colors.forest, 0.7)};
   font-family: "Poppins", sans-serif;
   font-size: 9px;
   font-weight: 600;
@@ -70,7 +68,7 @@ const Tooltip: React.FC<{
   return (
     <ChartTooltip>
       <TooltipContents>
-        <TooltipValue>{numeral(value).format("0.0")}</TooltipValue>
+        <TooltipValue>{value}</TooltipValue>
         <TooltipLabel>
           {title} {formatDate(date)}
         </TooltipLabel>
