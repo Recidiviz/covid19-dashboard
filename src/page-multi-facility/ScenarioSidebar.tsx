@@ -22,7 +22,9 @@ export function getEnabledPromoType(
 
   const { dailyReports, dataSharing, promoStatuses } = scenario;
 
-  return !dailyReports && promoStatuses?.dailyReports
+  return promoStatuses.rtChart
+    ? "rtChart"
+    : !dailyReports && promoStatuses?.dailyReports
     ? "dailyReports"
     : !dataSharing && promoStatuses?.dataSharing
     ? "dataSharing"
@@ -38,6 +40,11 @@ const promoTexts: { [promoType: string]: string } = {
     "Turn on 'Data Sharing' to provide your baseline data to public researchers, to help improve models of disease spread in prisons in the future.",
   addFacilities:
     "Add additional facilities to see the impact across your entire system.",
+  rtChart: `New! View the chart of Rt (the rate of spread over time) for any
+    facility by selecting it. This is based on the number of cases over time
+    for that facility. To get an accurate Rt, enter case counts for previous
+    days by clicking the number of cases on the right (in red) to update case
+    numbers.)`,
 };
 
 export function getPromoText(promoType: string | null) {

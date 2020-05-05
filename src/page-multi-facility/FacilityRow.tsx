@@ -1,27 +1,21 @@
-import { startOfDay, startOfToday } from "date-fns";
+import classNames from "classnames";
 import { navigate } from "gatsby";
-import { pick } from "lodash";
 import React, { useContext, useState } from "react";
 import styled from "styled-components";
 
-import { saveFacility } from "../database/index";
 import Colors, { MarkColors as markColors } from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
-import InputButton from "../design-system/InputButton";
-import InputDate from "../design-system/InputDate";
+import FontSizes from "../design-system/FontSizes";
+import iconEditSrc from "../design-system/icons/ic_edit.svg";
 import InputDescription from "../design-system/InputDescription";
-import ModalDialog from "../design-system/ModalDialog";
 import { Spacer } from "../design-system/Spacer";
 import { useFlag } from "../feature-flags";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
-import {
-  EpidemicModelUpdate,
-  persistedKeys as facilityModelKeys,
-  totalConfirmedCases,
-} from "../impact-dashboard/EpidemicModelContext";
-import { AgeGroupGrid } from "../impact-dashboard/FacilityInformation";
+import { totalConfirmedCases } from "../impact-dashboard/EpidemicModelContext";
 import useModel from "../impact-dashboard/useModel";
+import AddCasesModal from "./AddCasesModal";
 import { FacilityContext } from "./FacilityContext";
+import FacilityRowRtValuePill from "./FacilityRowRtValuePill";
 import {
   useChartDataFromProjectionData,
   useProjectionData,
@@ -34,6 +28,17 @@ const groupStatus = {
   hospitalized: true,
   infectious: true,
 };
+
+const LastUpdatedLabel = styled.div`
+  color: ${Colors.forest50};
+  font-family: Poppins;
+  font-style: normal;
+  font-weight: 600;
+  font-size: ${FontSizes.Charts.labelText}px;
+  line-height: 16px;
+`;
+
+const FacilityRowDiv = styled.div``;
 
 const FacilityNameLabel = styled.label`
   cursor: pointer;
@@ -52,74 +57,59 @@ const CaseText = styled.div`
   color: ${Colors.darkRed};
 `;
 
-const ModalContents = styled.div`
-  align-items: flex-start;
-  display: flex;
-  flex-direction: column;
-  font-weight: normal;
-  justify-content: flex-start;
-  margin-top: 30px;
-`;
-
-const HorizRule = styled.div`
-  border-bottom: 0.5px solid ${Colors.darkGray};
-  padding-bottom: 20px;
-  margin-bottom: 20px;
+const FacilityName = styled.label`
+  color: ${Colors.forest};
+  font-size: 13px;
+  cursor: pointer;
   width: 100%;
+  font-weight: 400;
 `;
 
-// TODO: validate the arguments?
-const handleSubClick = (fn?: Function, ...args: any[]) => {
-  return (event: React.MouseEvent<Element>) => {
-    // This is required or else the openFacilityPage onClick will fire
-    // since the Delete button lives within the same div that opens the
-    // Facility Details page.
-    event.stopPropagation();
-    if (fn) fn(...args);
-  };
-};
+const IconEdit = styled.img`
+  flex: 0 0 auto;
+  height: 16px;
+  margin-left: 10px;
+  width: 16px;
+  visibility: hidden;
+
+  ${FacilityRowDiv}.hover & {
+    visibility: visible;
+  }
+`;
 
 interface Props {
   facility: Facility;
-  scenarioId: string;
 }
 
-// Create a diff of the model to store changes in the update cases modal.
-// This is necessary so that we don't update the current modal if the modal is thrown away w/o saving or
-// if the date added in the modal is prior to the current date (backfill)
-const useModelDiff = (): [
-  EpidemicModelUpdate,
-  (update: EpidemicModelUpdate) => void,
-  () => void,
-] => {
-  const [diff, setDiff] = useState({});
-  const mergeDiff = (update: EpidemicModelUpdate) => {
-    setDiff({ ...diff, ...update });
-  };
-  const resetDiff = () => {
-    setDiff({});
-  };
-  return [diff, mergeDiff, resetDiff];
-};
-
-const FacilityRow: React.FC<Props> = ({
-  facility: initialFacility,
-  scenarioId: scenarioId,
-}) => {
-  const [model, updateModel] = useModel();
+const FacilityRow: React.FC<Props> = ({ facility: initialFacility }) => {
+  const [model] = useModel();
 
   const { rtData, setFacility } = useContext(FacilityContext);
+
   const [facility, updateFacility] = useState(initialFacility);
-  let useRt, facilityRtData;
+  let useRt,
+    facilityRtData = undefined,
+    latestRt = undefined;
   if (useFlag(["useRt"])) {
     useRt = true;
     facilityRtData = rtData ? rtData[facility.id] : undefined;
+
+    // TODO(Lenny): Update this with the helper function once PR #273 is completed.
+    latestRt = facilityRtData?.Rt[facilityRtData.Rt.length - 1].value;
   }
   const chartData = useChartDataFromProjectionData(
     useProjectionData(model, useRt, facilityRtData),
   );
 
-  const { id, name, updatedAt } = facility;
+  // UI hover states are a little complicated;
+  // the entire row is a click target to navigate to the Facility page,
+  // but there can be sub-targets that do other stuff (e.g. open a modal).
+  // if we're on a sub-target we want to suppress the row's overall hover UI state.
+  const [rowHover, setRowHover] = useState(false);
+  const showHover = () => setRowHover(true);
+  const hideHover = () => setRowHover(false);
+
+  const { name, updatedAt } = facility;
   const confirmedCases = totalConfirmedCases(model);
 
   const openFacilityPage = () => {
@@ -127,121 +117,59 @@ const FacilityRow: React.FC<Props> = ({
     navigate("/facility");
   };
 
-  let [modelDiff, fakeUpdateModel, resetModelDiff] = useModelDiff();
-  const newModel = { ...model, ...modelDiff };
-
-  // Open/close update case counts modal. Saves data on clicking the save button, discards otherwise
-  const [caseCountsModal, updateCaseCountsModal] = useState(false);
-  const openCaseCountsModal = () => {
-    updateCaseCountsModal(true);
-  };
-  const closeCaseCountsModal = () => {
-    resetModelDiff();
-    updateCaseCountsModal(false);
-  };
-
-  const save = () => {
-    // Ensure that we don't insert keys (like `localeDataSource`) that is in model but not in the facility modelInputs
-    const modelInputs = {
-      ...facility.modelInputs,
-      ...pick(newModel, facilityModelKeys),
-    };
-    // Update the local state iff
-    // The observedAt date in the modal is more recent than the observedAt date in the current modelInputs.
-    // This needs to happen so that facility data will show the most updated data w/o requiring a hard reload.
-    if (
-      newModel.observedAt &&
-      model.observedAt &&
-      startOfDay(newModel.observedAt) >= startOfDay(model.observedAt)
-    ) {
-      updateFacility({ ...facility, modelInputs });
-      updateModel(modelDiff);
-    }
-    // Save to DB with model changes
-    saveFacility(scenarioId, {
-      id,
-      modelInputs,
-    });
-    closeCaseCountsModal();
-  };
-
   return (
-    <>
-      <div onClick={openFacilityPage} className="cursor-pointer">
-        <DataContainer className="flex flex-row mb-8 border-b">
-          <div className="w-2/5 flex flex-col justify-between">
-            <div className="flex flex-row h-full">
-              <CaseText
-                className="w-1/4 font-bold"
-                onClick={handleSubClick(openCaseCountsModal)}
+    <FacilityRowDiv
+      onClick={openFacilityPage}
+      onMouseOver={showHover}
+      onMouseOut={hideHover}
+      className={classNames("cursor-pointer", { hover: rowHover })}
+    >
+      <DataContainer className="flex flex-row mb-8 border-b">
+        <div className="w-2/5 flex flex-col justify-between">
+          <div className="flex flex-row h-full">
+            <div className="w-1/4 font-bold">
+              <div
+                // prevent interaction with children from triggering a row click
+                onClick={(e) => e.stopPropagation()}
+                // suppress row hover UI state
+                onMouseOver={(e) => {
+                  e.stopPropagation();
+                  hideHover();
+                }}
               >
-                {confirmedCases}
-              </CaseText>
-              <FacilityNameLabel onClick={handleSubClick()}>
-                <InputDescription
-                  description={name}
-                  setDescription={(name) => {
-                    if (name) {
-                      const newName = (name || "").replace(
-                        /(\r\n|\n|\r)/gm,
-                        "",
-                      );
-                      // this updates the local state
-                      updateFacility({ ...facility, name: newName });
-                      // this persists the changes to the database
-                      saveFacility(scenarioId, {
-                        id,
-                        name: newName,
-                      });
-                    }
-                  }}
-                  placeholderValue="Unnamed Facility"
-                  placeholderText="Facility name is required"
-                  maxLengthValue={124}
-                  requiredFlag={true}
+                <AddCasesModal
+                  facility={facility}
+                  trigger={<CaseText>{confirmedCases}</CaseText>}
+                  updateFacility={updateFacility}
                 />
-              </FacilityNameLabel>
-            </div>
-            <div className="text-xs text-gray-500 pb-4">
-              <div>
-                Last Update: <DateMMMMdyyyy date={updatedAt} />
               </div>
-              <Spacer x={32} />
             </div>
+            <FacilityNameLabel>
+              <FacilityName>{name}</FacilityName>
+              <IconEdit alt="" src={iconEditSrc} />
+            </FacilityNameLabel>
           </div>
-          <div className="w-3/5">
-            <CurveChartContainer
-              curveData={chartData}
-              chartHeight={144}
-              hideAxes={true}
-              groupStatus={groupStatus}
-              markColors={markColors}
-            />
+          <div className="text-xs text-gray-500 pb-4">
+            <LastUpdatedLabel>
+              Last Update: <DateMMMMdyyyy date={updatedAt} />
+            </LastUpdatedLabel>
+            <Spacer x={32} />
           </div>
-        </DataContainer>
-      </div>
-      <ModalDialog
-        closeModal={closeCaseCountsModal}
-        open={caseCountsModal}
-        title="Add Cases"
-      >
-        <ModalContents>
-          <InputDate
-            labelAbove={"Date observed"}
-            onValueChange={(date) => {
-              if (date) {
-                fakeUpdateModel({ observedAt: date });
-              }
-            }}
-            valueEntered={newModel.observedAt || startOfToday()}
+        </div>
+        <div className="w-3/5 relative">
+          {facilityRtData !== undefined && (
+            <FacilityRowRtValuePill latestRt={latestRt} />
+          )}
+          <CurveChartContainer
+            curveData={chartData}
+            chartHeight={144}
+            hideAxes={true}
+            groupStatus={groupStatus}
+            markColors={markColors}
           />
-          <HorizRule />
-          <AgeGroupGrid model={newModel} updateModel={fakeUpdateModel} />
-          <HorizRule />
-          <InputButton label="Save" onClick={save} />
-        </ModalContents>
-      </ModalDialog>
-    </>
+        </div>
+      </DataContainer>
+    </FacilityRowDiv>
   );
 };
 

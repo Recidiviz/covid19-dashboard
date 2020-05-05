@@ -10,7 +10,7 @@ const HeaderContainer = styled.div`
 
 const ProjectionsHeader: React.FC = () => {
   return (
-    <HeaderContainer className="border-t border-b mt-5 mb-5 py-2 flex flex-row">
+    <HeaderContainer className="border-t border-b mb-5 py-2 flex flex-row">
       <div className="w-2/5 flex flex-row">
         <LegendText className="w-1/4">Cases</LegendText>
         <LegendText className="w-3/4">Facility</LegendText>

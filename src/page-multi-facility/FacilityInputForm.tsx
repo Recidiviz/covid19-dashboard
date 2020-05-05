@@ -4,6 +4,7 @@ import styled from "styled-components";
 
 import { deleteFacility, saveFacility } from "../database/index";
 import Colors from "../design-system/Colors";
+import iconDuplicatePath from "../design-system/icons/ic_duplicate.svg";
 import InputButton, { StyledButton } from "../design-system/InputButton";
 import InputDescription from "../design-system/InputDescription";
 import InputNameWithIcon from "../design-system/InputNameWithIcon";
@@ -11,11 +12,13 @@ import ModalDialog from "../design-system/ModalDialog";
 import { Column, PageContainer } from "../design-system/PageColumn";
 import PopUpMenu from "../design-system/PopUpMenu";
 import { Spacer } from "../design-system/Spacer";
+import Tooltip from "../design-system/Tooltip";
 import { Flag } from "../feature-flags";
 import FacilityInformation from "../impact-dashboard/FacilityInformation";
 import MitigationInformation from "../impact-dashboard/MitigationInformation";
 import useModel from "../impact-dashboard/useModel";
 import RtTimeseries from "../rt-timeseries";
+import AddCasesModal from "./AddCasesModal";
 import { FacilityContext } from "./FacilityContext";
 import FacilityProjections from "./FacilityProjections";
 import LocaleInformationSection from "./LocaleInformationSection";
@@ -80,16 +83,32 @@ export const SectionHeader = styled.header`
 
 const RtChartContainer = styled.div``;
 
-interface Props {
-  scenarioId: string;
-}
+const AddCasesRow = styled.div`
+  margin-bottom: 16px;
+`;
+
+const ImgDuplicate = styled.img`
+  display: inline-block;
+  height: 10px;
+  margin-right: 1em;
+  width: 10px;
+  vertical-align: baseline;
+`;
+
+const AddCasesButton = styled.button`
+  color: ${Colors.green};
+  font-family: "Poppins", sans-serif;
+  font-size: 12px;
+  line-height: 1.3;
+`;
 
 interface Props {
   scenarioId: string;
 }
 
 const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
-  const { facility, rtData } = useContext(FacilityContext);
+  const { facility: initialFacility, rtData } = useContext(FacilityContext);
+  const [facility, updateFacility] = useState(initialFacility);
   const [facilityName, setFacilityName] = useState(facility?.name || undefined);
   const [description, setDescription] = useState(
     facility?.description || undefined,
@@ -153,6 +172,22 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
           requiredFlag={true}
         />
         <Spacer y={20} />
+        {facility && (
+          <AddCasesRow>
+            <AddCasesModal
+              facility={facility}
+              trigger={
+                <Tooltip content="Click to add new or previous day cases">
+                  <AddCasesButton>
+                    <ImgDuplicate alt="" src={iconDuplicatePath} />
+                    Add or update cases
+                  </AddCasesButton>
+                </Tooltip>
+              }
+              updateFacility={updateFacility}
+            />
+          </AddCasesRow>
+        )}
         <DescRow>
           <InputDescription
             description={description}
