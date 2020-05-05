@@ -82,7 +82,7 @@ const displayRtValue = (latestRt: number | null | undefined) => {
 };
 
 const FacilityRowRtValuePill: React.FC<Props> = ({ latestRt: latestRt }) => {
-  const hasDataTitle = `Rate of spread (Rt): ${latestRt}`;
+  const hasDataTitle = `Rate of spread (Rt): ${displayRtValue(latestRt)}`;
   const needsDataTitle = `Not enough data`;
   const hasDataBody = `Numbers above 1 indicate how quickly the virus is spreading. If the value is below 1, the virus is on track to be extinguished at this facility.`;
   const needsDataBody = `To calculate the rate of transmission, enter more than one day of facility case data.`;
