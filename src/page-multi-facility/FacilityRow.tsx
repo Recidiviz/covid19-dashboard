@@ -109,21 +109,22 @@ const FacilityRow: React.FC<Props> = ({ facility: initialFacility }) => {
       <DataContainer className="flex flex-row mb-8 border-b">
         <div className="w-2/5 flex flex-col justify-between">
           <div className="flex flex-row h-full">
-            <div
-              className="w-1/4 font-bold"
-              // prevent interaction with children from triggering a row click
-              onClick={(e) => e.stopPropagation()}
-              // suppress row hover UI state
-              onMouseOver={(e) => {
-                e.stopPropagation();
-                hideHover();
-              }}
-            >
-              <AddCasesModal
-                facility={facility}
-                trigger={<CaseText>{confirmedCases}</CaseText>}
-                updateFacility={updateFacility}
-              />
+            <div className="w-1/4 font-bold">
+              <div
+                // prevent interaction with children from triggering a row click
+                onClick={(e) => e.stopPropagation()}
+                // suppress row hover UI state
+                onMouseOver={(e) => {
+                  e.stopPropagation();
+                  hideHover();
+                }}
+              >
+                <AddCasesModal
+                  facility={facility}
+                  trigger={<CaseText>{confirmedCases}</CaseText>}
+                  updateFacility={updateFacility}
+                />
+              </div>
             </div>
             <FacilityNameLabel>
               <FacilityName>{name}</FacilityName>
