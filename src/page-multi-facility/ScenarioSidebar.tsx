@@ -60,17 +60,19 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
 
   const handleScenarioChange = (scenarioChange: any) => {
     const changes = Object.assign({}, scenario, scenarioChange);
-    if (Object.keys(scenarioChange).length) {
-      saveScenario(changes).then((_) => {
-        dispatchScenarioUpdate(changes);
-      });
-    }
+    saveScenario(changes).then((_) => {
+      dispatchScenarioUpdate(changes);
+    });
   };
 
-  const handleTextInputChange = (scenarioChange: any) => {
-    // Prevent the input fields from unintentionally updating with a empty value when text field is being edited.
-    if (Object.keys(scenarioChange).length) {
-      handleScenarioChange(scenarioChange);
+  const handleTextInputChange = (textInputChanges: {
+    description?: string;
+    name?: string;
+  }) => {
+    // Prevent the input fields from unintentionally updating with a empty
+    // value when being edited.
+    if (textInputChanges.name || textInputChanges.description) {
+      handleScenarioChange(textInputChanges);
     }
   };
 
