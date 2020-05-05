@@ -8,7 +8,7 @@ export function numFacilitiesWithRtLessThan1(
   const latestRtValues = facilitiesRtRecords.map((rtRecords) => {
     return getNewestRt(rtRecords)?.value;
   });
-  return latestRtValues.filter((v) => v && v < 1).length;
+  return latestRtValues.filter((v) => v !== undefined && v < 1).length;
 }
 
 export function averageRtReductionAcrossFacilities(
@@ -18,7 +18,8 @@ export function averageRtReductionAcrossFacilities(
     (rtRecords: RtRecord[]) => {
       const latestRtValue = getNewestRt(rtRecords)?.value;
       const oldestRtValue = getOldestRt(rtRecords)?.value;
-      return latestRtValue && oldestRtValue && oldestRtValue - latestRtValue;
+      if (latestRtValue === undefined || oldestRtValue === undefined) return;
+      return oldestRtValue - latestRtValue;
     },
   );
   return mean(rtDifferences);
