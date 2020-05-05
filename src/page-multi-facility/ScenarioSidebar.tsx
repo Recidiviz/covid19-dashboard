@@ -59,14 +59,21 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
   const updatedAtDate = Number(scenario?.updatedAt);
 
   const handleScenarioChange = (scenarioChange: any) => {
-    if (scenarioChange.name || scenarioChange.description) {
-      const changes = Object.assign({}, scenario, scenarioChange);
-
+    const changes = Object.assign({}, scenario, scenarioChange);
+    if (Object.keys(scenarioChange).length) {
       saveScenario(changes).then((_) => {
         dispatchScenarioUpdate(changes);
       });
     }
   };
+
+  const handleTextInputChange = (scenarioChange: any) => {
+    // Prevent the input fields from unintentionally updating with a empty value when text field is being edited.
+    if (Object.keys(scenarioChange).length) {
+      handleScenarioChange(scenarioChange);
+    }
+  };
+
   const [name, setName] = useState(scenario?.name);
   const [promoDismissed, setPromoDismissed] = useState(false);
   const [description, setDescription] = useState(scenario?.description);
@@ -82,7 +89,7 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
           placeholderText="Scenario name is required"
           maxLengthValue={124}
           requiredFlag={true}
-          persistChanges={handleScenarioChange}
+          persistChanges={handleTextInputChange}
         />
         <Spacer y={20} />
         <InputDescription
@@ -92,7 +99,7 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
           placeholderText="Scenario description is required"
           maxLengthValue={500}
           requiredFlag={true}
-          persistChanges={handleScenarioChange}
+          persistChanges={handleTextInputChange}
         />
         <Spacer y={20} />
         <div>
