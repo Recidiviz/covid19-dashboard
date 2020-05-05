@@ -135,11 +135,10 @@ const FacilityRow: React.FC<Props> = ({
     latestRt = undefined;
   if (useFlag(["useRt"])) {
     useRt = true;
-    facilityRtData = rtData ? rtData[facility.id] : null;
+    facilityRtData = rtData ? rtData[facility.id] : undefined;
 
-    if (facilityRtData) {
-      latestRt = facilityRtData?.Rt[facilityRtData.Rt.length - 1].value;
-    }
+    // TODO(Lenny): Update this with the helper function once PR #273 is completed.
+    latestRt = facilityRtData?.Rt[facilityRtData.Rt.length - 1].value;
   }
   const chartData = useChartDataFromProjectionData(
     useProjectionData(model, useRt, facilityRtData),

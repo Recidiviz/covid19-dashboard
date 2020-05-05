@@ -1,6 +1,5 @@
 import { lab } from "d3";
 import hexAlpha from "hex-alpha";
-import { opacify } from "polished";
 
 export function darken(color: string, amount: number) {
   // good to use Lab color because it's perceptually uniform
@@ -38,10 +37,10 @@ const BaseColors = {
 
 const Colors = {
   ...BaseColors,
-  opacityForest: `${hexAlpha(BaseColors.forest, 0.7)}`,
-  opacityGray: `${hexAlpha(BaseColors.forestGray, 0.2)}`,
-  forest50: opacify(0.5, BaseColors.forest),
-  forest30: opacify(0.5, BaseColors.forest),
+  opacityForest: hexAlpha(BaseColors.forest, 0.7),
+  opacityGray: hexAlpha(BaseColors.forestGray, 0.2),
+  forest50: hexAlpha(BaseColors.forest, 0.5),
+  forest30: hexAlpha(BaseColors.forest, 0.5),
 };
 
 // Shared colors for the Projection charts

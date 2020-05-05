@@ -1,5 +1,5 @@
-export const RateOfSpreadType = {
-  CONTROLLED: "controlled",
-  INFECTIOUS: "infectious",
-  MISSING: "missing",
-};
+export enum RateOfSpreadType {
+  "Controlled",
+  "Infectious",
+  "Missing",
+}

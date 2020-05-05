@@ -16,21 +16,21 @@ const pillColors: {
     [x: string]: string;
   };
 } = {
-  [RateOfSpreadType.CONTROLLED]: {
+  [RateOfSpreadType.Controlled]: {
     text: Colors.green,
     border: Colors.teal,
   },
-  [RateOfSpreadType.INFECTIOUS]: {
+  [RateOfSpreadType.Infectious]: {
     text: Colors.darkRed,
     border: Colors.orange,
   },
-  [RateOfSpreadType.MISSING]: {
+  [RateOfSpreadType.Missing]: {
     text: Colors.forest,
     border: Colors.forest30,
   },
 };
 
-const RtValuePill = styled.div<{ spreadType: string }>`
+const RtValuePill = styled.div<{ spreadType: RateOfSpreadType }>`
   .pill-circle {
     border-color: ${(props) => pillColors[props.spreadType].border};
     color: ${(props) => pillColors[props.spreadType].text};
@@ -68,11 +68,11 @@ interface Props {
 
 const rtSpreadType = (latestRt: number | null | undefined) => {
   if (!latestRt) {
-    return RateOfSpreadType.MISSING;
+    return RateOfSpreadType.Missing;
   } else if (latestRt > 1) {
-    return RateOfSpreadType.INFECTIOUS;
+    return RateOfSpreadType.Infectious;
   } else {
-    return RateOfSpreadType.CONTROLLED;
+    return RateOfSpreadType.Controlled;
   }
 };
 

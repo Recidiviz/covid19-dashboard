@@ -1,5 +1,6 @@
 import { scaleTime, timeFormat } from "d3";
 import hexAlpha from "hex-alpha";
+import numeral from "numeral";
 // no type defs for Semiotic
 const ResponsiveXYFrame = require("semiotic/lib/ResponsiveXYFrame") as any;
 import React from "react";
@@ -68,7 +69,7 @@ const Tooltip: React.FC<{
   return (
     <ChartTooltip>
       <TooltipContents>
-        <TooltipValue>{value}</TooltipValue>
+        <TooltipValue>{numeral(value).format("0.0")}</TooltipValue>
         <TooltipLabel>
           {title} {formatDate(date)}
         </TooltipLabel>
