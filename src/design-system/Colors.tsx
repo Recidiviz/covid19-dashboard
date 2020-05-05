@@ -20,6 +20,7 @@ const Colors = {
   opacityForest: `${hexAlpha("#005450", 0.7)}`,
   darkForest: "#033342",
   paleForest: "#667c7b",
+  jade: "#447F7C",
   teal: "#25b894",
   darkTeal: "#759f9e",
   gray: "#E0E4E4",

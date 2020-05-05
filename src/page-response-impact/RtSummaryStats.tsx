@@ -54,8 +54,38 @@ const RtSummaryText = styled.div`
   line-height: 150%;
 `;
 
+const DonutChartTitle = styled.text`
+  font-family: "Poppins", sans serif;
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 22px;
+  width: 50%;
+`;
+
+const DonutChartSubtitle = styled.text`
+  font-family: "Poppins", sans serif;
+  font-size: 12px;
+  font-weight: normal;
+  line-height: 16px;
+  transform: translate(0px, 20px);
+`;
+
 function filterRtData(data: RtData | null): data is RtData {
   return data !== null;
+}
+
+function rtDonutChartAnnotation(d: any) {
+  return (
+    <g
+      textAnchor="middle"
+      fill={Colors.forest}
+      transform={`translate(${d.adjustedSize[0] / 2}
+       ${d.adjustedSize[0] / 2})`}
+    >
+      <DonutChartTitle>{d.d.title}</DonutChartTitle>
+      <DonutChartSubtitle>{d.d.subtitle}</DonutChartSubtitle>
+    </g>
+  );
 }
 
 const RtSummaryStats: React.FC<Props> = ({ rtData }) => {
@@ -78,8 +108,8 @@ const RtSummaryStats: React.FC<Props> = ({ rtData }) => {
     type: { type: "bar", innerRadius: 70 },
     style: (datum: any) => ({ fill: datum.color }),
     data: [
-      { value: numFacilitiesWithRtLt1, color: "#447F7C" },
-      { value: numFacilitiesWithRtGt1, color: "#E1E3E3" },
+      { value: numFacilitiesWithRtLt1, color: Colors.jade },
+      { value: numFacilitiesWithRtGt1, color: Colors.lightGray },
     ],
     size: [200, 200],
     projection: "radial",
@@ -93,50 +123,17 @@ const RtSummaryStats: React.FC<Props> = ({ rtData }) => {
         subtitle: "with R(t) < 1.0",
       },
     ],
+    svgAnnotationRules: (d: any) => {
+      if (d.d.type === "chart-title") {
+        return rtDonutChartAnnotation(d);
+      }
+      return null;
+    },
   };
 
   return (
     <RtSummaryStatsContainer>
-      <ResponsiveOrdinalFrame
-        {...frameProps}
-        svgAnnotationRules={(d: any) => {
-          if (d.d.type === "chart-title") {
-            return (
-              <g
-                textAnchor="middle"
-                fill={Colors.forest}
-                transform={`translate(${d.adjustedSize[0] / 2}
-                 ${d.adjustedSize[0] / 2})`}
-              >
-                <text
-                  width={"50%"}
-                  fontSize="18"
-                  fontWeight="bold"
-                  style={{
-                    lineHeight: "22px",
-                    fontFamily: "Poppins",
-                    width: "50%",
-                  }}
-                >
-                  {d.d.title}
-                </text>
-                <text
-                  style={{
-                    lineHeight: "16px",
-                    fontFamily: "Poppins",
-                    transform: "translate(0px, 20px)",
-                  }}
-                  fontSize="12"
-                  fontWeight="normal"
-                >
-                  {d.d.subtitle}
-                </text>
-              </g>
-            );
-          }
-          return null;
-        }}
-      />
+      <ResponsiveOrdinalFrame {...frameProps} />
       <RtSummaryTextContainer>
         <LegendContainer>
           <LegendSpan />
