@@ -167,10 +167,7 @@ const MultiFacilityImpactDashboard: React.FC = () => {
               facilityModel={facility.modelInputs}
               localeDataSource={localeDataSource}
             >
-              <FacilityRow
-                facility={facility}
-                scenarioId={facility.scenarioId}
-              />
+              <FacilityRow facility={facility} />
             </EpidemicModelProvider>
           );
         })

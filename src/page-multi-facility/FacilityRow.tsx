@@ -1,11 +1,11 @@
+import classNames from "classnames";
 import { navigate } from "gatsby";
 import React, { useContext, useState } from "react";
 import styled from "styled-components";
 
-import { saveFacility } from "../database/index";
 import Colors, { MarkColors as markColors } from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
-import InputDescription from "../design-system/InputDescription";
+import iconEditSrc from "../design-system/icons/ic_edit.svg";
 import { Spacer } from "../design-system/Spacer";
 import { useFlag } from "../feature-flags";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
@@ -26,6 +26,8 @@ const groupStatus = {
   infectious: true,
 };
 
+const FacilityRowDiv = styled.div``;
+
 const FacilityNameLabel = styled.label`
   cursor: pointer;
   display: flex;
@@ -43,26 +45,31 @@ const CaseText = styled.div`
   color: ${Colors.darkRed};
 `;
 
-// TODO: validate the arguments?
-const handleSubClick = (fn?: Function, ...args: any[]) => {
-  return (event: React.MouseEvent<Element>) => {
-    // This is required or else the openFacilityPage onClick will fire
-    // since the Delete button lives within the same div that opens the
-    // Facility Details page.
-    event.stopPropagation();
-    if (fn) fn(...args);
-  };
-};
+const FacilityName = styled.label`
+  color: ${Colors.forest};
+  font-size: 13px;
+  cursor: pointer;
+  width: 100%;
+  font-weight: 400;
+`;
+
+const IconEdit = styled.img`
+  flex: 0 0 auto;
+  height: 16px;
+  margin-left: 10px;
+  width: 16px;
+  visibility: hidden;
+
+  ${FacilityRowDiv}.hover & {
+    visibility: visible;
+  }
+`;
 
 interface Props {
   facility: Facility;
-  scenarioId: string;
 }
 
-const FacilityRow: React.FC<Props> = ({
-  facility: initialFacility,
-  scenarioId: scenarioId,
-}) => {
+const FacilityRow: React.FC<Props> = ({ facility: initialFacility }) => {
   const [model] = useModel();
 
   const { rtData, setFacility } = useContext(FacilityContext);
@@ -76,7 +83,15 @@ const FacilityRow: React.FC<Props> = ({
     useProjectionData(model, useRt, facilityRtData),
   );
 
-  const { id, name, updatedAt } = facility;
+  // UI hover states are a little complicated;
+  // the entire row is a click target to navigate to the Facility page,
+  // but there can be sub-targets that do other stuff (e.g. open a modal).
+  // if we're on a sub-target we want to suppress the row's overall hover UI state.
+  const [rowHover, setRowHover] = useState(false);
+  const showHover = () => setRowHover(true);
+  const hideHover = () => setRowHover(false);
+
+  const { name, updatedAt } = facility;
   const confirmedCases = totalConfirmedCases(model);
 
   const openFacilityPage = () => {
@@ -85,14 +100,24 @@ const FacilityRow: React.FC<Props> = ({
   };
 
   return (
-    <>
-      <div onClick={openFacilityPage} className="cursor-pointer">
-        <DataContainer className="flex flex-row mb-8 border-b">
-          <div className="w-2/5 flex flex-col justify-between">
-            <div className="flex flex-row h-full">
+    <FacilityRowDiv
+      onClick={openFacilityPage}
+      onMouseOver={showHover}
+      onMouseOut={hideHover}
+      className={classNames("cursor-pointer", { hover: rowHover })}
+    >
+      <DataContainer className="flex flex-row mb-8 border-b">
+        <div className="w-2/5 flex flex-col justify-between">
+          <div className="flex flex-row h-full">
+            <div className="w-1/4 font-bold">
               <div
-                className="w-1/4 font-bold"
+                // prevent interaction with children from triggering a row click
                 onClick={(e) => e.stopPropagation()}
+                // suppress row hover UI state
+                onMouseOver={(e) => {
+                  e.stopPropagation();
+                  hideHover();
+                }}
               >
                 <AddCasesModal
                   facility={facility}
@@ -100,50 +125,30 @@ const FacilityRow: React.FC<Props> = ({
                   updateFacility={updateFacility}
                 />
               </div>
-              <FacilityNameLabel onClick={handleSubClick()}>
-                <InputDescription
-                  description={name}
-                  setDescription={(name) => {
-                    if (name) {
-                      const newName = (name || "").replace(
-                        /(\r\n|\n|\r)/gm,
-                        "",
-                      );
-                      // this updates the local state
-                      updateFacility({ ...facility, name: newName });
-                      // this persists the changes to the database
-                      saveFacility(scenarioId, {
-                        id,
-                        name: newName,
-                      });
-                    }
-                  }}
-                  placeholderValue="Unnamed Facility"
-                  placeholderText="Facility name is required"
-                  maxLengthValue={124}
-                  requiredFlag={true}
-                />
-              </FacilityNameLabel>
             </div>
-            <div className="text-xs text-gray-500 pb-4">
-              <div>
-                Last Update: <DateMMMMdyyyy date={updatedAt} />
-              </div>
-              <Spacer x={32} />
+            <FacilityNameLabel>
+              <FacilityName>{name}</FacilityName>
+              <IconEdit alt="" src={iconEditSrc} />
+            </FacilityNameLabel>
+          </div>
+          <div className="text-xs text-gray-500 pb-4">
+            <div>
+              Last Update: <DateMMMMdyyyy date={updatedAt} />
             </div>
+            <Spacer x={32} />
           </div>
-          <div className="w-3/5">
-            <CurveChartContainer
-              curveData={chartData}
-              chartHeight={144}
-              hideAxes={true}
-              groupStatus={groupStatus}
-              markColors={markColors}
-            />
-          </div>
-        </DataContainer>
-      </div>
-    </>
+        </div>
+        <div className="w-3/5">
+          <CurveChartContainer
+            curveData={chartData}
+            chartHeight={144}
+            hideAxes={true}
+            groupStatus={groupStatus}
+            markColors={markColors}
+          />
+        </div>
+      </DataContainer>
+    </FacilityRowDiv>
   );
 };
 
