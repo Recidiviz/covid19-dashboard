@@ -77,7 +77,7 @@ const rtSpreadType = (latestRt: number | null | undefined) => {
 };
 
 const displayRtValue = (latestRt: number | null | undefined) => {
-  return !latestRt ? "?" : latestRt;
+  return !latestRt ? "?" : latestRt.toFixed(1);
 };
 
 const FacilityRowRtValuePill: React.FC<Props> = ({ latestRt: latestRt }) => {

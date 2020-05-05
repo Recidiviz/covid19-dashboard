@@ -1,5 +1,5 @@
 export const RateOfSpreadType = {
-  CONTROLLED: "Controlled",
+  CONTROLLED: "controlled",
   INFECTIOUS: "infectious",
   MISSING: "missing",
 };
