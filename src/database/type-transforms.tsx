@@ -69,5 +69,15 @@ export const buildScenario = (
   scenario.createdAt = timestampToDate(documentData.createdAt);
   scenario.updatedAt = timestampToDate(documentData.updatedAt);
 
+  // Runtime migration: make sure a default value is set for
+  // promo status flags added since the last data shakeup
+  // TODO: Remove this once automated migration is in place per #186
+  const newPromoStatuses = ["rtChart"];
+  newPromoStatuses.forEach((flagName) => {
+    if (scenario.promoStatuses[flagName] === undefined) {
+      scenario.promoStatuses[flagName] = true;
+    }
+  });
+
   return scenario;
 };
