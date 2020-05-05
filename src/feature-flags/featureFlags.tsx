@@ -3,6 +3,7 @@ import React from "react";
 
 export type FeatureFlags = {
   useRt: boolean;
+  // TODO: Delete this flag once #202 is done
   showRateOfSpreadTab: boolean;
 };
 

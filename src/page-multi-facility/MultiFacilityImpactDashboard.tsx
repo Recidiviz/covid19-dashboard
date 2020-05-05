@@ -96,8 +96,6 @@ const ScenarioPanels: React.FC<ScenarioPanelsProps> = (props) => {
   return <ScenarioPanelsDiv>{panelChildren}</ScenarioPanelsDiv>;
 };
 
-// Boolean to switch off "Rate of Projections" tab if necessary
-
 const MultiFacilityImpactDashboard: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
   const [scenario] = useScenario();
