@@ -1,5 +1,5 @@
 export enum RateOfSpreadType {
-  "Controlled",
-  "Infectious",
-  "Missing",
+  "Controlled" = "controlled",
+  "Infectious" = "infectious",
+  "Missing" = "missing",
 }

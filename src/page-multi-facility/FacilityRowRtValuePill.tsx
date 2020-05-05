@@ -1,3 +1,4 @@
+import numeral from "numeral";
 import React from "react";
 import styled from "styled-components";
 
@@ -12,8 +13,9 @@ import {
 } from "../rt-timeseries/RtTimeseries";
 
 const pillColors: {
-  [x: string]: {
-    [x: string]: string;
+  [key in RateOfSpreadType]: {
+    text: string;
+    border: string;
   };
 } = {
   [RateOfSpreadType.Controlled]: {
@@ -68,7 +70,7 @@ interface Props {
 }
 
 const rtSpreadType = (latestRt: number | null | undefined) => {
-  if (!latestRt) {
+  if (latestRt === null || latestRt === undefined) {
     return RateOfSpreadType.Missing;
   } else if (latestRt > 1) {
     return RateOfSpreadType.Infectious;
@@ -78,7 +80,7 @@ const rtSpreadType = (latestRt: number | null | undefined) => {
 };
 
 const displayRtValue = (latestRt: number | null | undefined) => {
-  return !latestRt ? "?" : latestRt.toFixed(1);
+  return numeral(latestRt).format("0.0") || "?";
 };
 
 const FacilityRowRtValuePill: React.FC<Props> = ({ latestRt: latestRt }) => {
