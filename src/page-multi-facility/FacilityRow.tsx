@@ -13,7 +13,6 @@ import InputButton from "../design-system/InputButton";
 import InputDate from "../design-system/InputDate";
 import InputDescription from "../design-system/InputDescription";
 import ModalDialog from "../design-system/ModalDialog";
-import PillCircle from "../design-system/PillCircle";
 import { Spacer } from "../design-system/Spacer";
 import { useFlag } from "../feature-flags";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
@@ -24,8 +23,8 @@ import {
 } from "../impact-dashboard/EpidemicModelContext";
 import { AgeGroupGrid } from "../impact-dashboard/FacilityInformation";
 import useModel from "../impact-dashboard/useModel";
-import { RtData } from "../infection-model/rt";
 import { FacilityContext } from "./FacilityContext";
+import FacilityRowRtValuePill from "./FacilityRowRtValuePill";
 import {
   useChartDataFromProjectionData,
   useProjectionData,
@@ -100,19 +99,6 @@ const HorizRule = styled.div`
   width: 100%;
 `;
 
-const FacilityRowRtValuePill = styled.div<{ spreadType: string }>`
-  .pill-circle {
-    border-color: ${(props) =>
-      !!props.spreadType
-        ? pillBorderColor[props.spreadType]
-        : pillBorderColor.controlled};
-    color: ${(props) =>
-      !!props.spreadType
-        ? pillTextColor[props.spreadType]
-        : pillTextColor.controlled};
-  }
-`;
-
 // TODO: validate the arguments?
 const handleSubClick = (fn?: Function, ...args: any[]) => {
   return (event: React.MouseEvent<Element>) => {
@@ -128,20 +114,6 @@ interface Props {
   facility: Facility;
   scenarioId: string;
 }
-
-const rtSpreadType = (latestRt: number | null) => {
-  if (!latestRt) {
-    return RateOfSpreadType.MISSING;
-  } else if (latestRt > 1) {
-    return RateOfSpreadType.INFECTIOUS;
-  } else {
-    return RateOfSpreadType.CONTROLLED;
-  }
-};
-
-const displayRtValue = (latestRt: number | null) => {
-  return !latestRt ? "?" : latestRt;
-};
 
 // Create a diff of the model to store changes in the update cases modal.
 // This is necessary so that we don't update the current modal if the modal is thrown away w/o saving or
@@ -277,11 +249,7 @@ const FacilityRow: React.FC<Props> = ({
             </div>
           </div>
           <div className="w-3/5 relative">
-            <FacilityRowRtValuePill spreadType={rtSpreadType(latestRt)}>
-              <PillCircle className="pill-circle">
-                {displayRtValue(latestRt)}
-              </PillCircle>
-            </FacilityRowRtValuePill>
+            <FacilityRowRtValuePill latestRt={latestRt} />
             <CurveChartContainer
               curveData={chartData}
               chartHeight={144}
