@@ -12,7 +12,7 @@
     "lint-prettier-fix": "prettier --write --ignore-path .gitignore src",
     "lint-tsc-check": "tsc",
     "serve": "gatsby serve",
-    "test": "jest"
+    "test": "jest --no-cache"
   },
   "dependencies": {
     "@auth0/auth0-spa-js": "~1.6.5",
