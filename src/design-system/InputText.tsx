@@ -65,14 +65,6 @@ const InputText: React.FC<Props> = (props) => {
     nameInput.current.focus();
   }, []);
 
-  const nameInput = useRef() as React.MutableRefObject<HTMLInputElement>;
-
-  useEffect(() => {
-    if (!props.focus) return;
-
-    nameInput.current.focus();
-  }, []);
-
   return (
     <TextInputContainer>
       <InputLabelAndHelp label={props.labelAbove} labelHelp={props.labelHelp} />

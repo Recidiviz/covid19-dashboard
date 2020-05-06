@@ -1,11 +1,10 @@
-import React, { useEffect, useRef } from "react";
-import styled, { css } from "styled-components";
+import React from "react";
+import styled from "styled-components";
 
 import Colors from "./Colors";
 import TextLabel from "./TextLabel";
 
 interface Props {
-  autoResizeVertically?: boolean;
   label?: string;
   value?: string;
   placeholder?: string;
@@ -15,15 +14,7 @@ interface Props {
   required?: boolean;
 }
 
-interface InputProps {
-  inline?: boolean;
-  fillVertical?: boolean;
-  fontFamily?: string;
-  fontSize?: string;
-  color?: string;
-}
-
-const TextAreaInput = styled.textarea<InputProps>`
+const TextAreaInput = styled.textarea`
   margin-top: 8px;
   border: none;
   padding: 16px;
@@ -52,37 +43,13 @@ const TextAreaContainer = styled.div`
   margin-bottom: 24px;
   display: flex;
   flex-direction: column;
-  ${(props) =>
-    props.fillVertical &&
-    css`
-      height: 100%;
-    `};
 `;
 
-function resize(textArea: HTMLTextAreaElement | null) {
-  if (!textArea) return;
-  textArea.style.height = "auto";
-  const height =
-    textArea.scrollHeight + textArea.offsetHeight - textArea.clientHeight;
-  textArea.style.height = `${height}px`;
-}
-
 const InputTextArea: React.FC<Props> = (props) => {
-  const textAreaRef = useRef(null);
-
-  useEffect(() => {
-    if (props.autoResizeVertically) {
-      resize(textAreaRef.current);
-    }
-  }, [props.autoResizeVertically, props.value]);
-
   return (
-    <TextAreaContainer fillVertical={!!props.fillVertical}>
+    <TextAreaContainer>
       <TextLabel>{props.label}</TextLabel>
       <TextAreaInput
-        ref={textAreaRef}
-        inline={!!props.inline}
-        fillVertical={!!props.fillVertical}
         onChange={props.onChange}
         onBlur={props.onBlur}
         value={props.value}
