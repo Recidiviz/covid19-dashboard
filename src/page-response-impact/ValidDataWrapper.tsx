@@ -7,7 +7,7 @@ import { Facilities } from "../page-multi-facility/types";
 const POPULATION_DATA_ERROR_MSG =
   "Impact could not be generated because one or more of your facilities does not have an incarcerated population count. Please add population numbers and try again.";
 const LOCALE_DATA_ERROR_MSG =
-  "Impact could not be generated because Locale Information ('Type of System' or 'State') does not match across facilities. Please verify Locale Information and try again.";
+  "Impact report cannot be generated because your “Locale Information” does not match across facilities. Please make sure you have entered the same \"Type of System\", \"State\", and \"County\" for each facility and try again.";
 
 const ValidDataWrapperContainer = styled.div``;
 const ErrorMessage = styled.div`
@@ -30,8 +30,10 @@ const ValidDataWrapper: React.FC<Props> = ({ children, facilities = [] }) => {
   function validateLocaleData(facilities: Facilities) {
     return facilities.some((f) => {
       return (
+        facilities[0].systemType !== f.systemType ||
         facilities[0].modelInputs.stateCode !== f.modelInputs.stateCode ||
-        facilities[0].systemType !== f.systemType
+        (facilities[0].systemType === "County Jail" &&
+          facilities[0].modelInputs.countyName !== f.modelInputs.countyName)
       );
     });
   }
