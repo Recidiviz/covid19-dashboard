@@ -5,6 +5,7 @@ import styled from "styled-components";
 
 import Colors, { MarkColors as markColors } from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
+import FontSizes from "../design-system/FontSizes";
 import iconEditSrc from "../design-system/icons/ic_edit.svg";
 import { Spacer } from "../design-system/Spacer";
 import Tooltip from "../design-system/Tooltip";
@@ -14,6 +15,7 @@ import { totalConfirmedCases } from "../impact-dashboard/EpidemicModelContext";
 import useModel from "../impact-dashboard/useModel";
 import AddCasesModal from "./AddCasesModal";
 import { FacilityContext } from "./FacilityContext";
+import FacilityRowRtValuePill from "./FacilityRowRtValuePill";
 import {
   useChartDataFromProjectionData,
   useProjectionData,
@@ -26,6 +28,15 @@ const groupStatus = {
   hospitalized: true,
   infectious: true,
 };
+
+const LastUpdatedLabel = styled.div`
+  color: ${Colors.forest50};
+  font-family: Poppins;
+  font-style: normal;
+  font-weight: 600;
+  font-size: ${FontSizes.Charts.labelText}px;
+  line-height: 16px;
+`;
 
 const FacilityRowDiv = styled.div``;
 
@@ -74,11 +85,17 @@ const FacilityRow: React.FC<Props> = ({ facility: initialFacility }) => {
   const [model] = useModel();
 
   const { rtData, setFacility } = useContext(FacilityContext);
+
   const [facility, updateFacility] = useState(initialFacility);
-  let useRt, facilityRtData;
+  let useRt,
+    facilityRtData = undefined,
+    latestRt = undefined;
   if (useFlag(["useRt"])) {
     useRt = true;
     facilityRtData = rtData ? rtData[facility.id] : undefined;
+
+    // TODO(Lenny): Update this with the helper function once PR #273 is completed.
+    latestRt = facilityRtData?.Rt[facilityRtData.Rt.length - 1].value;
   }
   const chartData = useChartDataFromProjectionData(
     useProjectionData(model, useRt, facilityRtData),
@@ -143,13 +160,16 @@ const FacilityRow: React.FC<Props> = ({ facility: initialFacility }) => {
             </FacilityNameLabel>
           </div>
           <div className="text-xs text-gray-500 pb-4">
-            <div>
+            <LastUpdatedLabel>
               Last Update: <DateMMMMdyyyy date={updatedAt} />
-            </div>
+            </LastUpdatedLabel>
             <Spacer x={32} />
           </div>
         </div>
-        <div className="w-3/5">
+        <div className="w-3/5 relative">
+          {facilityRtData !== undefined && (
+            <FacilityRowRtValuePill latestRt={latestRt} />
+          )}
           <CurveChartContainer
             curveData={chartData}
             chartHeight={144}

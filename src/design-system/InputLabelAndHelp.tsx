@@ -11,6 +11,7 @@ interface Props {
 }
 
 const LabelContainer = styled.div`
+  align-items: baseline;
   display: flex;
   justify-content: space-between;
 `;

@@ -1,14 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { getFacilities } from "../database";
 import Loading from "../design-system/Loading";
 import { Column, PageContainer } from "../design-system/PageColumn";
+import useFacilitiesRtData from "../hooks/useFacilitiesRtData";
 import {
   EpidemicModelState,
   getLocaleDefaults,
 } from "../impact-dashboard/EpidemicModelContext";
 import { CurveFunctionInputs } from "../infection-model";
 import { useLocaleDataState } from "../locale-data-context";
+import { FacilityContext } from "../page-multi-facility/FacilityContext";
 import { Facilities } from "../page-multi-facility/types";
 import useScenario from "../scenario-context/useScenario";
 import PopulationImpactMetrics from "./PopulationImpactMetrics";
@@ -21,6 +23,7 @@ import {
   getSystemWideSums,
   originalProjection,
 } from "./responseChartData";
+import RtSummaryStats from "./RtSummaryStats";
 import {
   ChartHeader,
   PageHeader,
@@ -39,6 +42,7 @@ import {
 const ResponseImpactDashboard: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
   const [scenarioState] = useScenario();
+  const { rtData } = useContext(FacilityContext);
   const scenario = scenarioState.data;
   const scenarioId = scenarioState?.data?.id; // linter wants this to be its own var since it is a useEffect dep
   const [currentCurveInputs, setCurrentCurveInputs] = useState(
@@ -56,7 +60,7 @@ const ResponseImpactDashboard: React.FC = () => {
   const [reductionCardData, setreductionCardData] = useState<
     reductionCardDataType | undefined
   >();
-  const [, setFacilities] = useState({
+  const [facilities, setFacilities] = useState({
     data: [] as Facilities,
     loading: true,
   });
@@ -80,6 +84,8 @@ const ResponseImpactDashboard: React.FC = () => {
 
     fetchFacilities();
   }, [scenarioId, localeDataSource]);
+
+  useFacilitiesRtData(facilities.data, true);
 
   // calculate data for cards
   useEffect(() => {
@@ -144,8 +150,10 @@ const ResponseImpactDashboard: React.FC = () => {
               incarceratedPopulation={systemWideData.prisonPopulation}
             />
             <SectionHeader>Community Resources Saved</SectionHeader>
-            <ChartHeader>Change in rate of transmission R(0)</ChartHeader>
-            <PlaceholderSpace />
+            <ChartHeader>
+              Rate of spread (R(t)) for modelled facilities
+            </ChartHeader>
+            {rtData && <RtSummaryStats rtData={rtData} />}
             <SectionSubheader>
               Positive impact of Reducing R(0)
             </SectionSubheader>

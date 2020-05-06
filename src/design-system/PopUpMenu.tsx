@@ -26,7 +26,7 @@ const PopUpMenuDiv = styled.div`
 
 const PopUpMenuIcon = styled.div`
   font-family: "Rubik", sans-serif;
-  font-size: 24px;
+  font-size: 16px;
   font-weight: 600;
   color: ${Colors.forest};
 `;

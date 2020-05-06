@@ -3,6 +3,8 @@ import styled from "styled-components";
 import Colors from "./Colors";
 
 const ChartWrapper = styled.div`
+  position: relative;
+
   .frame {
     font-family: "Poppins", sans-serif;
     font-size: 11px;
