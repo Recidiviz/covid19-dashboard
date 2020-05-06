@@ -1,11 +1,15 @@
 import { format } from "date-fns";
+import { navigate } from "gatsby";
 import React, { useState } from "react";
 
 import { saveScenario } from "../database";
+import Colors from "../design-system/Colors";
+import InputButton from "../design-system/InputButton";
 import InputDescription from "../design-system/InputDescription";
 import InputNameWithIcon from "../design-system/InputNameWithIcon";
 import PromoBoxWithButton from "../design-system/PromoBoxWithButton";
 import { Spacer } from "../design-system/Spacer";
+import { useFlag } from "../feature-flags";
 import useScenario from "../scenario-context/useScenario";
 import ToggleRow from "./ToggleRow";
 import { Scenario } from "./types";
@@ -57,6 +61,7 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
   const scenario = scenarioState.data;
   const { numFacilities } = props;
   const updatedAtDate = Number(scenario?.updatedAt);
+  const showImpactButton = useFlag(["showImpactButton"]);
 
   const handleScenarioChange = (scenarioChange: any) => {
     if (scenarioChange.name || scenarioChange.description) {
@@ -133,6 +138,20 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
               }
             }}
           />
+
+          {showImpactButton && (
+            <InputButton
+              styles={{
+                background: Colors.green,
+                borderRadius: "4px",
+                fontSize: "14px",
+                fontFamily: "PingFang SC",
+                width: "100%",
+              }}
+              label="Generate Impact Report"
+              onClick={() => navigate("/impact")}
+            />
+          )}
         </div>
       </div>
     </div>
