@@ -1,4 +1,3 @@
-import classNames from "classnames";
 import React, { useEffect, useRef, useState } from "react";
 import styled, { StyledComponent } from "styled-components";
 
@@ -14,13 +13,15 @@ const EditInPlaceDiv = styled.div<Pick<Props, "minHeight">>`
 
   .edit-in-place__input {
     background-color: ${Colors.gray};
+    box-shadow: none;
     height: 100%;
+    outline: none;
     resize: none;
     width: 100%;
-  }
 
-  &.has-invalid-input {
-    box-shadow: #ff0000 0px 0px 1.5px 1px;
+    &:invalid {
+      outline: 1px solid ${Colors.red};
+    }
   }
 `;
 
@@ -73,6 +74,8 @@ const EditInPlace: React.FC<Props> = ({
 
   const [value, setValue] = useState(initialValue);
 
+  const valueIsInvalid = requiredFlag && !value?.trim();
+
   useEffect(() => {
     if (autoResizeVertically) {
       resize(textAreaRef.current);
@@ -81,7 +84,7 @@ const EditInPlace: React.FC<Props> = ({
 
   const onEnterPress = (event: React.KeyboardEvent, onEnter: Function) => {
     if (event.key !== "Enter") return;
-    else if (event.key === "Enter" && requiredFlag && !value?.trim()) {
+    else if (event.key === "Enter" && valueIsInvalid) {
       event.preventDefault();
       return;
     }
@@ -89,17 +92,17 @@ const EditInPlace: React.FC<Props> = ({
   };
 
   const updateValue = () => {
-    if ((requiredFlag && value?.trim()) || !requiredFlag) {
-      setEditing(false);
-      setInitialValue(value);
-      if (persistChanges) {
-        persistChanges(value);
-      }
-    } else {
+    if (valueIsInvalid) {
       setEditing(true);
       setInitialValue("");
       if (persistChanges) {
         persistChanges("");
+      }
+    } else {
+      setEditing(false);
+      setInitialValue(value);
+      if (persistChanges) {
+        persistChanges(value);
       }
     }
   };
@@ -114,9 +117,7 @@ const EditInPlace: React.FC<Props> = ({
         <BaseComponent
           as="textarea"
           autoFocus
-          className={classNames("edit-in-place__input", {
-            "has-invalid-input": requiredFlag && !value?.trim(),
-          })}
+          className="edit-in-place__input"
           maxLength={maxLengthValue}
           onBlur={updateValue}
           onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
