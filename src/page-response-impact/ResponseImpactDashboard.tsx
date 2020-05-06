@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
 
+import { saveScenario } from "../database";
 import Loading from "../design-system/Loading";
 import { Column, PageContainer } from "../design-system/PageColumn";
 import useFacilitiesRtData from "../hooks/useFacilitiesRtData";
@@ -31,9 +32,13 @@ import {
 
 interface Props {
   scenario: Scenario;
+  dispatchScenarioUpdate: (scenario: Scenario) => void;
 }
 
-const ResponseImpactDashboard: React.FC<Props> = ({ scenario }) => {
+const ResponseImpactDashboard: React.FC<Props> = ({
+  scenario,
+  dispatchScenarioUpdate,
+}) => {
   const { data: localeDataSource } = useLocaleDataState();
   const { rtData } = useContext(FacilityContext);
   const facilities = useFacilities(scenario.id, localeDataSource);
@@ -52,8 +57,14 @@ const ResponseImpactDashboard: React.FC<Props> = ({ scenario }) => {
 
   useFacilitiesRtData(facilities.data, true);
 
-  function saveBaselinePopulations(populations: Populations) {
+  async function saveBaselinePopulations(populations: Populations) {
     console.log("saving populations...", { populations });
+    const initialPopulations = scenario?.populations || [];
+    const savedScenario = await saveScenario({
+      ...scenario,
+      populations: [...initialPopulations, populations],
+    });
+    if (savedScenario) dispatchScenarioUpdate(savedScenario);
   }
 
   return (

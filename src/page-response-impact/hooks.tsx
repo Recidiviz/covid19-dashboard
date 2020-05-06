@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { getFacilities } from "../database";
 import {
@@ -6,8 +6,8 @@ import {
   getLocaleDefaults,
 } from "../impact-dashboard/EpidemicModelContext";
 import { CurveFunctionInputs } from "../infection-model";
-import { LocaleData, useLocaleDataState } from "../locale-data-context";
-import { Facilities, Scenario } from "../page-multi-facility/types";
+import { LocaleData } from "../locale-data-context";
+import { Facilities } from "../page-multi-facility/types";
 import {
   calculateCurveData,
   getCurveInputs,
