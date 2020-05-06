@@ -55,7 +55,7 @@ const ResponseImpactDashboard: React.FC = () => {
   const [systemWideData, setSystemWideData] = useState({
     hospitalBeds: 0,
     staffPopulation: 0,
-    prisonPopulation: 0,
+    incarceratedPopulation: 0,
   });
   const [reductionCardData, setreductionCardData] = useState<
     reductionCardDataType | undefined
@@ -116,13 +116,17 @@ const ResponseImpactDashboard: React.FC = () => {
   // set system wide data
   useEffect(() => {
     if (modelInputs.length === 0) return;
+    const localeDefaults = getLocaleDefaults(
+      localeDataSource,
+      modelInputs[0].stateCode,
+    );
 
     setSystemWideData({
       ...getSystemWideSums(modelInputs),
-      prisonPopulation: getLocaleDefaults(
-        localeDataSource,
-        modelInputs[0].stateCode,
-      ).totalPrisonPopulation,
+      incarceratedPopulation:
+        facilities.data[0].systemType === "State Prison"
+          ? localeDefaults.totalPrisonPopulation
+          : localeDefaults.totalJailPopulation,
     });
   }, [modelInputs, localeDataSource]);
 
@@ -147,7 +151,7 @@ const ResponseImpactDashboard: React.FC = () => {
             <PopulationImpactMetrics
               reductionData={reductionCardData}
               staffPopulation={systemWideData.staffPopulation}
-              incarceratedPopulation={systemWideData.prisonPopulation}
+              incarceratedPopulation={systemWideData.incarceratedPopulation}
             />
             <SectionHeader>Community Resources Saved</SectionHeader>
             <ChartHeader>
