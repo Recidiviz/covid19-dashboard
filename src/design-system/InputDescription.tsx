@@ -34,9 +34,11 @@ const IconEdit = styled.img`
 `;
 
 const TextArea = styled.textarea`
+  background-color: ${Colors.gray};
   color: ${Colors.forest};
   font-size: 13px;
   height: 100%;
+  resize: none;
   width: 100%;
 
   &.has-invalid-input {
