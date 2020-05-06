@@ -119,6 +119,7 @@ const ResponseImpactDashboard: React.FC = () => {
     const localeDefaults = getLocaleDefaults(
       localeDataSource,
       modelInputs[0].stateCode,
+      modelInputs[0].countyName,
     );
 
     setSystemWideData({
@@ -128,7 +129,7 @@ const ResponseImpactDashboard: React.FC = () => {
           ? localeDefaults.totalPrisonPopulation
           : localeDefaults.totalJailPopulation,
     });
-  }, [modelInputs, localeDataSource]);
+  }, [modelInputs, localeDataSource, facilities.data]);
 
   return (
     <ResponseImpactDashboardContainer>
