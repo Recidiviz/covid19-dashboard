@@ -12,9 +12,7 @@ interface Props {
   onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   onBlur?: (e: React.FormEvent<HTMLTextAreaElement>) => void;
   onKeyDown?: (event: React.KeyboardEvent) => void;
-  inline?: boolean;
-  fillVertical?: boolean;
-  style?: object;
+  required?: boolean;
 }
 
 interface InputProps {
@@ -28,35 +26,29 @@ interface InputProps {
 const TextAreaInput = styled.textarea<InputProps>`
   margin-top: 8px;
   border: none;
-  outline: none;
   padding: 16px;
   background: #e0e4e4;
   border-radius: 2px;
-  font-size: ${(props) => props.fontSize || "16px"};
   color: ${(props) => props.color || Colors.green};
   resize: none;
-  font-family: ${(props) => props.fontFamily || '"Poppins", sans-serif'};
   width: 100%;
-  ${(props) =>
-    props.inline &&
-    css`
-      margin: 0 !important;
-      padding: 0 !important;
-      font-size: inherit;
-      background-color: transparent;
-    `};
-  ${(props) =>
-    props.fillVertical &&
-    css`
-      height: 100%;
-    `};
+
+  // make placeholder font size smaller than the textarea's
+  &::-webkit-input-placeholder {
+    font-size: 18px;
+  }
+  &::-moz-placeholder {
+    font-size: 18px;
+  }
+  &:-ms-input-placeholder {
+    font-size: 18px;
+  }
+  &:-moz-placeholder {
+    font-size: 18px;
+  }
 `;
 
-interface TextAreaContainer {
-  fillVertical?: boolean;
-}
-
-const TextAreaContainer = styled.div<TextAreaContainer>`
+const TextAreaContainer = styled.div`
   margin-bottom: 24px;
   display: flex;
   flex-direction: column;
@@ -95,9 +87,9 @@ const InputTextArea: React.FC<Props> = (props) => {
         onBlur={props.onBlur}
         value={props.value}
         placeholder={props.placeholder}
+        required={props.required}
         name={props.label}
         onKeyDown={props.onKeyDown}
-        {...props.style}
       />
     </TextAreaContainer>
   );

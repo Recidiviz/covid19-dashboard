@@ -23,7 +23,7 @@ const PromoBox = styled.div`
   font-family: "Poppins", sans-serif;
   font-size: 12px;
   font-weight: 100;
-  margin-top: 24px;
+  margin: 24px 0;
   padding: 16px;
 `;
 

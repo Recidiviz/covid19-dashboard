@@ -28,19 +28,19 @@ export const LegendText = styled.div`
 const ProjectionsLegend: React.FC = () => {
   return (
     <div className="w-3/5 flex flex-row justify-start">
-      <LegendItem className="ml-6">
+      <LegendItem className="mr-6">
         <LegendCircle color={markColors.fatalities} />
         <LegendText>Fatalities</LegendText>
       </LegendItem>
-      <LegendItem className="ml-6">
+      <LegendItem className="mr-6">
         <LegendCircle color={markColors.exposed} />
         <LegendText>Exposed</LegendText>
       </LegendItem>
-      <LegendItem className="ml-6">
+      <LegendItem className="mr-6">
         <LegendCircle color={markColors.infectious} />
         <LegendText>Infectious</LegendText>
       </LegendItem>
-      <LegendItem className="ml-6">
+      <LegendItem className="mr-6">
         <LegendCircle color={markColors.hospitalized} />
         <LegendText>Hospitalized</LegendText>
       </LegendItem>

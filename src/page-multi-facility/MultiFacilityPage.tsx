@@ -26,7 +26,9 @@ const MultiFacilityPage: React.FC = () => {
               page.
             </div>
           ) : localeState.loading || scenario.loading ? (
-            <Loading />
+            <div className="mt-16">
+              <Loading />
+            </div>
           ) : scenario.data ? (
             <MultiFacilityImpactDashboard />
           ) : (
