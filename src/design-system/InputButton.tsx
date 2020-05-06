@@ -2,11 +2,12 @@ import React from "react";
 import styled from "styled-components";
 
 export const StyledButton = styled.button<Props>`
-  background: #00615c;
-  font-size: 16px;
-  border-radius: 12px;
+  background: ${(props) => props.styles?.background || "#00615c"};
+  font-size: ${(props) => props.styles?.fontSize || "16px"};
+  border-radius: ${(props) => props.styles?.borderRadius || "12px"};
   color: white;
-  font-family: "Poppins", sans-serif;
+  font-family: ${(props) =>
+    props.styles?.fontFamily || "'Poppins', sans-serif"};
   height: 48px;
   width: ${(props) => props.styles?.width || "200px"};
   outline: none;

@@ -24,7 +24,7 @@ export type Scenario = {
   baseline: boolean;
   dataSharing: boolean;
   dailyReports: boolean;
-  promoStatuses?: PromoStatuses | undefined;
+  promoStatuses: PromoStatuses;
   description: string;
   roles: object;
   createdAt: Date;

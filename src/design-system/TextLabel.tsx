@@ -2,14 +2,25 @@ import styled from "styled-components";
 
 import Colors from "./Colors";
 
-const TextLabel = styled.span<{ softened?: boolean }>`
-  ${(props) => (props.softened ? null : "text-transform: uppercase;")}
-  font-size: 10px;
+interface TextLabelProps {
+  softened?: boolean;
+  padding?: boolean;
+}
+
+const TextLabel = styled.span<TextLabelProps>((props: TextLabelProps) => {
+  return `
+  ${props.softened ? "" : "text-transform: uppercase;"}
+  font-size: ${props.softened ? "12px" : "10px"};
   font-weight: 400;
   font-family: "Poppins", sans-serif;
-  ${(props) => (props.softened ? null : "letter-spacing: 2px;")}
+  ${props.softened ? "" : "letter-spacing: 2px;"}
   color: ${Colors.darkForest};
-  padding-right: 5px;
+  ${props.padding ? "padding-right: 5px;" : ""}
 `;
+});
+
+TextLabel.defaultProps = {
+  padding: true,
+};
 
 export default TextLabel;
