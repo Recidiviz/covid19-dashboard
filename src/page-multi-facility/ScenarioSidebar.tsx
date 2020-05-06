@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { navigate } from "gatsby";
 import React, { useState } from "react";
+import styled from "styled-components";
 
 import { saveScenario } from "../database";
 import Colors from "../design-system/Colors";
@@ -13,6 +14,10 @@ import { useFlag } from "../feature-flags";
 import useScenario from "../scenario-context/useScenario";
 import ToggleRow from "./ToggleRow";
 import { Scenario } from "./types";
+
+const HorizontalRule = styled.hr`
+  border-color: ${Colors.opacityGray};
+`;
 
 interface Props {
   numFacilities?: number | null;
@@ -117,22 +122,26 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
           </p>
         </div>
         <div>
+          <Spacer y={20} />
+          <HorizontalRule />
           <ToggleRow
             onToggle={() =>
               handleScenarioChange({ dailyReports: !scenario?.dailyReports })
             }
             toggled={scenario?.dailyReports}
-            label="Daily Reports"
+            label="Subscribe to daily reports"
             labelHelp="If enabled, your baseline scenario will be shared with Recidiviz and CSG. This data will only be used to provide you with daily reports."
           />
+          <HorizontalRule />
           <ToggleRow
             onToggle={() =>
               handleScenarioChange({ dataSharing: !scenario?.dataSharing })
             }
             toggled={scenario?.dataSharing}
-            label="Data Sharing"
+            label="Share data to improve the model"
             labelHelp="If enabled, your baseline scenario will be made available to Recidiviz and the research community to improve the model and the state of research on the spread of disease in facilities. Any public research will anonymize state and facility names."
           />
+          <HorizontalRule />
           <PromoBoxWithButton
             enabled={!!scenario?.baseline && !promoDismissed}
             text={getPromoText(promoType) || null}

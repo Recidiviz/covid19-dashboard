@@ -12,7 +12,6 @@ const ArrowLength = "4px";
 const TooltipReferenceDiv = styled.div`
   display: inline-block;
   cursor: pointer;
-  align-self: center;
 `;
 
 // Mostly taken from:

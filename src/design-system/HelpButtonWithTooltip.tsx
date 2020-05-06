@@ -14,7 +14,6 @@ const HelpButton = styled.span`
   display: inline-block;
   text-align: center;
   font-size: 9px;
-  align-self: center;
   padding: 2px;
 `;
 

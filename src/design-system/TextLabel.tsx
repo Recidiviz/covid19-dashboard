@@ -9,13 +9,13 @@ interface TextLabelProps {
 
 const TextLabel = styled.span<TextLabelProps>((props: TextLabelProps) => {
   return `
-  ${props.softened ? null : "text-transform: uppercase;"}
-  font-size: 10px;
+  ${props.softened ? "" : "text-transform: uppercase;"}
+  font-size: ${props.softened ? "12px" : "10px"};
   font-weight: 400;
   font-family: "Poppins", sans-serif;
-  ${props.softened ? null : "letter-spacing: 2px;"}
+  ${props.softened ? "" : "letter-spacing: 2px;"}
   color: ${Colors.darkForest};
-  ${props.padding ? "padding-right: 5px;" : null}
+  ${props.padding ? "padding-right: 5px;" : ""}
 `;
 });
 
