@@ -47,19 +47,19 @@ const ChartTitle = styled.div`
   padding: 5px 0;
 `;
 
-const TooltipContents = styled.div`
+export const TooltipContents = styled.div`
   font-family: "Poppins", sans-serif;
   text-align: center;
   white-space: nowrap;
 `;
 
-const TooltipLabel = styled.div`
+export const TooltipLabel = styled.div`
   color: ${Colors.gray};
   line-height: 1.5;
   font-size: 11px;
   font-weight: normal;
 `;
-const TooltipValue = styled.div`
+export const TooltipValue = styled.div`
   font-size: 14px;
   font-weight: 600;
   margin-bottom: 4px;

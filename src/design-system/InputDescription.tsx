@@ -1,16 +1,9 @@
+import classNames from "classnames";
 import React, { useState } from "react";
 import styled from "styled-components";
 
 import Colors from "./Colors";
 import iconEditSrc from "./icons/ic_edit.svg";
-import InputTextArea from "./InputTextArea";
-
-const inputTextAreaStyle = {
-  fontFamily: "Helvetica Neue",
-  fontSize: "13px",
-  color: Colors.forest,
-  outline: "none",
-};
 
 const DescriptionDiv = styled.div`
   min-height: 100px;
@@ -40,6 +33,19 @@ const IconEdit = styled.img`
   }
 `;
 
+const TextArea = styled.textarea`
+  background-color: ${Colors.gray};
+  color: ${Colors.forest};
+  font-size: 13px;
+  height: 100%;
+  resize: none;
+  width: 100%;
+
+  &.has-invalid-input {
+    box-shadow: #ff0000 0px 0px 1.5px 1px;
+  }
+`;
+
 interface Props {
   description?: string | undefined;
   setDescription: (description?: string) => void;
@@ -61,9 +67,6 @@ const InputDescription: React.FC<Props> = ({
 }) => {
   const [editingDescription, setEditingDescription] = useState(false);
   const [value, setValue] = useState(description);
-
-  // Reset Description field border
-  if (!editingDescription) inputTextAreaStyle.outline = "none";
 
   const onEnterPress = (event: React.KeyboardEvent, onEnter: Function) => {
     if (event.key !== "Enter") return;
@@ -88,12 +91,6 @@ const InputDescription: React.FC<Props> = ({
         persistChanges({ description: "" });
       }
     }
-
-    if (requiredFlag && !value?.trim()) {
-      inputTextAreaStyle.outline = `1px solid ${Colors.red}`;
-    } else {
-      inputTextAreaStyle.outline = "none";
-    }
   };
 
   return (
@@ -104,10 +101,10 @@ const InputDescription: React.FC<Props> = ({
         </Description>
       ) : (
         <Description>
-          <InputTextArea
-            fillVertical
-            style={inputTextAreaStyle}
-            autoResizeVertically
+          <TextArea
+            className={classNames({
+              "has-invalid-input": requiredFlag && !value?.trim(),
+            })}
             value={value}
             placeholder={placeholderText || ""}
             maxLength={maxLengthValue}

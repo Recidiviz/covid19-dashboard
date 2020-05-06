@@ -1,11 +1,15 @@
 import { format } from "date-fns";
+import { navigate } from "gatsby";
 import React, { useState } from "react";
 
 import { saveScenario } from "../database";
+import Colors from "../design-system/Colors";
+import InputButton from "../design-system/InputButton";
 import InputDescription from "../design-system/InputDescription";
 import InputNameWithIcon from "../design-system/InputNameWithIcon";
 import PromoBoxWithButton from "../design-system/PromoBoxWithButton";
 import { Spacer } from "../design-system/Spacer";
+import { useFlag } from "../feature-flags";
 import useScenario from "../scenario-context/useScenario";
 import ToggleRow from "./ToggleRow";
 import { Scenario } from "./types";
@@ -57,16 +61,26 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
   const scenario = scenarioState.data;
   const { numFacilities } = props;
   const updatedAtDate = Number(scenario?.updatedAt);
+  const showImpactButton = useFlag(["showImpactButton"]);
 
   const handleScenarioChange = (scenarioChange: any) => {
-    if (scenarioChange.name || scenarioChange.description) {
-      const changes = Object.assign({}, scenario, scenarioChange);
+    const changes = Object.assign({}, scenario, scenarioChange);
+    saveScenario(changes).then((_) => {
+      dispatchScenarioUpdate(changes);
+    });
+  };
 
-      saveScenario(changes).then((_) => {
-        dispatchScenarioUpdate(changes);
-      });
+  const handleTextInputChange = (textInputChanges: {
+    description?: string;
+    name?: string;
+  }) => {
+    // Prevent the input fields from unintentionally updating with a empty
+    // value when being edited.
+    if (textInputChanges.name || textInputChanges.description) {
+      handleScenarioChange(textInputChanges);
     }
   };
+
   const [name, setName] = useState(scenario?.name);
   const [promoDismissed, setPromoDismissed] = useState(false);
   const [description, setDescription] = useState(scenario?.description);
@@ -82,7 +96,8 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
           placeholderText="Scenario name is required"
           maxLengthValue={124}
           requiredFlag={true}
-          persistChanges={handleScenarioChange}
+          persistChanges={handleTextInputChange}
+          showIcon
         />
         <Spacer y={20} />
         <InputDescription
@@ -92,7 +107,7 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
           placeholderText="Scenario description is required"
           maxLengthValue={500}
           requiredFlag={true}
-          persistChanges={handleScenarioChange}
+          persistChanges={handleTextInputChange}
         />
         <Spacer y={20} />
         <div>
@@ -133,6 +148,20 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
               }
             }}
           />
+
+          {showImpactButton && (
+            <InputButton
+              styles={{
+                background: Colors.green,
+                borderRadius: "4px",
+                fontSize: "14px",
+                fontFamily: "PingFang SC",
+                width: "100%",
+              }}
+              label="Generate Impact Report"
+              onClick={() => navigate("/impact")}
+            />
+          )}
         </div>
       </div>
     </div>

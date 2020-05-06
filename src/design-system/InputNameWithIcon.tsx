@@ -45,11 +45,12 @@ const IconEdit = styled.img`
 
 const Heading = styled.h1`
   color: ${Colors.forest};
+  flex: 1 1 auto;
   font-size: 24px;
-  line-height: 24px;
   font-family: Libre Baskerville;
   font-weight: normal;
   letter-spacing: -0.06em;
+  line-height: 24px;
 `;
 
 interface Props {
@@ -60,6 +61,7 @@ interface Props {
   maxLengthValue?: number | undefined;
   requiredFlag?: boolean;
   persistChanges?: (changes: object) => void;
+  showIcon?: boolean;
 }
 
 const InputNameWithIcon: React.FC<Props> = ({
@@ -70,6 +72,7 @@ const InputNameWithIcon: React.FC<Props> = ({
   maxLengthValue,
   requiredFlag,
   persistChanges,
+  showIcon,
 }) => {
   const [editingName, setEditingName] = useState(false);
   const [value, setValue] = useState(name);
@@ -108,7 +111,7 @@ const InputNameWithIcon: React.FC<Props> = ({
     <NameLabelDiv>
       {!editingName && ((requiredFlag && name) || !requiredFlag) ? (
         <Heading onClick={() => setEditingName(true)}>
-          <IconFolder alt="folder" src={iconFolderSrc} />
+          {showIcon && <IconFolder alt="folder" src={iconFolderSrc} />}
           <span>{value || placeholderValue}</span>
         </Heading>
       ) : (
