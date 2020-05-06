@@ -11,6 +11,8 @@ export const StyledButton = styled.button<Props>`
   height: 48px;
   width: ${(props) => props.styles?.width || "200px"};
   outline: none;
+  margin-top: ${(props) => props.styles?.marginTop};
+  visibility: ${(props) => props.styles?.visibility || "visible"};
 `;
 
 interface Props {

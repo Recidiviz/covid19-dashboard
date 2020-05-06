@@ -5,7 +5,7 @@ import { PlannedRelease } from "../impact-dashboard/EpidemicModelContext";
 import { Facility, ModelInputs, Scenario } from "../page-multi-facility/types";
 
 const timestampToDate = (timestamp: firebase.firestore.Timestamp): Date => {
-  return timestamp.toDate();
+  return timestamp?.toDate() || new Date();
 };
 
 const buildPlannedRelease = (plannedReleaseData: any): PlannedRelease => {
@@ -66,7 +66,7 @@ export const buildScenario = (
 
   let scenario: Scenario = documentData;
   scenario.id = document.id;
-  scenario.createdAt = timestampToDate(documentData.createdAt);
+  scenario.createdAt = timestampToDate(documentData.createdAt );
   scenario.updatedAt = timestampToDate(documentData.updatedAt);
 
   // Runtime migration: make sure a default value is set for
