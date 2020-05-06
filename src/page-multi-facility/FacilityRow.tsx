@@ -7,7 +7,6 @@ import Colors, { MarkColors as markColors } from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import FontSizes from "../design-system/FontSizes";
 import iconEditSrc from "../design-system/icons/ic_edit.svg";
-import InputDescription from "../design-system/InputDescription";
 import { Spacer } from "../design-system/Spacer";
 import { useFlag } from "../feature-flags";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
