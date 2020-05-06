@@ -184,6 +184,40 @@ const MultiFacilityImpactDashboard: React.FC = () => {
       ) : (
         <ScenarioSidebar numFacilities={facilities?.data.length} />
       )}
+
+      <div className="flex flex-wrap">
+        <div className="border border-solid rounded border-gray-400 p-20 flex flex-col items-center justify-center">
+          <div>
+            <div className="mb-4">
+              <IconAdd alt="add scenario" src={iconAddSrc} />
+            </div>
+            <div>Create New Model</div>
+          </div>
+        </div>
+
+        <div className="border border-solid rounded border-gray-400 p-20 flex flex-col items-center justify-center">
+          <div>Scenario 01</div>
+          <img
+            src="https://placekitten.com/300/200"
+            alt="Scenario 01's graph"
+          />
+          <div>
+            This text describes unique qualities for this data model. Taking
+            notes here will be useful...
+          </div>
+          <div>Last Update: March 25, 2020</div>
+        </div>
+        <div className="border border-solid rounded border-gray-400 p-20 flex flex-col items-center justify-center">
+          <div>Test 123</div>
+          <img src="https://placekitten.com/300/200" alt="Test 123's graph" />
+          <div>
+            This text describes unique qualities for this data model. Taking
+            notes here will be useful...
+          </div>
+          <div>Last Update: March 25, 2020</div>
+        </div>
+      </div>
+
       <div className="flex flex-col flex-1 pb-6 pl-8 justify-start">
         <div className="flex flex-row flex-none justify-between items-start">
           <AddFacilityButton onClick={openAddFacilityPage}>
