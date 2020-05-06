@@ -102,7 +102,7 @@ const RtSummaryStats: React.FC<Props> = ({ rtData }) => {
   const averageRtReductionAcrossFacilities =
     rtStats.averageRtReductionAcrossFacilities(facilitiesRtRecords) || 0;
 
-  const numFacilitiesWithRtGt1 =
+  const numFacilitiesRemaining =
     totalFacilitiesInScenario - numFacilitiesWithRtLt1;
 
   const frameProps = {
@@ -110,7 +110,7 @@ const RtSummaryStats: React.FC<Props> = ({ rtData }) => {
     style: (datum: any) => ({ fill: datum.color }),
     data: [
       { value: numFacilitiesWithRtLt1, color: Colors.jade },
-      { value: numFacilitiesWithRtGt1, color: Colors.lightGray },
+      { value: numFacilitiesRemaining, color: Colors.lightGray },
     ],
     size: [200, 200],
     projection: "radial",
