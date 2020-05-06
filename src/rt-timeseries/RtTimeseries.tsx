@@ -9,6 +9,7 @@ import styled from "styled-components";
 import ChartTooltip from "../design-system/ChartTooltip";
 import ChartWrapper from "../design-system/ChartWrapper";
 import Colors, { lighten } from "../design-system/Colors";
+import HelpButtonWithTooltip from "../design-system/HelpButtonWithTooltip";
 import { RtData, RtRecord } from "../infection-model/rt";
 
 interface Props {
@@ -31,8 +32,14 @@ const RtTimeseriesWrapper = styled(ChartWrapper)`
   }
 `;
 
-export const ChartTitle = styled.div`
+const ChartHeader = styled.div`
+  align-items: baseline;
   border-bottom: ${borderStyle};
+  display: flex;
+  justify-content: space-between;
+`;
+
+const ChartTitle = styled.div`
   color: ${hexAlpha(Colors.forest, 0.7)};
   font-family: "Poppins", sans-serif;
   font-size: 9px;
@@ -97,7 +104,15 @@ const RtTimeseries: React.FC<Props> = ({ data }) => {
 
   return (
     <RtTimeseriesWrapper>
-      <ChartTitle>Rate of Spread</ChartTitle>
+      <ChartHeader>
+        <ChartTitle>Rate of Spread</ChartTitle>
+        <HelpButtonWithTooltip>
+          This chart shows the rate of spread of Covid-19 over time. When the Rt
+          value is above 1 (the red line), the virus is spreading. If the Rt
+          value is below 1, the virus is on track to be extinguished at this
+          facility.
+        </HelpButtonWithTooltip>
+      </ChartHeader>
       <ResponsiveXYFrame
         annotations={[
           {
