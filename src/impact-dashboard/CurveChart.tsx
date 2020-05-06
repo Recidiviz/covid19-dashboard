@@ -77,7 +77,7 @@ interface CurveChartProps {
   hospitalBeds: number;
   markColors: MarkColors;
   hideAxes?: boolean;
-  includeAnnotations?: boolean;
+  addAnnotations?: boolean;
 }
 
 const xAxisOptions: any[] = [
@@ -110,7 +110,7 @@ const CurveChart: React.FC<CurveChartProps> = ({
   hospitalBeds,
   markColors,
   hideAxes,
-  includeAnnotations = true,
+  addAnnotations = true,
 }) => {
   const frameProps = {
     lines: Object.entries(curveData).map(([bucket, values]) => ({
@@ -128,7 +128,7 @@ const CurveChart: React.FC<CurveChartProps> = ({
     responsiveHeight: true,
     responsiveWidth: true,
     size: [450, 450],
-    yExtent: { extent: [0], includeAnnotations },
+    yExtent: { extent: [0], includeAnnotations: true },
     margin: hideAxes ? null : { left: 60, bottom: 60, right: 10, top: 0 },
     lineStyle: ({ key }) => ({
       stroke: markColors[key],
@@ -141,14 +141,16 @@ const CurveChart: React.FC<CurveChartProps> = ({
       hideAxes ? xAxisOptions[1] : xAxisOptions[0],
     ],
     annotations: [
-      {
-        type: "y",
-        className: "threshold-annotation",
-        count: hospitalBeds,
-        color: markColors.hospitalBeds,
-        note: { label: "Hospital Beds", lineType: null, dy: 1, dx: 0 },
-        disable: ["connector"],
-      },
+      addAnnotations
+        ? {
+            type: "y",
+            className: "threshold-annotation",
+            count: hospitalBeds,
+            color: markColors.hospitalBeds,
+            note: { label: "Hospital Beds", lineType: null, dy: 1, dx: 0 },
+            disable: ["connector"],
+          }
+        : {},
     ],
     hoverAnnotation: true,
     tooltipContent: Tooltip,
