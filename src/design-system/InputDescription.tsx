@@ -15,19 +15,17 @@ const Description = styled.label`
 interface Props
   extends Pick<
     EditInPlaceProps,
-    | "placeholderValue"
-    | "placeholderText"
-    | "maxLengthValue"
-    | "requiredFlag"
-    | "persistChanges"
+    "placeholderValue" | "placeholderText" | "maxLengthValue" | "requiredFlag"
   > {
   description?: string | undefined;
+  persistChanges?: (changes: { description: string | undefined }) => void;
   setDescription: (description?: string) => void;
 }
 
 const InputDescription: React.FC<Props> = ({
   description,
   setDescription,
+  persistChanges,
   ...passThruProps
 }) => {
   return (
@@ -35,6 +33,10 @@ const InputDescription: React.FC<Props> = ({
       autoResizeVertically
       BaseComponent={Description}
       initialValue={description}
+      minHeight={100}
+      persistChanges={(description: string | undefined) =>
+        persistChanges && persistChanges({ description })
+      }
       setInitialValue={setDescription}
       {...passThruProps}
     />

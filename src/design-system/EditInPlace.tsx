@@ -5,8 +5,8 @@ import styled, { StyledComponent } from "styled-components";
 import Colors from "./Colors";
 import iconEditSrc from "./icons/ic_edit.svg";
 
-const EditInPlaceDiv = styled.div`
-  min-height: 100px;
+const EditInPlaceDiv = styled.div<Pick<Props, "minHeight">>`
+  min-height: ${(props) => props.minHeight}px;
   width: 100%;
   display: flex;
   flex-direction: row;
@@ -38,9 +38,8 @@ const IconEdit = styled.img`
 
 function resize(textArea: HTMLTextAreaElement | null) {
   if (!textArea) return;
-  textArea.style.height = "auto";
-  const height =
-    textArea.scrollHeight + textArea.offsetHeight - textArea.clientHeight;
+  textArea.style.height = "0";
+  const height = textArea.scrollHeight;
   textArea.style.height = `${height}px`;
 }
 
@@ -52,8 +51,9 @@ export interface Props {
   placeholderValue?: string | undefined;
   placeholderText?: string | undefined;
   maxLengthValue?: number | undefined;
+  minHeight: number;
   requiredFlag?: boolean;
-  persistChanges?: (changes: { description: string | undefined }) => void;
+  persistChanges?: (changes: string | undefined) => void;
 }
 
 const EditInPlace: React.FC<Props> = ({
@@ -66,9 +66,9 @@ const EditInPlace: React.FC<Props> = ({
   maxLengthValue,
   requiredFlag,
   persistChanges,
+  minHeight,
 }) => {
   const [editing, setEditing] = useState(false);
-
   const textAreaRef = useRef(null);
 
   const [value, setValue] = useState(initialValue);
@@ -93,19 +93,19 @@ const EditInPlace: React.FC<Props> = ({
       setEditing(false);
       setInitialValue(value);
       if (persistChanges) {
-        persistChanges({ description: value });
+        persistChanges(value);
       }
     } else {
       setEditing(true);
       setInitialValue("");
       if (persistChanges) {
-        persistChanges({ description: "" });
+        persistChanges("");
       }
     }
   };
 
   return (
-    <EditInPlaceDiv>
+    <EditInPlaceDiv minHeight={minHeight}>
       {!editing && ((requiredFlag && value) || !requiredFlag) ? (
         <BaseComponent onClick={() => setEditing(true)}>
           <span>{value || placeholderValue}</span>
