@@ -7,7 +7,7 @@ import { Facilities } from "../page-multi-facility/types";
 const POPULATION_DATA_ERROR_MSG =
   "Impact could not be generated because one or more of your facilities does not have an incarcerated population count. Please add population numbers and try again.";
 const LOCALE_DATA_ERROR_MSG =
-  "Impact could not be generated because locale information does not match across facilities.";
+  "Impact could not be generated because Locale Information ('Type of System' or 'State') does not match across facilities. Please verify Locale Information and try again.";
 
 const ValidDataWrapperContainer = styled.div``;
 const ErrorMessage = styled.div`
