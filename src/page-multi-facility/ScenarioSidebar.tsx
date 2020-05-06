@@ -97,6 +97,7 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
           maxLengthValue={124}
           requiredFlag={true}
           persistChanges={handleTextInputChange}
+          showIcon
         />
         <Spacer y={20} />
         <InputDescription
