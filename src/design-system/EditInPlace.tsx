@@ -16,6 +16,7 @@ const EditInPlaceDiv = styled.div<Pick<Props, "minHeight">>`
     box-shadow: none;
     height: 100%;
     outline: none;
+    outline-offset: 0;
     resize: none;
     width: 100%;
 
