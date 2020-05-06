@@ -25,6 +25,7 @@ const BaseColors = {
   darkGreen: "#00413e",
   darkForest: "#033342",
   paleForest: "#667c7b",
+  jade: "#447F7C",
   darkTeal: "#759f9e",
   darkGray: "#c8d3d3",
   paleGreen: "#d2dbdb",
