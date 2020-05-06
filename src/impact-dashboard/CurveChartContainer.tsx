@@ -13,6 +13,7 @@ interface Props {
   hideAxes?: boolean;
   markColors: MarkColors;
   curveData?: ChartData;
+  includeAnnotations?: boolean;
 }
 
 const CurveChartContainer: React.FC<Props> = ({
@@ -21,6 +22,7 @@ const CurveChartContainer: React.FC<Props> = ({
   chartHeight,
   hideAxes,
   curveData,
+  includeAnnotations = true,
 }) => {
   const { hospitalBeds } = useEpidemicModelState();
   const [curveDataFiltered, setCurveDataFiltered] = useState(curveData);
@@ -54,6 +56,7 @@ const CurveChartContainer: React.FC<Props> = ({
       hospitalBeds={hospitalBeds}
       markColors={markColors}
       hideAxes={hideAxes}
+      includeAnnotations={includeAnnotations}
     />
   );
 };
