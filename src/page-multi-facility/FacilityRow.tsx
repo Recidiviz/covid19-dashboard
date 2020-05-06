@@ -7,6 +7,7 @@ import Colors, { MarkColors as markColors } from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import iconEditSrc from "../design-system/icons/ic_edit.svg";
 import { Spacer } from "../design-system/Spacer";
+import Tooltip from "../design-system/Tooltip";
 import { useFlag } from "../feature-flags";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
 import { totalConfirmedCases } from "../impact-dashboard/EpidemicModelContext";
@@ -109,7 +110,7 @@ const FacilityRow: React.FC<Props> = ({ facility: initialFacility }) => {
       <DataContainer className="flex flex-row mb-8 border-b">
         <div className="w-2/5 flex flex-col justify-between">
           <div className="flex flex-row h-full">
-            <div className="w-1/4 font-bold">
+            <div className="w-1/4 font-bold flex justify-start">
               <div
                 // prevent interaction with children from triggering a row click
                 onClick={(e) => e.stopPropagation()}
@@ -121,7 +122,17 @@ const FacilityRow: React.FC<Props> = ({ facility: initialFacility }) => {
               >
                 <AddCasesModal
                   facility={facility}
-                  trigger={<CaseText>{confirmedCases}</CaseText>}
+                  trigger={
+                    <Tooltip
+                      content={
+                        <div>Click to add new or previous day cases</div>
+                      }
+                    >
+                      <CaseText className="hover:underline">
+                        {confirmedCases}
+                      </CaseText>
+                    </Tooltip>
+                  }
                   updateFacility={updateFacility}
                 />
               </div>
