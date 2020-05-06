@@ -6,7 +6,9 @@ import closeIcon from "./icons/ic_close.svg";
 
 export interface TitleProps {
   title?: string;
-  closeModal?: (e: React.MouseEvent<HTMLElement>) => void | null;
+  closeModal?: (
+    e: React.MouseEvent<HTMLElement>,
+  ) => void | null | Promise<void>;
 }
 
 const CloseButtonImg = styled.img`

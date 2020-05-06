@@ -84,7 +84,9 @@ const InputDate: React.FC<InputBaseProps<Date>> = (props) => {
 
   return (
     <InputContainer>
-      <InputLabelAndHelp label={labelAbove} labelHelp={labelHelp} />
+      {labelAbove && (
+        <InputLabelAndHelp label={labelAbove} labelHelp={labelHelp} />
+      )}
       <DatePicker
         calendarIcon={null}
         clearIcon={null}
