@@ -1,15 +1,12 @@
 import { navigate } from "gatsby";
+import numeral from "numeral";
 import React, { useState } from "react";
 import styled from "styled-components";
 
-import { getFacilities } from "../../database/index";
 import Colors from "../../design-system/Colors";
 import InputButton from "../../design-system/InputButton";
 import ModalDialog from "../../design-system/ModalDialog";
-// import nextArrowIcon from "../icons/ic_next_arrow.svg";
-import { Facilities, Scenario } from "../../page-multi-facility/types";
 import BaselinePopulationForm from "./BaselinePopulationForm";
-
 const BaselinePopulationContainer = styled.div``;
 
 const Text = styled.div`
@@ -35,9 +32,11 @@ const ModalContent = styled.div`
   flex: 1 1;
 `;
 
-interface Props {
-  scenario: Scenario;
-  setBaselinePopulations: React.Dispatch<React.SetStateAction<any>>;
+export interface Props {
+  numFacilities: number;
+  defaultStaffPopulation: number;
+  defaultIncarceratedPopulation: number;
+  saveBaselinePopulations: (populations: any) => void;
 }
 
 const buttonStyle = {
@@ -49,40 +48,17 @@ const buttonStyle = {
 };
 
 const BaselinePopulationModal: React.FC<Props> = ({
-  scenario,
-  setBaselinePopulations,
+  numFacilities,
+  defaultStaffPopulation,
+  defaultIncarceratedPopulation,
+  saveBaselinePopulations,
 }) => {
   const [page, setPage] = useState(1);
-
-  console.log({ scenario });
 
   async function onCloseModal() {
     await navigate("/");
   }
 
-  const [facilities, setFacilities] = useState({
-    data: [] as Facilities,
-    loading: true,
-  });
-
-  React.useEffect(() => {
-    async function fetchFacilities() {
-      if (!scenario.id) return;
-      const facilitiesData = await getFacilities(scenario.id);
-      if (facilitiesData) {
-        setFacilities({
-          data: facilitiesData,
-          loading: false,
-        });
-      }
-    }
-
-    fetchFacilities();
-  }, [scenario.id]);
-
-  const numFacilities = facilities?.data.length;
-
-  console.log({ facilities });
   return (
     <BaselinePopulationContainer>
       <ModalDialog
@@ -95,8 +71,9 @@ const BaselinePopulationModal: React.FC<Props> = ({
             <>
               <Text>
                 A report will be generated comparing the current projections
-                against the baseline projections for the {numFacilities}{" "}
-                facilities you currently have modelled.
+                against the baseline projections for the{" "}
+                {numeral(numFacilities).format("0,0")} facilities you currently
+                have modelled.
               </Text>
               <ModalFooter>
                 <InputButton
@@ -108,7 +85,10 @@ const BaselinePopulationModal: React.FC<Props> = ({
             </>
           ) : (
             <BaselinePopulationForm
-              setBaselinePopulations={setBaselinePopulations}
+              setPage={() => setPage(1)}
+              defaultStaffPopulation={defaultStaffPopulation}
+              defaultIncarceratedPopulation={defaultIncarceratedPopulation}
+              saveBaselinePopulations={saveBaselinePopulations}
             />
           )}
         </ModalContent>

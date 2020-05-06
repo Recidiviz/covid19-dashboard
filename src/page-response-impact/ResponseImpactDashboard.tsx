@@ -11,8 +11,12 @@ import {
 import { CurveFunctionInputs } from "../infection-model";
 import { useLocaleDataState } from "../locale-data-context";
 import { FacilityContext } from "../page-multi-facility/FacilityContext";
-import { Facilities } from "../page-multi-facility/types";
-import useScenario from "../scenario-context/useScenario";
+import {
+  Facilities,
+  Populations,
+  Scenario,
+} from "../page-multi-facility/types";
+import BaselinePopulationModal from "./BaselinePopulationModal";
 import PopulationImpactMetrics from "./PopulationImpactMetrics";
 import ProjectionCharts from "./ProjectionCharts";
 import ReducingR0ImpactMetrics from "./ReducingR0ImpactMetrics";
@@ -39,12 +43,13 @@ import {
   reductionCardDataType,
 } from "./utils/ResponseImpactCardStateUtils";
 
-const ResponseImpactDashboard: React.FC = () => {
+interface Props {
+  scenario: Scenario;
+}
+const ResponseImpactDashboard: React.FC<Props> = ({ scenario }) => {
   const { data: localeDataSource } = useLocaleDataState();
-  const [scenarioState] = useScenario();
   const { rtData } = useContext(FacilityContext);
-  const scenario = scenarioState.data;
-  const scenarioId = scenarioState?.data?.id; // linter wants this to be its own var since it is a useEffect dep
+  const scenarioId = scenario.id; // linter wants this to be its own var since it is a useEffect dep
   const [currentCurveInputs, setCurrentCurveInputs] = useState(
     [] as CurveFunctionInputs[],
   );
@@ -126,47 +131,59 @@ const ResponseImpactDashboard: React.FC = () => {
     });
   }, [modelInputs, localeDataSource]);
 
+  function saveBaselinePopulations(populations: Populations) {
+    console.log("saving populations...", { populations });
+  }
+
   return (
     <ResponseImpactDashboardContainer>
-      {scenarioState.loading ? (
+      {facilities.loading ? (
         <Loading />
       ) : (
-        <PageContainer>
-          <Column>
-            <ScenarioName>{scenario?.name}</ScenarioName>
-            <PageHeader>COVID-19 Response Impact as of [DATE]</PageHeader>
+        <>
+          <BaselinePopulationModal
+            numFacilities={facilities.data.length}
+            defaultStaffPopulation={systemWideData.staffPopulation}
+            defaultIncarceratedPopulation={systemWideData.prisonPopulation}
+            saveBaselinePopulations={saveBaselinePopulations}
+          />
+          <PageContainer>
+            <Column>
+              <ScenarioName>{scenario?.name}</ScenarioName>
+              <PageHeader>COVID-19 Response Impact as of [DATE]</PageHeader>
 
-            <SectionHeader>Safety of Overall Population</SectionHeader>
-            <ChartHeader>
-              Reduction in the number of incarcerated individuals
-            </ChartHeader>
-            <PlaceholderSpace />
-            <SectionSubheader>
-              Positive impact of releasing [X] incarcerated individuals
-            </SectionSubheader>
-            <PopulationImpactMetrics
-              reductionData={reductionCardData}
-              staffPopulation={systemWideData.staffPopulation}
-              incarceratedPopulation={systemWideData.prisonPopulation}
-            />
-            <SectionHeader>Community Resources Saved</SectionHeader>
-            <ChartHeader>
-              Rate of spread (R(t)) for modelled facilities
-            </ChartHeader>
-            {rtData && <RtSummaryStats rtData={rtData} />}
-            <SectionSubheader>
-              Positive impact of Reducing R(0)
-            </SectionSubheader>
-            <ReducingR0ImpactMetrics />
-          </Column>
-          <Column>
-            <ProjectionCharts
-              systemWideData={systemWideData}
-              originalCurveInputs={originalCurveInputs}
-              currentCurveInputs={currentCurveInputs}
-            />
-          </Column>
-        </PageContainer>
+              <SectionHeader>Safety of Overall Population</SectionHeader>
+              <ChartHeader>
+                Reduction in the number of incarcerated individuals
+              </ChartHeader>
+              <PlaceholderSpace />
+              <SectionSubheader>
+                Positive impact of releasing [X] incarcerated individuals
+              </SectionSubheader>
+              <PopulationImpactMetrics
+                reductionData={reductionCardData}
+                staffPopulation={systemWideData.staffPopulation}
+                incarceratedPopulation={systemWideData.prisonPopulation}
+              />
+              <SectionHeader>Community Resources Saved</SectionHeader>
+              <ChartHeader>
+                Rate of spread (R(t)) for modelled facilities
+              </ChartHeader>
+              {rtData && <RtSummaryStats rtData={rtData} />}
+              <SectionSubheader>
+                Positive impact of Reducing R(0)
+              </SectionSubheader>
+              <ReducingR0ImpactMetrics />
+            </Column>
+            <Column>
+              <ProjectionCharts
+                systemWideData={systemWideData}
+                originalCurveInputs={originalCurveInputs}
+                currentCurveInputs={currentCurveInputs}
+              />
+            </Column>
+          </PageContainer>
+        </>
       )}
     </ResponseImpactDashboardContainer>
   );

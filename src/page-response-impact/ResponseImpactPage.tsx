@@ -27,7 +27,9 @@ const ResponseImpactPage: React.FC = () => {
           ) : localeState.loading || scenario.loading ? (
             <Loading />
           ) : (
-            <ResponseImpactDashboard />
+            scenario.data && (
+              <ResponseImpactDashboard scenario={scenario.data} />
+            )
           )}
         </div>
       </div>
