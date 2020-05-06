@@ -1,32 +1,23 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext } from "react";
 
-import { getFacilities } from "../database";
 import Loading from "../design-system/Loading";
 import { Column, PageContainer } from "../design-system/PageColumn";
 import useFacilitiesRtData from "../hooks/useFacilitiesRtData";
-import {
-  EpidemicModelState,
-  getLocaleDefaults,
-} from "../impact-dashboard/EpidemicModelContext";
-import { CurveFunctionInputs } from "../infection-model";
 import { useLocaleDataState } from "../locale-data-context";
 import { FacilityContext } from "../page-multi-facility/FacilityContext";
-import {
-  Facilities,
-  Populations,
-  Scenario,
-} from "../page-multi-facility/types";
+import { Populations, Scenario } from "../page-multi-facility/types";
 import BaselinePopulationModal from "./BaselinePopulationModal";
+import {
+  useCurrentCurveData,
+  useFacilities,
+  useModelInputs,
+  useOriginalCurveData,
+  useReductionData,
+  useSystemWideData,
+} from "./hooks";
 import PopulationImpactMetrics from "./PopulationImpactMetrics";
 import ProjectionCharts from "./ProjectionCharts";
 import ReducingR0ImpactMetrics from "./ReducingR0ImpactMetrics";
-import {
-  calculateCurveData,
-  getCurveInputs,
-  getModelInputs,
-  getSystemWideSums,
-  originalProjection,
-} from "./responseChartData";
 import RtSummaryStats from "./RtSummaryStats";
 import {
   ChartHeader,
@@ -37,99 +28,29 @@ import {
   SectionHeader,
   SectionSubheader,
 } from "./styles";
-import {
-  buildReductionData,
-  buildResponseImpactCardData,
-  reductionCardDataType,
-} from "./utils/ResponseImpactCardStateUtils";
 
 interface Props {
   scenario: Scenario;
 }
+
 const ResponseImpactDashboard: React.FC<Props> = ({ scenario }) => {
   const { data: localeDataSource } = useLocaleDataState();
   const { rtData } = useContext(FacilityContext);
-  const scenarioId = scenario.id; // linter wants this to be its own var since it is a useEffect dep
-  const [currentCurveInputs, setCurrentCurveInputs] = useState(
-    [] as CurveFunctionInputs[],
+  const facilities = useFacilities(scenario.id, localeDataSource);
+  const modelInputs = useModelInputs(facilities, localeDataSource);
+  const currentCurveInputs = useCurrentCurveData(modelInputs, localeDataSource);
+  const systemWideData = useSystemWideData(modelInputs, localeDataSource);
+  const originalCurveInputs = useOriginalCurveData(
+    modelInputs,
+    systemWideData,
+    localeDataSource,
   );
-  const [originalCurveInputs, setOriginalCurveInputs] = useState(
-    [] as CurveFunctionInputs[],
+  const reductionCardData = useReductionData(
+    originalCurveInputs,
+    currentCurveInputs,
   );
-  const [modelInputs, setModelInputs] = useState([] as EpidemicModelState[]);
-  const [systemWideData, setSystemWideData] = useState({
-    hospitalBeds: 0,
-    staffPopulation: 0,
-    prisonPopulation: 0,
-  });
-  const [reductionCardData, setreductionCardData] = useState<
-    reductionCardDataType | undefined
-  >();
-  const [facilities, setFacilities] = useState({
-    data: [] as Facilities,
-    loading: true,
-  });
-
-  useEffect(() => {
-    async function fetchFacilities() {
-      if (!scenarioId) return;
-      const facilitiesData = await getFacilities(scenarioId);
-      if (facilitiesData) {
-        setFacilities({
-          data: facilitiesData,
-          loading: false,
-        });
-
-        const modelInputs = getModelInputs(facilitiesData, localeDataSource);
-        const currentCurveInputs = getCurveInputs(modelInputs);
-        setModelInputs(modelInputs);
-        setCurrentCurveInputs(currentCurveInputs);
-      }
-    }
-
-    fetchFacilities();
-  }, [scenarioId, localeDataSource]);
 
   useFacilitiesRtData(facilities.data, true);
-
-  // calculate data for cards
-  useEffect(() => {
-    const originalCurveDataPerFacility = calculateCurveData(
-      originalCurveInputs,
-    );
-    const origData = buildResponseImpactCardData(originalCurveDataPerFacility);
-    const currentCurveDataPerFacility = calculateCurveData(currentCurveInputs);
-    const currData = buildResponseImpactCardData(currentCurveDataPerFacility);
-
-    // positive value is a reduction
-    const reduction = buildReductionData(origData, currData);
-
-    setreductionCardData(reduction);
-  }, [originalCurveInputs, currentCurveInputs]);
-
-  // calculate original and current curves
-  useEffect(() => {
-    if (modelInputs.length === 0) return;
-    const originalInputs = getModelInputs(
-      originalProjection(systemWideData),
-      localeDataSource,
-    );
-    const originalCurveInputs = getCurveInputs(originalInputs);
-    setOriginalCurveInputs(originalCurveInputs);
-  }, [modelInputs, systemWideData, localeDataSource]);
-
-  // set system wide data
-  useEffect(() => {
-    if (modelInputs.length === 0) return;
-
-    setSystemWideData({
-      ...getSystemWideSums(modelInputs),
-      prisonPopulation: getLocaleDefaults(
-        localeDataSource,
-        modelInputs[0].stateCode,
-      ).totalPrisonPopulation,
-    });
-  }, [modelInputs, localeDataSource]);
 
   function saveBaselinePopulations(populations: Populations) {
     console.log("saving populations...", { populations });
