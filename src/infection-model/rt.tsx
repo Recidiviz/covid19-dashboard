@@ -1,6 +1,6 @@
 import { ascending } from "d3-array";
 import { formatISO, fromUnixTime, parseISO } from "date-fns";
-import { mapValues, orderBy, uniqBy } from "lodash";
+import { mapValues, maxBy, minBy, orderBy, uniqBy } from "lodash";
 
 import { getFacilityModelVersions } from "../database";
 import { totalConfirmedCases } from "../impact-dashboard/EpidemicModelContext";
@@ -102,6 +102,7 @@ const getRtInputsForFacility = async (
         representation: "date",
       }),
     );
+
     cases.push(totalConfirmedCases(model));
   });
 
@@ -132,4 +133,12 @@ export const getRtDataForFacility = async (
     console.error(error);
     return null;
   }
+};
+
+export const getOldestRt = (rtRecords: RtRecord[]) => {
+  return minBy(rtRecords, (rtRecord) => rtRecord.date);
+};
+
+export const getNewestRt = (rtRecords: RtRecord[]) => {
+  return maxBy(rtRecords, (rtRecord) => rtRecord.date);
 };

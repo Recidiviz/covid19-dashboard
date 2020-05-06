@@ -276,15 +276,19 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
   // assign people to initial states
   zip(ageGroupPopulations, ageGroupInitiallyInfected).forEach(
     ([pop, cases], index) => {
-      const exposed = cases * ratioExposedToInfected;
-      singleDayState.set(index, seirIndex.exposed, exposed);
-      singleDayState.set(index, seirIndex.susceptible, pop - cases - exposed);
       // distribute cases across compartments proportionally
-      singleDayState.set(
-        index,
-        seirIndex.infectious,
-        cases * pInitiallyInfectious,
+
+      const infectious = cases * pInitiallyInfectious;
+      // exposed is related to the number of infectious
+      // but it can't be more than the total uninfected population
+      const exposed = Math.min(
+        infectious * ratioExposedToInfected,
+        pop - cases,
       );
+
+      singleDayState.set(index, seirIndex.susceptible, pop - cases - exposed);
+      singleDayState.set(index, seirIndex.exposed, exposed);
+      singleDayState.set(index, seirIndex.infectious, infectious);
       singleDayState.set(index, seirIndex.mild, cases * pInitiallyMild);
       singleDayState.set(index, seirIndex.severe, cases * pInitiallySevere);
       singleDayState.set(
