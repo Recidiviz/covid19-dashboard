@@ -15,7 +15,7 @@ export const FeatureFlagsProvider: React.FC = ({ children }) => {
     <FlagsProvider
       flags={{
         useRt: process.env.GATSBY_USE_RT === "true",
-        showRateOfSpreadTab: true,
+        showRateOfSpreadTab: false,
         showImpactButton: process.env.GATSBY_SHOW_IMPACT_BUTTON === "true",
       }}
     >
