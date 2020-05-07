@@ -12,6 +12,7 @@ import { useFlag } from "../feature-flags";
 import useFacilitiesRtData from "../hooks/useFacilitiesRtData";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
 import { useLocaleDataState } from "../locale-data-context";
+import RtComparisonChart from "../rt-comparison-chart";
 import useScenario from "../scenario-context/useScenario";
 import { FacilityContext } from "./FacilityContext";
 import FacilityRow from "./FacilityRow";
@@ -156,7 +157,11 @@ const MultiFacilityImpactDashboard: React.FC = () => {
     </>
   );
 
-  const rateOfSpreadPanel = <> </>;
+  const rateOfSpreadPanel = (
+    <>
+      <RtComparisonChart />
+    </>
+  );
   const showRateOfSpreadTab = useFlag(["showRateOfSpreadTab"]);
   return (
     <MultiFacilityImpactDashboardContainer>
