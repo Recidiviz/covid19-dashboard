@@ -1,6 +1,10 @@
+import { Link } from "gatsby";
 import React, { useContext, useEffect, useState } from "react";
+import styled from "styled-components";
 
 import { getFacilities } from "../database";
+import Colors from "../design-system/Colors";
+import iconBackSrc from "../design-system/icons/ic_back.svg";
 import Loading from "../design-system/Loading";
 import { Column, PageContainer } from "../design-system/PageColumn";
 import useFacilitiesRtData from "../hooks/useFacilitiesRtData";
@@ -39,6 +43,24 @@ import {
   reductionCardDataType,
 } from "./utils/ResponseImpactCardStateUtils";
 import ValidDataWrapper from "./ValidDataWrapper";
+
+const BackDiv = styled.div`
+  font-family: Poppins;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 10px;
+  line-height: 150%;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: ${Colors.green};
+  display: flex;
+  align-items: center;
+  justify-items: center;
+`;
+
+const IconBack = styled.img`
+  margin-right: 6px;
+`;
 
 const ResponseImpactDashboard: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
@@ -140,6 +162,12 @@ const ResponseImpactDashboard: React.FC = () => {
         <ValidDataWrapper facilities={facilities.data}>
           <PageContainer>
             <Column>
+              <Link to="/">
+                <BackDiv>
+                  <IconBack alt="back" src={iconBackSrc} />
+                  Back to model
+                </BackDiv>
+              </Link>
               <ScenarioName>{scenario?.name}</ScenarioName>
               <PageHeader>COVID-19 Response Impact as of [DATE]</PageHeader>
               <SectionHeader>Safety of Overall Population</SectionHeader>
