@@ -240,11 +240,14 @@ const ResponseImpactDashboard: React.FC = () => {
               </ReportDateDiv>
               <Spacer y={24} />
               <DescriptionTextDiv>
-                The report shows the impact of your system's response against
-                COVID-19 for X modelled facilities: [name 1], [name 2],...,[name
-                X]. The report assumes these facilities have a total starting
-                population of XX staff and YYY incarcerated on [date entered in
-                modal, or March 1, 2020 if no date was entered].
+                New! This report compares the impact of your system's COVID-19
+                response against the model's initial assumptions and
+                projections.
+                <br />
+                <br />
+                Coming soon: Input historical case counts and facility
+                information to customize the impact report for greater
+                precision.
               </DescriptionTextDiv>
               <Spacer y={40} />
               <SectionHeader>Overall Population Safety</SectionHeader>
