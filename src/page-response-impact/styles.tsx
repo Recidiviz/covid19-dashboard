@@ -21,7 +21,7 @@ export const SectionHeader = styled.h1`
   font-size: 19px;
   line-height: 24px;
   letter-spacing: -0.06em;
-  padding: 32px 0 24px;
+  padding: 40px 0 24px;
 `;
 export const PlaceholderSpace = styled.div`
   border: 1px solid ${Colors.gray};
@@ -51,7 +51,7 @@ export const SectionSubheader = styled.h2`
   font-size: 10px;
   line-height: 150%;
   letter-spacing: 0.15em;
-  padding: 32px 0 24px;
+  padding: 40px 0 24px;
   text-transform: uppercase;
 `;
 

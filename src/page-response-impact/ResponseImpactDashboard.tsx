@@ -8,6 +8,7 @@ import Loading from "../design-system/Loading";
 import { Column, PageContainer } from "../design-system/PageColumn";
 import { Spacer } from "../design-system/Spacer";
 import useFacilitiesRtData from "../hooks/useFacilitiesRtData";
+import { sumAgeGroupPopulations } from "../impact-dashboard/EpidemicModelContext";
 import { useLocaleDataState } from "../locale-data-context";
 import { FacilityContext } from "../page-multi-facility/FacilityContext";
 import { BaselinePopulations, Scenario } from "../page-multi-facility/types";
@@ -21,6 +22,7 @@ import {
   useSystemWideData,
 } from "./hooks";
 import PopulationImpactMetrics from "./PopulationImpactMetrics";
+import PopulationReduction from "./PopulationReduction";
 import ProjectionCharts from "./ProjectionCharts";
 import ReducingR0ImpactMetrics from "./ReducingR0ImpactMetrics";
 import RtSummaryStats from "./RtSummaryStats";
@@ -86,6 +88,15 @@ const ResponseImpactDashboard: React.FC<Props> = ({
     setPopulationFormSubmitted(true);
   }
 
+  // current population
+  const currentPop =
+    facilities &&
+    facilities.data &&
+    facilities.data.reduce((accumulator, facility) => {
+      const facilityPop = sumAgeGroupPopulations(facility);
+      return accumulator + facilityPop;
+    }, 0);
+
   return (
     <ResponseImpactDashboardContainer>
       {facilities.loading ? (
@@ -140,10 +151,12 @@ const ResponseImpactDashboard: React.FC<Props> = ({
                     remain healthy.
                   </DescriptionTextDiv>
                   <Spacer y={40} />
-                  <ChartHeader>
-                    Reduction in the number of incarcerated individuals
-                  </ChartHeader>
-                  <PlaceholderSpace />
+                  {systemWideData.incarceratedPopulation && currentPop && (
+                    <PopulationReduction
+                      originalPop={systemWideData.incarceratedPopulation}
+                      currentPop={currentPop}
+                    />
+                  )}
                   <SectionSubheader>
                     Impact on health of overall population
                   </SectionSubheader>
