@@ -48,6 +48,26 @@ const buttonStyle = {
   color: Colors.forest,
 };
 
+const Subtitle = styled.span`
+  font-weight: normal;
+
+  &::before {
+    content: " | ";
+    font-weight: bold;
+    padding: 0 10px;
+  }
+`;
+
+const ModalTitle: React.FC<Pick<Props, "numFacilities">> = ({
+  numFacilities,
+}) => {
+  return (
+    <>
+      Generating Report <Subtitle>{numFacilities} facilities</Subtitle>
+    </>
+  );
+};
+
 const BaselinePopulationModal: React.FC<Props> = ({
   open,
   numFacilities,
@@ -66,7 +86,7 @@ const BaselinePopulationModal: React.FC<Props> = ({
       <ModalDialog
         open={open}
         closeModal={onCloseModal}
-        title={`Generating Report | ${numFacilities} facilities`}
+        title={<ModalTitle numFacilities={numFacilities} />}
       >
         <ModalContent>
           {page === 1 ? (
