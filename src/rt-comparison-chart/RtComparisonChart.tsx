@@ -4,11 +4,25 @@ import React from "react";
 import { ResponsiveOrdinalFrame } from "semiotic";
 import styled from "styled-components";
 
+import ChartTooltip from "../design-system/ChartTooltip";
 import ChartWrapper from "../design-system/ChartWrapper";
 import Colors, { rtPillColors } from "../design-system/Colors";
 import { rtSpreadType } from "../infection-model/rt";
 
 const RtComparisonChartWrapper = styled(ChartWrapper)``;
+
+const RtComparisonChartTooltip = styled(ChartTooltip)`
+  position: absolute;
+  max-width: 240px;
+
+  p {
+    color: ${Colors.white};
+    font-size: 12px;
+    font-weight: normal;
+    margin-bottom: 0.8em;
+    opacity: 0.8;
+  }
+`;
 
 const CILine = styled.line`
   stroke-width: 3px;
@@ -43,6 +57,8 @@ const textColorScale = (rtValue: number) => {
   return getRtColors(rtValue).text;
 };
 
+const formatRt = (value: number) => numeral(value).format("0.0[0]");
+
 const pillRadius = 16;
 
 const PillsWithConfidenceIntervals = ({
@@ -55,35 +71,62 @@ const PillsWithConfidenceIntervals = ({
   const elementsToRender = Object.values(data).map((d: any) => {
     // we've only provided one rAccessor, so we only expect one piece
     const markRecord = d.pieces[0];
-    const noData = markRecord.data.Rt === undefined;
+    const values = markRecord.data.values;
+    const noData = values.Rt === undefined;
     return (
       <g key={markRecord.renderKey}>
         {!noData && (
           <CI90Line
-            stroke={borderColorScale(markRecord.data.Rt)}
-            x1={rScale(markRecord.data.low90)}
-            x2={rScale(markRecord.data.high90)}
+            stroke={borderColorScale(values.Rt)}
+            x1={rScale(values.low90)}
+            x2={rScale(values.high90)}
             y1={d.middle}
             y2={d.middle}
           />
         )}
         <RtPill
-          cx={markRecord.middle}
+          cx={rScale(values.Rt)}
           cy={d.middle}
           r={pillRadius}
-          stroke={borderColorScale(markRecord.data.Rt)}
+          stroke={borderColorScale(values.Rt)}
         />
         <RtLabel
-          fill={textColorScale(markRecord.data.Rt)}
-          x={markRecord.middle}
+          fill={textColorScale(values.Rt)}
+          x={rScale(values.Rt)}
           y={d.middle}
         >
-          {noData ? "?" : numeral(markRecord.data.Rt).format("0.0[0]")}
+          {noData ? "?" : formatRt(values.Rt)}
         </RtLabel>
       </g>
     );
   });
   return flatten(elementsToRender);
+};
+
+const Tooltip: React.FC<{
+  name: string;
+  rt: number | undefined;
+  left: number;
+  top: number;
+}> = ({ name, rt, left, top }) => {
+  return (
+    <RtComparisonChartTooltip style={{ left, top }}>
+      <p>{name}</p>
+      <p>
+        {rt && `Rate of Spread: ${formatRt(rt)}`}
+        {rt === undefined &&
+          `Insufficient data to calculate rate of spread. Click the number of
+          cases on the Projections tab to add case numbers for the last several
+          days or weeks.`}
+        {rt === 0 && "Covid-19 is not active at this facility."}
+      </p>
+      <p>
+        Numbers above 1 indicate how quickly the virus is spreading. If the
+        value is below 1, the virus is on track to be extinguished at this
+        facility.
+      </p>
+    </RtComparisonChartTooltip>
+  );
 };
 
 const margin = { top: 12, bottom: 30, left: 180, right: 12 };
@@ -115,35 +158,106 @@ const OLabelText = styled.div`
   width: ${oLabelWidth}px;
 `;
 
-const renderHtmlOLabels = ({ d, categories }: { d: any; categories: any }) => {
-  if (d.type === "htmlOLabels") {
-    return (
-      <OLabelContainer>
-        {Object.values(categories).map((category: any) => (
-          <OLabel key={category.pieces[0].renderKey}>
-            <OLabelText>{category.name}</OLabelText>
-          </OLabel>
-        ))}
-      </OLabelContainer>
-    );
+const renderHtmlOLabels = ({ categories }: { categories: any }) => {
+  return (
+    <OLabelContainer>
+      {Object.values(categories).map((category: any) => (
+        <OLabel key={category.pieces[0].renderKey}>
+          <OLabelText>{category.name}</OLabelText>
+        </OLabel>
+      ))}
+    </OLabelContainer>
+  );
+};
+
+const renderHtmlHoverState = ({
+  d: {
+    column: { middle, pieces },
+  },
+  rScale,
+}: any) => {
+  const [
+    {
+      data: { name, values },
+    },
+  ] = pieces;
+  return (
+    <Tooltip
+      name={name}
+      rt={values.Rt}
+      top={middle - pillRadius}
+      left={rScale(values.Rt) | 0}
+    />
+  );
+};
+
+const htmlAnnotationRules = (args: {
+  d: any;
+  categories: any;
+  rScale: Function;
+}) => {
+  const { d, categories, rScale } = args;
+  switch (d.type) {
+    case "htmlOLabels":
+      return renderHtmlOLabels({ categories });
+    case "column-hover":
+      console.log(args);
+      return renderHtmlHoverState({ d, rScale });
   }
   return null;
 };
 
-const RtComparisonChart: React.FC = () => {
-  // TODO: not this
-  const fakeData = [
-    { name: "facility 1", id: "abc123", Rt: 1.9, low90: 0.4, high90: 3.8 },
-    {
-      name:
-        "facility 2 what has a long name that may not fit on my god how long does it have to be",
-      id: "def456",
-      Rt: 0.6,
-      low90: 0,
-      high90: 1.5,
+const HoverRule = styled.line`
+  stroke-width: 1px;
+  stroke-opacity: 0.2;
+`;
+
+const renderSvgHoverState = ({ d, rScale }: any) => {
+  const {
+    column: {
+      middle,
+      pieces: [
+        {
+          data: { values },
+        },
+      ],
     },
-    { name: "facility with no data and a long name", id: "xyz789" },
-  ];
+  } = d;
+  return values.low90 ? (
+    <HoverRule
+      stroke={borderColorScale(values.Rt)}
+      x1={rScale(0)}
+      x2={rScale(values.low90)}
+      y1={middle}
+      y2={middle}
+    />
+  ) : null;
+};
+
+const svgAnnotationRules = (args: { d: any; rScale: Function }) => {
+  const { d, rScale } = args;
+  switch (d.type) {
+    case "column-hover":
+      return renderSvgHoverState({ d, rScale });
+  }
+  return null;
+};
+
+type RtComparisonData = {
+  name: string;
+  id: string;
+  values: {
+    Rt?: number;
+    low90?: number;
+    high90?: number;
+  };
+};
+const RtComparisonChart: React.FC<{ data: RtComparisonData[] }> = ({
+  data,
+}) => {
+  // TODO: calculate this from data
+  const maxExtent = 5.0;
+
   return (
     <RtComparisonChartWrapper>
       <ResponsiveOrdinalFrame
@@ -157,19 +271,19 @@ const RtComparisonChart: React.FC = () => {
           },
         ]}
         axes={[{ orient: "bottom", baseline: false }]}
-        data={fakeData}
-        htmlAnnotationRules={renderHtmlOLabels}
+        data={data}
+        hoverAnnotation
+        htmlAnnotationRules={htmlAnnotationRules}
         margin={margin}
         oAccessor="name"
         pixelColumnWidth={oLabelHeight}
         projection="horizontal"
-        // our custom mark will consume the entire data structure,
-        // but this ensures the chart's max extent will be big enough for everything
-        rAccessor="high90"
-        rExtent={[0]}
+        rAccessor="values"
+        rExtent={[0, maxExtent]}
         renderKey="id"
         responsiveWidth
         size={[300]}
+        svgAnnotationRules={svgAnnotationRules}
         type={PillsWithConfidenceIntervals}
       />
     </RtComparisonChartWrapper>
