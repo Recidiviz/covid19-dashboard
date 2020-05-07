@@ -1,3 +1,4 @@
+import { reverse } from "lodash";
 import { useEffect, useState } from "react";
 
 import { getFacilities } from "../database";
@@ -7,7 +8,7 @@ import {
 } from "../impact-dashboard/EpidemicModelContext";
 import { CurveFunctionInputs } from "../infection-model";
 import { LocaleData } from "../locale-data-context";
-import { Facilities } from "../page-multi-facility/types";
+import { Facilities, Scenario } from "../page-multi-facility/types";
 import {
   calculateCurveData,
   getCurveInputs,
@@ -94,6 +95,7 @@ export function useCurrentCurveData(
 }
 
 export function useSystemWideData(
+  scenarioPopulations: Scenario["populations"],
   modelInputs: EpidemicModelState[],
   localeDataSource: LocaleData,
 ) {
@@ -106,14 +108,29 @@ export function useSystemWideData(
   useEffect(() => {
     if (modelInputs.length === 0) return;
 
+    // Reverse the populations array to get the most recently modelled populations
+    const {
+      staffPopulation: userInputStaffPopulation,
+      incarceratedPopulation: userInputIncarceratedPopulation,
+    } = reverse(scenarioPopulations)[0];
+
+    const localeDefaultPrisonPopulation = getLocaleDefaults(
+      localeDataSource,
+      modelInputs[0].stateCode,
+    ).totalPrisonPopulation;
+
+    const {
+      hospitalBeds,
+      staffPopulation: currentStaffPopulation,
+    } = getSystemWideSums(modelInputs);
+
     setSystemWideData({
-      ...getSystemWideSums(modelInputs),
-      prisonPopulation: getLocaleDefaults(
-        localeDataSource,
-        modelInputs[0].stateCode,
-      ).totalPrisonPopulation,
+      hospitalBeds,
+      staffPopulation: userInputStaffPopulation || currentStaffPopulation,
+      prisonPopulation:
+        userInputIncarceratedPopulation || localeDefaultPrisonPopulation,
     });
-  }, [modelInputs, localeDataSource]);
+  }, [modelInputs, localeDataSource, scenarioPopulations]);
 
   return systemWideData;
 }

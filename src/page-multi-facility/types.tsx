@@ -41,6 +41,6 @@ export type PromoStatuses = {
 
 export type Populations = {
   date: Date;
-  totalStaffPopulation: number;
-  totalIncarceratedPopulation: number;
+  staffPopulation: number;
+  incarceratedPopulation: number;
 };

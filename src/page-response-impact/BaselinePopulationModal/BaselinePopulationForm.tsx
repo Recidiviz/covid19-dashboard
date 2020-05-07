@@ -70,7 +70,7 @@ const buttonStyle = {
   fontSize: "14px",
 };
 
-type Props = Omit<ModalProps, "numFacilities"> & {
+type Props = Omit<ModalProps, "open" | "numFacilities"> & {
   setPage: () => void;
 };
 

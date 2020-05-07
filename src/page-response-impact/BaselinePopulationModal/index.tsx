@@ -33,6 +33,7 @@ const ModalContent = styled.div`
 `;
 
 export interface Props {
+  open: boolean;
   numFacilities: number;
   defaultStaffPopulation: number;
   defaultIncarceratedPopulation: number;
@@ -48,6 +49,7 @@ const buttonStyle = {
 };
 
 const BaselinePopulationModal: React.FC<Props> = ({
+  open,
   numFacilities,
   defaultStaffPopulation,
   defaultIncarceratedPopulation,
@@ -62,7 +64,7 @@ const BaselinePopulationModal: React.FC<Props> = ({
   return (
     <BaselinePopulationContainer>
       <ModalDialog
-        open
+        open={open}
         closeModal={onCloseModal}
         title={`Generating Report | ${numFacilities} facilities`}
       >
