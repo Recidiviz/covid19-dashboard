@@ -29,6 +29,7 @@ import {
   SectionHeader,
   SectionSubheader,
 } from "./styles";
+import ValidDataWrapper from "./ValidDataWrapper";
 
 interface Props {
   scenario: Scenario;
@@ -86,42 +87,44 @@ const ResponseImpactDashboard: React.FC<Props> = ({
             saveBaselinePopulations={saveBaselinePopulations}
           />
           {populationFormSubmitted && (
-            <PageContainer>
-              <Column>
-                <ScenarioName>{scenario?.name}</ScenarioName>
-                <PageHeader>COVID-19 Response Impact as of [DATE]</PageHeader>
+            <ValidDataWrapper facilities={facilities.data}>
+              <PageContainer>
+                <Column>
+                  <ScenarioName>{scenario?.name}</ScenarioName>
+                  <PageHeader>COVID-19 Response Impact as of [DATE]</PageHeader>
 
-                <SectionHeader>Safety of Overall Population</SectionHeader>
-                <ChartHeader>
-                  Reduction in the number of incarcerated individuals
-                </ChartHeader>
-                <PlaceholderSpace />
-                <SectionSubheader>
-                  Positive impact of releasing [X] incarcerated individuals
-                </SectionSubheader>
-                <PopulationImpactMetrics
-                  reductionData={reductionCardData}
-                  staffPopulation={systemWideData.staffPopulation}
-                  incarceratedPopulation={systemWideData.prisonPopulation}
-                />
-                <SectionHeader>Community Resources Saved</SectionHeader>
-                <ChartHeader>
-                  Rate of spread (R(t)) for modelled facilities
-                </ChartHeader>
-                {rtData && <RtSummaryStats rtData={rtData} />}
-                <SectionSubheader>
-                  Positive impact of Reducing R(0)
-                </SectionSubheader>
-                <ReducingR0ImpactMetrics />
-              </Column>
-              <Column>
-                <ProjectionCharts
-                  systemWideData={systemWideData}
-                  originalCurveInputs={originalCurveInputs}
-                  currentCurveInputs={currentCurveInputs}
-                />
-              </Column>
-            </PageContainer>
+                  <SectionHeader>Safety of Overall Population</SectionHeader>
+                  <ChartHeader>
+                    Reduction in the number of incarcerated individuals
+                  </ChartHeader>
+                  <PlaceholderSpace />
+                  <SectionSubheader>
+                    Positive impact of releasing [X] incarcerated individuals
+                  </SectionSubheader>
+                  <PopulationImpactMetrics
+                    reductionData={reductionCardData}
+                    staffPopulation={systemWideData.staffPopulation}
+                    incarceratedPopulation={systemWideData.prisonPopulation}
+                  />
+                  <SectionHeader>Community Resources Saved</SectionHeader>
+                  <ChartHeader>
+                    Rate of spread (R(t)) for modelled facilities
+                  </ChartHeader>
+                  {rtData && <RtSummaryStats rtData={rtData} />}
+                  <SectionSubheader>
+                    Positive impact of Reducing R(0)
+                  </SectionSubheader>
+                  <ReducingR0ImpactMetrics />
+                </Column>
+                <Column>
+                  <ProjectionCharts
+                    systemWideData={systemWideData}
+                    originalCurveInputs={originalCurveInputs}
+                    currentCurveInputs={currentCurveInputs}
+                  />
+                </Column>
+              </PageContainer>
+            </ValidDataWrapper>
           )}
         </>
       )}

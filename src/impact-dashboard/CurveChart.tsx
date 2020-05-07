@@ -77,6 +77,7 @@ interface CurveChartProps {
   hospitalBeds: number;
   markColors: MarkColors;
   hideAxes?: boolean;
+  addAnnotations?: boolean;
 }
 
 const xAxisOptions: any[] = [
@@ -109,6 +110,7 @@ const CurveChart: React.FC<CurveChartProps> = ({
   hospitalBeds,
   markColors,
   hideAxes,
+  addAnnotations = true,
 }) => {
   const frameProps = {
     lines: Object.entries(curveData).map(([bucket, values]) => ({
@@ -139,14 +141,16 @@ const CurveChart: React.FC<CurveChartProps> = ({
       hideAxes ? xAxisOptions[1] : xAxisOptions[0],
     ],
     annotations: [
-      {
-        type: "y",
-        className: "threshold-annotation",
-        count: hospitalBeds,
-        color: markColors.hospitalBeds,
-        note: { label: "Hospital Beds", lineType: null, dy: 1, dx: 0 },
-        disable: ["connector"],
-      },
+      addAnnotations
+        ? {
+            type: "y",
+            className: "threshold-annotation",
+            count: hospitalBeds,
+            color: markColors.hospitalBeds,
+            note: { label: "Hospital Beds", lineType: null, dy: 1, dx: 0 },
+            disable: ["connector"],
+          }
+        : {},
     ],
     hoverAnnotation: true,
     tooltipContent: Tooltip,
