@@ -5,7 +5,10 @@ import {
   EpidemicModelState,
   getLocaleDefaults,
 } from "../impact-dashboard/EpidemicModelContext";
-import { RateOfSpread } from "../impact-dashboard/EpidemicModelContext";
+import {
+  RateOfSpread,
+  totalConfirmedCases,
+} from "../impact-dashboard/EpidemicModelContext";
 import {
   calculateCurves,
   CurveData,
@@ -23,7 +26,9 @@ const NUM_SEIR_CATEGORIES = 9;
 
 export type SystemWideData = {
   staffPopulation: number;
+  staffCases: number;
   incarceratedPopulation: number;
+  incarceratedCases: number;
   hospitalBeds: number;
 };
 
@@ -51,11 +56,16 @@ export function getCurveInputs(modelInputs: EpidemicModelState[]) {
 }
 
 function originalEpidemicModelInputs(systemWideData: SystemWideData) {
-  const { staffPopulation, incarceratedPopulation } = systemWideData;
+  const {
+    staffPopulation,
+    staffCases,
+    incarceratedPopulation,
+    incarceratedCases,
+  } = systemWideData;
   return {
-    staffCases: 1,
+    staffCases: staffCases,
     staffPopulation: staffPopulation,
-    ageUnknownCases: 1,
+    ageUnknownCases: incarceratedCases,
     ageUnknownPopulation: incarceratedPopulation,
     populationTurnover: 0,
     facilityOccupancyPct: 1,
@@ -85,10 +95,14 @@ export function getSystemWideSums(modelInputs: EpidemicModelState[]) {
   let sums = {
     hospitalBeds: 0,
     staffPopulation: 0,
+    staffCases: 0,
+    incarceratedCases: 0,
   };
   modelInputs.forEach((input) => {
     sums.hospitalBeds += input.hospitalBeds || 0;
     sums.staffPopulation += input.staffPopulation || 0;
+    sums.staffCases += input.staffCases || 0;
+    sums.incarceratedCases += totalConfirmedCases(input) || 0;
     return sums;
   });
   return sums;

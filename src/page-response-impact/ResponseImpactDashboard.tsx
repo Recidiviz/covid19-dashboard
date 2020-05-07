@@ -56,7 +56,9 @@ const ResponseImpactDashboard: React.FC = () => {
   const [systemWideData, setSystemWideData] = useState({
     hospitalBeds: 0,
     staffPopulation: 0,
+    staffCases: 0,
     incarceratedPopulation: 0,
+    incarceratedCases: 0,
   });
   const [reductionCardData, setreductionCardData] = useState<
     reductionCardDataType | undefined
