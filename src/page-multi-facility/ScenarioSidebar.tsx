@@ -53,7 +53,7 @@ const promoTexts: { [promoType: string]: string } = {
     facility by selecting it. This is based on the number of cases over time
     for that facility. To get an accurate Rt, enter case counts for previous
     days by clicking the number of cases on the right (in red) to update case
-    numbers.)`,
+    numbers.`,
 };
 
 export function getPromoText(promoType: string | null) {
