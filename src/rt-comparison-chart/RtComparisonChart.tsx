@@ -201,7 +201,6 @@ const htmlAnnotationRules = (args: {
     case "htmlOLabels":
       return renderHtmlOLabels({ categories });
     case "column-hover":
-      console.log(args);
       return renderHtmlHoverState({ d, rScale });
   }
   return null;
@@ -255,8 +254,9 @@ type RtComparisonData = {
 const RtComparisonChart: React.FC<{ data: RtComparisonData[] }> = ({
   data,
 }) => {
-  // TODO: calculate this from data
-  const maxExtent = 5.0;
+  const maxExtent = Math.ceil(
+    Math.max(...data.map((record) => record.values.high90 || 0)),
+  );
 
   return (
     <RtComparisonChartWrapper>
