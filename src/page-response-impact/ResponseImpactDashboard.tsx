@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import { Link } from "gatsby";
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
@@ -227,7 +228,9 @@ const ResponseImpactDashboard: React.FC = () => {
               <PageHeader>
                 [State or County] COVID-19 Response Impact
               </PageHeader>
-              <ReportDateDiv>Report generated on [DATE]</ReportDateDiv>
+              <ReportDateDiv>
+                Report generated on {format(new Date(), "MMM dd, yyyy")}
+              </ReportDateDiv>
               <Spacer y={24} />
               <DescriptionTextDiv>
                 The report shows the impact of your system's response against
