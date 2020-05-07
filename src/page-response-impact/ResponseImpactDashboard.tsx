@@ -275,8 +275,8 @@ const ResponseImpactDashboard: React.FC = () => {
               </SectionSubheader>
               <ReducingR0ImpactMetrics />
             </Column>
-
             <Column>
+              <Spacer y={40} />
               <SectionHeaderBare>
                 Original vs. Current Projections
               </SectionHeaderBare>
