@@ -4,9 +4,9 @@ import React from "react";
 import { ResponsiveOrdinalFrame } from "semiotic";
 import styled from "styled-components";
 
-import { RateOfSpreadType } from "../constants/EpidemicModel";
 import ChartWrapper from "../design-system/ChartWrapper";
-import Colors from "../design-system/Colors";
+import Colors, { rtPillColors } from "../design-system/Colors";
+import { rtSpreadType } from "../infection-model/rt";
 
 const RtComparisonChartWrapper = styled(ChartWrapper)``;
 
@@ -31,39 +31,8 @@ const RtLabel = styled.text`
   text-anchor: middle;
 `;
 
-// TODO: this is copypasta from the pill component, factor out for reuse
-const pillColors: {
-  [key in RateOfSpreadType]: {
-    text: string;
-    border: string;
-  };
-} = {
-  [RateOfSpreadType.Controlled]: {
-    text: Colors.green,
-    border: Colors.teal,
-  },
-  [RateOfSpreadType.Infectious]: {
-    text: Colors.darkRed,
-    border: Colors.orange,
-  },
-  [RateOfSpreadType.Missing]: {
-    text: Colors.forest,
-    border: Colors.forest30,
-  },
-};
-
-const rtSpreadType = (rtValue: number | null | undefined) => {
-  if (rtValue === null || rtValue === undefined) {
-    return RateOfSpreadType.Missing;
-  } else if (rtValue > 1) {
-    return RateOfSpreadType.Infectious;
-  } else {
-    return RateOfSpreadType.Controlled;
-  }
-};
-
 const getRtColors = (rtValue: number) => {
-  return pillColors[rtSpreadType(rtValue)];
+  return rtPillColors[rtSpreadType(rtValue)];
 };
 
 const borderColorScale = (rtValue: number) => {
