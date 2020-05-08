@@ -110,7 +110,7 @@ const Tooltip: React.FC<{
   top: number;
 }> = ({ name, rt, left, top }) => {
   return (
-    <RtComparisonChartTooltip key="hover-tooltip" style={{ left, top }}>
+    <RtComparisonChartTooltip style={{ left, top }}>
       <p>{name}</p>
       <p>
         {rt && `Rate of Spread: ${formatRt(rt)}`}
@@ -183,6 +183,7 @@ const renderHtmlHoverState = ({
   ] = pieces;
   return (
     <Tooltip
+      key="hover-tooltip"
       name={name}
       rt={values.Rt}
       top={middle - pillRadius}
