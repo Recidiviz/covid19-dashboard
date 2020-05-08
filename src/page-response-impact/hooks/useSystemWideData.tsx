@@ -17,10 +17,9 @@ export function useSystemWideData(
   localeDataSource: LocaleData,
 ) {
   const [systemWideData, setSystemWideData] = useState<SystemWideData>({
-    hospitalBeds: 0,
     staffPopulation: 0,
     incarceratedPopulation: 0,
-  });
+  } as SystemWideData);
 
   useEffect(() => {
     if (modelInputs.length === 0 || facilities.data.length === 0) return;
@@ -55,13 +54,12 @@ export function useSystemWideData(
       ).totalJailPopulation;
     }
 
-    const {
-      hospitalBeds,
-      staffPopulation: currentStaffPopulation,
-    } = getSystemWideSums(modelInputs);
+    const { staffPopulation: currentStaffPopulation } = getSystemWideSums(
+      modelInputs,
+    );
 
     setSystemWideData({
-      hospitalBeds,
+      ...getSystemWideSums(modelInputs),
       staffPopulation: userInputStaffPopulation || currentStaffPopulation,
       incarceratedPopulation:
         userInputIncarceratedPopulation ||
