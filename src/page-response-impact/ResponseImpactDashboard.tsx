@@ -74,7 +74,7 @@ const ResponseImpactDashboard: React.FC<Props> = ({
   );
   const [populationFormSubmitted, setPopulationFormSubmitted] = useState(false);
 
-  useFacilitiesRtData(facilities.data, true);
+  useFacilitiesRtData(facilities.data);
 
   async function saveBaselinePopulations(populations: BaselinePopulations) {
     const initialPopulations = scenario?.baselinePopulations || [];

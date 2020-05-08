@@ -81,7 +81,6 @@ const MultiFacilityImpactDashboard: React.FC = () => {
   const [scenario] = useScenario();
 
   const { setFacility } = useContext(FacilityContext);
-  const useRt = useFlag(["useRt"]);
 
   const [facilities, setFacilities] = useState<FetchedFacilities>({
     data: [] as Facilities,
@@ -105,7 +104,7 @@ const MultiFacilityImpactDashboard: React.FC = () => {
     fetchFacilities();
   }, [scenario.data?.id]);
 
-  useFacilitiesRtData(facilities.data, useRt);
+  useFacilitiesRtData(facilities.data);
 
   const openAddFacilityPage = () => {
     setFacility(null);
