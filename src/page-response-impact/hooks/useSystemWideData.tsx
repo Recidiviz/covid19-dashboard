@@ -23,7 +23,6 @@ export function useSystemWideData(
   });
 
   useEffect(() => {
-    console.log("useSystemWideData useEffect");
     if (modelInputs.length === 0 || facilities.data.length === 0) return;
 
     // Reverse the populations array to get the most recently modelled populations
@@ -31,7 +30,9 @@ export function useSystemWideData(
       ? reverse([...baselinePopulations])
       : [];
 
-    let userInputStaffPopulation, userInputIncarceratedPopulation;
+    let userInputStaffPopulation,
+      userInputIncarceratedPopulation,
+      localeDefaultIncarceratedPopulation;
 
     if (populationsCopy.length > 0) {
       userInputStaffPopulation = populationsCopy[0].staffPopulation;
@@ -39,16 +40,20 @@ export function useSystemWideData(
         populationsCopy[0].incarceratedPopulation;
     }
 
-    const localeDefaults: Partial<LocaleRecord> = getLocaleDefaults(
-      localeDataSource,
-      modelInputs[0].stateCode,
-      modelInputs[0].countyName,
-    );
+    const systemType = facilities.data[0].systemType;
 
-    const localeDefaultPrisonPopulation =
-      facilities.data[0].systemType === "State Prison"
-        ? localeDefaults.totalPrisonPopulation
-        : localeDefaults.totalJailPopulation;
+    if (systemType === "State Prison") {
+      localeDefaultIncarceratedPopulation = getLocaleDefaults(
+        localeDataSource,
+        modelInputs[0].stateCode,
+      ).totalPrisonPopulation;
+    } else {
+      localeDefaultIncarceratedPopulation = getLocaleDefaults(
+        localeDataSource,
+        modelInputs[0].stateCode,
+        modelInputs[0].countyName,
+      ).totalJailPopulation;
+    }
 
     const {
       hospitalBeds,
@@ -59,7 +64,9 @@ export function useSystemWideData(
       hospitalBeds,
       staffPopulation: userInputStaffPopulation || currentStaffPopulation,
       incarceratedPopulation:
-        userInputIncarceratedPopulation || localeDefaultPrisonPopulation || 0,
+        userInputIncarceratedPopulation ||
+        localeDefaultIncarceratedPopulation ||
+        0,
     });
   }, [modelInputs, localeDataSource, baselinePopulations, facilities]);
 
