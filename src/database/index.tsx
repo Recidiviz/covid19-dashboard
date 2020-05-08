@@ -503,6 +503,10 @@ export const duplicateScenario = async (
     // Duplicate and save the Scenario
     const scenarioDoc = db.collection(scenariosCollectionId).doc();
 
+    const baselinePopulationsCopy = scenario.baselinePopulations
+      ? [...scenario.baselinePopulations]
+      : [];
+
     batch.set(scenarioDoc, {
       name: `Copy of ${scenario.name}`,
       description: `This is a copy of the '${
@@ -512,6 +516,7 @@ export const duplicateScenario = async (
       dailyReports: false,
       dataSharing: false,
       promoStatuses: {},
+      baselinePopulations: [...baselinePopulationsCopy],
       roles: {
         [userId]: "owner",
       },
