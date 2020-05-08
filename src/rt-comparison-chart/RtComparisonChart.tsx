@@ -85,14 +85,14 @@ const PillsWithConfidenceIntervals = ({
           />
         )}
         <RtPill
-          cx={rScale(values.Rt)}
+          cx={rScale(values.Rt || 0)}
           cy={d.middle}
           r={pillRadius}
           stroke={borderColorScale(values.Rt)}
         />
         <RtLabel
           fill={textColorScale(values.Rt)}
-          x={rScale(values.Rt)}
+          x={rScale(values.Rt || 0)}
           y={d.middle}
         >
           {noData ? "?" : formatRt(values.Rt)}
@@ -110,7 +110,7 @@ const Tooltip: React.FC<{
   top: number;
 }> = ({ name, rt, left, top }) => {
   return (
-    <RtComparisonChartTooltip style={{ left, top }}>
+    <RtComparisonChartTooltip key="hover-tooltip" style={{ left, top }}>
       <p>{name}</p>
       <p>
         {rt && `Rate of Spread: ${formatRt(rt)}`}
@@ -160,7 +160,7 @@ const OLabelText = styled.div`
 
 const renderHtmlOLabels = ({ categories }: { categories: any }) => {
   return (
-    <OLabelContainer>
+    <OLabelContainer key="ordinalAxisLabels">
       {Object.values(categories).map((category: any) => (
         <OLabel key={category.pieces[0].renderKey}>
           <OLabelText>{category.name}</OLabelText>
@@ -224,6 +224,7 @@ const renderSvgHoverState = ({ d, rScale }: any) => {
   } = d;
   return values.low90 ? (
     <HoverRule
+      key="hover-rule"
       stroke={borderColorScale(values.Rt)}
       x1={rScale(0)}
       x2={rScale(values.low90)}
