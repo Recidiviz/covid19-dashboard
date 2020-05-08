@@ -50,31 +50,9 @@ export function getCurveInputs(modelInputs: EpidemicModelState[]) {
 }
 
 function originalEpidemicModelInputs(systemWideData: SystemWideData) {
-  const {
-    staffPopulation,
-    staffCases,
-    age0Cases,
-    age20Cases,
-    age45Cases,
-    age55Cases,
-    age65Cases,
-    age75Cases,
-    age85Cases,
-    ageUnknownCases,
-    incarceratedPopulation,
-  } = systemWideData;
   return {
-    staffCases: staffCases,
-    staffPopulation: staffPopulation,
-    age0Cases: age0Cases,
-    age20Cases: age20Cases,
-    age45Cases: age45Cases,
-    age55Cases: age55Cases,
-    age65Cases: age65Cases,
-    age75Cases: age75Cases,
-    age85Cases: age85Cases,
-    ageUnknownCases: ageUnknownCases,
-    ageUnknownPopulation: incarceratedPopulation,
+    ...systemWideData,
+    ageUnknownPopulation: systemWideData.incarceratedPopulation,
     populationTurnover: 0,
     facilityOccupancyPct: 1,
     facilityDormitoryPct: 0.15,
