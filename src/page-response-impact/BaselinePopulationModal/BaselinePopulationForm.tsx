@@ -1,4 +1,3 @@
-import numeral from "numeral";
 import React, { useState } from "react";
 import styled from "styled-components";
 
@@ -21,7 +20,7 @@ const FormRow = styled.div`
   display: flex;
   flex-flow: row nowrap;
   justify-content: space-between;
-  margin: 4vw 0;
+  margin: 20px 0;
 `;
 
 const LabelContainer = styled.div`
@@ -40,20 +39,14 @@ const Label = styled.div`
   color: ${Colors.darkForest};
 `;
 
-const SubLabel = styled.div`
-  font-family: "Helvetica Neue", sans serif;
-  font-weight: 300;
-  font-size: 14px;
-  color: ${Colors.opacityForest};
-`;
-
 const Text = styled.div`
+  border-bottom: 0.5px solid ${Colors.darkGray};
   color: ${Colors.opacityForest};
   font-family: "Poppins", sans serif;
   font-size: 12px;
   font-weight: normal;
   line-height: 150%;
-  padding-top: 20px;
+  padding: 20px 0 40px 0;
 `;
 
 const InputContainer = styled.div`
@@ -80,12 +73,8 @@ const BaselinePopulationForm: React.FC<Props> = ({
   saveBaselinePopulations,
   setPage,
 }) => {
-  const defaultTotalPopulation = numeral(
-    defaultIncarceratedPopulation + defaultStaffPopulation,
-  ).format("0,0");
-
-  // Default Original Date 3/1/2020
-  const defaultDate = new Date(2020, 2, 1);
+  // Default Original Date 2/1/2020
+  const defaultDate = new Date(2020, 1, 1);
 
   const [populations, setPopulations] = useState({
     staffPopulation: defaultStaffPopulation,
@@ -104,14 +93,14 @@ const BaselinePopulationForm: React.FC<Props> = ({
   return (
     <>
       <Text>
-        If you skip this step, we will assume a starting incarcerated population
-        of {defaultTotalPopulation}, which is based on public data, and your
-        current staff population. You can also provide this information later.
+        Enter a starting date and population prior to any COVID-19 mitigation
+        efforts. If you leave this blank, we will assume a starting population
+        based on publicly available data.
       </Text>
       <FormContainer>
         <FormRow>
           <LabelContainer>
-            <Label>Starting date as baseline</Label>
+            <Label>Starting date as benchmark</Label>
           </LabelContainer>
           <InputDate
             onValueChange={(date) => {
@@ -123,7 +112,6 @@ const BaselinePopulationForm: React.FC<Props> = ({
         <FormRow>
           <LabelContainer>
             <Label>Total Incarcerated Population</Label>
-            <SubLabel>Starting at the baseline date</SubLabel>
           </LabelContainer>
           <InputContainer>
             <InputTextNumeric
@@ -138,7 +126,6 @@ const BaselinePopulationForm: React.FC<Props> = ({
         <FormRow>
           <LabelContainer>
             <Label>Total Staff Population</Label>
-            <SubLabel>Starting at the baseline date</SubLabel>
           </LabelContainer>
           <InputContainer>
             <InputTextNumeric
