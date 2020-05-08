@@ -12,6 +12,8 @@ import Tooltip from "../design-system/Tooltip";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
 import { totalConfirmedCases } from "../impact-dashboard/EpidemicModelContext";
 import useModel from "../impact-dashboard/useModel";
+import { getNewestRt } from "../infection-model/rt";
+import { isRtData } from "../page-response-impact/RtSummaryStats";
 import AddCasesModal from "./AddCasesModal";
 import { FacilityContext } from "./FacilityContext";
 import FacilityRowRtValuePill from "./FacilityRowRtValuePill";
@@ -89,8 +91,10 @@ const FacilityRow: React.FC<Props> = ({ facility: initialFacility }) => {
 
   const facilityRtData = rtData ? rtData[facility.id] : undefined;
 
-  // TODO(Lenny): Update this with the helper function once PR #273 is completed.
-  const latestRt = facilityRtData?.Rt[facilityRtData.Rt.length - 1].value;
+  const latestRt = isRtData(facilityRtData)
+    ? getNewestRt(facilityRtData.Rt)?.value
+    : facilityRtData;
+
   const chartData = useChartDataFromProjectionData(
     useProjectionData(model, true, facilityRtData),
   );
