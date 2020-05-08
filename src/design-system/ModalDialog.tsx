@@ -27,8 +27,8 @@ const ModalContainer = styled.div<ModalContainerProps>`
   border-radius: 5px;
   display: flex;
   flex-direction: column;
-  height: ${props => props.height || "auto"};
-  width: ${props => props.width || "65vw"};
+  height: ${(props) => props.height || "auto"};
+  width: ${(props) => props.width || "65vw"};
   padding: 35px;
   position: static;
   max-height: 90%;
