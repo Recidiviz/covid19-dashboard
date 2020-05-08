@@ -87,8 +87,8 @@ const ResponseImpactDashboard: React.FC<Props> = ({
     setPopulationFormSubmitted(true);
   }
 
-  // current population
-  const currentPop =
+  // current incarcerated population
+  const currentIncarceratedPop =
     facilities &&
     facilities.data &&
     facilities.data.reduce((accumulator, facility) => {
@@ -150,12 +150,13 @@ const ResponseImpactDashboard: React.FC<Props> = ({
                     remain healthy.
                   </DescriptionTextDiv>
                   <Spacer y={40} />
-                  {systemWideData.incarceratedPopulation && currentPop && (
-                    <PopulationReduction
-                      originalPop={systemWideData.incarceratedPopulation}
-                      currentPop={currentPop}
-                    />
-                  )}
+                  {systemWideData.incarceratedPopulation &&
+                    currentIncarceratedPop && (
+                      <PopulationReduction
+                        originalPop={systemWideData.incarceratedPopulation}
+                        currentPop={currentIncarceratedPop}
+                      />
+                    )}
                   <SectionSubheader>
                     Impact on health of overall population
                   </SectionSubheader>
