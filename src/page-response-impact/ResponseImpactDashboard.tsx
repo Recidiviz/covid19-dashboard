@@ -226,13 +226,10 @@ const ResponseImpactDashboard: React.FC = () => {
                 </BackDiv>
               </Link>
               <PageHeader>
-                {facilities.data[0].systemType === "State Prison" ||
-                facilities.data[0].systemType === "State Jail"
-                  ? modelInputs[0].stateCode
-                  : ""}
-                {facilities.data[0].systemType === "County Jail"
+                {facilities.data[0].systemType === "County Jail" &&
+                modelInputs[0].countyName !== "Total"
                   ? modelInputs[0].countyName
-                  : ""}{" "}
+                  : modelInputs[0].stateCode}{" "}
                 COVID-19 Response Impact
               </PageHeader>
               <ReportDateDiv>
