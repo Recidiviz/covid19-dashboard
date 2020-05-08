@@ -19,11 +19,27 @@ const HelpButton = styled.span`
 
 interface Props {
   children: React.ReactNode;
+  placement:
+    | "auto"
+    | "auto-start"
+    | "auto-end"
+    | "top"
+    | "top-start"
+    | "top-end"
+    | "bottom"
+    | "bottom-start"
+    | "bottom-end"
+    | "right"
+    | "right-start"
+    | "right-end"
+    | "left"
+    | "left-start"
+    | "left-end";
 }
 
 const HelpButtonWithTooltip: React.FC<Props> = (props) => {
   return (
-    <Tooltip content={props.children}>
+    <Tooltip content={props.children} placement={props.placement}>
       <HelpButton>?</HelpButton>
     </Tooltip>
   );

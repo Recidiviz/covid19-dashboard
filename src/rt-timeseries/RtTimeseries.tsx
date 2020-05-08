@@ -106,7 +106,7 @@ const RtTimeseries: React.FC<Props> = ({ data }) => {
     <RtTimeseriesWrapper>
       <ChartHeader>
         <ChartTitle>Rate of Spread</ChartTitle>
-        <HelpButtonWithTooltip>
+        <HelpButtonWithTooltip placement="right">
           This chart shows the rate of spread of Covid-19 over time. When the Rt
           value is above 1 (the red line), the virus is spreading. If the Rt
           value is below 1, the virus is on track to be extinguished at this

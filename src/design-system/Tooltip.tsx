@@ -87,6 +87,22 @@ const TooltipArrowDiv = styled.div`
 interface Props {
   content: React.ReactNode;
   children: React.ReactNode;
+  placement:
+    | "auto"
+    | "auto-start"
+    | "auto-end"
+    | "top"
+    | "top-start"
+    | "top-end"
+    | "bottom"
+    | "bottom-start"
+    | "bottom-end"
+    | "right"
+    | "right-start"
+    | "right-end"
+    | "left"
+    | "left-start"
+    | "left-end";
 }
 
 const Tooltip: React.FC<Props> = (props) => {
@@ -107,7 +123,7 @@ const Tooltip: React.FC<Props> = (props) => {
         )}
       </Reference>
       {showTooltip && (
-        <Popper placement="right">
+        <Popper placement={props.placement}>
           {({ ref, style, placement, arrowProps }) => (
             <TooltipContentsDiv
               ref={ref}

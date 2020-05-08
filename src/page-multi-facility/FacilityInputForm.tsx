@@ -177,7 +177,10 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
             <AddCasesModal
               facility={facility}
               trigger={
-                <Tooltip content="Click to add new or previous day cases">
+                <Tooltip
+                  content="Click to add new or previous day cases"
+                  placement="right"
+                >
                   <AddCasesButton>
                     <ImgDuplicate alt="" src={iconDuplicatePath} />
                     Add or update cases

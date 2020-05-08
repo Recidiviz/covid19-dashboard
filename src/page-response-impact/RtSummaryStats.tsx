@@ -142,7 +142,7 @@ const RtSummaryStats: React.FC<Props> = ({ rtData }) => {
           <LegendSpan />
           <div>{`Facilities with R(t) < 1.0`}</div>
           <Spacer x={5} />
-          <HelpButtonWithTooltip>
+          <HelpButtonWithTooltip placement="top">
             {`An R(t) < 1.0 means the virus will stop spreading. An R(t) > 1.0 means the virus will spread quickly.`}
           </HelpButtonWithTooltip>
         </LegendContainer>

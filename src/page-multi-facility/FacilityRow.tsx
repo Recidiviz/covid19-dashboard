@@ -141,6 +141,7 @@ const FacilityRow: React.FC<Props> = ({ facility: initialFacility }) => {
                   facility={facility}
                   trigger={
                     <Tooltip
+                      placement="right"
                       content={
                         <div>Click to add new or previous day cases</div>
                       }

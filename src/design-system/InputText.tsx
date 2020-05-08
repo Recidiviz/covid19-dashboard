@@ -67,7 +67,11 @@ const InputText: React.FC<Props> = (props) => {
 
   return (
     <TextInputContainer>
-      <InputLabelAndHelp label={props.labelAbove} labelHelp={props.labelHelp} />
+      <InputLabelAndHelp
+        label={props.labelAbove}
+        labelHelp={props.labelHelp}
+        placement="right"
+      />
       <InputWrapper as="div" style={props.style}>
         <WrappedInput
           type={props.type}

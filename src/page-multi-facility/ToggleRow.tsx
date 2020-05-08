@@ -25,7 +25,7 @@ const ToggleRow: React.FC<Props> = (props) => {
 
   return (
     <ToggleRowContainer>
-      <InputLabelAndHelp softened {...props} />
+      <InputLabelAndHelp softened {...props} placement="right" />
       <InputToggle toggled={toggled} onChange={onToggle} />
     </ToggleRowContainer>
   );

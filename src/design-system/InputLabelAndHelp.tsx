@@ -8,6 +8,22 @@ interface Props {
   label?: React.ReactNode;
   labelHelp?: React.ReactNode;
   softened?: boolean;
+  placement:
+    | "auto"
+    | "auto-start"
+    | "auto-end"
+    | "top"
+    | "top-start"
+    | "top-end"
+    | "bottom"
+    | "bottom-start"
+    | "bottom-end"
+    | "right"
+    | "right-start"
+    | "right-end"
+    | "left"
+    | "left-start"
+    | "left-end";
 }
 
 const LabelContainer = styled.div`
@@ -25,7 +41,9 @@ const InputLabelAndHelp: React.FC<Props> = (props) => {
     <LabelContainer>
       <TextLabel softened={props.softened}>{props.label}</TextLabel>
       {props.labelHelp && (
-        <HelpButtonWithTooltip>{props.labelHelp}</HelpButtonWithTooltip>
+        <HelpButtonWithTooltip placement={props.placement}>
+          {props.labelHelp}
+        </HelpButtonWithTooltip>
       )}
     </LabelContainer>
   );
