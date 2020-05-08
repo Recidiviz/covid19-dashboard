@@ -32,7 +32,6 @@ import {
   DescriptionTextDiv,
   IconBack,
   PageHeader,
-  PlaceholderSpace,
   ReportDateDiv,
   ResponseImpactDashboardContainer,
   SectionHeader,
