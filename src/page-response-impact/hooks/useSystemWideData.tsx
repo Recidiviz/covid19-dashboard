@@ -5,7 +5,7 @@ import {
   EpidemicModelState,
   getLocaleDefaults,
 } from "../../impact-dashboard/EpidemicModelContext";
-import { LocaleData, LocaleRecord } from "../../locale-data-context";
+import { LocaleData } from "../../locale-data-context";
 import { Scenario } from "../../page-multi-facility/types";
 import { getSystemWideSums, SystemWideData } from "../responseChartData";
 import { FacilitiesState } from "./useFacilities";
