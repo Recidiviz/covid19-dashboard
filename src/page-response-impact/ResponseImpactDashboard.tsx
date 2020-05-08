@@ -47,7 +47,7 @@ const ResponseImpactDashboard: React.FC<Props> = ({
   const currentCurveInputs = useCurrentCurveData(modelInputs, localeDataSource);
   const systemWideData = useSystemWideData(
     scenario.baselinePopulations,
-    facilities.data[0].systemType,
+    facilities,
     modelInputs,
     localeDataSource,
   );

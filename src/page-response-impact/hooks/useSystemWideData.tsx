@@ -8,10 +8,11 @@ import {
 import { LocaleData, LocaleRecord } from "../../locale-data-context";
 import { Scenario } from "../../page-multi-facility/types";
 import { getSystemWideSums, SystemWideData } from "../responseChartData";
+import { FacilitiesState } from "./useFacilities";
 
 export function useSystemWideData(
   baselinePopulations: Scenario["baselinePopulations"],
-  systemType: string | undefined,
+  facilities: FacilitiesState,
   modelInputs: EpidemicModelState[],
   localeDataSource: LocaleData,
 ) {
@@ -22,13 +23,21 @@ export function useSystemWideData(
   });
 
   useEffect(() => {
-    if (modelInputs.length === 0) return;
+    console.log("useSystemWideData useEffect");
+    if (modelInputs.length === 0 || facilities.data.length === 0) return;
 
     // Reverse the populations array to get the most recently modelled populations
-    const {
-      staffPopulation: userInputStaffPopulation,
-      incarceratedPopulation: userInputIncarceratedPopulation,
-    } = reverse(baselinePopulations)[0];
+    const populationsCopy = baselinePopulations
+      ? reverse([...baselinePopulations])
+      : [];
+
+    let userInputStaffPopulation, userInputIncarceratedPopulation;
+
+    if (populationsCopy.length > 0) {
+      userInputStaffPopulation = populationsCopy[0].staffPopulation;
+      userInputIncarceratedPopulation =
+        populationsCopy[0].incarceratedPopulation;
+    }
 
     const localeDefaults: Partial<LocaleRecord> = getLocaleDefaults(
       localeDataSource,
@@ -37,7 +46,7 @@ export function useSystemWideData(
     );
 
     const localeDefaultPrisonPopulation =
-      systemType && systemType === "State Prison"
+      facilities.data[0].systemType === "State Prison"
         ? localeDefaults.totalPrisonPopulation
         : localeDefaults.totalJailPopulation;
 
@@ -52,7 +61,7 @@ export function useSystemWideData(
       incarceratedPopulation:
         userInputIncarceratedPopulation || localeDefaultPrisonPopulation || 0,
     });
-  }, [modelInputs, localeDataSource, baselinePopulations, systemType]);
+  }, [modelInputs, localeDataSource, baselinePopulations, facilities]);
 
   return systemWideData;
 }
