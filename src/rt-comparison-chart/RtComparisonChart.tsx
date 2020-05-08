@@ -85,14 +85,14 @@ const PillsWithConfidenceIntervals = ({
           />
         )}
         <RtPill
-          cx={rScale(values.Rt)}
+          cx={rScale(values.Rt || 0)}
           cy={d.middle}
           r={pillRadius}
           stroke={borderColorScale(values.Rt)}
         />
         <RtLabel
           fill={textColorScale(values.Rt)}
-          x={rScale(values.Rt)}
+          x={rScale(values.Rt || 0)}
           y={d.middle}
         >
           {noData ? "?" : formatRt(values.Rt)}
@@ -160,7 +160,7 @@ const OLabelText = styled.div`
 
 const renderHtmlOLabels = ({ categories }: { categories: any }) => {
   return (
-    <OLabelContainer>
+    <OLabelContainer key="ordinalAxisLabels">
       {Object.values(categories).map((category: any) => (
         <OLabel key={category.pieces[0].renderKey}>
           <OLabelText>{category.name}</OLabelText>
@@ -183,6 +183,7 @@ const renderHtmlHoverState = ({
   ] = pieces;
   return (
     <Tooltip
+      key="hover-tooltip"
       name={name}
       rt={values.Rt}
       top={middle - pillRadius}
@@ -224,6 +225,7 @@ const renderSvgHoverState = ({ d, rScale }: any) => {
   } = d;
   return values.low90 ? (
     <HoverRule
+      key="hover-rule"
       stroke={borderColorScale(values.Rt)}
       x1={rScale(0)}
       x2={rScale(values.low90)}
@@ -242,7 +244,7 @@ const svgAnnotationRules = (args: { d: any; rScale: Function }) => {
   return null;
 };
 
-type RtComparisonData = {
+export type RtComparisonData = {
   name: string;
   id: string;
   values: {
@@ -251,6 +253,11 @@ type RtComparisonData = {
     high90?: number;
   };
 };
+
+export const isRtComparisonData = (
+  x: RtComparisonData | undefined,
+): x is RtComparisonData => x !== undefined;
+
 const RtComparisonChart: React.FC<{ data: RtComparisonData[] }> = ({
   data,
 }) => {
