@@ -54,11 +54,8 @@ const ResponseImpactDashboard: React.FC = () => {
   );
   const [modelInputs, setModelInputs] = useState([] as EpidemicModelState[]);
   const [systemWideData, setSystemWideData] = useState({
-    hospitalBeds: 0,
-    staffPopulation: 0,
-    staffCases: 0,
     incarceratedPopulation: 0,
-    incarceratedCases: 0,
+    staffPopulation: 0,
   });
   const [reductionCardData, setreductionCardData] = useState<
     reductionCardDataType | undefined
@@ -119,18 +116,24 @@ const ResponseImpactDashboard: React.FC = () => {
   // set system wide data
   useEffect(() => {
     if (modelInputs.length === 0) return;
-    const localeDefaults = getLocaleDefaults(
-      localeDataSource,
-      modelInputs[0].stateCode,
-      modelInputs[0].countyName,
-    );
+
+    let incarceratedPopulation;
+    if (facilities.data[0].systemType === "State Prison") {
+      incarceratedPopulation = getLocaleDefaults(
+        localeDataSource,
+        modelInputs[0].stateCode,
+      ).totalPrisonPopulation;
+    } else {
+      incarceratedPopulation = getLocaleDefaults(
+        localeDataSource,
+        modelInputs[0].stateCode,
+        modelInputs[0].countyName,
+      ).totalJailPopulation;
+    }
 
     setSystemWideData({
       ...getSystemWideSums(modelInputs),
-      incarceratedPopulation:
-        facilities.data[0].systemType === "State Prison"
-          ? localeDefaults.totalPrisonPopulation
-          : localeDefaults.totalJailPopulation,
+      incarceratedPopulation: incarceratedPopulation,
     });
   }, [modelInputs, localeDataSource, facilities.data]);
 

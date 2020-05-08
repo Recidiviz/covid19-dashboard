@@ -5,10 +5,7 @@ import {
   EpidemicModelState,
   getLocaleDefaults,
 } from "../impact-dashboard/EpidemicModelContext";
-import {
-  RateOfSpread,
-  totalConfirmedCases,
-} from "../impact-dashboard/EpidemicModelContext";
+import { RateOfSpread } from "../impact-dashboard/EpidemicModelContext";
 import {
   calculateCurves,
   CurveData,
@@ -25,11 +22,8 @@ const NUM_DAYS = 90;
 const NUM_SEIR_CATEGORIES = 9;
 
 export type SystemWideData = {
+  [key: string]: number;
   staffPopulation: number;
-  staffCases: number;
-  incarceratedPopulation: number;
-  incarceratedCases: number;
-  hospitalBeds: number;
 };
 
 export function getModelInputs(
@@ -59,13 +53,27 @@ function originalEpidemicModelInputs(systemWideData: SystemWideData) {
   const {
     staffPopulation,
     staffCases,
+    age0Cases,
+    age20Cases,
+    age45Cases,
+    age55Cases,
+    age65Cases,
+    age75Cases,
+    age85Cases,
+    ageUnknownCases,
     incarceratedPopulation,
-    incarceratedCases,
   } = systemWideData;
   return {
     staffCases: staffCases,
     staffPopulation: staffPopulation,
-    ageUnknownCases: incarceratedCases,
+    age0Cases: age0Cases,
+    age20Cases: age20Cases,
+    age45Cases: age45Cases,
+    age55Cases: age55Cases,
+    age65Cases: age65Cases,
+    age75Cases: age75Cases,
+    age85Cases: age85Cases,
+    ageUnknownCases: ageUnknownCases,
     ageUnknownPopulation: incarceratedPopulation,
     populationTurnover: 0,
     facilityOccupancyPct: 1,
@@ -96,15 +104,22 @@ export function getSystemWideSums(modelInputs: EpidemicModelState[]) {
     hospitalBeds: 0,
     staffPopulation: 0,
     staffCases: 0,
-    incarceratedCases: 0,
-  };
-  modelInputs.forEach((input) => {
-    sums.hospitalBeds += input.hospitalBeds || 0;
-    sums.staffPopulation += input.staffPopulation || 0;
-    sums.staffCases += input.staffCases || 0;
-    sums.incarceratedCases += totalConfirmedCases(input) || 0;
-    return sums;
-  });
+    age0Cases: 0,
+    age20Cases: 0,
+    age45Cases: 0,
+    age55Cases: 0,
+    age65Cases: 0,
+    age75Cases: 0,
+    age85Cases: 0,
+    ageUnknownCases: 0,
+  } as SystemWideData;
+
+  modelInputs.reduce((sum: SystemWideData, input: any) => {
+    Object.keys(sums).map((k: any) => {
+      sum[k] += input[k] || 0;
+    });
+    return sum;
+  }, sums);
   return sums;
 }
 
