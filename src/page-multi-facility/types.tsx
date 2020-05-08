@@ -25,7 +25,7 @@ export type Scenario = {
   dataSharing: boolean;
   dailyReports: boolean;
   promoStatuses: PromoStatuses;
-  populations: Populations[];
+  baselinePopulations: BaselinePopulations[];
   description: string;
   roles: object;
   createdAt: Date;
@@ -39,7 +39,7 @@ export type PromoStatuses = {
   addFacilities: boolean;
 };
 
-export type Populations = {
+export type BaselinePopulations = {
   date: Date;
   staffPopulation: number;
   incarceratedPopulation: number;

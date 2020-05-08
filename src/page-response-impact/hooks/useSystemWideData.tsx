@@ -10,7 +10,7 @@ import { Scenario } from "../../page-multi-facility/types";
 import { getSystemWideSums, SystemWideData } from "../responseChartData";
 
 export function useSystemWideData(
-  scenarioPopulations: Scenario["populations"],
+  baselinePopulations: Scenario["baselinePopulations"],
   systemType: string | undefined,
   modelInputs: EpidemicModelState[],
   localeDataSource: LocaleData,
@@ -28,7 +28,7 @@ export function useSystemWideData(
     const {
       staffPopulation: userInputStaffPopulation,
       incarceratedPopulation: userInputIncarceratedPopulation,
-    } = reverse(scenarioPopulations)[0];
+    } = reverse(baselinePopulations)[0];
 
     const localeDefaults: Partial<LocaleRecord> = getLocaleDefaults(
       localeDataSource,
@@ -52,7 +52,7 @@ export function useSystemWideData(
       incarceratedPopulation:
         userInputIncarceratedPopulation || localeDefaultPrisonPopulation || 0,
     });
-  }, [modelInputs, localeDataSource, scenarioPopulations, systemType]);
+  }, [modelInputs, localeDataSource, baselinePopulations, systemType]);
 
   return systemWideData;
 }

@@ -6,7 +6,7 @@ import { Column, PageContainer } from "../design-system/PageColumn";
 import useFacilitiesRtData from "../hooks/useFacilitiesRtData";
 import { useLocaleDataState } from "../locale-data-context";
 import { FacilityContext } from "../page-multi-facility/FacilityContext";
-import { Populations, Scenario } from "../page-multi-facility/types";
+import { BaselinePopulations, Scenario } from "../page-multi-facility/types";
 import BaselinePopulationModal from "./BaselinePopulationModal";
 import {
   useCurrentCurveData,
@@ -46,7 +46,7 @@ const ResponseImpactDashboard: React.FC<Props> = ({
   const modelInputs = useModelInputs(facilities, localeDataSource);
   const currentCurveInputs = useCurrentCurveData(modelInputs, localeDataSource);
   const systemWideData = useSystemWideData(
-    scenario.populations,
+    scenario.baselinePopulations,
     facilities.data[0].systemType,
     modelInputs,
     localeDataSource,
@@ -64,11 +64,11 @@ const ResponseImpactDashboard: React.FC<Props> = ({
 
   useFacilitiesRtData(facilities.data, true);
 
-  async function saveBaselinePopulations(populations: Populations) {
-    const initialPopulations = scenario?.populations || [];
+  async function saveBaselinePopulations(populations: BaselinePopulations) {
+    const initialPopulations = scenario?.baselinePopulations || [];
     const savedScenario = await saveScenario({
       ...scenario,
-      populations: [...initialPopulations, populations],
+      baselinePopulations: [...initialPopulations, populations],
     });
     if (savedScenario) dispatchScenarioUpdate(savedScenario);
     setPopulationFormSubmitted(true);
