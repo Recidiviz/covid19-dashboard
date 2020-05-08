@@ -2,6 +2,7 @@ import { ascending } from "d3-array";
 import { formatISO, fromUnixTime, parseISO } from "date-fns";
 import { mapValues, maxBy, minBy, orderBy, uniqBy } from "lodash";
 
+import { RateOfSpreadType } from "../constants/EpidemicModel";
 import { getFacilityModelVersions } from "../database";
 import { totalConfirmedCases } from "../impact-dashboard/EpidemicModelContext";
 import { Facility } from "../page-multi-facility/types";
@@ -141,4 +142,14 @@ export const getOldestRt = (rtRecords: RtRecord[]) => {
 
 export const getNewestRt = (rtRecords: RtRecord[]) => {
   return maxBy(rtRecords, (rtRecord) => rtRecord.date);
+};
+
+export const rtSpreadType = (rtValue: number | null | undefined) => {
+  if (rtValue === null || rtValue === undefined) {
+    return RateOfSpreadType.Missing;
+  } else if (rtValue > 1) {
+    return RateOfSpreadType.Infectious;
+  } else {
+    return RateOfSpreadType.Controlled;
+  }
 };
