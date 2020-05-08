@@ -4,7 +4,7 @@ import { getRtDataForFacility } from "../infection-model/rt";
 import { FacilityContext } from "../page-multi-facility/FacilityContext";
 import { Facilities } from "../page-multi-facility/types";
 
-const useFacilitiesRtData = (facilities: Facilities | null, useRt = false) => {
+const useFacilitiesRtData = (facilities: Facilities | null) => {
   const { rtData, dispatchRtData } = useContext(FacilityContext);
 
   async function getRtDataForFacilities(facilities: Facilities) {
@@ -24,7 +24,7 @@ const useFacilitiesRtData = (facilities: Facilities | null, useRt = false) => {
 
   useEffect(
     () => {
-      if (facilities && useRt) {
+      if (facilities) {
         getRtDataForFacilities(facilities);
       }
     },
@@ -32,7 +32,7 @@ const useFacilitiesRtData = (facilities: Facilities | null, useRt = false) => {
     // due to being initialized inside SiteProvider.
     // TODO: may change as part of #163
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [facilities, useRt],
+    [facilities],
   );
 };
 
