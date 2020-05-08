@@ -22,8 +22,18 @@ const NUM_DAYS = 90;
 const NUM_SEIR_CATEGORIES = 9;
 
 export type SystemWideData = {
-  [key: string]: number;
+  hospitalBeds: number;
   staffPopulation: number;
+  staffCases: number;
+  age0Cases: number;
+  age20Cases: number;
+  age45Cases: number;
+  age55Cases: number;
+  age65Cases: number;
+  age75Cases: number;
+  age85Cases: number;
+  ageUnknownCases: number;
+  incarceratedPopulation: number;
 };
 
 export function getModelInputs(
@@ -93,9 +103,17 @@ export function getSystemWideSums(modelInputs: EpidemicModelState[]) {
   } as SystemWideData;
 
   modelInputs.reduce((sum: SystemWideData, input: any) => {
-    Object.keys(sums).map((k: any) => {
-      sum[k] += input[k] || 0;
-    });
+    sum.hospitalBeds += input.hospitalBeds || 0;
+    sum.staffPopulation += input.staffPopulation || 0;
+    sum.staffCases += input.staffCases || 0;
+    sum.age0Cases += input.age0Cases || 0;
+    sum.age20Cases += input.age20Cases || 0;
+    sum.age45Cases += input.age45Cases || 0;
+    sum.age55Cases += input.age55Cases || 0;
+    sum.age65Cases += input.age65Cases || 0;
+    sum.age75Cases += input.age75Cases || 0;
+    sum.age85Cases += input.age85Casess || 0;
+    sum.ageUnknownCases += input.ageUnknownCases || 0;
     return sum;
   }, sums);
   return sums;

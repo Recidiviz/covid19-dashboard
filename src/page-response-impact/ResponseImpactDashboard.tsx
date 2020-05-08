@@ -22,6 +22,7 @@ import {
   getModelInputs,
   getSystemWideSums,
   originalProjection,
+  SystemWideData,
 } from "./responseChartData";
 import RtSummaryStats from "./RtSummaryStats";
 import {
@@ -56,7 +57,7 @@ const ResponseImpactDashboard: React.FC = () => {
   const [systemWideData, setSystemWideData] = useState({
     incarceratedPopulation: 0,
     staffPopulation: 0,
-  });
+  } as SystemWideData);
   const [reductionCardData, setreductionCardData] = useState<
     reductionCardDataType | undefined
   >();
