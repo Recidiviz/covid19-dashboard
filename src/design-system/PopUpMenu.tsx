@@ -1,4 +1,3 @@
-import hexAlpha from "hex-alpha";
 import React from "react";
 import styled from "styled-components";
 
@@ -48,7 +47,12 @@ const PopUpMenuContents = styled.div`
 `;
 
 const PopUpMenuItem: React.FC<ItemProps> = ({ item }) => {
-  const clickItem = () => {
+  const clickItem = (event: React.MouseEvent<Element>) => {
+    // If the PopUpMenuItem is embedded within an element that is
+    // clickable (i.e. a Scenario Library Card) we need to prevent
+    // that parent element's click action from firing so that we
+    // allow the menu item's click action to execute uninterrupted.
+    event.stopPropagation();
     item.onClick();
   };
   return <div onClick={clickItem}>{item.name}</div>;
@@ -61,7 +65,12 @@ const PopUpMenu: React.FC<MenuProps> = ({ items }) => {
     setIsComponentVisible,
   } = UseComponentToggleVisible(false);
 
-  const toggleMenu = () => {
+  const toggleMenu = (event: React.MouseEvent<Element>) => {
+    // If the PopUpMenu is embedded within an element that is clickable
+    // (i.e. a Scenario Library Card) we need to prevent that parent
+    // element's click action from firing so that we can display the
+    // menu items
+    event.stopPropagation();
     setIsComponentVisible(!isComponentVisible);
   };
   return (

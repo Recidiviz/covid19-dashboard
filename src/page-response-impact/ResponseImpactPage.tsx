@@ -11,7 +11,7 @@ const ResponseImpactPageDiv = styled.div``;
 
 const ResponseImpactPage: React.FC = () => {
   const localeState = useLocaleDataState();
-  const [scenario] = useScenario();
+  const [scenario, dispatchScenarioUpdate] = useScenario();
 
   return (
     <ResponseImpactPageDiv>
@@ -27,7 +27,12 @@ const ResponseImpactPage: React.FC = () => {
           ) : localeState.loading || scenario.loading ? (
             <Loading />
           ) : (
-            <ResponseImpactDashboard />
+            scenario.data && (
+              <ResponseImpactDashboard
+                scenario={scenario.data}
+                dispatchScenarioUpdate={dispatchScenarioUpdate}
+              />
+            )
           )}
         </div>
       </div>

@@ -1,6 +1,8 @@
 import { lab } from "d3";
 import hexAlpha from "hex-alpha";
 
+import { RateOfSpreadType } from "../constants/EpidemicModel";
+
 export function darken(color: string, amount: number) {
   // good to use Lab color because it's perceptually uniform
   const { l, a, b } = lab(color);
@@ -54,3 +56,23 @@ export const MarkColors = {
 };
 
 export default Colors;
+
+export const rtPillColors: {
+  [key in RateOfSpreadType]: {
+    text: string;
+    border: string;
+  };
+} = {
+  [RateOfSpreadType.Controlled]: {
+    text: Colors.green,
+    border: Colors.teal,
+  },
+  [RateOfSpreadType.Infectious]: {
+    text: Colors.darkRed,
+    border: Colors.orange,
+  },
+  [RateOfSpreadType.Missing]: {
+    text: Colors.forest,
+    border: Colors.forest30,
+  },
+};

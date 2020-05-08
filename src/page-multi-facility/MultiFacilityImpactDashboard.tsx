@@ -1,8 +1,8 @@
 import { navigate } from "gatsby";
 import React, { useContext, useEffect, useState } from "react";
-import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
 import styled from "styled-components";
 
+import { FetchedFacilities } from "../constants";
 import { getFacilities } from "../database";
 import Colors from "../design-system/Colors";
 import iconAddSrc from "../design-system/icons/ic_add.svg";
@@ -16,6 +16,7 @@ import useScenario from "../scenario-context/useScenario";
 import { FacilityContext } from "./FacilityContext";
 import FacilityRow from "./FacilityRow";
 import ProjectionsHeader from "./ProjectionsHeader";
+import RateOfSpreadPanel from "./RateOfSpreadPanel";
 import ScenarioSidebar from "./ScenarioSidebar";
 import { Facilities } from "./types";
 
@@ -48,54 +49,32 @@ const AddFacilityButtonText = styled.span`
   vertical-align: middle;
 `;
 
-const ScenarioTabs = styled.div`
-  .react-tabs {
-    &__tab-list {
-      display: flex;
-      flex-direction: row;
-      justify-content: flex-end;
-      cursor: pointer;
-    }
-    &__tab {
-      opacity: 0.7;
-      margin: 0 0 0 32px;
-      &--selected {
-        opacity: 1;
-        border-bottom: 4px solid ${Colors.teal};
-        padding-bottom: 1.5rem;
-      }
-    }
-  }
+const ScenarioTabs = styled.div``;
+
+const ScenarioTabList = styled.ul`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  cursor: pointer;
 `;
 
-const ScenarioPanelsDiv = styled.div`
-  .panel-shown {
-    display: block;
-  }
-  .panel-hidden {
-    display: none;
-  }
+const ScenarioTab = styled.li<{ active?: boolean }>`
+  opacity: 0.7;
+  margin: 0 0 0 32px;
+
+  ${(props) =>
+    props.active
+      ? `
+    opacity: 1;
+    border-bottom: 4px solid ${Colors.teal};
+    padding-bottom: 1.5rem;
+  `
+      : null}
 `;
 
 interface ScenarioPanelsProps {
   selectedTabIndex: number;
 }
-
-// This is necessary so we don't reload the tab details while switching tabs
-// since that makes the UI slow.
-const ScenarioPanels: React.FC<ScenarioPanelsProps> = (props) => {
-  const panelChildren = React.Children.toArray(props.children).map(
-    (child, i) => (
-      <div
-        key={i}
-        className={props.selectedTabIndex == i ? "panel-shown" : "panel-hidden"}
-      >
-        {child}
-      </div>
-    ),
-  );
-  return <ScenarioPanelsDiv>{panelChildren}</ScenarioPanelsDiv>;
-};
 
 const MultiFacilityImpactDashboard: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
@@ -104,7 +83,7 @@ const MultiFacilityImpactDashboard: React.FC = () => {
   const { setFacility } = useContext(FacilityContext);
   const useRt = useFlag(["useRt"]);
 
-  const [facilities, setFacilities] = useState({
+  const [facilities, setFacilities] = useState<FetchedFacilities>({
     data: [] as Facilities,
     loading: true,
   });
@@ -156,7 +135,6 @@ const MultiFacilityImpactDashboard: React.FC = () => {
     </>
   );
 
-  const rateOfSpreadPanel = <> </>;
   const showRateOfSpreadTab = useFlag(["showRateOfSpreadTab"]);
   return (
     <MultiFacilityImpactDashboardContainer>
@@ -172,26 +150,26 @@ const MultiFacilityImpactDashboard: React.FC = () => {
             <AddFacilityButtonText>Add Facility</AddFacilityButtonText>
           </AddFacilityButton>
           <ScenarioTabs>
-            <Tabs selectedIndex={selectedTab} onSelect={setSelectedTab}>
-              <TabList>
-                <Tab>
-                  <TextLabel padding={false}>Projections</TextLabel>
-                </Tab>
-                {showRateOfSpreadTab ? (
-                  <Tab>
-                    <TextLabel padding={false}>Rate of spread</TextLabel>
-                  </Tab>
-                ) : null}
-              </TabList>
-              <TabPanel />
-              {showRateOfSpreadTab ? <TabPanel /> : null}
-            </Tabs>
+            <ScenarioTabList>
+              <ScenarioTab
+                active={selectedTab === 0}
+                onClick={() => setSelectedTab(0)}
+              >
+                <TextLabel padding={false}>Projections</TextLabel>
+              </ScenarioTab>
+              {showRateOfSpreadTab ? (
+                <ScenarioTab
+                  active={selectedTab === 1}
+                  onClick={() => setSelectedTab(1)}
+                >
+                  <TextLabel padding={false}>Rate of spread</TextLabel>
+                </ScenarioTab>
+              ) : null}
+            </ScenarioTabList>
           </ScenarioTabs>
         </div>
-        <ScenarioPanels selectedTabIndex={selectedTab}>
-          {projectionsPanel}
-          {rateOfSpreadPanel}
-        </ScenarioPanels>
+        {selectedTab === 0 && projectionsPanel}
+        {selectedTab === 1 && <RateOfSpreadPanel facilities={facilities} />}
       </div>
     </MultiFacilityImpactDashboardContainer>
   );
