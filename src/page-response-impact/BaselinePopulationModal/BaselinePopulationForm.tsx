@@ -105,7 +105,7 @@ const BaselinePopulationForm: React.FC<Props> = ({
     <>
       <Text>
         If you skip this step, we will assume a starting incarcerated population
-        of {defaultTotalPopulation}, which is derived from Vera data, and your
+        of {defaultTotalPopulation}, which is based on public data, and your
         current staff population. You can also provide this information later.
       </Text>
       <FormContainer>
