@@ -1,5 +1,10 @@
 import { ascending } from "d3-array";
-import { formatISO, fromUnixTime, parseISO } from "date-fns";
+import {
+  differenceInCalendarDays,
+  formatISO,
+  fromUnixTime,
+  parseISO,
+} from "date-fns";
 import { mapValues, maxBy, minBy, orderBy, uniqBy } from "lodash";
 
 import { RateOfSpreadType } from "../constants/EpidemicModel";
@@ -142,6 +147,16 @@ export const getOldestRt = (rtRecords: RtRecord[]) => {
 
 export const getNewestRt = (rtRecords: RtRecord[]) => {
   return maxBy(rtRecords, (rtRecord) => rtRecord.date);
+};
+
+export const getDaysAgoRt = (rtRecords: RtRecord[], daysAgo: number) => {
+  const today = new Date();
+  return maxBy(
+    rtRecords.filter(
+      (record) => differenceInCalendarDays(today, record.date) >= daysAgo,
+    ),
+    "date",
+  );
 };
 
 export const rtSpreadType = (rtValue: number | null | undefined) => {

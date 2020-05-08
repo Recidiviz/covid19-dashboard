@@ -154,6 +154,7 @@
     "@types/react-tabs": "^2.3.1",
     "babel-jest": "^25.4.0",
     "jest": "^25.4.0",
+    "jest-date-mock": "^1.0.8",
     "jest-styled-components": "^7.0.2",
     "ts-jest": "^25.4.0"
   }
