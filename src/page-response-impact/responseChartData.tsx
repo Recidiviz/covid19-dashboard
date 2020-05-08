@@ -21,7 +21,7 @@ import { Facilities } from "../page-multi-facility/types";
 const NUM_DAYS = 90;
 const NUM_SEIR_CATEGORIES = 9;
 
-export type SystemWideData = {
+export type SystemWideData = Partial<EpidemicModelState> & {
   hospitalBeds: number;
   staffPopulation: number;
   staffCases: number;
