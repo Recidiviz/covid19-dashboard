@@ -1,6 +1,8 @@
 import { orderBy, pickBy } from "lodash";
 import React, { useContext, useEffect, useState } from "react";
+import styled from "styled-components";
 
+import Loading from "../design-system/Loading";
 import { getDaysAgoRt } from "../infection-model/rt";
 import { FacilityContext } from "../page-multi-facility/FacilityContext";
 import { Facilities } from "../page-multi-facility/types";
@@ -9,12 +11,26 @@ import RtComparisonChart, {
   RtComparisonData,
 } from "./RtComparisonChart";
 
+const Container = styled.div`
+  position: relative;
+`;
+
+const LoadingOverlay = styled.div`
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+`;
+
 const RtComparisonChartContainer: React.FC<{
   facilities: Facilities;
   rtDaysOffset: number;
 }> = ({ facilities, rtDaysOffset }) => {
   const { rtData: rtDataMapping } = useContext(FacilityContext);
   const [chartData, updateChartData] = useState([] as RtComparisonData[]);
+  const [loading, updateLoading] = useState(true);
 
   useEffect(() => {
     // when the offset changes, reset chart data state to force recomputation
@@ -58,7 +74,26 @@ const RtComparisonChartContainer: React.FC<{
     [facilities, rtDataMapping, chartData],
   );
 
-  return <RtComparisonChart data={chartData} />;
+  useEffect(() => {
+    updateLoading(
+      // we don't track overall Rt data loading status anywhere;
+      // so far this is the only place that cares about it
+      facilities.some(
+        (facility) => !rtDataMapping?.hasOwnProperty(facility.id),
+      ),
+    );
+  }, [facilities, rtDataMapping]);
+
+  return (
+    <Container>
+      {loading && (
+        <LoadingOverlay>
+          <Loading />
+        </LoadingOverlay>
+      )}
+      <RtComparisonChart data={chartData} />
+    </Container>
+  );
 };
 
 export default RtComparisonChartContainer;
