@@ -4,6 +4,8 @@ import { ResponsiveOrdinalFrame } from "semiotic";
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
+import HelpButtonWithTooltip from "../design-system/HelpButtonWithTooltip";
+import { Spacer } from "../design-system/Spacer";
 import { RtData, RtRecord } from "../infection-model/rt";
 import { RtDataMapping } from "../page-multi-facility/FacilityContext";
 import * as rtStats from "./rtStatistics";
@@ -139,6 +141,10 @@ const RtSummaryStats: React.FC<Props> = ({ rtData }) => {
         <LegendContainer>
           <LegendSpan />
           <div>{`Facilities with R(t) < 1.0`}</div>
+          <Spacer x={5} />
+          <HelpButtonWithTooltip>
+            {`An R(t) < 1.0 means the virus will stop spreading. An R(t) > 1.0 means the virus will spread quickly.`}
+          </HelpButtonWithTooltip>
         </LegendContainer>
         <RtSummaryText className="mt-5 mb-5">
           Average R(t) reduction across all facilities since first confirmed
