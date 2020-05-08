@@ -120,8 +120,8 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
 
   const save = () => {
     if (facilityName) {
-      // Set observedAt to right now when updating a facility form from this input form
-      const modelUpdate = model[0];
+      // Set observedAt to right now when updating a facility from this input form
+      const modelUpdate = Object.assign({}, model[0]);
       modelUpdate.observedAt = new Date();
 
       saveFacility(scenarioId, {
