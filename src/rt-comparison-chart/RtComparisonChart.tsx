@@ -242,7 +242,7 @@ const svgAnnotationRules = (args: { d: any; rScale: Function }) => {
   return null;
 };
 
-type RtComparisonData = {
+export type RtComparisonData = {
   name: string;
   id: string;
   values: {
@@ -251,6 +251,11 @@ type RtComparisonData = {
     high90?: number;
   };
 };
+
+export const isRtComparisonData = (
+  x: RtComparisonData | undefined,
+): x is RtComparisonData => x !== undefined;
+
 const RtComparisonChart: React.FC<{ data: RtComparisonData[] }> = ({
   data,
 }) => {

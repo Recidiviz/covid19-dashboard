@@ -3,6 +3,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
 import styled from "styled-components";
 
+import { FetchedFacilities } from "../constants";
 import { getFacilities } from "../database";
 import Colors from "../design-system/Colors";
 import iconAddSrc from "../design-system/icons/ic_add.svg";
@@ -12,11 +13,11 @@ import { useFlag } from "../feature-flags";
 import useFacilitiesRtData from "../hooks/useFacilitiesRtData";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
 import { useLocaleDataState } from "../locale-data-context";
-import RtComparisonChart from "../rt-comparison-chart";
 import useScenario from "../scenario-context/useScenario";
 import { FacilityContext } from "./FacilityContext";
 import FacilityRow from "./FacilityRow";
 import ProjectionsHeader from "./ProjectionsHeader";
+import RateOfSpreadPanel from "./RateOfSpreadPanel";
 import ScenarioSidebar from "./ScenarioSidebar";
 import { Facilities } from "./types";
 
@@ -105,7 +106,7 @@ const MultiFacilityImpactDashboard: React.FC = () => {
   const { setFacility } = useContext(FacilityContext);
   const useRt = useFlag(["useRt"]);
 
-  const [facilities, setFacilities] = useState({
+  const [facilities, setFacilities] = useState<FetchedFacilities>({
     data: [] as Facilities,
     loading: true,
   });
@@ -157,11 +158,6 @@ const MultiFacilityImpactDashboard: React.FC = () => {
     </>
   );
 
-  const rateOfSpreadPanel = (
-    <>
-      <RtComparisonChart />
-    </>
-  );
   const showRateOfSpreadTab = useFlag(["showRateOfSpreadTab"]);
   return (
     <MultiFacilityImpactDashboardContainer>
@@ -195,7 +191,7 @@ const MultiFacilityImpactDashboard: React.FC = () => {
         </div>
         <ScenarioPanels selectedTabIndex={selectedTab}>
           {projectionsPanel}
-          {rateOfSpreadPanel}
+          {showRateOfSpreadTab && <RateOfSpreadPanel facilities={facilities} />}
         </ScenarioPanels>
       </div>
     </MultiFacilityImpactDashboardContainer>
