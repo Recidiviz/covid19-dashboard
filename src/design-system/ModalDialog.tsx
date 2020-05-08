@@ -33,7 +33,7 @@ interface Props {
   numSteps?: number;
   title?: TitleProps["title"];
   open?: boolean;
-  closeModal?: (e: React.MouseEvent<HTMLElement>) => void | null;
+  closeModal?: TitleProps["closeModal"];
 }
 
 const isOutsideModal = (
