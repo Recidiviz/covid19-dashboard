@@ -5,12 +5,14 @@ export const StyledButton = styled.button<Props>`
   background: ${(props) => props.styles?.background || "#00615c"};
   font-size: ${(props) => props.styles?.fontSize || "16px"};
   border-radius: ${(props) => props.styles?.borderRadius || "12px"};
-  color: white;
+  color: ${(props) => props.styles?.color || "white"};
   font-family: ${(props) =>
     props.styles?.fontFamily || "'Poppins', sans-serif"};
   height: 48px;
   width: ${(props) => props.styles?.width || "200px"};
   outline: none;
+  margin-top: ${(props) => props.styles?.marginTop};
+  visibility: ${(props) => props.styles?.visibility || "visible"};
 `;
 
 interface Props {

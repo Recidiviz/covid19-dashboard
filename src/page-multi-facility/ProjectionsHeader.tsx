@@ -1,22 +1,17 @@
 import React from "react";
-import styled from "styled-components";
 
-import Colors from "../design-system/Colors";
-import ProjectionsLegend, { LegendText } from "./ProjectionsLegend";
-
-const HeaderContainer = styled.div`
-  border-color: ${Colors.opacityGray};
-`;
+import PanelHeader, { PanelHeaderText } from "./PanelHeader";
+import ProjectionsLegend from "./ProjectionsLegend";
 
 const ProjectionsHeader: React.FC = () => {
   return (
-    <HeaderContainer className="border-t border-b mb-5 py-2 flex flex-row">
+    <PanelHeader>
       <div className="w-2/5 flex flex-row">
-        <LegendText className="w-1/4">Cases</LegendText>
-        <LegendText className="w-3/4">Facility</LegendText>
+        <PanelHeaderText className="w-1/4">Cases</PanelHeaderText>
+        <PanelHeaderText className="w-3/4">Facility</PanelHeaderText>
       </div>
       <ProjectionsLegend />
-    </HeaderContainer>
+    </PanelHeader>
   );
 };
 

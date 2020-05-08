@@ -4,38 +4,19 @@ import styled from "styled-components";
 
 import { RateOfSpreadType } from "../constants/EpidemicModel";
 import ChartTooltip from "../design-system/ChartTooltip";
-import Colors from "../design-system/Colors";
+import { rtPillColors } from "../design-system/Colors";
 import PillCircle from "../design-system/PillCircle";
+import { rtSpreadType } from "../infection-model/rt";
 import {
   TooltipContents,
   TooltipLabel,
   TooltipValue,
 } from "../rt-timeseries/RtTimeseries";
 
-const pillColors: {
-  [key in RateOfSpreadType]: {
-    text: string;
-    border: string;
-  };
-} = {
-  [RateOfSpreadType.Controlled]: {
-    text: Colors.green,
-    border: Colors.teal,
-  },
-  [RateOfSpreadType.Infectious]: {
-    text: Colors.darkRed,
-    border: Colors.orange,
-  },
-  [RateOfSpreadType.Missing]: {
-    text: Colors.forest,
-    border: Colors.forest30,
-  },
-};
-
 const RtValuePill = styled.div<{ spreadType: RateOfSpreadType }>`
   ${PillCircle} {
-    border-color: ${(props) => pillColors[props.spreadType].border};
-    color: ${(props) => pillColors[props.spreadType].text};
+    border-color: ${(props) => rtPillColors[props.spreadType].border};
+    color: ${(props) => rtPillColors[props.spreadType].text};
   }
 
   &:hover {
@@ -68,16 +49,6 @@ const PillTooltip = styled.div`
 interface Props {
   latestRt: number | null | undefined;
 }
-
-const rtSpreadType = (latestRt: number | null | undefined) => {
-  if (latestRt === null || latestRt === undefined) {
-    return RateOfSpreadType.Missing;
-  } else if (latestRt > 1) {
-    return RateOfSpreadType.Infectious;
-  } else {
-    return RateOfSpreadType.Controlled;
-  }
-};
 
 const isValidRt = (rtValue: number | null | undefined) =>
   rtValue !== null && rtValue !== undefined;
