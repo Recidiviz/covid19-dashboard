@@ -3,6 +3,7 @@ import { pick } from "lodash";
 import React from "react";
 
 import { LocaleData } from "../locale-data-context";
+import { Facility } from "../page-multi-facility/types";
 
 export type PlannedRelease = { date?: Date; count?: number };
 export type PlannedReleases = PlannedRelease[];
@@ -158,6 +159,8 @@ export function getLocaleDefaults(
       0,
     totalPrisonPopulation:
       dataSource.get(stateCode)?.get(countyName)?.totalPrisonPopulation || 0,
+    totalJailPopulation:
+      dataSource.get(stateCode)?.get(countyName)?.totalJailPopulation || 0,
     // user input defaults
     rateOfSpreadFactor: RateOfSpread.high,
     facilityOccupancyPct: 1,
@@ -263,6 +266,23 @@ export function totalConfirmedCases(model: ModelInputsPersistent): number {
         "age85Cases",
         "ageUnknownCases",
         "staffCases",
+      ]),
+    ),
+  );
+}
+
+export function sumAgeGroupPopulations(facility: Facility): number {
+  return sum(
+    Object.values(
+      pick(facility.modelInputs, [
+        "age0Population",
+        "age20Population",
+        "age45Population",
+        "age55Population",
+        "age65Population",
+        "age75Population",
+        "age85Population",
+        "ageUnknownPopulation",
       ]),
     ),
   );

@@ -176,6 +176,7 @@ const FacilityRow: React.FC<Props> = ({ facility: initialFacility }) => {
             hideAxes={true}
             groupStatus={groupStatus}
             markColors={markColors}
+            addAnnotations={false}
           />
         </div>
       </DataContainer>
