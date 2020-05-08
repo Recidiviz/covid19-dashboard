@@ -23,7 +23,7 @@ const NUM_SEIR_CATEGORIES = 9;
 
 export type SystemWideData = {
   staffPopulation: number;
-  prisonPopulation: number;
+  incarceratedPopulation: number;
   hospitalBeds: number;
 };
 
@@ -51,12 +51,12 @@ export function getCurveInputs(modelInputs: EpidemicModelState[]) {
 }
 
 function originalEpidemicModelInputs(systemWideData: SystemWideData) {
-  const { staffPopulation, prisonPopulation } = systemWideData;
+  const { staffPopulation, incarceratedPopulation } = systemWideData;
   return {
     staffCases: 1,
     staffPopulation: staffPopulation,
     ageUnknownCases: 1,
-    ageUnknownPopulation: prisonPopulation,
+    ageUnknownPopulation: incarceratedPopulation,
     populationTurnover: 0,
     facilityOccupancyPct: 1,
     facilityDormitoryPct: 0.15,

@@ -38,6 +38,7 @@ import {
   buildResponseImpactCardData,
   reductionCardDataType,
 } from "./utils/ResponseImpactCardStateUtils";
+import ValidDataWrapper from "./ValidDataWrapper";
 
 const ResponseImpactDashboard: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
@@ -55,7 +56,7 @@ const ResponseImpactDashboard: React.FC = () => {
   const [systemWideData, setSystemWideData] = useState({
     hospitalBeds: 0,
     staffPopulation: 0,
-    prisonPopulation: 0,
+    incarceratedPopulation: 0,
   });
   const [reductionCardData, setreductionCardData] = useState<
     reductionCardDataType | undefined
@@ -116,57 +117,63 @@ const ResponseImpactDashboard: React.FC = () => {
   // set system wide data
   useEffect(() => {
     if (modelInputs.length === 0) return;
+    const localeDefaults = getLocaleDefaults(
+      localeDataSource,
+      modelInputs[0].stateCode,
+      modelInputs[0].countyName,
+    );
 
     setSystemWideData({
       ...getSystemWideSums(modelInputs),
-      prisonPopulation: getLocaleDefaults(
-        localeDataSource,
-        modelInputs[0].stateCode,
-      ).totalPrisonPopulation,
+      incarceratedPopulation:
+        facilities.data[0].systemType === "State Prison"
+          ? localeDefaults.totalPrisonPopulation
+          : localeDefaults.totalJailPopulation,
     });
-  }, [modelInputs, localeDataSource]);
+  }, [modelInputs, localeDataSource, facilities.data]);
 
   return (
     <ResponseImpactDashboardContainer>
-      {scenarioState.loading ? (
+      {modelInputs.length === 0 ? (
         <Loading />
       ) : (
-        <PageContainer>
-          <Column>
-            <ScenarioName>{scenario?.name}</ScenarioName>
-            <PageHeader>COVID-19 Response Impact as of [DATE]</PageHeader>
-
-            <SectionHeader>Safety of Overall Population</SectionHeader>
-            <ChartHeader>
-              Reduction in the number of incarcerated individuals
-            </ChartHeader>
-            <PlaceholderSpace />
-            <SectionSubheader>
-              Positive impact of releasing [X] incarcerated individuals
-            </SectionSubheader>
-            <PopulationImpactMetrics
-              reductionData={reductionCardData}
-              staffPopulation={systemWideData.staffPopulation}
-              incarceratedPopulation={systemWideData.prisonPopulation}
-            />
-            <SectionHeader>Community Resources Saved</SectionHeader>
-            <ChartHeader>
-              Rate of spread (R(t)) for modelled facilities
-            </ChartHeader>
-            {rtData && <RtSummaryStats rtData={rtData} />}
-            <SectionSubheader>
-              Positive impact of Reducing R(0)
-            </SectionSubheader>
-            <ReducingR0ImpactMetrics />
-          </Column>
-          <Column>
-            <ProjectionCharts
-              systemWideData={systemWideData}
-              originalCurveInputs={originalCurveInputs}
-              currentCurveInputs={currentCurveInputs}
-            />
-          </Column>
-        </PageContainer>
+        <ValidDataWrapper facilities={facilities.data}>
+          <PageContainer>
+            <Column>
+              <ScenarioName>{scenario?.name}</ScenarioName>
+              <PageHeader>COVID-19 Response Impact as of [DATE]</PageHeader>
+              <SectionHeader>Safety of Overall Population</SectionHeader>
+              <ChartHeader>
+                Reduction in the number of incarcerated individuals
+              </ChartHeader>
+              <PlaceholderSpace />
+              <SectionSubheader>
+                Positive impact of releasing [X] incarcerated individuals
+              </SectionSubheader>
+              <PopulationImpactMetrics
+                reductionData={reductionCardData}
+                staffPopulation={systemWideData.staffPopulation}
+                incarceratedPopulation={systemWideData.incarceratedPopulation}
+              />
+              <SectionHeader>Community Resources Saved</SectionHeader>
+              <ChartHeader>
+                Rate of spread (R(t)) for modelled facilities
+              </ChartHeader>
+              {rtData && <RtSummaryStats rtData={rtData} />}
+              <SectionSubheader>
+                Positive impact of Reducing R(0)
+              </SectionSubheader>
+              <ReducingR0ImpactMetrics />
+            </Column>
+            <Column>
+              <ProjectionCharts
+                systemWideData={systemWideData}
+                originalCurveInputs={originalCurveInputs}
+                currentCurveInputs={currentCurveInputs}
+              />
+            </Column>
+          </PageContainer>
+        </ValidDataWrapper>
       )}
     </ResponseImpactDashboardContainer>
   );
