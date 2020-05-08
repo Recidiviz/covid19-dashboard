@@ -7,7 +7,7 @@ import {
   getLocaleDefaults,
 } from "../impact-dashboard/EpidemicModelContext";
 import { CurveFunctionInputs } from "../infection-model";
-import { LocaleData } from "../locale-data-context";
+import { LocaleData, LocaleRecord } from "../locale-data-context";
 import { Facilities, Scenario } from "../page-multi-facility/types";
 import {
   calculateCurveData,
@@ -15,6 +15,7 @@ import {
   getModelInputs,
   getSystemWideSums,
   originalProjection,
+  SystemWideData,
 } from "./responseChartData";
 import {
   buildReductionData,
@@ -25,12 +26,6 @@ import {
 type FacilitiesState = {
   data: Facilities;
   loading: boolean;
-};
-
-type SystemWideData = {
-  hospitalBeds: number;
-  staffPopulation: number;
-  prisonPopulation: number;
 };
 
 export function useFacilities(
@@ -96,13 +91,14 @@ export function useCurrentCurveData(
 
 export function useSystemWideData(
   scenarioPopulations: Scenario["populations"],
+  systemType: string | undefined,
   modelInputs: EpidemicModelState[],
   localeDataSource: LocaleData,
 ) {
   const [systemWideData, setSystemWideData] = useState<SystemWideData>({
     hospitalBeds: 0,
     staffPopulation: 0,
-    prisonPopulation: 0,
+    incarceratedPopulation: 0,
   });
 
   useEffect(() => {
@@ -114,10 +110,16 @@ export function useSystemWideData(
       incarceratedPopulation: userInputIncarceratedPopulation,
     } = reverse(scenarioPopulations)[0];
 
-    const localeDefaultPrisonPopulation = getLocaleDefaults(
+    const localeDefaults: Partial<LocaleRecord> = getLocaleDefaults(
       localeDataSource,
       modelInputs[0].stateCode,
-    ).totalPrisonPopulation;
+      modelInputs[0].countyName,
+    );
+
+    const localeDefaultPrisonPopulation =
+      systemType && systemType === "State Prison"
+        ? localeDefaults.totalPrisonPopulation
+        : localeDefaults.totalJailPopulation;
 
     const {
       hospitalBeds,
@@ -127,10 +129,10 @@ export function useSystemWideData(
     setSystemWideData({
       hospitalBeds,
       staffPopulation: userInputStaffPopulation || currentStaffPopulation,
-      prisonPopulation:
-        userInputIncarceratedPopulation || localeDefaultPrisonPopulation,
+      incarceratedPopulation:
+        userInputIncarceratedPopulation || localeDefaultPrisonPopulation || 0,
     });
-  }, [modelInputs, localeDataSource, scenarioPopulations]);
+  }, [modelInputs, localeDataSource, scenarioPopulations, systemType]);
 
   return systemWideData;
 }

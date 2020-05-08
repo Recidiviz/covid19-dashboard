@@ -47,6 +47,7 @@ const ResponseImpactDashboard: React.FC<Props> = ({
   const currentCurveInputs = useCurrentCurveData(modelInputs, localeDataSource);
   const systemWideData = useSystemWideData(
     scenario.populations,
+    facilities.data[0].systemType,
     modelInputs,
     localeDataSource,
   );
@@ -83,7 +84,9 @@ const ResponseImpactDashboard: React.FC<Props> = ({
             open={!populationFormSubmitted}
             numFacilities={facilities.data.length}
             defaultStaffPopulation={systemWideData.staffPopulation}
-            defaultIncarceratedPopulation={systemWideData.prisonPopulation}
+            defaultIncarceratedPopulation={
+              systemWideData.incarceratedPopulation
+            }
             saveBaselinePopulations={saveBaselinePopulations}
           />
           {populationFormSubmitted && (
@@ -104,7 +107,9 @@ const ResponseImpactDashboard: React.FC<Props> = ({
                   <PopulationImpactMetrics
                     reductionData={reductionCardData}
                     staffPopulation={systemWideData.staffPopulation}
-                    incarceratedPopulation={systemWideData.prisonPopulation}
+                    incarceratedPopulation={
+                      systemWideData.incarceratedPopulation
+                    }
                   />
                   <SectionHeader>Community Resources Saved</SectionHeader>
                   <ChartHeader>
