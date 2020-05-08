@@ -114,7 +114,7 @@ const IconRecidviz = styled.img`
 
 const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
   const [modalOpen, setModalOpen] = useState(false);
-  const [_, dispatchScenarioUpdate] = useScenario();
+  const [, dispatchScenarioUpdate] = useScenario();
   const [scenarios, setScenarios] = useState({
     data: [] as Scenario[],
     loading: true,

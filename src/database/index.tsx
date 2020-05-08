@@ -545,7 +545,7 @@ export const duplicateScenario = async (
       });
     }
 
-    batch.commit();
+    await batch.commit();
   } catch (error) {
     console.error(
       `Encountered error while attempting to duplicate scenario: ${scenarioId}`,

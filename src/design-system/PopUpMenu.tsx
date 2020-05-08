@@ -1,4 +1,3 @@
-import hexAlpha from "hex-alpha";
 import React from "react";
 import styled from "styled-components";
 
@@ -67,10 +66,10 @@ const PopUpMenu: React.FC<MenuProps> = ({ items }) => {
   } = UseComponentToggleVisible(false);
 
   const toggleMenu = (event: React.MouseEvent<Element>) => {
-  // If the PopUpMenu is embedded within an element that is clickable
-  // (i.e. a Scenario Library Card) we need to prevent that parent
-  // element's click action from firing so that we can display the
-  // menu items
+    // If the PopUpMenu is embedded within an element that is clickable
+    // (i.e. a Scenario Library Card) we need to prevent that parent
+    // element's click action from firing so that we can display the
+    // menu items
     event.stopPropagation();
     setIsComponentVisible(!isComponentVisible);
   };
