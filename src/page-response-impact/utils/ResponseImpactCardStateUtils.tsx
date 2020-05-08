@@ -22,18 +22,20 @@ export function buildReductionData(
   // positive value is a reduction
   return {
     incarcerated: {
-      hospitalized:
-        -1 *
-        (currData.incarcerated.hospitalized -
-          origData.incarcerated.hospitalized),
-      fatalities:
-        -1 *
-        (currData.incarcerated.fatalities - origData.incarcerated.fatalities),
+      hospitalized: Math.abs(
+        origData.incarcerated.hospitalized - currData.incarcerated.hospitalized,
+      ),
+      fatalities: Math.abs(
+        origData.incarcerated.fatalities - currData.incarcerated.fatalities,
+      ),
     },
     staff: {
-      hospitalized:
-        -1 * (currData.staff.hospitalized - origData.staff.hospitalized),
-      fatalities: -1 * (currData.staff.fatalities - origData.staff.fatalities),
+      hospitalized: Math.abs(
+        origData.staff.hospitalized - currData.staff.hospitalized,
+      ),
+      fatalities: Math.abs(
+        origData.staff.fatalities - currData.staff.fatalities,
+      ),
     },
   };
 }
