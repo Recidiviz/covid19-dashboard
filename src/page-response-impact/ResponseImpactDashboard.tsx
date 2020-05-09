@@ -88,13 +88,13 @@ const ResponseImpactDashboard: React.FC<Props> = ({
   }
 
   // current incarcerated population
-  const currentIncarceratedPop =
-    facilities &&
-    facilities.data &&
-    facilities.data.reduce((accumulator, facility) => {
+  const currentIncarceratedPop = facilities?.data?.reduce(
+    (accumulator, facility) => {
       const facilityPop = sumAgeGroupPopulations(facility);
       return accumulator + facilityPop;
-    }, 0);
+    },
+    0,
+  );
 
   return (
     <ResponseImpactDashboardContainer>

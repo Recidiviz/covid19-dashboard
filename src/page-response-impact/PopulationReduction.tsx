@@ -4,14 +4,14 @@ import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
 
-const rightWidth = 65;
+const contentWidthPercent = "80%";
 
 const Container = styled.div`
-  max-width: 407px;
+  width: 68%;
 `;
 const HeaderContainer = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   border-bottom: 1px solid ${hexAlpha(Colors.forestGray, 0.2)};
   font-weight: normal;
@@ -20,6 +20,7 @@ const TitleGroup = styled.div`
   font-family: "Poppins", sans-serif;
   font-size: 13px;
   line-height: 16px;
+  width: ${contentWidthPercent};
 `;
 const HeaderTitle = styled.span`
   color: ${Colors.forest};
@@ -32,14 +33,12 @@ const Percent = styled.div`
   line-height: 1.5;
   font-weight: 500;
   color: ${hexAlpha(Colors.forest, 0.7)};
-  width: ${rightWidth}px;
 `;
 const Row = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
-`;
-const RowContent = styled.div`
+  width: 100%;
   font-family: "Helvetica Neue", sans-serif;
   font-size: 14px;
   line-height: 1.5;
@@ -47,9 +46,11 @@ const RowContent = styled.div`
   color: ${hexAlpha(Colors.forest, 0.7)};
   padding-top: 8px;
 `;
-const RowContentRight = styled(RowContent)`
-  width: ${rightWidth - 8}px;
-  text-align: left;
+const RowContent = styled.div`
+  width: ${contentWidthPercent};
+`;
+const RowContentRight = styled.div`
+  padding-left: 6px;
 `;
 
 interface Props {
