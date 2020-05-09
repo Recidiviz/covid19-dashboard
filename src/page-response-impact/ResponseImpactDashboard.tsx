@@ -163,7 +163,7 @@ const ResponseImpactDashboard: React.FC<Props> = ({
                   </DescriptionTextDiv>
                   <Spacer y={40} />
                   <ChartHeader>
-                    Rate of spread (R(t)) for modelled facilities
+                    Rate of spread, R(t), for modelled facilities
                   </ChartHeader>
                   {rtData && <RtSummaryStats rtData={rtData} />}
                   <SectionSubheader>
