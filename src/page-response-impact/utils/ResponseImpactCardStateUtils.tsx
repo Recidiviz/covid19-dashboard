@@ -1,8 +1,13 @@
 import {
   countEverHospitalizedForDay,
+  countUnableToWorkForDay,
   getFatalitiesForDay,
 } from "../../impact-dashboard/ImpactProjectionTableContainer";
 import { CurveData, isCurveData } from "../../infection-model";
+
+export function roundToPercent(percent: number): number {
+  return Math.round(percent * 100);
+}
 
 export type reductionCardDataType = {
   incarcerated: {
@@ -13,6 +18,7 @@ export type reductionCardDataType = {
     hospitalized: number;
     fatalities: number;
   };
+  staffUnableToWork: number;
 };
 
 export function buildReductionData(
@@ -35,6 +41,8 @@ export function buildReductionData(
         -1 * (currData.staff.hospitalized - origData.staff.hospitalized),
       fatalities: -1 * (currData.staff.fatalities - origData.staff.fatalities),
     },
+    staffUnableToWork:
+      -1 * (currData.staffUnableToWork - origData.staffUnableToWork),
   };
 }
 
@@ -46,6 +54,7 @@ export function buildResponseImpactCardData(
   let incarceratedFatalitiesSum = 0;
   let staffHospitalizedSum = 0;
   let staffFatalitiesSum = 0;
+  let staffUnableToWorkSum = 0;
 
   curveDataArr.filter(isCurveData).forEach((data) => {
     const incarceratedData = data.incarcerated;
@@ -72,6 +81,12 @@ export function buildResponseImpactCardData(
     );
     staffHospitalizedSum += staffHospitalized;
     staffFatalitiesSum += staffFatalities;
+
+    const staffUnableToWork = countUnableToWorkForDay(
+      staffData,
+      staffData.shape[0] - 1,
+    );
+    staffUnableToWorkSum += staffUnableToWork;
   });
 
   const scenarioSum: reductionCardDataType = {
@@ -83,6 +98,7 @@ export function buildResponseImpactCardData(
       hospitalized: staffHospitalizedSum,
       fatalities: staffFatalitiesSum,
     },
+    staffUnableToWork: staffUnableToWorkSum,
   };
   return scenarioSum;
 }

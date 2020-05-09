@@ -6,6 +6,7 @@ import hospitalIcon from "./icons/ic_hospital.svg";
 import staffIcon from "./icons/ic_staff.svg";
 import ImpactMetricCard from "./ImpactMetricCard";
 import ImpactMetricsContainer from "./ImpactMetricsContainer";
+import { reductionCardDataType } from "./utils/ResponseImpactCardStateUtils";
 
 const Icon = styled.img`
   display: inline;
@@ -22,20 +23,21 @@ const PercentValue = ({ value }: { [value: string]: string }) => {
   );
 };
 
-const ReducingR0ImpactMetrics: React.FC = () => {
-  // TODO: Replace with actual data
+interface Props {
+  reductionData: reductionCardDataType;
+}
+
+const ReducingR0ImpactMetrics: React.FC<Props> = ({ reductionData }) => {
   return (
     <ImpactMetricsContainer>
       <ImpactMetricCard
         title="Hospital beds used"
         value={<PercentValue value={"50%"} />}
-        subtitle="12% of staff"
         icon={hospitalIcon}
       />
       <ImpactMetricCard
         title="Additional staff able to work"
-        value={200}
-        subtitle="12% of incarcerated"
+        value={reductionData?.staffUnableToWork}
         icon={staffIcon}
       />
     </ImpactMetricsContainer>

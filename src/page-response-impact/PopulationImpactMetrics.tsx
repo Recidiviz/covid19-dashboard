@@ -6,7 +6,10 @@ import ambulanceIcon from "./icons/ic_ambulance.svg";
 import heartIcon from "./icons/ic_heart.svg";
 import ImpactMetricCard from "./ImpactMetricCard";
 import ImpactMetricsContainer from "./ImpactMetricsContainer";
-import { reductionCardDataType } from "./utils/ResponseImpactCardStateUtils";
+import {
+  reductionCardDataType,
+  roundToPercent,
+} from "./utils/ResponseImpactCardStateUtils";
 
 const TitleSpan = styled.span`
   color: ${Colors.teal};
@@ -26,10 +29,6 @@ interface Props {
   incarceratedPopulation: number;
 }
 
-function round(percent: number): number {
-  return Math.round(percent * 100);
-}
-
 const PopulationImpactMetrics: React.FC<Props> = ({
   reductionData,
   staffPopulation,
@@ -45,13 +44,15 @@ const PopulationImpactMetrics: React.FC<Props> = ({
         <ImpactMetricCard
           title={<Title title="Staff fatalities" />}
           value={staff.fatalities}
-          subtitle={`${round(staff.fatalities / staffPopulation)}% of staff`}
+          subtitle={`${roundToPercent(
+            staff.fatalities / staffPopulation,
+          )}% of staff`}
           icon={heartIcon}
         />
         <ImpactMetricCard
           title={<Title title="Incarcerated fatalities" />}
           value={incarcerated.fatalities}
-          subtitle={`${round(
+          subtitle={`${roundToPercent(
             incarcerated.fatalities / incarceratedPopulation,
           )}% of incarcerated`}
           icon={heartIcon}
@@ -61,13 +62,15 @@ const PopulationImpactMetrics: React.FC<Props> = ({
         <ImpactMetricCard
           title={<Title title="Staff hospitalization" />}
           value={staff.hospitalized}
-          subtitle={`${round(staff.hospitalized / staffPopulation)}% of staff`}
+          subtitle={`${roundToPercent(
+            staff.hospitalized / staffPopulation,
+          )}% of staff`}
           icon={ambulanceIcon}
         />
         <ImpactMetricCard
           title={<Title title="Incarcerated hospitalization" />}
           value={incarcerated.hospitalized}
-          subtitle={`${round(
+          subtitle={`${roundToPercent(
             incarcerated.hospitalized / incarceratedPopulation,
           )}% of incarcerated`}
           icon={ambulanceIcon}

@@ -182,7 +182,11 @@ const ResponseImpactDashboard: React.FC<Props> = ({
                   <SectionSubheader>
                     Impact on community health and staff resources
                   </SectionSubheader>
-                  <ReducingR0ImpactMetrics />
+                  {reductionCardData && (
+                    <ReducingR0ImpactMetrics
+                      reductionData={reductionCardData}
+                    />
+                  )}
                 </Column>
                 <Column>
                   <Spacer y={40} />
