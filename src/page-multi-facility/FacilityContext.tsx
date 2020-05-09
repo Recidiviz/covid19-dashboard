@@ -1,11 +1,7 @@
 import React from "react";
 
-import { RtData } from "../infection-model/rt";
-import { Facility } from "./types";
-
-export type RtDataMapping = {
-  [key in Facility["id"]]: RtData | null;
-};
+import { FacilityEvents } from "../constants/dispatchEvents";
+import { Facility, RtDataMapping } from "./types";
 
 interface FacilityContextProps {
   facility?: Facility;
@@ -22,12 +18,24 @@ export const FacilityContext = React.createContext<FacilityContextProps>({
 export const rtDataReducer = (
   state: RtDataMapping,
   action: {
-    type: "add";
-    payload: RtDataMapping;
+    type: FacilityEvents;
+    payload: any;
   },
 ): RtDataMapping => {
   switch (action.type) {
-    case "add":
+    case FacilityEvents.ADD:
       return { ...state, ...action.payload };
+
+    case FacilityEvents.UPDATE:
+      const { id, data } = action.payload;
+      if (!state[id]) {
+        return state;
+      }
+      const newState = { ...state };
+      newState[id] = data;
+      return newState;
+
+    default:
+      return state;
   }
 };
