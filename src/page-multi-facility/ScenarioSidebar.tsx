@@ -8,7 +8,7 @@ import Colors from "../design-system/Colors";
 import iconFolderSrc from "../design-system/icons/ic_folder.svg";
 import InputButton from "../design-system/InputButton";
 import InputDescription from "../design-system/InputDescription";
-import InputNameWithIcon from "../design-system/InputNameWithIcon";
+import InputName from "../design-system/InputName";
 import PromoBoxWithButton from "../design-system/PromoBoxWithButton";
 import { Spacer } from "../design-system/Spacer";
 import { useFlag } from "../feature-flags";
@@ -19,6 +19,11 @@ import { Scenario } from "./types";
 
 const HorizontalRule = styled.hr`
   border-color: ${Colors.opacityGray};
+`;
+
+const ScenarioName = styled.div`
+  border-bottom: 1px solid ${Colors.paleGreen};
+  display: flex;
 `;
 
 const IconFolder = styled.img`
@@ -112,21 +117,30 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
   return (
     <div className="flex flex-col w-1/4 mr-24">
       <div className="flex-1 flex flex-col pb-4">
-        {showScenarioLibrary && (
-          <ScenarioLibraryModal
-            trigger={<IconFolder alt="folder" src={iconFolderSrc} />}
+        <ScenarioName>
+          {showScenarioLibrary && (
+            <ScenarioLibraryModal
+              trigger={
+                <IconFolder
+                  style={{
+                    marginTop: "8px",
+                  }}
+                  alt="folder"
+                  src={iconFolderSrc}
+                />
+              }
+            />
+          )}
+          <InputName
+            name={name}
+            setName={setName}
+            placeholderValue={scenario?.name}
+            placeholderText="Scenario name is required"
+            maxLengthValue={124}
+            requiredFlag={true}
+            persistChanges={handleTextInputChange}
           />
-        )}
-        <InputNameWithIcon
-          name={name}
-          setName={setName}
-          placeholderValue={scenario?.name}
-          placeholderText="Scenario name is required"
-          maxLengthValue={124}
-          requiredFlag={true}
-          persistChanges={handleTextInputChange}
-          showIcon
-        />
+        </ScenarioName>
         <Spacer y={20} />
         <InputDescription
           description={description}
