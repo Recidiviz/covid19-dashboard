@@ -3,6 +3,7 @@ import { navigate } from "gatsby";
 import React, { useContext, useState } from "react";
 import styled from "styled-components";
 
+import { FacilityEvents } from "../constants/dispatchEvents";
 import Colors, { MarkColors as markColors } from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import FontSizes from "../design-system/FontSizes";
@@ -13,6 +14,7 @@ import { useFlag } from "../feature-flags";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
 import { totalConfirmedCases } from "../impact-dashboard/EpidemicModelContext";
 import useModel from "../impact-dashboard/useModel";
+import { getRtDataForFacility, RtData } from "../infection-model/rt";
 import AddCasesModal from "./AddCasesModal";
 import { FacilityContext } from "./FacilityContext";
 import FacilityRowRtValuePill from "./FacilityRowRtValuePill";
@@ -84,11 +86,11 @@ interface Props {
 const FacilityRow: React.FC<Props> = ({ facility: initialFacility }) => {
   const [model] = useModel();
 
-  const { rtData, setFacility } = useContext(FacilityContext);
+  const { rtData, setFacility, dispatchRtData } = useContext(FacilityContext);
 
   const [facility, updateFacility] = useState(initialFacility);
   let useRt,
-    facilityRtData = undefined,
+    facilityRtData: RtData | undefined | null = undefined,
     latestRt = undefined;
   if (useFlag(["useRt"])) {
     useRt = true;
@@ -115,6 +117,23 @@ const FacilityRow: React.FC<Props> = ({ facility: initialFacility }) => {
   const openFacilityPage = () => {
     setFacility(facility);
     navigate("/facility");
+  };
+
+  async function getUpdatedFacilityRtData(facility: Facility) {
+    const facilityRtData = await getRtDataForFacility(facility);
+
+    dispatchRtData({
+      type: FacilityEvents.UPDATE,
+      payload: {
+        id: facility.id,
+        data: facilityRtData,
+      },
+    });
+  }
+
+  const onModalSave = (newFacility: Facility) => {
+    updateFacility(newFacility);
+    getUpdatedFacilityRtData(newFacility);
   };
 
   return (
@@ -150,7 +169,7 @@ const FacilityRow: React.FC<Props> = ({ facility: initialFacility }) => {
                       </CaseText>
                     </Tooltip>
                   }
-                  updateFacility={updateFacility}
+                  onSave={onModalSave}
                 />
               </div>
             </div>

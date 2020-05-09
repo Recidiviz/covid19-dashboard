@@ -18,7 +18,7 @@ import { Facility } from "./types";
 
 type Props = Pick<ModalProps, "trigger"> & {
   facility: Facility;
-  updateFacility: Function;
+  onSave: Function;
 };
 
 const ModalContents = styled.div`
@@ -55,18 +55,14 @@ const useModelDiff = (): [
   return [diff, mergeDiff, resetDiff];
 };
 
-const AddCasesModal: React.FC<Props> = ({
-  facility,
-  trigger,
-  updateFacility,
-}) => {
+const AddCasesModal: React.FC<Props> = ({ facility, trigger, onSave }) => {
   const [modalOpen, setModalOpen] = useState(false);
 
   const [model, updateModel] = useModel();
   let [modelDiff, fakeUpdateModel, resetModelDiff] = useModelDiff();
   const newModel = { ...model, ...modelDiff };
 
-  const save = () => {
+  const save = async () => {
     // Ensure that we don't insert keys (like `localeDataSource`) that is in model but not in the facility modelInputs
     const modelInputs = {
       ...facility.modelInputs,
@@ -80,15 +76,19 @@ const AddCasesModal: React.FC<Props> = ({
       model.observedAt &&
       startOfDay(newModel.observedAt) >= startOfDay(model.observedAt)
     ) {
-      updateFacility({ ...facility, modelInputs });
       updateModel(modelDiff);
     }
+
+    setModalOpen(false);
+
     // Save to DB with model changes
-    saveFacility(facility.scenarioId, {
+    await saveFacility(facility.scenarioId, {
       id: facility.id,
       modelInputs,
     });
-    setModalOpen(false);
+
+    // After the DB is updated, then process the onSave callback
+    onSave({ ...facility, modelInputs });
   };
 
   return (

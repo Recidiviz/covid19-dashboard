@@ -22,6 +22,7 @@ import AddCasesModal from "./AddCasesModal";
 import { FacilityContext } from "./FacilityContext";
 import FacilityProjections from "./FacilityProjections";
 import LocaleInformationSection from "./LocaleInformationSection";
+import { Facility } from "./types";
 
 const ButtonSection = styled.div`
   margin-top: 30px;
@@ -160,6 +161,10 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
       // setting this value to null will suppress the chart
       null;
 
+  const onModalSave = (newFacility: Facility) => {
+    updateFacility(newFacility);
+  };
+
   return (
     <PageContainer>
       <Column width={"45%"}>
@@ -184,7 +189,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
                   </AddCasesButton>
                 </Tooltip>
               }
-              updateFacility={updateFacility}
+              onSave={onModalSave}
             />
           </AddCasesRow>
         )}
