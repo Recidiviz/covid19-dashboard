@@ -14,7 +14,6 @@ import { Spacer } from "../design-system/Spacer";
 import { useFlag } from "../feature-flags";
 import useScenario from "../scenario-context/useScenario";
 import ScenarioLibraryModal from "./ScenarioLibraryModal";
-import ToggleRow from "./ToggleRow";
 import { Scenario } from "./types";
 
 const HorizontalRule = styled.hr`
@@ -36,10 +35,6 @@ const IconFolder = styled.img`
 interface ToggleContainerProps {
   hidden?: boolean;
 }
-
-const ToggleContainer = styled.div<ToggleContainerProps>`
-  visibility: ${(props) => (props.hidden ? "hidden" : "visibile")};
-`;
 
 interface Props {
   numFacilities?: number | null;
@@ -161,26 +156,6 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
         <div>
           <Spacer y={20} />
           <HorizontalRule />
-          <ToggleContainer hidden={!scenario?.baseline}>
-            <ToggleRow
-              onToggle={() =>
-                handleScenarioChange({ dailyReports: !scenario?.dailyReports })
-              }
-              toggled={scenario?.dailyReports}
-              label="Subscribe to daily reports"
-              labelHelp="If enabled, your baseline scenario will be shared with Recidiviz and CSG. This data will only be used to provide you with daily reports."
-            />
-            <HorizontalRule />
-            <ToggleRow
-              onToggle={() =>
-                handleScenarioChange({ dataSharing: !scenario?.dataSharing })
-              }
-              toggled={scenario?.dataSharing}
-              label="Share data to improve the model"
-              labelHelp="If enabled, your baseline scenario will be made available to Recidiviz and the research community to improve the model and the state of research on the spread of disease in facilities. Any public research will anonymize state and facility names."
-            />
-            <HorizontalRule />
-          </ToggleContainer>
           <PromoBoxWithButton
             enabled={!!scenario?.baseline && !promoDismissed}
             text={getPromoText(promoType) || null}
