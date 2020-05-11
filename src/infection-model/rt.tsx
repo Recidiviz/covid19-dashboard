@@ -5,7 +5,7 @@ import {
   fromUnixTime,
   parseISO,
 } from "date-fns";
-import { mapValues, maxBy, minBy, orderBy, uniqBy } from "lodash";
+import { mapValues, maxBy, minBy, uniqBy } from "lodash";
 
 import { RateOfSpreadType } from "../constants/EpidemicModel";
 import { getFacilityModelVersions } from "../database";
