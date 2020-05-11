@@ -304,6 +304,7 @@ export const getFacilityModelVersions = async ({
       .doc(facilityId)
       .collection(modelVersionCollectionId)
       .orderBy("observedAt", "asc")
+      .orderBy("updatedAt", "desc")
       .get();
 
     return historyResults.docs.map((doc) => {
