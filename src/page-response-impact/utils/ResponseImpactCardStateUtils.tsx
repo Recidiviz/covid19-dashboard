@@ -1,3 +1,4 @@
+import Colors from "../../design-system/Colors";
 import {
   countEverHospitalizedForDay,
   getFatalitiesForDay,
@@ -14,6 +15,26 @@ export type PopulationImpact = {
     fatalities: number;
   };
 };
+
+export function getSubtitle(valueSign: number) {
+  switch (valueSign) {
+    case 1:
+      return {
+        text: "reduced by",
+        color: Colors.teal,
+      };
+    case -1:
+      return {
+        text: "increased by",
+        color: Colors.darkRed,
+      };
+    default:
+      return {
+        text: "changed by",
+        color: Colors.forest,
+      };
+  }
+}
 
 export function calculatePopulationImpactDifference(
   origData: PopulationImpact,

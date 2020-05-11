@@ -6,31 +6,14 @@ import ambulanceIcon from "./icons/ic_ambulance.svg";
 import heartIcon from "./icons/ic_heart.svg";
 import ImpactMetricCard from "./ImpactMetricCard";
 import ImpactMetricsContainer from "./ImpactMetricsContainer";
-import { PopulationImpact } from "./utils/ResponseImpactCardStateUtils";
+import {
+  getSubtitle,
+  PopulationImpact,
+} from "./utils/ResponseImpactCardStateUtils";
 
 const TitleSpan = styled.span`
   color: ${(props) => props.color || Colors.teal};
 `;
-
-function getSubtitle(valueSign: number) {
-  switch (valueSign) {
-    case 1:
-      return {
-        text: "reduced by",
-        color: Colors.teal,
-      };
-    case -1:
-      return {
-        text: "increased by",
-        color: Colors.darkRed,
-      };
-    default:
-      return {
-        text: "changed by",
-        color: Colors.forest,
-      };
-  }
-}
 
 type TitleProps = {
   title: string;
