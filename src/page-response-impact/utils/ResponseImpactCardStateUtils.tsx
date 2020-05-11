@@ -4,7 +4,7 @@ import {
 } from "../../impact-dashboard/ImpactProjectionTableContainer";
 import { CurveData, isCurveData } from "../../infection-model";
 
-export type reductionCardDataType = {
+export type PopulationImpact = {
   incarcerated: {
     hospitalized: number;
     fatalities: number;
@@ -15,34 +15,27 @@ export type reductionCardDataType = {
   };
 };
 
-export function buildReductionData(
-  origData: reductionCardDataType,
-  currData: reductionCardDataType,
-): reductionCardDataType {
-  // positive value is a reduction
+export function calculatePopulationImpactDifference(
+  origData: PopulationImpact,
+  currData: PopulationImpact,
+): PopulationImpact {
   return {
     incarcerated: {
-      hospitalized: Math.abs(
+      hospitalized:
         origData.incarcerated.hospitalized - currData.incarcerated.hospitalized,
-      ),
-      fatalities: Math.abs(
+      fatalities:
         origData.incarcerated.fatalities - currData.incarcerated.fatalities,
-      ),
     },
     staff: {
-      hospitalized: Math.abs(
-        origData.staff.hospitalized - currData.staff.hospitalized,
-      ),
-      fatalities: Math.abs(
-        origData.staff.fatalities - currData.staff.fatalities,
-      ),
+      hospitalized: origData.staff.hospitalized - currData.staff.hospitalized,
+      fatalities: origData.staff.fatalities - currData.staff.fatalities,
     },
   };
 }
 
-export function buildResponseImpactCardData(
+export function sumPopulationImpactAcrossFacilities(
   curveDataArr: (CurveData | undefined)[],
-): reductionCardDataType {
+): PopulationImpact {
   // for a given scenario, iterate over facilities and produce data for staff/inc. - hosp./fat.
   let incarceratedHospitalizedSum = 0;
   let incarceratedFatalitiesSum = 0;
@@ -76,7 +69,7 @@ export function buildResponseImpactCardData(
     staffFatalitiesSum += staffFatalities;
   });
 
-  const scenarioSum: reductionCardDataType = {
+  const scenarioSum: PopulationImpact = {
     incarcerated: {
       hospitalized: incarceratedHospitalizedSum,
       fatalities: incarceratedFatalitiesSum,
