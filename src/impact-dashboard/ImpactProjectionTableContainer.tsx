@@ -13,6 +13,19 @@ import { seirIndex } from "../infection-model/seir";
 import { useEpidemicModelState } from "./EpidemicModelContext";
 import ImpactProjectionTable, { TableRow } from "./ImpactProjectionTable";
 
+export function maxByIndex(twoDimensionalArray: number[][]) {
+  let sumByIndex = [];
+  for (let i = 0; i < 90; i++) {
+    sumByIndex.push(
+      twoDimensionalArray.reduce((sum, data) => {
+        sum += data[i];
+        return sum;
+      }, 0),
+    );
+  }
+  return Math.max(...sumByIndex);
+}
+
 function buildTableRowFromCurves(
   data: ndarray,
   label: string,

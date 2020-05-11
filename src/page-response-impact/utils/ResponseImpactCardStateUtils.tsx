@@ -2,6 +2,7 @@ import {
   countEverHospitalizedForDay,
   countUnableToWorkForDay,
   getFatalitiesForDay,
+  maxByIndex,
 } from "../../impact-dashboard/ImpactProjectionTableContainer";
 import { CurveData, isCurveData } from "../../infection-model";
 
@@ -54,7 +55,7 @@ export function buildResponseImpactCardData(
   let incarceratedFatalitiesSum = 0;
   let staffHospitalizedSum = 0;
   let staffFatalitiesSum = 0;
-  let staffUnableToWorkSum = 0;
+  let staffUnableToWorkByDayByFacility: number[][] = [];
 
   curveDataArr.filter(isCurveData).forEach((data) => {
     const incarceratedData = data.incarcerated;
@@ -82,11 +83,11 @@ export function buildResponseImpactCardData(
     staffHospitalizedSum += staffHospitalized;
     staffFatalitiesSum += staffFatalities;
 
-    const staffUnableToWork = countUnableToWorkForDay(
-      staffData,
-      staffData.shape[0] - 1,
-    );
-    staffUnableToWorkSum += staffUnableToWork;
+    const staffUnableToWorkByDay = [];
+    for (let i = 0; i < 90; i++) {
+      staffUnableToWorkByDay.push(countUnableToWorkForDay(staffData, i));
+    }
+    staffUnableToWorkByDayByFacility.push(staffUnableToWorkByDay);
   });
 
   const scenarioSum: reductionCardDataType = {
@@ -98,7 +99,7 @@ export function buildResponseImpactCardData(
       hospitalized: staffHospitalizedSum,
       fatalities: staffFatalitiesSum,
     },
-    staffUnableToWork: staffUnableToWorkSum,
+    staffUnableToWork: maxByIndex(staffUnableToWorkByDayByFacility),
   };
   return scenarioSum;
 }
