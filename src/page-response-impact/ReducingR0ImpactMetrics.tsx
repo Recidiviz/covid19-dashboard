@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 
 import hospitalIcon from "./icons/ic_hospital.svg";
 import staffIcon from "./icons/ic_staff.svg";

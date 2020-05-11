@@ -1,7 +1,5 @@
 import React from "react";
-import styled from "styled-components";
 
-import Colors from "../design-system/Colors";
 import ambulanceIcon from "./icons/ic_ambulance.svg";
 import heartIcon from "./icons/ic_heart.svg";
 import ImpactMetricCard from "./ImpactMetricCard";
@@ -54,7 +52,9 @@ const PopulationImpactMetrics: React.FC<Props> = ({
         <ImpactMetricCard
           title={<Title title="Staff fatalities" value={staff.fatalities} />}
           value={formatValue(staff.fatalities)}
-          subtitle={`${round(staff.fatalities / staffPopulation)}% of staff`}
+          subtitle={`${formatValue(
+            round(staff.fatalities / staffPopulation),
+          )}% of staff`}
           icon={heartIcon}
         />
         <ImpactMetricCard
@@ -65,8 +65,8 @@ const PopulationImpactMetrics: React.FC<Props> = ({
             />
           }
           value={formatValue(incarcerated.fatalities)}
-          subtitle={`${round(
-            incarcerated.fatalities / incarceratedPopulation,
+          subtitle={`${formatValue(
+            round(incarcerated.fatalities / incarceratedPopulation),
           )}% of incarcerated`}
           icon={heartIcon}
         />
@@ -77,7 +77,9 @@ const PopulationImpactMetrics: React.FC<Props> = ({
             <Title title="Staff hospitalization" value={staff.hospitalized} />
           }
           value={formatValue(staff.hospitalized)}
-          subtitle={`${round(staff.hospitalized / staffPopulation)}% of staff`}
+          subtitle={`${formatValue(
+            round(staff.hospitalized / staffPopulation),
+          )}% of staff`}
           icon={ambulanceIcon}
         />
         <ImpactMetricCard
@@ -88,8 +90,8 @@ const PopulationImpactMetrics: React.FC<Props> = ({
             />
           }
           value={formatValue(incarcerated.hospitalized)}
-          subtitle={`${round(
-            incarcerated.hospitalized / incarceratedPopulation,
+          subtitle={`${formatValue(
+            round(incarcerated.hospitalized / incarceratedPopulation),
           )}% of incarcerated`}
           icon={ambulanceIcon}
         />
