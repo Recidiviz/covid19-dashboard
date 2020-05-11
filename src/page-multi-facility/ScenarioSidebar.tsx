@@ -46,24 +46,16 @@ export function getEnabledPromoType(
 ) {
   if (!scenario) return null;
 
-  const { dailyReports, dataSharing, promoStatuses } = scenario;
+  const { promoStatuses } = scenario;
 
   return promoStatuses.rtChart
     ? "rtChart"
-    : !dailyReports && promoStatuses?.dailyReports
-    ? "dailyReports"
-    : !dataSharing && promoStatuses?.dataSharing
-    ? "dataSharing"
     : numFacilities && numFacilities < 3 && promoStatuses?.addFacilities
     ? "addFacilities"
     : null;
 }
 
 const promoTexts: { [promoType: string]: string } = {
-  dailyReports:
-    "Turn on 'Daily Reports' to receive briefings based on the data in this scenario, prepared by Recidiviz and CSG.",
-  dataSharing:
-    "Turn on 'Data Sharing' to provide your baseline data to public researchers, to help improve models of disease spread in prisons in the future.",
   addFacilities:
     "Add additional facilities to see the impact across your entire system.",
   rtChart: `New! View the chart of Rt (the rate of spread over time) for any
