@@ -16,6 +16,14 @@ module.exports = {
     },
 
     {
+      resolve: "gatsby-plugin-segment-js",
+      options: {
+        prodKey: `eU6WeIwGhtdYhNGvienKPYXd60Q4jYdU`,
+        trackPage: true,
+      },
+    },
+
+    {
       resolve: "gatsby-plugin-manifest",
       options: {
         short_name: "COVID-19",
