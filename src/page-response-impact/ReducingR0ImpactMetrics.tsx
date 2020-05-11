@@ -26,6 +26,7 @@ const ReducingR0ImpactMetrics: React.FC = () => {
   const staffAbleToWork = 200;
   const percentageBedsUsed = 50;
   const percentageOfStaff = 12;
+  const percentageOfIncarcerated = 12;
   const staffAbilityText = Math.sign(staffAbleToWork) === 1 ? "able" : "unable";
 
   return (
@@ -38,13 +39,13 @@ const ReducingR0ImpactMetrics: React.FC = () => {
           />
         }
         value={`${Math.abs(percentageBedsUsed)}%`}
-        subtitle={`${percentageOfStaff}% of staff`}
+        subtitle={`${Math.abs(percentageOfStaff)}% of staff`}
         icon={hospitalIcon}
       />
       <ImpactMetricCard
         title={`Additional staff ${staffAbilityText} to work`}
         value={Math.abs(staffAbleToWork)}
-        subtitle={`${percentageOfStaff}% of incarcerated`}
+        subtitle={`${Math.abs(percentageOfIncarcerated)}% of incarcerated`}
         icon={staffIcon}
       />
     </ImpactMetricsContainer>
