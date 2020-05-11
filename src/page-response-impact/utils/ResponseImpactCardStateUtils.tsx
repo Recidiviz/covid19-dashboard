@@ -2,12 +2,25 @@ import {
   countEverHospitalizedForDay,
   countUnableToWorkForDay,
   getFatalitiesForDay,
-  maxByIndex,
+  getHospitalizedForDay,
 } from "../../impact-dashboard/ImpactProjectionTableContainer";
 import { CurveData, isCurveData } from "../../infection-model";
 
 export function roundToPercent(percent: number): number {
   return Math.round(percent * 100);
+}
+
+export function maxByDay(twoDimensionalArray: number[][]) {
+  let sumByIndex = [];
+  for (let i = 0; i < 90; i++) {
+    sumByIndex.push(
+      twoDimensionalArray.reduce((sum, data) => {
+        sum += data[i];
+        return sum;
+      }, 0),
+    );
+  }
+  return Math.max(...sumByIndex);
 }
 
 export type reductionCardDataType = {
@@ -20,6 +33,7 @@ export type reductionCardDataType = {
     fatalities: number;
   };
   staffUnableToWork: number;
+  hospitalBedsUsed: number;
 };
 
 export function buildReductionData(
@@ -44,6 +58,8 @@ export function buildReductionData(
     },
     staffUnableToWork:
       -1 * (currData.staffUnableToWork - origData.staffUnableToWork),
+    hospitalBedsUsed:
+      -1 * (currData.hospitalBedsUsed - origData.hospitalBedsUsed),
   };
 }
 
@@ -56,6 +72,7 @@ export function buildResponseImpactCardData(
   let staffHospitalizedSum = 0;
   let staffFatalitiesSum = 0;
   let staffUnableToWorkByDayByFacility: number[][] = [];
+  let hospitalBedsUsedByFacility: number[][] = [];
 
   curveDataArr.filter(isCurveData).forEach((data) => {
     const incarceratedData = data.incarcerated;
@@ -83,11 +100,14 @@ export function buildResponseImpactCardData(
     staffHospitalizedSum += staffHospitalized;
     staffFatalitiesSum += staffFatalities;
 
-    const staffUnableToWorkByDay = [];
+    let staffUnableToWorkByDay = [];
+    let hospitalBedsUsedByDay = [];
     for (let i = 0; i < 90; i++) {
       staffUnableToWorkByDay.push(countUnableToWorkForDay(staffData, i));
+      hospitalBedsUsedByDay.push(getHospitalizedForDay(incarceratedData, i));
     }
     staffUnableToWorkByDayByFacility.push(staffUnableToWorkByDay);
+    hospitalBedsUsedByFacility.push(hospitalBedsUsedByDay);
   });
 
   const scenarioSum: reductionCardDataType = {
@@ -99,7 +119,8 @@ export function buildResponseImpactCardData(
       hospitalized: staffHospitalizedSum,
       fatalities: staffFatalitiesSum,
     },
-    staffUnableToWork: maxByIndex(staffUnableToWorkByDayByFacility),
+    staffUnableToWork: maxByDay(staffUnableToWorkByDayByFacility),
+    hospitalBedsUsed: maxByDay(hospitalBedsUsedByFacility),
   };
   return scenarioSum;
 }

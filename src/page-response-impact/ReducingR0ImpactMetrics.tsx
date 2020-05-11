@@ -32,7 +32,7 @@ const ReducingR0ImpactMetrics: React.FC<Props> = ({ reductionData }) => {
     <ImpactMetricsContainer>
       <ImpactMetricCard
         title="Hospital beds used"
-        value={<PercentValue value={"50%"} />}
+        value={<PercentValue value={`${reductionData?.hospitalBedsUsed}`} />}
         icon={hospitalIcon}
       />
       <ImpactMetricCard
