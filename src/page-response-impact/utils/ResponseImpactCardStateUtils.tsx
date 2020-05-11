@@ -1,3 +1,5 @@
+import styled from "styled-components";
+
 import Colors from "../../design-system/Colors";
 import {
   countEverHospitalizedForDay,
@@ -15,6 +17,15 @@ export type PopulationImpact = {
     fatalities: number;
   };
 };
+
+export type ImpactTitleProps = {
+  title: string;
+  value: number;
+};
+
+export const ImpactTitleSpan = styled.span`
+  color: ${(props) => props.color || Colors.teal};
+`;
 
 export function getSubtitle(valueSign: number) {
   switch (valueSign) {

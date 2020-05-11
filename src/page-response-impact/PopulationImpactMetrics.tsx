@@ -8,25 +8,18 @@ import ImpactMetricCard from "./ImpactMetricCard";
 import ImpactMetricsContainer from "./ImpactMetricsContainer";
 import {
   getSubtitle,
+  ImpactTitleProps,
+  ImpactTitleSpan,
   PopulationImpact,
 } from "./utils/ResponseImpactCardStateUtils";
 
-const TitleSpan = styled.span`
-  color: ${(props) => props.color || Colors.teal};
-`;
-
-type TitleProps = {
-  title: string;
-  value: number;
-};
-
-const Title = ({ title, value }: TitleProps) => {
+const Title = ({ title, value }: ImpactTitleProps) => {
   const valueSign = Math.sign(value);
   const subtitle = getSubtitle(valueSign);
   return (
     <>
       <span>{title}</span>{" "}
-      <TitleSpan color={subtitle.color}>{subtitle.text}</TitleSpan>
+      <ImpactTitleSpan color={subtitle.color}>{subtitle.text}</ImpactTitleSpan>
     </>
   );
 };
