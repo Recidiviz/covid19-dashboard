@@ -3,29 +3,24 @@ import styled from "styled-components";
 
 import Colors from "./Colors";
 import EditInPlace, { Props as EditInPlaceProps } from "./EditInPlace";
-import iconFolderSrc from "./icons/ic_folder.svg";
+
+interface NameLabelDivProps {
+  border?: boolean;
+}
 
 const borderStyle = `1px solid ${Colors.paleGreen}`;
 
-const NameLabelDiv = styled.label`
-  align-items: baseline;
+const NameLabelDiv = styled.label<NameLabelDivProps>`
   cursor: pointer;
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
   padding-bottom: 15px;
-  border-bottom: ${borderStyle};
+  border-bottom: ${(props) => (props.border ? borderStyle : "none")};
   font-size: 24px;
   font-family: Libre Baskerville;
   font-weight: normal;
   letter-spacing: -0.06em;
   line-height: 24px;
-`;
-
-const IconFolder = styled.img`
-  display: inline;
-  flex: 0 0 auto;
-  margin-right: 12px;
 `;
 
 const Heading = styled.h1`
@@ -46,19 +41,18 @@ interface Props
   name?: string | undefined;
   persistChanges?: (changes: { name: string | undefined }) => void;
   setName: (name?: string) => void;
-  showIcon?: boolean;
+  border?: boolean;
 }
 
-const InputNameWithIcon: React.FC<Props> = ({
+const InputName: React.FC<Props> = ({
   name,
   persistChanges,
   setName,
-  showIcon,
+  border,
   ...passThruProps
 }) => {
   return (
-    <NameLabelDiv>
-      {showIcon && <IconFolder alt="folder" src={iconFolderSrc} />}
+    <NameLabelDiv border={border}>
       <EditInPlace
         autoResizeVertically
         BaseComponent={Heading}
@@ -74,4 +68,4 @@ const InputNameWithIcon: React.FC<Props> = ({
   );
 };
 
-export default InputNameWithIcon;
+export default InputName;
