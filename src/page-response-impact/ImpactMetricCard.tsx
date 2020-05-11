@@ -50,7 +50,11 @@ const Subtitle = styled.div`
   color: ${Colors.opacityForest};
 `;
 
-const Icon = styled.img``;
+const Icon = styled.img`
+  @media (max-width: 900px) {
+    display: none;
+  }
+`;
 
 interface Props {
   title: string | React.ReactElement;
