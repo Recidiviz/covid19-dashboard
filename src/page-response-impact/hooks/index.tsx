@@ -2,7 +2,7 @@ import { useCurrentCurveData } from "./useCurrentCurveData";
 import { useFacilities } from "./useFacilities";
 import { useModelInputs } from "./useModelInputs";
 import { useOriginalCurveData } from "./useOriginalCurveData";
-import { useReductionData } from "./useReductionData";
+import { usePopulationImpactData } from "./usePopulationImpactData";
 import { useSystemWideData } from "./useSystemWideData";
 
 export {
@@ -11,5 +11,5 @@ export {
   useCurrentCurveData,
   useModelInputs,
   useOriginalCurveData,
-  useReductionData,
+  usePopulationImpactData,
 };

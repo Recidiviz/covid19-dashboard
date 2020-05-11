@@ -18,7 +18,7 @@ import {
   useFacilities,
   useModelInputs,
   useOriginalCurveData,
-  useReductionData,
+  usePopulationImpactData,
   useSystemWideData,
 } from "./hooks";
 import PopulationImpactMetrics from "./PopulationImpactMetrics";
@@ -69,7 +69,7 @@ const ResponseImpactDashboard: React.FC<Props> = ({
     systemWideData,
     localeDataSource,
   );
-  const reductionCardData = useReductionData(
+  const populationImpactData = usePopulationImpactData(
     originalCurveInputs,
     currentCurveInputs,
   );
@@ -161,7 +161,7 @@ const ResponseImpactDashboard: React.FC<Props> = ({
                     Impact on health of overall population
                   </SectionSubheader>
                   <PopulationImpactMetrics
-                    reductionData={reductionCardData}
+                    populationImpact={populationImpactData}
                     staffPopulation={systemWideData.staffPopulation}
                     incarceratedPopulation={
                       systemWideData.incarceratedPopulation
