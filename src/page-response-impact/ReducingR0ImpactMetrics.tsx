@@ -1,50 +1,54 @@
 import React from "react";
-import styled from "styled-components";
 
-import downArrowIcon from "./icons/ic_down_arrow.svg";
 import hospitalIcon from "./icons/ic_hospital.svg";
 import staffIcon from "./icons/ic_staff.svg";
 import ImpactMetricCard from "./ImpactMetricCard";
 import ImpactMetricsContainer from "./ImpactMetricsContainer";
 import {
-  reductionCardDataType,
-  roundToPercent,
+  getSubtitle,
+  ImpactTitleProps,
+  ImpactTitleSpan,
+  PopulationImpact
 } from "./utils/ResponseImpactCardStateUtils";
+import { round, formatValue } from "./utils/numberUtils"
 
-const Icon = styled.img`
-  display: inline;
-  margin-right: 15px;
-`;
-
-const PercentValue = ({ value }: { [value: string]: string }) => {
-  // Note: This assumes the icon should always be a down arrow, should confirm
+const HospitalBedsTitle = ({ title, value }: ImpactTitleProps) => {
+  const valueSign = Math.sign(value);
+  const subtitle = getSubtitle(valueSign);
   return (
-    <div>
-      <Icon src={downArrowIcon} alt="down arrow icon" />
-      <span>{value}</span>
-    </div>
+    <>
+      <span>{title}</span>{" "}
+      <ImpactTitleSpan color={subtitle.color}>{subtitle.text}</ImpactTitleSpan>
+    </>
   );
 };
 
 interface Props {
-  reductionData: reductionCardDataType;
+  populationImpact: PopulationImpact;
 }
 
-const ReducingR0ImpactMetrics: React.FC<Props> = ({ reductionData }) => {
+const ReducingR0ImpactMetrics: React.FC<Props> = ({
+  populationImpact
+}) => {
+  const staffAbilityText = Math.sign(populationImpact.staffUnableToWork) === 1 ? "able" : "unable";
+
   return (
     <ImpactMetricsContainer>
       <ImpactMetricCard
-        title="Hospital beds used"
-        value={
-          <PercentValue
-            value={`${roundToPercent(reductionData?.hospitalBedsUsed)} %`}
+        title={
+          <HospitalBedsTitle
+            title="Hospital beds used at peak"
+            value={populationImpact.hospitalBedsUsed}
           />
         }
+        value={`${formatValue(
+          round(populationImpact.hospitalBedsUsed)
+        )}%`}
         icon={hospitalIcon}
       />
       <ImpactMetricCard
-        title="Additional staff able to work"
-        value={reductionData?.staffUnableToWork}
+        title={`Additional staff ${staffAbilityText} to work`}
+        value={formatValue(populationImpact.staffUnableToWork)}
         icon={staffIcon}
       />
     </ImpactMetricsContainer>

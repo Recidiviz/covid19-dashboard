@@ -1,3 +1,6 @@
+import styled from "styled-components";
+
+import Colors from "../../design-system/Colors";
 import {
   countEverHospitalizedForDay,
   countUnableToWorkForDay,
@@ -5,10 +8,6 @@ import {
   getHospitalizedForDay,
 } from "../../impact-dashboard/ImpactProjectionTableContainer";
 import { CurveData, isCurveData } from "../../infection-model";
-
-export function roundToPercent(percent: number): number {
-  return Math.round(percent * 100);
-}
 
 export function maxByIndex(twoDimensionalArray: number[][]) {
   let sumByIndex = [];
@@ -22,7 +21,7 @@ export function maxByIndex(twoDimensionalArray: number[][]) {
   return Math.max(...sumByIndex);
 }
 
-export type reductionCardDataType = {
+export type PopulationImpact = {
   incarcerated: {
     hospitalized: number;
     fatalities: number;
@@ -35,25 +34,49 @@ export type reductionCardDataType = {
   hospitalBedsUsed: number;
 };
 
-export function buildReductionData(
-  origData: reductionCardDataType,
-  currData: reductionCardDataType,
-): reductionCardDataType {
-  // positive value is a reduction
+export type ImpactTitleProps = {
+  title: string;
+  value: number;
+};
+
+export const ImpactTitleSpan = styled.span`
+  color: ${(props) => props.color || Colors.teal};
+`;
+
+export function getSubtitle(valueSign: number) {
+  switch (valueSign) {
+    case 1:
+      return {
+        text: "reduced by",
+        color: Colors.teal,
+      };
+    case -1:
+      return {
+        text: "increased by",
+        color: Colors.darkRed,
+      };
+    default:
+      return {
+        text: "changed by",
+        color: Colors.forest,
+      };
+  }
+}
+
+export function calculatePopulationImpactDifference(
+  origData: PopulationImpact,
+  currData: PopulationImpact,
+): PopulationImpact {
   return {
     incarcerated: {
       hospitalized:
-        -1 *
-        (currData.incarcerated.hospitalized -
-          origData.incarcerated.hospitalized),
+        origData.incarcerated.hospitalized - currData.incarcerated.hospitalized,
       fatalities:
-        -1 *
-        (currData.incarcerated.fatalities - origData.incarcerated.fatalities),
+        origData.incarcerated.fatalities - currData.incarcerated.fatalities,
     },
     staff: {
-      hospitalized:
-        -1 * (currData.staff.hospitalized - origData.staff.hospitalized),
-      fatalities: -1 * (currData.staff.fatalities - origData.staff.fatalities),
+      hospitalized: origData.staff.hospitalized - currData.staff.hospitalized,
+      fatalities: origData.staff.fatalities - currData.staff.fatalities,
     },
     staffUnableToWork:
       -1 * (currData.staffUnableToWork - origData.staffUnableToWork),
@@ -64,9 +87,9 @@ export function buildReductionData(
   };
 }
 
-export function buildResponseImpactCardData(
+export function sumPopulationImpactAcrossFacilities(
   curveDataArr: (CurveData | undefined)[],
-): reductionCardDataType {
+): PopulationImpact {
   // for a given scenario, iterate over facilities and produce data for staff/inc. - hosp./fat.
   let incarceratedHospitalizedSum = 0;
   let incarceratedFatalitiesSum = 0;
@@ -111,7 +134,7 @@ export function buildResponseImpactCardData(
     hospitalBedsUsedByFacility.push(hospitalBedsUsedByDay);
   });
 
-  const scenarioSum: reductionCardDataType = {
+  const scenarioSum: PopulationImpact = {
     incarcerated: {
       hospitalized: incarceratedHospitalizedSum,
       fatalities: incarceratedFatalitiesSum,
