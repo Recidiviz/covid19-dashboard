@@ -9,13 +9,41 @@ import ImpactMetricsContainer from "./ImpactMetricsContainer";
 import { PopulationImpact } from "./utils/ResponseImpactCardStateUtils";
 
 const TitleSpan = styled.span`
-  color: ${Colors.teal};
+  color: ${(props) => props.color || Colors.teal};
 `;
 
-const Title = ({ title }: { [title: string]: string }) => {
+function getSubtitle(valueSign: number) {
+  switch (valueSign) {
+    case 1:
+      return {
+        text: "reduced by",
+        color: Colors.teal,
+      };
+    case -1:
+      return {
+        text: "increased by",
+        color: Colors.darkRed,
+      };
+    default:
+      return {
+        text: "changed by",
+        color: Colors.forest,
+      };
+  }
+}
+
+type TitleProps = {
+  title: string;
+  value: number;
+};
+
+const Title = ({ title, value }: TitleProps) => {
+  const valueSign = Math.sign(value);
+  const subtitle = getSubtitle(valueSign);
   return (
     <>
-      <span>{title}</span> <TitleSpan>reduced by</TitleSpan>
+      <span>{title}</span>{" "}
+      <TitleSpan color={subtitle.color}>{subtitle.text}</TitleSpan>
     </>
   );
 };
@@ -48,13 +76,18 @@ const PopulationImpactMetrics: React.FC<Props> = ({
     <>
       <ImpactMetricsContainer>
         <ImpactMetricCard
-          title={<Title title="Staff fatalities" />}
+          title={<Title title="Staff fatalities" value={staff.fatalities} />}
           value={formatValue(staff.fatalities)}
           subtitle={`${round(staff.fatalities / staffPopulation)}% of staff`}
           icon={heartIcon}
         />
         <ImpactMetricCard
-          title={<Title title="Incarcerated fatalities" />}
+          title={
+            <Title
+              title="Incarcerated fatalities"
+              value={incarcerated.fatalities}
+            />
+          }
           value={formatValue(incarcerated.fatalities)}
           subtitle={`${round(
             incarcerated.fatalities / incarceratedPopulation,
@@ -64,13 +97,20 @@ const PopulationImpactMetrics: React.FC<Props> = ({
       </ImpactMetricsContainer>
       <ImpactMetricsContainer>
         <ImpactMetricCard
-          title={<Title title="Staff hospitalization" />}
+          title={
+            <Title title="Staff hospitalization" value={staff.hospitalized} />
+          }
           value={formatValue(staff.hospitalized)}
           subtitle={`${round(staff.hospitalized / staffPopulation)}% of staff`}
           icon={ambulanceIcon}
         />
         <ImpactMetricCard
-          title={<Title title="Incarcerated hospitalization" />}
+          title={
+            <Title
+              title="Incarcerated hospitalization"
+              value={incarcerated.hospitalized}
+            />
+          }
           value={formatValue(incarcerated.hospitalized)}
           subtitle={`${round(
             incarcerated.hospitalized / incarceratedPopulation,
