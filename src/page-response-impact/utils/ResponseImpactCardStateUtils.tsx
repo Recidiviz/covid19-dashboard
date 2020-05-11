@@ -10,13 +10,12 @@ export function roundToPercent(percent: number): number {
   return Math.round(percent * 100);
 }
 
-export function maxByDay(twoDimensionalArray: number[][]) {
+export function maxByIndex(twoDimensionalArray: number[][]) {
   let sumByIndex = [];
   for (let i = 0; i < 90; i++) {
     sumByIndex.push(
       twoDimensionalArray.reduce((sum, data) => {
-        sum += data[i];
-        return sum;
+        return sum + data[i];
       }, 0),
     );
   }
@@ -73,7 +72,7 @@ export function buildResponseImpactCardData(
   let incarceratedFatalitiesSum = 0;
   let staffHospitalizedSum = 0;
   let staffFatalitiesSum = 0;
-  let staffUnableToWorkByDayByFacility: number[][] = [];
+  let staffUnableToWorkByFacility: number[][] = [];
   let hospitalBedsUsedByFacility: number[][] = [];
 
   curveDataArr.filter(isCurveData).forEach((data) => {
@@ -108,7 +107,7 @@ export function buildResponseImpactCardData(
       staffUnableToWorkByDay.push(countUnableToWorkForDay(staffData, i));
       hospitalBedsUsedByDay.push(getHospitalizedForDay(incarceratedData, i));
     }
-    staffUnableToWorkByDayByFacility.push(staffUnableToWorkByDay);
+    staffUnableToWorkByFacility.push(staffUnableToWorkByDay);
     hospitalBedsUsedByFacility.push(hospitalBedsUsedByDay);
   });
 
@@ -121,8 +120,8 @@ export function buildResponseImpactCardData(
       hospitalized: staffHospitalizedSum,
       fatalities: staffFatalitiesSum,
     },
-    staffUnableToWork: maxByDay(staffUnableToWorkByDayByFacility),
-    hospitalBedsUsed: maxByDay(hospitalBedsUsedByFacility),
+    staffUnableToWork: maxByIndex(staffUnableToWorkByFacility),
+    hospitalBedsUsed: maxByIndex(hospitalBedsUsedByFacility),
   };
   return scenarioSum;
 }
