@@ -13,6 +13,6 @@ export const Column = styled.div<{ width?: string }>`
   width: ${(props) => props.width || "50%"};
 
   @media (max-width: 700px) {
-    width: 95%;
+    width: inherit;
   }
 `;
