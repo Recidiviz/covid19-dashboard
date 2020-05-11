@@ -11,4 +11,8 @@ export const PageContainer = styled.div`
 export const Column = styled.div<{ width?: string }>`
   margin: 20px;
   width: ${(props) => props.width || "50%"};
+
+  @media (max-width: 700px) {
+    width: 95%;
+  }
 `;
