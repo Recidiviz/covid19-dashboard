@@ -122,7 +122,7 @@ def compute_r_t(historical_case_counts):
     case_df.index = pd.to_datetime(case_df.index)
     case_df.index.name = 'date'
 
-    _, smoothed = prepare_cases(case_df, cutoff=10)
+    _, smoothed = prepare_cases(case_df, cutoff=0)
 
     # Raise an error if there are not enough valid cases to use
     # we need at least two days to represent change over time
