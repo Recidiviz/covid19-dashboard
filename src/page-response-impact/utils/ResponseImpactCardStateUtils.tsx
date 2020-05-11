@@ -59,7 +59,9 @@ export function buildReductionData(
     staffUnableToWork:
       -1 * (currData.staffUnableToWork - origData.staffUnableToWork),
     hospitalBedsUsed:
-      -1 * (currData.hospitalBedsUsed - origData.hospitalBedsUsed),
+      origData.hospitalBedsUsed &&
+      (-1 * (currData.hospitalBedsUsed - origData.hospitalBedsUsed)) /
+        origData.hospitalBedsUsed,
   };
 }
 

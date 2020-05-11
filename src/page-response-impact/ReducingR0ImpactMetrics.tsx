@@ -6,7 +6,10 @@ import hospitalIcon from "./icons/ic_hospital.svg";
 import staffIcon from "./icons/ic_staff.svg";
 import ImpactMetricCard from "./ImpactMetricCard";
 import ImpactMetricsContainer from "./ImpactMetricsContainer";
-import { reductionCardDataType } from "./utils/ResponseImpactCardStateUtils";
+import {
+  reductionCardDataType,
+  roundToPercent,
+} from "./utils/ResponseImpactCardStateUtils";
 
 const Icon = styled.img`
   display: inline;
@@ -32,7 +35,11 @@ const ReducingR0ImpactMetrics: React.FC<Props> = ({ reductionData }) => {
     <ImpactMetricsContainer>
       <ImpactMetricCard
         title="Hospital beds used"
-        value={<PercentValue value={`${reductionData?.hospitalBedsUsed}`} />}
+        value={
+          <PercentValue
+            value={`${roundToPercent(reductionData?.hospitalBedsUsed)} %`}
+          />
+        }
         icon={hospitalIcon}
       />
       <ImpactMetricCard
