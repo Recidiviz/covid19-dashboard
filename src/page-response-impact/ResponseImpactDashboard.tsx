@@ -8,6 +8,7 @@ import Loading from "../design-system/Loading";
 import { Column, PageContainer } from "../design-system/PageColumn";
 import { Spacer } from "../design-system/Spacer";
 import useFacilitiesRtData from "../hooks/useFacilitiesRtData";
+import { sumAgeGroupPopulations } from "../impact-dashboard/EpidemicModelContext";
 import { useLocaleDataState } from "../locale-data-context";
 import { FacilityContext } from "../page-multi-facility/FacilityContext";
 import { BaselinePopulations, Scenario } from "../page-multi-facility/types";
@@ -21,6 +22,7 @@ import {
   useSystemWideData,
 } from "./hooks";
 import PopulationImpactMetrics from "./PopulationImpactMetrics";
+import PopulationReduction from "./PopulationReduction";
 import ProjectionCharts from "./ProjectionCharts";
 import ReducingR0ImpactMetrics from "./ReducingR0ImpactMetrics";
 import RtSummaryStats from "./RtSummaryStats";
@@ -30,7 +32,6 @@ import {
   DescriptionTextDiv,
   IconBack,
   PageHeader,
-  PlaceholderSpace,
   ReportDateDiv,
   ResponseImpactDashboardContainer,
   SectionHeader,
@@ -74,7 +75,7 @@ const ResponseImpactDashboard: React.FC<Props> = ({
   );
   const [populationFormSubmitted, setPopulationFormSubmitted] = useState(false);
 
-  useFacilitiesRtData(facilities.data, true);
+  useFacilitiesRtData(facilities.data);
 
   async function saveBaselinePopulations(populations: BaselinePopulations) {
     const initialPopulations = scenario?.baselinePopulations || [];
@@ -85,6 +86,15 @@ const ResponseImpactDashboard: React.FC<Props> = ({
     if (savedScenario) dispatchScenarioUpdate(savedScenario);
     setPopulationFormSubmitted(true);
   }
+
+  // current incarcerated population
+  const currentIncarceratedPop = facilities?.data?.reduce(
+    (accumulator, facility) => {
+      const facilityPop = sumAgeGroupPopulations(facility);
+      return accumulator + facilityPop;
+    },
+    0,
+  );
 
   return (
     <ResponseImpactDashboardContainer>
@@ -140,10 +150,13 @@ const ResponseImpactDashboard: React.FC<Props> = ({
                     remain healthy.
                   </DescriptionTextDiv>
                   <Spacer y={40} />
-                  <ChartHeader>
-                    Reduction in the number of incarcerated individuals
-                  </ChartHeader>
-                  <PlaceholderSpace />
+                  {systemWideData.incarceratedPopulation &&
+                    currentIncarceratedPop && (
+                      <PopulationReduction
+                        originalPop={systemWideData.incarceratedPopulation}
+                        currentPop={currentIncarceratedPop}
+                      />
+                    )}
                   <SectionSubheader>
                     Impact on health of overall population
                   </SectionSubheader>
@@ -163,7 +176,7 @@ const ResponseImpactDashboard: React.FC<Props> = ({
                   </DescriptionTextDiv>
                   <Spacer y={40} />
                   <ChartHeader>
-                    Rate of spread (R(t)) for modelled facilities
+                    Rate of spread, R(t), for modelled facilities
                   </ChartHeader>
                   {rtData && <RtSummaryStats rtData={rtData} />}
                   <SectionSubheader>

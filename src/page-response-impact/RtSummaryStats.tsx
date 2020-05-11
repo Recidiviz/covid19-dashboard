@@ -70,8 +70,8 @@ const DonutChartSubtitle = styled.text`
   transform: translate(0px, 20px);
 `;
 
-function filterRtData(data: RtData | null): data is RtData {
-  return data !== null;
+export function isRtData(data: RtData | null | undefined): data is RtData {
+  return data !== null && data !== undefined;
 }
 
 function rtDonutChartAnnotation(d: any) {
@@ -93,7 +93,7 @@ const RtSummaryStats: React.FC<Props> = ({ rtData }) => {
   const totalFacilitiesInScenario = rtDataValues.length;
 
   const facilitiesRtRecords: RtRecord[][] = rtDataValues
-    .filter(filterRtData)
+    .filter(isRtData)
     .map((rtData: RtData) => rtData.Rt);
 
   const numFacilitiesWithRtLt1 =

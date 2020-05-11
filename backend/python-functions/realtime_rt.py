@@ -6,7 +6,7 @@ import numpy as np
 from scipy import stats as sps
 from scipy.interpolate import interp1d
 
-def prepare_cases(cases, cutoff=25):
+def prepare_cases(cases):
     new_cases = cases.diff()
 
     smoothed = new_cases.rolling(7,
@@ -14,9 +14,6 @@ def prepare_cases(cases, cutoff=25):
         min_periods=1,
         center=True).mean(std=2).round()
 
-    idx_start = np.searchsorted(smoothed, cutoff)
-
-    smoothed = smoothed.iloc[idx_start:]
     original = new_cases.loc[smoothed.index]
 
     return original, smoothed
@@ -122,7 +119,7 @@ def compute_r_t(historical_case_counts):
     case_df.index = pd.to_datetime(case_df.index)
     case_df.index.name = 'date'
 
-    _, smoothed = prepare_cases(case_df, cutoff=10)
+    _, smoothed = prepare_cases(case_df)
 
     # Raise an error if there are not enough valid cases to use
     # we need at least two days to represent change over time

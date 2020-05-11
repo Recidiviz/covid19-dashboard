@@ -128,7 +128,7 @@ const CurveChart: React.FC<CurveChartProps> = ({
     responsiveHeight: true,
     responsiveWidth: true,
     size: [450, 450],
-    yExtent: { extent: [0], includeAnnotations: true },
+    yExtent: { extent: [0], includeAnnotations: false },
     margin: hideAxes ? null : { left: 60, bottom: 60, right: 10, top: 0 },
     lineStyle: ({ key }) => ({
       stroke: markColors[key],
@@ -152,6 +152,16 @@ const CurveChart: React.FC<CurveChartProps> = ({
           }
         : {},
     ],
+    svgAnnotationRules: ({ d, yScale }) => {
+      if (d.type === "y") {
+        // don't try to render hospital beds that won't fit in the chart;
+        // otherwise they might be visible
+        if (d.count > yScale.domain()[1]) {
+          return;
+        }
+      }
+      return null;
+    },
     hoverAnnotation: true,
     tooltipContent: Tooltip,
     // these two options place the hover targets along the line

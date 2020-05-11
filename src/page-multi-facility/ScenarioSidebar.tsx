@@ -8,17 +8,21 @@ import Colors from "../design-system/Colors";
 import iconFolderSrc from "../design-system/icons/ic_folder.svg";
 import InputButton from "../design-system/InputButton";
 import InputDescription from "../design-system/InputDescription";
-import InputNameWithIcon from "../design-system/InputNameWithIcon";
+import InputName from "../design-system/InputName";
 import PromoBoxWithButton from "../design-system/PromoBoxWithButton";
 import { Spacer } from "../design-system/Spacer";
 import { useFlag } from "../feature-flags";
 import useScenario from "../scenario-context/useScenario";
 import ScenarioLibraryModal from "./ScenarioLibraryModal";
-import ToggleRow from "./ToggleRow";
 import { Scenario } from "./types";
 
 const HorizontalRule = styled.hr`
   border-color: ${Colors.opacityGray};
+`;
+
+const ScenarioName = styled.div`
+  border-bottom: 1px solid ${Colors.paleGreen};
+  display: flex;
 `;
 
 const IconFolder = styled.img`
@@ -32,10 +36,6 @@ interface ToggleContainerProps {
   hidden?: boolean;
 }
 
-const ToggleContainer = styled.div<ToggleContainerProps>`
-  visibility: ${(props) => (props.hidden ? "hidden" : "visibile")};
-`;
-
 interface Props {
   numFacilities?: number | null;
 }
@@ -46,24 +46,16 @@ export function getEnabledPromoType(
 ) {
   if (!scenario) return null;
 
-  const { dailyReports, dataSharing, promoStatuses } = scenario;
+  const { promoStatuses } = scenario;
 
   return promoStatuses.rtChart
     ? "rtChart"
-    : !dailyReports && promoStatuses?.dailyReports
-    ? "dailyReports"
-    : !dataSharing && promoStatuses?.dataSharing
-    ? "dataSharing"
     : numFacilities && numFacilities < 3 && promoStatuses?.addFacilities
     ? "addFacilities"
     : null;
 }
 
 const promoTexts: { [promoType: string]: string } = {
-  dailyReports:
-    "Turn on 'Daily Reports' to receive briefings based on the data in this scenario, prepared by Recidiviz and CSG.",
-  dataSharing:
-    "Turn on 'Data Sharing' to provide your baseline data to public researchers, to help improve models of disease spread in prisons in the future.",
   addFacilities:
     "Add additional facilities to see the impact across your entire system.",
   rtChart: `New! View the chart of Rt (the rate of spread over time) for any
@@ -112,21 +104,30 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
   return (
     <div className="flex flex-col w-1/4 mr-24">
       <div className="flex-1 flex flex-col pb-4">
-        {showScenarioLibrary && (
-          <ScenarioLibraryModal
-            trigger={<IconFolder alt="folder" src={iconFolderSrc} />}
+        <ScenarioName>
+          {showScenarioLibrary && (
+            <ScenarioLibraryModal
+              trigger={
+                <IconFolder
+                  style={{
+                    marginTop: "8px",
+                  }}
+                  alt="folder"
+                  src={iconFolderSrc}
+                />
+              }
+            />
+          )}
+          <InputName
+            name={name}
+            setName={setName}
+            placeholderValue={scenario?.name}
+            placeholderText="Scenario name is required"
+            maxLengthValue={124}
+            requiredFlag={true}
+            persistChanges={handleTextInputChange}
           />
-        )}
-        <InputNameWithIcon
-          name={name}
-          setName={setName}
-          placeholderValue={scenario?.name}
-          placeholderText="Scenario name is required"
-          maxLengthValue={124}
-          requiredFlag={true}
-          persistChanges={handleTextInputChange}
-          showIcon
-        />
+        </ScenarioName>
         <Spacer y={20} />
         <InputDescription
           description={description}
@@ -147,26 +148,6 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
         <div>
           <Spacer y={20} />
           <HorizontalRule />
-          <ToggleContainer hidden={!scenario?.baseline}>
-            <ToggleRow
-              onToggle={() =>
-                handleScenarioChange({ dailyReports: !scenario?.dailyReports })
-              }
-              toggled={scenario?.dailyReports}
-              label="Subscribe to daily reports"
-              labelHelp="If enabled, your baseline scenario will be shared with Recidiviz and CSG. This data will only be used to provide you with daily reports."
-            />
-            <HorizontalRule />
-            <ToggleRow
-              onToggle={() =>
-                handleScenarioChange({ dataSharing: !scenario?.dataSharing })
-              }
-              toggled={scenario?.dataSharing}
-              label="Share data to improve the model"
-              labelHelp="If enabled, your baseline scenario will be made available to Recidiviz and the research community to improve the model and the state of research on the spread of disease in facilities. Any public research will anonymize state and facility names."
-            />
-            <HorizontalRule />
-          </ToggleContainer>
           <PromoBoxWithButton
             enabled={!!scenario?.baseline && !promoDismissed}
             text={getPromoText(promoType) || null}
