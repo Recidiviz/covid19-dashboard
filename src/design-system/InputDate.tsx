@@ -6,6 +6,7 @@ import "./InputDate.css";
 
 import hexAlpha from "hex-alpha";
 import React from "react";
+import { DatePickerProps } from "react-date-picker";
 import DatePicker from "react-date-picker/dist/entry.nostyle";
 import styled from "styled-components";
 
@@ -76,7 +77,11 @@ const InputContainer = styled.div`
   }
 `;
 
-const InputDate: React.FC<InputBaseProps<Date>> = (props) => {
+type Props = InputBaseProps<Date> & {
+  tileClassName?: DatePickerProps["tileClassName"];
+};
+
+const InputDate: React.FC<Props> = (props) => {
   const { labelAbove, labelHelp, onValueChange } = props;
   const inputValue = useInputValue(props);
 
@@ -101,6 +106,7 @@ const InputDate: React.FC<InputBaseProps<Date>> = (props) => {
             : // could be null if value was deleted
               onValueChange(value)
         }
+        tileClassName={props.tileClassName}
         value={inputValue}
         yearPlaceholder="yyyy"
       />
