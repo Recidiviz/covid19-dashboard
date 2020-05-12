@@ -83,7 +83,7 @@ export const ReportDateDiv = styled.div`
 `;
 
 export const DescriptionTextDiv = styled.div`
-  font-family:  "Poppins", sans-serif;
+  font-family: "Poppins", sans-serif;
   font-style: normal;
   font-weight: normal;
   font-size: 13px;
