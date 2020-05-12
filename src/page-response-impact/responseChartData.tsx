@@ -18,7 +18,7 @@ import { seirIndex } from "../infection-model/seir";
 import { LocaleData } from "../locale-data-context";
 import { Facilities } from "../page-multi-facility/types";
 
-const NUM_DAYS = 90;
+export const NUM_DAYS = 90;
 const NUM_SEIR_CATEGORIES = 9;
 
 export type SystemWideData = {

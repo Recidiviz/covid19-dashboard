@@ -8,11 +8,12 @@ import {
   getHospitalizedForDay,
 } from "../../impact-dashboard/ImpactProjectionTableContainer";
 import { CurveData, isCurveData } from "../../infection-model";
+import { NUM_DAYS } from "../responseChartData";
 import { calculatePercentDiff } from "./numberUtils";
 
 export function maxByIndex(twoDimensionalArray: number[][]) {
   let sumByIndex = [];
-  for (let i = 0; i < 90; i++) {
+  for (let i = 0; i < NUM_DAYS; i++) {
     sumByIndex.push(
       twoDimensionalArray.reduce((sum, data) => {
         return sum + data[i];
@@ -104,29 +105,26 @@ export function sumPopulationImpactAcrossFacilities(
 
     const incarceratedHospitalized = countEverHospitalizedForDay(
       incarceratedData,
-      incarceratedData.shape[0] - 1,
+      NUM_DAYS - 1,
     );
     const incarceratedFatalities = getFatalitiesForDay(
       incarceratedData,
-      incarceratedData.shape[0] - 1,
+      NUM_DAYS - 1,
     );
     incarceratedHospitalizedSum += incarceratedHospitalized;
     incarceratedFatalitiesSum += incarceratedFatalities;
 
     const staffHospitalized = countEverHospitalizedForDay(
       staffData,
-      staffData.shape[0] - 1,
+      NUM_DAYS - 1,
     );
-    const staffFatalities = getFatalitiesForDay(
-      staffData,
-      staffData.shape[0] - 1,
-    );
+    const staffFatalities = getFatalitiesForDay(staffData, NUM_DAYS - 1);
     staffHospitalizedSum += staffHospitalized;
     staffFatalitiesSum += staffFatalities;
 
     let staffUnableToWorkByDay = [];
     let hospitalBedsUsedByDay = [];
-    for (let i = 0; i < 90; i++) {
+    for (let i = 0; i < NUM_DAYS; i++) {
       staffUnableToWorkByDay.push(countUnableToWorkForDay(staffData, i));
       hospitalBedsUsedByDay.push(getHospitalizedForDay(incarceratedData, i));
     }
