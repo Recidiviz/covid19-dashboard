@@ -23,11 +23,9 @@ const InputContainer = styled.div`
       border-radius: 2px;
       border: none;
       box-shadow: none;
-      color: #00413e;
+      color: ${Colors.green};
       flex: 1 1 auto;
-      font-family: "Rubik", sans-serif;
-      font-size: 16px;
-      font-weight: 400;
+      font: 13px/16px "Poppins", sans-serif;
       margin-top: 8px;
       outline: 0 solid transparent;
       padding: 16px;

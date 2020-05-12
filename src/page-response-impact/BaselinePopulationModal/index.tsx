@@ -41,7 +41,6 @@ export interface Props {
 
 const buttonStyle = {
   width: "80px",
-  fontFamily: "PingFang SC",
   fontSize: "14px",
   background: "transparent",
   color: Colors.forest,
