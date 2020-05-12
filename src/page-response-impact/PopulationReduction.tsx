@@ -3,6 +3,7 @@ import React from "react";
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
+import { calculatePercentDiff } from "./utils/numberUtils";
 import { getSubtitle } from "./utils/ResponseImpactCardStateUtils";
 
 const contentWidthPercent = "80%";
@@ -57,11 +58,6 @@ const RowContentRight = styled.div`
 interface Props {
   originalPop: number;
   currentPop: number;
-}
-
-function calculatePercentDiff(orig: number, curr: number): number {
-  const num = (orig - curr) / orig;
-  return Math.round(num * 100);
 }
 
 const PopulationReduction: React.FC<Props> = ({ originalPop, currentPop }) => {

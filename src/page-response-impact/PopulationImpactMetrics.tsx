@@ -4,13 +4,13 @@ import ambulanceIcon from "./icons/ic_ambulance.svg";
 import heartIcon from "./icons/ic_heart.svg";
 import ImpactMetricCard from "./ImpactMetricCard";
 import ImpactMetricsContainer from "./ImpactMetricsContainer";
+import { formatAbsValue, formatPercent } from "./utils/numberUtils";
 import {
   getSubtitle,
   ImpactTitleProps,
   ImpactTitleSpan,
   PopulationImpact,
 } from "./utils/ResponseImpactCardStateUtils";
-import { round, formatValue } from "./utils/numberUtils"
 
 const Title = ({ title, value }: ImpactTitleProps) => {
   const valueSign = Math.sign(value);
@@ -44,9 +44,9 @@ const PopulationImpactMetrics: React.FC<Props> = ({
       <ImpactMetricsContainer>
         <ImpactMetricCard
           title={<Title title="Staff fatalities" value={staff.fatalities} />}
-          value={formatValue(staff.fatalities)}
-          subtitle={`${formatValue(
-            round(staff.fatalities / staffPopulation),
+          value={formatAbsValue(staff.fatalities)}
+          subtitle={`${formatAbsValue(
+            formatPercent(staff.fatalities / staffPopulation),
           )}% of staff`}
           icon={heartIcon}
         />
@@ -57,9 +57,9 @@ const PopulationImpactMetrics: React.FC<Props> = ({
               value={incarcerated.fatalities}
             />
           }
-          value={formatValue(incarcerated.fatalities)}
-          subtitle={`${formatValue(
-            round(incarcerated.fatalities / incarceratedPopulation),
+          value={formatAbsValue(incarcerated.fatalities)}
+          subtitle={`${formatAbsValue(
+            formatPercent(incarcerated.fatalities / incarceratedPopulation),
           )}% of incarcerated`}
           icon={heartIcon}
         />
@@ -69,9 +69,9 @@ const PopulationImpactMetrics: React.FC<Props> = ({
           title={
             <Title title="Staff hospitalization" value={staff.hospitalized} />
           }
-          value={formatValue(staff.hospitalized)}
-          subtitle={`${formatValue(
-            round(staff.hospitalized / staffPopulation),
+          value={formatAbsValue(staff.hospitalized)}
+          subtitle={`${formatAbsValue(
+            formatPercent(staff.hospitalized / staffPopulation),
           )}% of staff`}
           icon={ambulanceIcon}
         />
@@ -82,9 +82,9 @@ const PopulationImpactMetrics: React.FC<Props> = ({
               value={incarcerated.hospitalized}
             />
           }
-          value={formatValue(incarcerated.hospitalized)}
-          subtitle={`${formatValue(
-            round(incarcerated.hospitalized / incarceratedPopulation),
+          value={formatAbsValue(incarcerated.hospitalized)}
+          subtitle={`${formatAbsValue(
+            formatPercent(incarcerated.hospitalized / incarceratedPopulation),
           )}% of incarcerated`}
           icon={ambulanceIcon}
         />

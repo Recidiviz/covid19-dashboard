@@ -1,7 +1,12 @@
-export function round(percent: number): number {
+export function formatPercent(percent: number): number {
   return Math.round(percent * 100);
 }
 
-export function formatValue(value: number): number {
+export function formatAbsValue(value: number): number {
   return Math.abs(value);
+}
+
+export function calculatePercentDiff(orig: number, curr: number): number {
+  const num = (orig - curr) / orig;
+  return Math.round(num * 100);
 }

@@ -8,6 +8,7 @@ import {
   getHospitalizedForDay,
 } from "../../impact-dashboard/ImpactProjectionTableContainer";
 import { CurveData, isCurveData } from "../../infection-model";
+import { calculatePercentDiff } from "./numberUtils";
 
 export function maxByIndex(twoDimensionalArray: number[][]) {
   let sumByIndex = [];
@@ -78,12 +79,11 @@ export function calculatePopulationImpactDifference(
       hospitalized: origData.staff.hospitalized - currData.staff.hospitalized,
       fatalities: origData.staff.fatalities - currData.staff.fatalities,
     },
-    staffUnableToWork:
-      -1 * (currData.staffUnableToWork - origData.staffUnableToWork),
-    hospitalBedsUsed:
-      origData.hospitalBedsUsed &&
-      (-1 * (currData.hospitalBedsUsed - origData.hospitalBedsUsed)) /
-        origData.hospitalBedsUsed,
+    staffUnableToWork: origData.staffUnableToWork - currData.staffUnableToWork,
+    hospitalBedsUsed: calculatePercentDiff(
+      origData.hospitalBedsUsed,
+      currData.hospitalBedsUsed,
+    ),
   };
 }
 
