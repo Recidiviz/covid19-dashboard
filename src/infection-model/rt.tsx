@@ -79,15 +79,8 @@ const getRtInputsForFacility = async (
   let modelVersions = await getFacilityModelVersions({
     scenarioId: facility.scenarioId,
     facilityId: facility.id,
+    distinctByObservedAt: true,
   });
-
-  // inputs must contain no more than one record per day.
-  // when we have multiples, filter out all but the most recently updated
-  modelVersions = uniqBy(
-    modelVersions,
-    // make sure time doesn't enter into the uniqueness
-    (record) => record.observedAt.toDateString(),
-  );
 
   const cases: number[] = [];
   const dates: string[] = [];
