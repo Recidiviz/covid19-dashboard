@@ -7,6 +7,7 @@ import { Auth0Provider } from "../auth/react-auth0-spa";
 import Toast from "../design-system/Toast";
 import { FeatureFlagsProvider } from "../feature-flags";
 import { LocaleDataProvider } from "../locale-data-context";
+import { FacilitiesProvider } from "../facilities-context/FacilitiesContext";
 import {
   FacilityContext,
   rtDataReducer,
@@ -40,11 +41,13 @@ const SiteProvider: React.FC = (props) => {
         >
           <LocaleDataProvider>
             <ScenarioProvider>
-              <FacilityContext.Provider
-                value={{ facility, setFacility, rtData, dispatchRtData }}
-              >
-                {props.children}
-              </FacilityContext.Provider>
+              <FacilitiesProvider>
+                <FacilityContext.Provider
+                  value={{ facility, setFacility, rtData, dispatchRtData }}
+                >
+                  {props.children}
+                </FacilityContext.Provider>
+              </FacilitiesProvider>
             </ScenarioProvider>
           </LocaleDataProvider>
         </Auth0Provider>
