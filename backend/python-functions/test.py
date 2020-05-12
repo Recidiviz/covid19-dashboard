@@ -1,8 +1,11 @@
 from flask import json
+import logging
 from unittest import TestCase
 from unittest.mock import Mock
 
 from main import calculate_rt
+
+logging.disable(logging.CRITICAL)
 
 class TestCalculateRt(TestCase):
     def setUp(self):
@@ -49,12 +52,15 @@ class TestCalculateRt(TestCase):
         resp = self.get_response_json()
         self.assertIn('error', resp)
 
-    def test_too_few_cases(self):
+    def test_no_change_threshold(self):
+        # even if there is little to no change day-over-day,
+        # the function should accept the inputs
+        # (this is a change, as there used to be a minimum threshold)
         data = {
         'dates': ['2020-04-15', '2020-04-16', '2020-04-18', '2020-04-19'],
-        'cases': [5, 7, 15, 22]
+        'cases': [5, 6, 6, 12]
         }
         self.req.get_json.return_value = data
 
         resp = self.get_response_json()
-        self.assertIn('error', resp)
+        self.assertNotIn('error', resp)

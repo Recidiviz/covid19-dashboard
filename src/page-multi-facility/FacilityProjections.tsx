@@ -1,6 +1,5 @@
 import React, { useContext } from "react";
 
-import { useFlag } from "../feature-flags";
 import ChartArea from "../impact-dashboard/ChartArea";
 import { useEpidemicModelState } from "../impact-dashboard/EpidemicModelContext";
 import ImpactProjectionTableContainer from "../impact-dashboard/ImpactProjectionTableContainer";
@@ -10,9 +9,9 @@ import { useProjectionData } from "./projectionCurveHooks";
 const FacilityProjections: React.FC = () => {
   const { facility, rtData } = useContext(FacilityContext);
   let useRt, facilityRtData;
-  // when creating a new facility, we'll never have Rt,
-  // so fall back to unflagged behavior
-  if (useFlag(["useRt"]) && facility) {
+  // when creating a new facility, we won't have Rt yet,
+  // so fall back to using the rate of spread from user input
+  if (facility) {
     useRt = true;
     facilityRtData = rtData ? rtData[facility.id] : undefined;
   }

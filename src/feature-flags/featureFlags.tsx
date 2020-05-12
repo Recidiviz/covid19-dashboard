@@ -2,7 +2,6 @@ import createFlags from "flag";
 import React from "react";
 
 export type FeatureFlags = {
-  useRt: boolean;
   // TODO: Delete this flag once #202 is done
   showRateOfSpreadTab: boolean;
   showImpactButton: boolean;
@@ -15,7 +14,6 @@ export const FeatureFlagsProvider: React.FC = ({ children }) => {
   return (
     <FlagsProvider
       flags={{
-        useRt: process.env.GATSBY_USE_RT === "true",
         showRateOfSpreadTab: true,
         showImpactButton: process.env.GATSBY_SHOW_IMPACT_BUTTON === "true",
         showScenarioLibrary:
