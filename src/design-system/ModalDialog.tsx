@@ -11,7 +11,7 @@ const BackgroundAside = styled.aside`
   display: flex;
   height: 100%;
   justify-content: center;
-  position: absolute;
+  position: fixed;
   top: 0;
   width: 100%;
 `;
@@ -30,7 +30,7 @@ const ModalContainer = styled.div<ModalContainerProps>`
   height: ${(props) => props.height || "auto"};
   width: ${(props) => props.width || "65vw"};
   padding: 35px;
-  position: static;
+  position: fixed;
   max-height: 90%;
   overflow-y: auto;
 `;
