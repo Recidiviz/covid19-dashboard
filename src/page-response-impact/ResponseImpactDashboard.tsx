@@ -116,128 +116,130 @@ const ResponseImpactDashboard: React.FC<Props> = ({
           />
           {populationFormSubmitted && (
             <ValidDataWrapper facilities={facilities.data}>
-              <PageHeaderContainer className="m-5">
-                <Link to="/">
-                  <BackDiv>
-                    <IconBack alt="back" src={iconBackSrc} />
-                    Back to model
-                  </BackDiv>
-                </Link>
-                <PageHeader>
-                  {facilities.data[0].systemType === "County Jail" &&
-                  modelInputs[0].countyName !== "Total"
-                    ? modelInputs[0].countyName
-                    : modelInputs[0].stateCode}{" "}
-                  COVID-19 Response Impact
-                </PageHeader>
-                <ReportDateDiv>
-                  Report generated on {format(new Date(), "MMM dd, yyyy")}
-                </ReportDateDiv>
-              </PageHeaderContainer>
-              <PageContainer>
-                <Column>
-                  <DescriptionTextDiv>
-                    New! This report compares the impact of your system's
-                    COVID-19 response against the model's initial assumptions
-                    and projections.
-                    <br />
-                    <br />
-                    Coming soon: Input historical case counts and facility
-                    information to customize the impact report for greater
-                    precision.
-                  </DescriptionTextDiv>
-                  <Spacer y={40} />
-                  <SectionHeader>Overall Population Safety</SectionHeader>
-                  <DescriptionTextDiv>
-                    Reducing the number of incarcerated individuals increases
-                    the overall number of staff and incarcerated individuals who
-                    remain healthy.
-                  </DescriptionTextDiv>
-                  <Spacer y={40} />
-                  {systemWideData.incarceratedPopulation &&
-                    currentIncarceratedPop && (
-                      <PopulationReduction
-                        originalPop={systemWideData.incarceratedPopulation}
-                        currentPop={currentIncarceratedPop}
+              <>
+                <PageHeaderContainer className="m-5">
+                  <Link to="/">
+                    <BackDiv>
+                      <IconBack alt="back" src={iconBackSrc} />
+                      Back to model
+                    </BackDiv>
+                  </Link>
+                  <PageHeader>
+                    {facilities.data[0].systemType === "County Jail" &&
+                    modelInputs[0].countyName !== "Total"
+                      ? modelInputs[0].countyName
+                      : modelInputs[0].stateCode}{" "}
+                    COVID-19 Response Impact
+                  </PageHeader>
+                  <ReportDateDiv>
+                    Report generated on {format(new Date(), "MMM dd, yyyy")}
+                  </ReportDateDiv>
+                </PageHeaderContainer>
+                <PageContainer>
+                  <Column>
+                    <DescriptionTextDiv>
+                      New! This report compares the impact of your system's
+                      COVID-19 response against the model's initial assumptions
+                      and projections.
+                      <br />
+                      <br />
+                      Coming soon: Input historical case counts and facility
+                      information to customize the impact report for greater
+                      precision.
+                    </DescriptionTextDiv>
+                    <Spacer y={40} />
+                    <SectionHeader>Overall Population Safety</SectionHeader>
+                    <DescriptionTextDiv>
+                      Reducing the number of incarcerated individuals increases
+                      the overall number of staff and incarcerated individuals
+                      who remain healthy.
+                    </DescriptionTextDiv>
+                    <Spacer y={40} />
+                    {systemWideData.incarceratedPopulation &&
+                      currentIncarceratedPop && (
+                        <PopulationReduction
+                          originalPop={systemWideData.incarceratedPopulation}
+                          currentPop={currentIncarceratedPop}
+                        />
+                      )}
+                    <SectionSubheader>
+                      Impact on health of overall population
+                    </SectionSubheader>
+                    <PopulationImpactMetrics
+                      populationImpact={populationImpactData}
+                      staffPopulation={systemWideData.staffPopulation}
+                      incarceratedPopulation={
+                        systemWideData.incarceratedPopulation
+                      }
+                    />
+                    <Spacer y={24} />
+                    <SectionHeader>Community Resources Saved</SectionHeader>
+                    <DescriptionTextDiv>
+                      Taking actions to slow the rate of spread, R(t), increases
+                      the amount of system-wide and community-health resources
+                      available.
+                    </DescriptionTextDiv>
+                    <Spacer y={40} />
+                    <ChartHeader>
+                      Rate of spread, R(t), for modelled facilities
+                    </ChartHeader>
+                    {rtData && <RtSummaryStats rtData={rtData} />}
+                    <SectionSubheader>
+                      Peak impact on community health and staff resources
+                    </SectionSubheader>
+                    {populationImpactData && (
+                      <ReducingR0ImpactMetrics
+                        populationImpact={populationImpactData}
                       />
                     )}
-                  <SectionSubheader>
-                    Impact on health of overall population
-                  </SectionSubheader>
-                  <PopulationImpactMetrics
-                    populationImpact={populationImpactData}
-                    staffPopulation={systemWideData.staffPopulation}
-                    incarceratedPopulation={
-                      systemWideData.incarceratedPopulation
-                    }
-                  />
-                  <Spacer y={24} />
-                  <SectionHeader>Community Resources Saved</SectionHeader>
-                  <DescriptionTextDiv>
-                    Taking actions to slow the rate of spread, R(t), increases
-                    the amount of system-wide and community-health resources
-                    available.
-                  </DescriptionTextDiv>
-                  <Spacer y={40} />
-                  <ChartHeader>
-                    Rate of spread, R(t), for modelled facilities
-                  </ChartHeader>
-                  {rtData && <RtSummaryStats rtData={rtData} />}
-                  <SectionSubheader>
-                    Peak impact on community health and staff resources
-                  </SectionSubheader>
-                  {populationImpactData && (
-                    <ReducingR0ImpactMetrics
-                      populationImpact={populationImpactData}
+                  </Column>
+                  <Column>
+                    <SectionHeaderBare>
+                      Original vs. Current Projections
+                    </SectionHeaderBare>
+                    <Spacer y={24} />
+                    <DescriptionTextDiv>
+                      The top graph shows the initially modelled projection for
+                      COVID-19 through the overall system. The bottom graph
+                      represents the projection as of today.
+                    </DescriptionTextDiv>
+                    <Spacer y={40} />
+                    <ProjectionCharts
+                      systemWideData={systemWideData}
+                      originalCurveInputs={originalCurveInputs}
+                      currentCurveInputs={currentCurveInputs}
                     />
-                  )}
-                </Column>
-                <Column>
-                  <SectionHeaderBare>
-                    Original vs. Current Projections
-                  </SectionHeaderBare>
-                  <Spacer y={24} />
-                  <DescriptionTextDiv>
-                    The top graph shows the initially modelled projection for
-                    COVID-19 through the overall system. The bottom graph
-                    represents the projection as of today.
-                  </DescriptionTextDiv>
-                  <Spacer y={40} />
-                  <ProjectionCharts
-                    systemWideData={systemWideData}
-                    originalCurveInputs={originalCurveInputs}
-                    currentCurveInputs={currentCurveInputs}
-                  />
-                  <TakeActionBox>
-                    <SectionHeaderBare>Take Action</SectionHeaderBare>
-                    <Spacer y={24} />
-                    <TakeActionText>
-                      Please reach out to{" "}
-                      <TakeActionLink>
-                        <a href="mailto:covid@recidiviz.org">
-                          covid@recidiviz.org
-                        </a>
-                      </TakeActionLink>{" "}
-                      for the following:
-                    </TakeActionText>
-                    <Spacer y={24} />
-                    <ul>
-                      <TakeActionBullet>
-                        Turning the impact numbers into a press release.
-                      </TakeActionBullet>
-                      <Spacer y={16} />
-                      <TakeActionBullet>
-                        Creating a more customized impact model.
-                      </TakeActionBullet>
-                      <Spacer y={16} />
-                      <TakeActionBullet>
-                        Further impact modelling on budget, public safety, and
-                        community health.
-                      </TakeActionBullet>
-                    </ul>
-                  </TakeActionBox>
-                </Column>
-              </PageContainer>
+                    <TakeActionBox>
+                      <SectionHeaderBare>Take Action</SectionHeaderBare>
+                      <Spacer y={24} />
+                      <TakeActionText>
+                        Please reach out to{" "}
+                        <TakeActionLink>
+                          <a href="mailto:covid@recidiviz.org">
+                            covid@recidiviz.org
+                          </a>
+                        </TakeActionLink>{" "}
+                        for the following:
+                      </TakeActionText>
+                      <Spacer y={24} />
+                      <ul>
+                        <TakeActionBullet>
+                          Turning the impact numbers into a press release.
+                        </TakeActionBullet>
+                        <Spacer y={16} />
+                        <TakeActionBullet>
+                          Creating a more customized impact model.
+                        </TakeActionBullet>
+                        <Spacer y={16} />
+                        <TakeActionBullet>
+                          Further impact modelling on budget, public safety, and
+                          community health.
+                        </TakeActionBullet>
+                      </ul>
+                    </TakeActionBox>
+                  </Column>
+                </PageContainer>
+              </>
             </ValidDataWrapper>
           )}
         </>
