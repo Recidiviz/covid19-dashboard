@@ -180,7 +180,7 @@ const ResponseImpactDashboard: React.FC<Props> = ({
                   </ChartHeader>
                   {rtData && <RtSummaryStats rtData={rtData} />}
                   <SectionSubheader>
-                    Impact on community health and staff resources
+                    Peak impact on community health and staff resources
                   </SectionSubheader>
                   {populationImpactData && (
                     <ReducingR0ImpactMetrics
