@@ -1,5 +1,4 @@
 import { navigate } from "gatsby";
-import numeral from "numeral";
 import React, { useState } from "react";
 import styled from "styled-components";
 
@@ -16,6 +15,10 @@ const Text = styled.div`
   font-weight: normal;
   line-height: 180%;
   padding-top: 20px;
+
+  a {
+    color: ${Colors.teal};
+  }
 `;
 
 const ModalFooter = styled.div`
@@ -42,7 +45,6 @@ export interface Props {
 
 const buttonStyle = {
   width: "80px",
-  fontFamily: "PingFang SC",
   fontSize: "14px",
   background: "transparent",
   color: Colors.forest,
@@ -58,12 +60,19 @@ const Subtitle = styled.span`
   }
 `;
 
-const ModalTitle: React.FC<Pick<Props, "numFacilities">> = ({
-  numFacilities,
-}) => {
+type ModalTitleProps = Pick<Props, "numFacilities"> & { page: number };
+
+const ModalTitle: React.FC<ModalTitleProps> = ({ numFacilities, page }) => {
+  const pageOneText =
+    numFacilities === 1
+      ? `${numFacilities} facility`
+      : `${numFacilities} facilities`;
+  const pageTwoText = "Choose a benchmark";
+
   return (
     <>
-      Generating Report <Subtitle>{numFacilities} facilities</Subtitle>
+      Impact Report{" "}
+      <Subtitle>{page === 1 ? pageOneText : pageTwoText}</Subtitle>
     </>
   );
 };
@@ -86,16 +95,20 @@ const BaselinePopulationModal: React.FC<Props> = ({
       <ModalDialog
         open={open}
         closeModal={onCloseModal}
-        title={<ModalTitle numFacilities={numFacilities} />}
+        title={<ModalTitle numFacilities={numFacilities} page={page} />}
       >
         <ModalContent>
           {page === 1 ? (
             <>
               <Text>
-                A report will be generated comparing the current projections
-                against the baseline projections for the{" "}
-                {numeral(numFacilities).format("0,0")} facilities you currently
-                have modelled.
+                This tool produces a report summarizing the impact of your
+                interventions on the spread of Covid-19 in your facilities. To
+                ensure accuracy, we recommend ensuring that all facilities in
+                your system have been{" "}
+                <a href="http://model.recidiviz.org/">
+                  modeled with up-to-date data
+                </a>
+                , even facilities which never had a confirmed case.
               </Text>
               <ModalFooter>
                 <InputButton

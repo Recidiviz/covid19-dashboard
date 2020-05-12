@@ -13,13 +13,11 @@ import {
   curveInputsFromUserInputs,
   isCurveData,
 } from "../infection-model";
+import { NUM_DAYS } from "../infection-model";
 import { getAllValues, getColView } from "../infection-model/matrixUtils";
 import { seirIndex } from "../infection-model/seir";
 import { LocaleData } from "../locale-data-context";
 import { Facilities } from "../page-multi-facility/types";
-
-const NUM_DAYS = 90;
-const NUM_SEIR_CATEGORIES = 9;
 
 export type SystemWideData = {
   hospitalBeds: number;
@@ -139,7 +137,7 @@ function combineFacilitiesProjectionData(
       return (sum += value);
     }, 0);
   });
-  return ndarray(summedData, [NUM_DAYS, NUM_SEIR_CATEGORIES]);
+  return ndarray(summedData, [NUM_DAYS, seirIndex.__length]);
 }
 
 export function getCurveChartData(facilitiesInputs: CurveFunctionInputs[]) {

@@ -5,7 +5,7 @@ import {
   fromUnixTime,
   parseISO,
 } from "date-fns";
-import { mapValues, maxBy, minBy, orderBy, uniqBy } from "lodash";
+import { mapValues, maxBy, minBy } from "lodash";
 
 import { RateOfSpreadType } from "../constants/EpidemicModel";
 import { getFacilityModelVersions } from "../database";
@@ -79,23 +79,8 @@ const getRtInputsForFacility = async (
   let modelVersions = await getFacilityModelVersions({
     scenarioId: facility.scenarioId,
     facilityId: facility.id,
+    distinctByObservedAt: true,
   });
-
-  // inputs must contain no more than one record per day.
-  // when we have multiples, filter out all but the most recently updated
-  // TODO: it may be possible to do this filtering directly in the query
-  // with a compound index, see #254 and replace this code if possible
-  modelVersions = uniqBy(
-    orderBy(
-      modelVersions,
-      ["observedAt", "updatedAt"],
-      // uniqBy retains only the first item when it encounters duplicates,
-      // so make sure the most recently updated one is first
-      ["asc", "desc"],
-    ),
-    // make sure time doesn't enter into the uniqueness
-    (record) => record.observedAt.toDateString(),
-  );
 
   const cases: number[] = [];
   const dates: string[] = [];
