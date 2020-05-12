@@ -71,7 +71,6 @@ const TooltipText = styled.div`
 
 const buttonStyle = {
   width: "200px",
-  fontFamily: "PingFang SC",
   fontSize: "14px",
 };
 
