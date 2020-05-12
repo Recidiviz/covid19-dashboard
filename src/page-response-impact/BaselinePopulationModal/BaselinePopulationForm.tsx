@@ -1,8 +1,8 @@
-import numeral from "numeral";
 import React, { useState } from "react";
 import styled from "styled-components";
 
 import Colors from "../../design-system/Colors";
+import HelpButtonWithTooltip from "../../design-system/HelpButtonWithTooltip";
 import InputButton from "../../design-system/InputButton";
 import InputDate from "../../design-system/InputDate";
 import InputTextNumeric from "../../design-system/InputTextNumeric";
@@ -21,39 +21,35 @@ const FormRow = styled.div`
   display: flex;
   flex-flow: row nowrap;
   justify-content: space-between;
-  margin: 4vw 0;
+  margin: 20px 0;
 `;
 
 const LabelContainer = styled.div`
   display: flex;
-  flex-flow: column;
+  flex-flow: row nowrap;
+  align-items: baseline;
   line-height: 150%;
   letter-spacing: 0.15em;
 `;
 
 const Label = styled.div`
+  color: ${Colors.darkForest};
   font-family: "Poppins", sans serif;
   font-weight: normal;
   font-size: 10px;
   line-height: 150%;
+  margin-right: 10px;
   text-transform: uppercase;
-  color: ${Colors.darkForest};
-`;
-
-const SubLabel = styled.div`
-  font-family: "Helvetica Neue", sans serif;
-  font-weight: 300;
-  font-size: 14px;
-  color: ${Colors.opacityForest};
 `;
 
 const Text = styled.div`
+  border-bottom: 0.5px solid ${Colors.darkGray};
   color: ${Colors.opacityForest};
   font-family: "Poppins", sans serif;
   font-size: 12px;
   font-weight: normal;
   line-height: 150%;
-  padding-top: 20px;
+  padding: 20px 0 40px 0;
 `;
 
 const InputContainer = styled.div`
@@ -62,6 +58,15 @@ const InputContainer = styled.div`
 
 const FormContainer = styled.div`
   padding: 2vw;
+`;
+
+const TooltipText = styled.div`
+  color: ${Colors.white};
+  font-family: PingFang SC;
+  font-size: 14px;
+  font-weight: normal;
+  letter-spacing: normal;
+  line-height: 26px;
 `;
 
 const buttonStyle = {
@@ -74,18 +79,21 @@ type Props = Omit<ModalProps, "open" | "numFacilities"> & {
   setPage: () => void;
 };
 
+const dateTooltip =
+  "To model the impact since the start of COVID-19, enter a date prior to any COVID-19 mitigation efforts.";
+const totalIncarceratedTooltip =
+  "Enter the total incarcerated population across all modelled facilities at the selected date.";
+const totalStaffTooltip =
+  "Enter the total staff population across all modelled facilities at the selected date.";
+
 const BaselinePopulationForm: React.FC<Props> = ({
   defaultIncarceratedPopulation,
   defaultStaffPopulation,
   saveBaselinePopulations,
   setPage,
 }) => {
-  const defaultTotalPopulation = numeral(
-    defaultIncarceratedPopulation + defaultStaffPopulation,
-  ).format("0,0");
-
-  // Default Original Date 3/1/2020
-  const defaultDate = new Date(2020, 2, 1);
+  // Default Original Date 2/1/2020
+  const defaultDate = new Date(2020, 1, 1);
 
   const [populations, setPopulations] = useState({
     staffPopulation: defaultStaffPopulation,
@@ -104,14 +112,17 @@ const BaselinePopulationForm: React.FC<Props> = ({
   return (
     <>
       <Text>
-        If you skip this step, we will assume a starting incarcerated population
-        of {defaultTotalPopulation}, which is based on public data, and your
-        current staff population. You can also provide this information later.
+        Enter a starting date and population prior to any COVID-19 mitigation
+        efforts. If you leave this blank, we will assume a starting population
+        based on publicly available data.
       </Text>
       <FormContainer>
         <FormRow>
           <LabelContainer>
-            <Label>Starting date as baseline</Label>
+            <Label>Starting date as benchmark</Label>
+            <HelpButtonWithTooltip>
+              <TooltipText>{dateTooltip}</TooltipText>
+            </HelpButtonWithTooltip>
           </LabelContainer>
           <InputDate
             onValueChange={(date) => {
@@ -123,7 +134,9 @@ const BaselinePopulationForm: React.FC<Props> = ({
         <FormRow>
           <LabelContainer>
             <Label>Total Incarcerated Population</Label>
-            <SubLabel>Starting at the baseline date</SubLabel>
+            <HelpButtonWithTooltip>
+              <TooltipText>{totalIncarceratedTooltip}</TooltipText>
+            </HelpButtonWithTooltip>
           </LabelContainer>
           <InputContainer>
             <InputTextNumeric
@@ -138,7 +151,9 @@ const BaselinePopulationForm: React.FC<Props> = ({
         <FormRow>
           <LabelContainer>
             <Label>Total Staff Population</Label>
-            <SubLabel>Starting at the baseline date</SubLabel>
+            <HelpButtonWithTooltip>
+              <TooltipText>{totalStaffTooltip}</TooltipText>
+            </HelpButtonWithTooltip>
           </LabelContainer>
           <InputContainer>
             <InputTextNumeric

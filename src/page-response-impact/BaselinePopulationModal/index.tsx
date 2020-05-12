@@ -1,5 +1,4 @@
 import { navigate } from "gatsby";
-import numeral from "numeral";
 import React, { useState } from "react";
 import styled from "styled-components";
 
@@ -58,12 +57,19 @@ const Subtitle = styled.span`
   }
 `;
 
-const ModalTitle: React.FC<Pick<Props, "numFacilities">> = ({
-  numFacilities,
-}) => {
+type ModalTitleProps = Pick<Props, "numFacilities"> & { page: number };
+
+const ModalTitle: React.FC<ModalTitleProps> = ({ numFacilities, page }) => {
+  const pageOneText =
+    numFacilities === 1
+      ? `${numFacilities} facility`
+      : `${numFacilities} facilities`;
+  const pageTwoText = "Choose a benchmark";
+
   return (
     <>
-      Generating Report <Subtitle>{numFacilities} facilities</Subtitle>
+      Impact Report{" "}
+      <Subtitle>{page === 1 ? pageOneText : pageTwoText}</Subtitle>
     </>
   );
 };
@@ -86,16 +92,17 @@ const BaselinePopulationModal: React.FC<Props> = ({
       <ModalDialog
         open={open}
         closeModal={onCloseModal}
-        title={<ModalTitle numFacilities={numFacilities} />}
+        title={<ModalTitle numFacilities={numFacilities} page={page} />}
       >
         <ModalContent>
           {page === 1 ? (
             <>
               <Text>
-                A report will be generated comparing the current projections
-                against the baseline projections for the{" "}
-                {numeral(numFacilities).format("0,0")} facilities you currently
-                have modelled.
+                A report will be generated to compare the current projected
+                impact of COVID-19 on your system against the model’s original
+                assumptions prior to any actions taken. For a complete report,
+                ensure all facilities in your system are modelled, even if some
+                facilities do not currently have confirmed cases.
               </Text>
               <ModalFooter>
                 <InputButton

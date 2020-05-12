@@ -27,7 +27,6 @@ const TooltipContentsDiv = styled.div`
   min-height: 20px;
   max-width: 400px;
   padding: 10px;
-  margin-left: 5px;
   z-index: 100;
 `;
 
@@ -91,7 +90,7 @@ interface Props {
 
 const Tooltip: React.FC<Props> = (props) => {
   const [showTooltip, setShowTooltip] = useState(false);
-
+  const popperModifiers = [{ name: "offset", options: { offset: [5, 10] } }];
   return (
     <Manager>
       <Reference>
@@ -107,7 +106,7 @@ const Tooltip: React.FC<Props> = (props) => {
         )}
       </Reference>
       {showTooltip && (
-        <Popper placement="right">
+        <Popper modifiers={popperModifiers} placement="right">
           {({ ref, style, placement, arrowProps }) => (
             <TooltipContentsDiv
               ref={ref}
