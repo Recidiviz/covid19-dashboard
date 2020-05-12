@@ -43,7 +43,7 @@ const Value = styled.div`
 `;
 
 const Subtitle = styled.div`
-  font-family: "Helvetica Neue", serif;
+  font-family: "Poppins", sans serif;
   font-size: 14px;
   font-weight: 300;
   line-height: 150%;
