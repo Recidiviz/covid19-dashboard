@@ -36,7 +36,7 @@ const ReducingR0ImpactMetrics: React.FC<Props> = ({ populationImpact }) => {
       <ImpactMetricCard
         title={
           <HospitalBedsTitle
-            title="Hospital beds used at peak"
+            title="Hospital beds used by incarcerated"
             value={populationImpact.hospitalBedsUsed}
           />
         }
@@ -44,7 +44,7 @@ const ReducingR0ImpactMetrics: React.FC<Props> = ({ populationImpact }) => {
         icon={hospitalIcon}
       />
       <ImpactMetricCard
-        title={`Additional staff ${staffAbilityText} to work at peak`}
+        title={`Additional staff ${staffAbilityText} to work`}
         value={formatAbsValue(populationImpact.staffUnableToWork)}
         icon={staffIcon}
       />
