@@ -57,10 +57,9 @@ const Subtitle = styled.span`
   }
 `;
 
-const ModalTitle: React.FC<Pick<Props, "numFacilities"> & { page: number }> = ({
-  numFacilities,
-  page,
-}) => {
+type ModalTitleProps = Pick<Props, "numFacilities"> & { page: number };
+
+const ModalTitle: React.FC<ModalTitleProps> = ({ numFacilities, page }) => {
   const pageOneText =
     numFacilities === 1
       ? `${numFacilities} facility`
