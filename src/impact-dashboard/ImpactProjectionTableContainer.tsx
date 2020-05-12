@@ -60,7 +60,7 @@ export function getFatalitiesForDay(data: ndarray, day: number): number {
   return Math.round(data.get(day, seirIndex.fatalities));
 }
 
-function countUnableToWorkForDay(data: ndarray, day: number): number {
+export function countUnableToWorkForDay(data: ndarray, day: number): number {
   const unableToWork = [
     seirIndex.mild,
     seirIndex.severe,
