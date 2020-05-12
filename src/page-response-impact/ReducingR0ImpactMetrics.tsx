@@ -44,7 +44,7 @@ const ReducingR0ImpactMetrics: React.FC<Props> = ({ populationImpact }) => {
         icon={hospitalIcon}
       />
       <ImpactMetricCard
-        title={`Additional staff ${staffAbilityText} to work`}
+        title={`Additional staff ${staffAbilityText} to work at peak`}
         value={formatAbsValue(populationImpact.staffUnableToWork)}
         icon={staffIcon}
       />
