@@ -6,7 +6,7 @@ import "firebase/firestore";
 
 import createAuth0Client from "@auth0/auth0-spa-js";
 import { format, startOfDay, startOfToday } from "date-fns";
-import { pick, orderBy } from "lodash";
+import { pick, orderBy, uniqBy } from "lodash";
 
 import config from "../auth/auth_config.json";
 import { MMMMdyyyy } from "../constants";
@@ -290,9 +290,11 @@ export const getFacilities = async (
 export const getFacilityModelVersions = async ({
   facilityId,
   scenarioId,
+  distinctByObservedAt = false,
 }: {
   facilityId: string;
   scenarioId: string;
+  distinctByObservedAt?: boolean;
 }): Promise<ModelInputs[]> => {
   const db = await getDb();
 
@@ -304,11 +306,19 @@ export const getFacilityModelVersions = async ({
       .doc(facilityId)
       .collection(modelVersionCollectionId)
       .orderBy("observedAt", "asc")
+      .orderBy("updatedAt", "desc")
       .get();
 
-    return historyResults.docs.map((doc) => {
-      return buildModelInputs(doc.data());
-    });
+    let modelVersions = historyResults.docs.map((doc) =>
+      buildModelInputs(doc.data()),
+    );
+    return distinctByObservedAt
+      ? uniqBy(
+          modelVersions,
+          // make sure time doesn't enter into the uniqueness
+          (record) => record.observedAt.toDateString(),
+        )
+      : modelVersions;
   } catch (error) {
     console.error(
       "Encountered error while attempting to retrieve facility model versions:",
