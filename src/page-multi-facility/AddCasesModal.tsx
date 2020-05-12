@@ -1,9 +1,10 @@
 import { startOfDay, startOfToday } from "date-fns";
+import hexAlpha from "hex-alpha";
 import { pick } from "lodash";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
-import { saveFacility } from "../database";
+import { getFacilityModelVersions, saveFacility } from "../database";
 import Colors from "../design-system/Colors";
 import InputButton from "../design-system/InputButton";
 import InputDate from "../design-system/InputDate";
@@ -14,12 +15,14 @@ import {
 } from "../impact-dashboard/EpidemicModelContext";
 import { AgeGroupGrid } from "../impact-dashboard/FacilityInformation";
 import useModel from "../impact-dashboard/useModel";
-import { Facility } from "./types";
+import { Facility, ModelInputs } from "./types";
 
 type Props = Pick<ModalProps, "trigger"> & {
   facility: Facility;
   updateFacility: Function;
 };
+
+const noDataColor = Colors.darkRed;
 
 const ModalContents = styled.div`
   align-items: flex-start;
@@ -28,6 +31,23 @@ const ModalContents = styled.div`
   font-weight: normal;
   justify-content: flex-start;
   margin-top: 30px;
+
+  .add-cases-calendar__day--no-data {
+    background: ${hexAlpha(noDataColor, 0.2)};
+
+    &.react-calendar__tile--now {
+      background: ${hexAlpha(noDataColor, 0.1)};
+    }
+
+    &.react-calendar__tile--active {
+      background: ${hexAlpha(noDataColor, 0.4)};
+    }
+
+    &:hover {
+      background: ${hexAlpha(noDataColor, 0.5)};
+      color: ${Colors.white};
+    }
+  }
 `;
 
 const HorizRule = styled.div`
@@ -66,6 +86,22 @@ const AddCasesModal: React.FC<Props> = ({
   let [modelDiff, fakeUpdateModel, resetModelDiff] = useModelDiff();
   const newModel = { ...model, ...modelDiff };
 
+  const [facilityModelVersions, setFacilityModelVersions] = useState<
+    ModelInputs[] | undefined
+  >();
+
+  useEffect(() => {
+    async function getModelVersions() {
+      const modelVersions = await getFacilityModelVersions({
+        facilityId: facility.id,
+        scenarioId: facility.scenarioId,
+        distinctByObservedAt: true,
+      });
+      setFacilityModelVersions(modelVersions);
+    }
+    getModelVersions();
+  });
+
   const save = () => {
     // Ensure that we don't insert keys (like `localeDataSource`) that is in model but not in the facility modelInputs
     const modelInputs = {
@@ -91,6 +127,21 @@ const AddCasesModal: React.FC<Props> = ({
     setModalOpen(false);
   };
 
+  const getTileClassName = ({ date, view }: { date: Date; view: string }) => {
+    const now = new Date();
+    if (view === "month" && facilityModelVersions !== undefined) {
+      if (
+        date <= now &&
+        !facilityModelVersions.some(
+          ({ observedAt }) => date.toDateString() === observedAt.toDateString(),
+        )
+      ) {
+        return `add-cases-calendar__day--no-data`;
+      }
+    }
+    return null;
+  };
+
   return (
     <Modal
       modalTitle="Add Cases"
@@ -107,6 +158,7 @@ const AddCasesModal: React.FC<Props> = ({
               fakeUpdateModel({ observedAt: date });
             }
           }}
+          tileClassName={getTileClassName}
           valueEntered={newModel.observedAt || startOfToday()}
         />
         <HorizRule />
