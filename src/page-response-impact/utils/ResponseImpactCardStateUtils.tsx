@@ -8,7 +8,7 @@ import {
   getHospitalizedForDay,
 } from "../../impact-dashboard/ImpactProjectionTableContainer";
 import { CurveData, isCurveData } from "../../infection-model";
-import { NUM_DAYS } from "../responseChartData";
+import { NUM_DAYS } from "../../infection-model";
 import { calculatePercentDiff } from "./numberUtils";
 
 export function maxByIndex(twoDimensionalArray: number[][]) {

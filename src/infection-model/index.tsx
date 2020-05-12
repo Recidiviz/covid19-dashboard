@@ -10,6 +10,8 @@ import {
   getAllBracketCurves,
 } from "./seir";
 
+export const NUM_DAYS = 90;
+
 export type CurveData = {
   incarcerated: ndarray;
   staff: ndarray;
@@ -137,7 +139,7 @@ function prepareCurveData(inputs: CurveFunctionInputs): CurveProjectionInputs {
     usePopulationSubsets,
   } = inputs;
 
-  const numDays = 90;
+  const numDays = NUM_DAYS;
 
   const ageGroupPopulations = prepareAgeGroupPopulations(inputs);
 
