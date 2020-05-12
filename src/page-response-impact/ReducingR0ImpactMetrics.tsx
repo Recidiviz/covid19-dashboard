@@ -4,10 +4,12 @@ import hospitalIcon from "./icons/ic_hospital.svg";
 import staffIcon from "./icons/ic_staff.svg";
 import ImpactMetricCard from "./ImpactMetricCard";
 import ImpactMetricsContainer from "./ImpactMetricsContainer";
+import { formatAbsValue } from "./utils/numberUtils";
 import {
   getSubtitle,
   ImpactTitleProps,
   ImpactTitleSpan,
+  PopulationImpact,
 } from "./utils/ResponseImpactCardStateUtils";
 
 const HospitalBedsTitle = ({ title, value }: ImpactTitleProps) => {
@@ -21,13 +23,13 @@ const HospitalBedsTitle = ({ title, value }: ImpactTitleProps) => {
   );
 };
 
-const ReducingR0ImpactMetrics: React.FC = () => {
-  // TODO: Replace with actual data
-  const staffAbleToWork = 200;
-  const percentageBedsUsed = 50;
-  const percentageOfStaff = 12;
-  const percentageOfIncarcerated = 12;
-  const staffAbilityText = Math.sign(staffAbleToWork) === 1 ? "able" : "unable";
+interface Props {
+  populationImpact: PopulationImpact;
+}
+
+const ReducingR0ImpactMetrics: React.FC<Props> = ({ populationImpact }) => {
+  const staffAbilityText =
+    Math.sign(populationImpact.staffUnableToWork) === 1 ? "able" : "unable";
 
   return (
     <ImpactMetricsContainer>
@@ -35,17 +37,15 @@ const ReducingR0ImpactMetrics: React.FC = () => {
         title={
           <HospitalBedsTitle
             title="Hospital beds used at peak"
-            value={percentageBedsUsed}
+            value={populationImpact.hospitalBedsUsed}
           />
         }
-        value={`${Math.abs(percentageBedsUsed)}%`}
-        subtitle={`${Math.abs(percentageOfStaff)}% of staff`}
+        value={`${formatAbsValue(populationImpact.hospitalBedsUsed)}%`}
         icon={hospitalIcon}
       />
       <ImpactMetricCard
         title={`Additional staff ${staffAbilityText} to work`}
-        value={Math.abs(staffAbleToWork)}
-        subtitle={`${Math.abs(percentageOfIncarcerated)}% of incarcerated`}
+        value={formatAbsValue(populationImpact.staffUnableToWork)}
         icon={staffIcon}
       />
     </ImpactMetricsContainer>
