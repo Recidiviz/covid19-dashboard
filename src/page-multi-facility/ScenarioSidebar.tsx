@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { navigate } from "gatsby";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import { saveScenario } from "../database";
@@ -99,10 +99,19 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
   const [name, setName] = useState(scenario?.name);
   const [promoDismissed, setPromoDismissed] = useState(false);
   const [description, setDescription] = useState(scenario?.description);
+  // need this to force a form state refresh when switching scenarios
+  const [renderKey, setRenderKey] = useState(scenario?.id);
+
   const promoType: string | null = getEnabledPromoType(scenario, numFacilities);
 
+  useEffect(() => {
+    setName(scenario?.name);
+    setDescription(scenario?.description);
+    setRenderKey(scenario?.id);
+  }, [scenario]);
+
   return (
-    <div className="flex flex-col w-1/4 mr-24">
+    <div className="flex flex-col w-1/4 mr-24" key={renderKey}>
       <div className="flex-1 flex flex-col pb-4">
         <ScenarioName>
           {showScenarioLibrary && (

@@ -3,6 +3,7 @@ import React from "react";
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
+import { getSubtitle } from "./utils/ResponseImpactCardStateUtils";
 
 const contentWidthPercent = "80%";
 
@@ -26,7 +27,7 @@ const HeaderTitle = styled.span`
   color: ${Colors.forest};
 `;
 const HeaderSubTitle = styled.span`
-  color: ${hexAlpha(Colors.forest, 0.5)};
+  color: ${(props) => props.color || hexAlpha(Colors.forest, 0.5)};
 `;
 const Percent = styled.div`
   font-size: 36px;
@@ -58,21 +59,24 @@ interface Props {
   currentPop: number;
 }
 
-function percentDiff(orig: number, curr: number): number {
-  // reduction is a positive value
-  const num = (-1 * (curr - orig)) / orig;
+function calculatePercentDiff(orig: number, curr: number): number {
+  const num = (orig - curr) / orig;
   return Math.round(num * 100);
 }
 
 const PopulationReduction: React.FC<Props> = ({ originalPop, currentPop }) => {
+  const percentDiff = calculatePercentDiff(originalPop, currentPop);
+  const subtitle = getSubtitle(Math.sign(percentDiff));
   return (
     <Container>
       <HeaderContainer>
         <TitleGroup>
           <HeaderTitle>Incarcerated population</HeaderTitle>
-          <HeaderSubTitle>&nbsp;reduced by</HeaderSubTitle>
+          <HeaderSubTitle color={subtitle.color}>
+            &nbsp;{subtitle.text}
+          </HeaderSubTitle>
         </TitleGroup>
-        <Percent>{percentDiff(originalPop, currentPop)}%</Percent>
+        <Percent>{Math.abs(percentDiff)}%</Percent>
       </HeaderContainer>
       <Row>
         <RowContent>Current population</RowContent>
