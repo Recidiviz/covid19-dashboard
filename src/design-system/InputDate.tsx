@@ -68,7 +68,7 @@ const InputContainer = styled.div`
       &__days {
         &__day {
           &--weekend {
-            color: ${Colors.red};
+            color: ${Colors.green};
           }
         }
       }
