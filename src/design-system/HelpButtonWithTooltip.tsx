@@ -6,7 +6,6 @@ import Tooltip from "./Tooltip";
 
 const HelpButton = styled.img`
   display: inline-block;
-  padding: 2px;
 `;
 
 interface Props {
