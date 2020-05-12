@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { Link } from "gatsby";
 import React, { useContext, useState } from "react";
+import styled from "styled-components";
 
 import { saveScenario } from "../database";
 import iconBackSrc from "../design-system/icons/ic_back.svg";
@@ -43,6 +44,8 @@ import {
   TakeActionText,
 } from "./styles";
 import ValidDataWrapper from "./ValidDataWrapper";
+
+const PageHeaderContainer = styled.div``;
 
 interface Props {
   scenario: Scenario;
@@ -113,25 +116,26 @@ const ResponseImpactDashboard: React.FC<Props> = ({
           />
           {populationFormSubmitted && (
             <ValidDataWrapper facilities={facilities.data}>
+              <PageHeaderContainer className="m-5">
+                <Link to="/">
+                  <BackDiv>
+                    <IconBack alt="back" src={iconBackSrc} />
+                    Back to model
+                  </BackDiv>
+                </Link>
+                <PageHeader>
+                  {facilities.data[0].systemType === "County Jail" &&
+                  modelInputs[0].countyName !== "Total"
+                    ? modelInputs[0].countyName
+                    : modelInputs[0].stateCode}{" "}
+                  COVID-19 Response Impact
+                </PageHeader>
+                <ReportDateDiv>
+                  Report generated on {format(new Date(), "MMM dd, yyyy")}
+                </ReportDateDiv>
+              </PageHeaderContainer>
               <PageContainer>
                 <Column>
-                  <Link to="/">
-                    <BackDiv>
-                      <IconBack alt="back" src={iconBackSrc} />
-                      Back to model
-                    </BackDiv>
-                  </Link>
-                  <PageHeader>
-                    {facilities.data[0].systemType === "County Jail" &&
-                    modelInputs[0].countyName !== "Total"
-                      ? modelInputs[0].countyName
-                      : modelInputs[0].stateCode}{" "}
-                    COVID-19 Response Impact
-                  </PageHeader>
-                  <ReportDateDiv>
-                    Report generated on {format(new Date(), "MMM dd, yyyy")}
-                  </ReportDateDiv>
-                  <Spacer y={24} />
                   <DescriptionTextDiv>
                     New! This report compares the impact of your system's
                     COVID-19 response against the model's initial assumptions
@@ -189,7 +193,6 @@ const ResponseImpactDashboard: React.FC<Props> = ({
                   )}
                 </Column>
                 <Column>
-                  <Spacer y={40} />
                   <SectionHeaderBare>
                     Original vs. Current Projections
                   </SectionHeaderBare>
