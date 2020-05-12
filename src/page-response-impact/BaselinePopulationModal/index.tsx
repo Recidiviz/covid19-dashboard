@@ -15,6 +15,10 @@ const Text = styled.div`
   font-weight: normal;
   line-height: 180%;
   padding-top: 20px;
+
+  a {
+    color: ${Colors.teal};
+  }
 `;
 
 const ModalFooter = styled.div`
@@ -97,11 +101,14 @@ const BaselinePopulationModal: React.FC<Props> = ({
           {page === 1 ? (
             <>
               <Text>
-                A report will be generated to compare the current projected
-                impact of COVID-19 on your system against the model’s original
-                assumptions prior to any actions taken. For a complete report,
-                ensure all facilities in your system are modelled, even if some
-                facilities do not currently have confirmed cases.
+                This tool produces a report summarizing the impact of your
+                interventions on the spread of Covid-19 in your facilities. To
+                ensure accuracy, we recommend ensuring that all facilities in
+                your system have been{" "}
+                <a href="http://model.recidiviz.org/">
+                  modeled with up-to-date data
+                </a>
+                , even facilities which never had a confirmed case.
               </Text>
               <ModalFooter>
                 <InputButton
