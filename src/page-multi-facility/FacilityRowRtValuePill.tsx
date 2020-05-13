@@ -57,24 +57,40 @@ const displayRtValue = (latestRt: number | null | undefined) => {
   return isValidRt(latestRt) ? numeral(latestRt).format("0.0") : "?";
 };
 
-const FacilityRowRtValuePill: React.FC<Props> = ({ latestRt: latestRt }) => {
-  const hasDataTitle = `Rate of spread (Rt): ${displayRtValue(latestRt)}`;
-  const needsDataTitle = `Not enough data`;
-  const hasDataBody = `Numbers above 1 indicate how quickly the virus is spreading. If the value is below 1, the virus is on track to be extinguished at this facility.`;
-  const needsDataBody = `To calculate the rate of transmission, enter more than one day of facility case data.`;
+const hasDataTitle = (latestRt: number | null | undefined) =>
+  `Rate of spread (Rt): ${displayRtValue(latestRt)}`;
+const needsDataTitle = "Insufficient data to calculate rate of spread.";
+const hasDataBody = `Numbers above 1 indicate how quickly the virus is spreading. If the value is below 1, the virus is on track to be extinguished at this facility.`;
+const zeroRtDataTitle = "Covid-19 not active at this facility";
+const needsDataBody = `Click the number of cases to add case numbers for the last several days or weeks.`;
 
+const tooltipTitle = (latestRt: number | null | undefined): string => {
+  if (!isValidRt(latestRt)) {
+    return needsDataTitle;
+  } else if (latestRt === 0) {
+    return zeroRtDataTitle;
+  } else {
+    return hasDataTitle(latestRt);
+  }
+};
+
+const tooltipBody = (latestRt: number | null | undefined): string => {
+  if (!isValidRt(latestRt)) {
+    return needsDataBody;
+  } else {
+    return hasDataBody;
+  }
+};
+
+const FacilityRowRtValuePill: React.FC<Props> = ({ latestRt: latestRt }) => {
   return (
     <>
       <RtValuePill spreadType={rtSpreadType(latestRt)}>
         <PillTooltip>
           <ChartTooltip>
             <TooltipContents>
-              <TooltipValue>
-                {isValidRt(latestRt) ? hasDataTitle : needsDataTitle}
-              </TooltipValue>
-              <TooltipLabel>
-                {isValidRt(latestRt) ? hasDataBody : needsDataBody}
-              </TooltipLabel>
+              <TooltipValue>{tooltipTitle(latestRt)}</TooltipValue>
+              <TooltipLabel>{tooltipBody(latestRt)}</TooltipLabel>
             </TooltipContents>
           </ChartTooltip>
         </PillTooltip>
