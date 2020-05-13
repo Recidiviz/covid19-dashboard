@@ -3,18 +3,18 @@ import { navigate } from "gatsby";
 import React, { useContext, useState } from "react";
 import styled from "styled-components";
 
-import { FacilityEvents } from "../constants/dispatchEvents";
 import Colors, { MarkColors as markColors } from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import FontSizes from "../design-system/FontSizes";
 import iconEditSrc from "../design-system/icons/ic_edit.svg";
 import { Spacer } from "../design-system/Spacer";
 import Tooltip from "../design-system/Tooltip";
-import { useFlag } from "../feature-flags";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
 import { totalConfirmedCases } from "../impact-dashboard/EpidemicModelContext";
 import useModel from "../impact-dashboard/useModel";
 import { getUpdatedFacilityRtData, RtData } from "../infection-model/rt";
+import { getNewestRt } from "../infection-model/rt";
+import { isRtData } from "../page-response-impact/RtSummaryStats";
 import AddCasesModal from "./AddCasesModal";
 import { FacilityContext } from "./FacilityContext";
 import FacilityRowRtValuePill from "./FacilityRowRtValuePill";
@@ -88,21 +88,16 @@ const FacilityRow: React.FC<Props> = ({ facility: initialFacility }) => {
 
   const { rtData, setFacility, dispatchRtData } = useContext(FacilityContext);
 
-  console.log("rtData", rtData);
-
   const [facility, updateFacility] = useState(initialFacility);
-  let useRt,
-    facilityRtData: RtData | undefined | null = undefined,
-    latestRt = undefined;
-  if (useFlag(["useRt"])) {
-    useRt = true;
-    facilityRtData = rtData ? rtData[facility.id] : undefined;
 
-    // TODO(Lenny): Update this with the helper function once PR #273 is completed.
-    latestRt = facilityRtData?.Rt[facilityRtData.Rt.length - 1].value;
-  }
+  const facilityRtData = rtData ? rtData[facility.id] : undefined;
+
+  const latestRt = isRtData(facilityRtData)
+    ? getNewestRt(facilityRtData.Rt)?.value
+    : facilityRtData;
+
   const chartData = useChartDataFromProjectionData(
-    useProjectionData(model, useRt, facilityRtData),
+    useProjectionData(model, true, facilityRtData),
   );
 
   // UI hover states are a little complicated;

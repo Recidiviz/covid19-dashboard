@@ -59,6 +59,7 @@
     "gatsby-plugin-postcss": "^2.2.4",
     "gatsby-plugin-prefetch-google-fonts": "^1.4.3",
     "gatsby-plugin-react-helmet": "^3.2.5",
+    "gatsby-plugin-segment-js": "^3.2.2",
     "gatsby-plugin-styled-components": "^3.2.4",
     "gatsby-plugin-typescript": "^2.3.5",
     "hex-alpha": "^1.0.2",
@@ -79,7 +80,6 @@
     "react-is": "^16.13.1",
     "react-popper": "^2.1.0",
     "react-spinners": "^0.8.1",
-    "react-tabs": "^3.1.0",
     "react-virtualized": "^9.21.2",
     "react-virtualized-auto-sizer": "^1.0.2",
     "regenerator-runtime": "^0.13.5",
@@ -154,6 +154,7 @@
     "@types/react-tabs": "^2.3.1",
     "babel-jest": "^25.4.0",
     "jest": "^25.4.0",
+    "jest-date-mock": "^1.0.8",
     "jest-styled-components": "^7.0.2",
     "ts-jest": "^25.4.0"
   }

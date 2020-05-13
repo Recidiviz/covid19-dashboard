@@ -1,23 +1,40 @@
 import { format } from "date-fns";
 import { navigate } from "gatsby";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import { saveScenario } from "../database";
 import Colors from "../design-system/Colors";
+import iconFolderSrc from "../design-system/icons/ic_folder.svg";
 import InputButton from "../design-system/InputButton";
 import InputDescription from "../design-system/InputDescription";
-import InputNameWithIcon from "../design-system/InputNameWithIcon";
+import InputName from "../design-system/InputName";
 import PromoBoxWithButton from "../design-system/PromoBoxWithButton";
 import { Spacer } from "../design-system/Spacer";
 import { useFlag } from "../feature-flags";
 import useScenario from "../scenario-context/useScenario";
-import ToggleRow from "./ToggleRow";
+import ScenarioLibraryModal from "./ScenarioLibraryModal";
 import { Scenario } from "./types";
 
 const HorizontalRule = styled.hr`
   border-color: ${Colors.opacityGray};
 `;
+
+const ScenarioName = styled.div`
+  border-bottom: 1px solid ${Colors.paleGreen};
+  display: flex;
+`;
+
+const IconFolder = styled.img`
+  display: inline;
+  width: 12px;
+  height: 12px;
+  margin-right: 12px;
+`;
+
+interface ToggleContainerProps {
+  hidden?: boolean;
+}
 
 interface Props {
   numFacilities?: number | null;
@@ -29,31 +46,23 @@ export function getEnabledPromoType(
 ) {
   if (!scenario) return null;
 
-  const { dailyReports, dataSharing, promoStatuses } = scenario;
+  const { promoStatuses } = scenario;
 
   return promoStatuses.rtChart
     ? "rtChart"
-    : !dailyReports && promoStatuses?.dailyReports
-    ? "dailyReports"
-    : !dataSharing && promoStatuses?.dataSharing
-    ? "dataSharing"
     : numFacilities && numFacilities < 3 && promoStatuses?.addFacilities
     ? "addFacilities"
     : null;
 }
 
 const promoTexts: { [promoType: string]: string } = {
-  dailyReports:
-    "Turn on 'Daily Reports' to receive briefings based on the data in this scenario, prepared by Recidiviz and CSG.",
-  dataSharing:
-    "Turn on 'Data Sharing' to provide your baseline data to public researchers, to help improve models of disease spread in prisons in the future.",
   addFacilities:
     "Add additional facilities to see the impact across your entire system.",
   rtChart: `New! View the chart of Rt (the rate of spread over time) for any
     facility by selecting it. This is based on the number of cases over time
     for that facility. To get an accurate Rt, enter case counts for previous
     days by clicking the number of cases on the right (in red) to update case
-    numbers.)`,
+    numbers.`,
 };
 
 export function getPromoText(promoType: string | null) {
@@ -67,6 +76,7 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
   const { numFacilities } = props;
   const updatedAtDate = Number(scenario?.updatedAt);
   const showImpactButton = useFlag(["showImpactButton"]);
+  const showScenarioLibrary = useFlag(["showScenarioLibrary"]);
 
   const handleScenarioChange = (scenarioChange: any) => {
     const changes = Object.assign({}, scenario, scenarioChange);
@@ -89,21 +99,44 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
   const [name, setName] = useState(scenario?.name);
   const [promoDismissed, setPromoDismissed] = useState(false);
   const [description, setDescription] = useState(scenario?.description);
+  // need this to force a form state refresh when switching scenarios
+  const [renderKey, setRenderKey] = useState(scenario?.id);
+
   const promoType: string | null = getEnabledPromoType(scenario, numFacilities);
 
+  useEffect(() => {
+    setName(scenario?.name);
+    setDescription(scenario?.description);
+    setRenderKey(scenario?.id);
+  }, [scenario]);
+
   return (
-    <div className="flex flex-col w-1/4 mr-24">
+    <div className="flex flex-col w-1/4 mr-24" key={renderKey}>
       <div className="flex-1 flex flex-col pb-4">
-        <InputNameWithIcon
-          name={name}
-          setName={setName}
-          placeholderValue={scenario?.name}
-          placeholderText="Scenario name is required"
-          maxLengthValue={124}
-          requiredFlag={true}
-          persistChanges={handleTextInputChange}
-          showIcon
-        />
+        <ScenarioName>
+          {showScenarioLibrary && (
+            <ScenarioLibraryModal
+              trigger={
+                <IconFolder
+                  style={{
+                    marginTop: "8px",
+                  }}
+                  alt="folder"
+                  src={iconFolderSrc}
+                />
+              }
+            />
+          )}
+          <InputName
+            name={name}
+            setName={setName}
+            placeholderValue={scenario?.name}
+            placeholderText="Scenario name is required"
+            maxLengthValue={124}
+            requiredFlag={true}
+            persistChanges={handleTextInputChange}
+          />
+        </ScenarioName>
         <Spacer y={20} />
         <InputDescription
           description={description}
@@ -123,24 +156,6 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
         </div>
         <div>
           <Spacer y={20} />
-          <HorizontalRule />
-          <ToggleRow
-            onToggle={() =>
-              handleScenarioChange({ dailyReports: !scenario?.dailyReports })
-            }
-            toggled={scenario?.dailyReports}
-            label="Subscribe to daily reports"
-            labelHelp="If enabled, your baseline scenario will be shared with Recidiviz and CSG. This data will only be used to provide you with daily reports."
-          />
-          <HorizontalRule />
-          <ToggleRow
-            onToggle={() =>
-              handleScenarioChange({ dataSharing: !scenario?.dataSharing })
-            }
-            toggled={scenario?.dataSharing}
-            label="Share data to improve the model"
-            labelHelp="If enabled, your baseline scenario will be made available to Recidiviz and the research community to improve the model and the state of research on the spread of disease in facilities. Any public research will anonymize state and facility names."
-          />
           <HorizontalRule />
           <PromoBoxWithButton
             enabled={!!scenario?.baseline && !promoDismissed}
@@ -166,6 +181,8 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
                 fontSize: "14px",
                 fontFamily: "PingFang SC",
                 width: "100%",
+                marginTop: "20px",
+                visibility: !scenario?.baseline ? "hidden" : "visible",
               }}
               label="Generate Impact Report"
               onClick={() => navigate("/impact")}

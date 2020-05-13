@@ -7,13 +7,12 @@ import Colors from "../design-system/Colors";
 import iconDuplicatePath from "../design-system/icons/ic_duplicate.svg";
 import InputButton, { StyledButton } from "../design-system/InputButton";
 import InputDescription from "../design-system/InputDescription";
-import InputNameWithIcon from "../design-system/InputNameWithIcon";
+import InputName from "../design-system/InputName";
 import ModalDialog from "../design-system/ModalDialog";
 import { Column, PageContainer } from "../design-system/PageColumn";
 import PopUpMenu from "../design-system/PopUpMenu";
 import { Spacer } from "../design-system/Spacer";
 import Tooltip from "../design-system/Tooltip";
-import { Flag } from "../feature-flags";
 import FacilityInformation from "../impact-dashboard/FacilityInformation";
 import MitigationInformation from "../impact-dashboard/MitigationInformation";
 import useModel from "../impact-dashboard/useModel";
@@ -124,12 +123,16 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
 
   const save = () => {
     if (facilityName) {
+      // Set observedAt to right now when updating a facility from this input form
+      const modelUpdate = Object.assign({}, model[0]);
+      modelUpdate.observedAt = new Date();
+
       saveFacility(scenarioId, {
         id: facility?.id,
         name: facilityName || null,
         description: description || null,
         systemType: systemType || null,
-        modelInputs: model[0],
+        modelInputs: modelUpdate,
       }).then(() => {
         navigate("/");
       });
@@ -172,13 +175,14 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   return (
     <PageContainer>
       <Column width={"45%"}>
-        <InputNameWithIcon
+        <InputName
           name={facilityName}
           setName={setFacilityName}
           placeholderValue="Unnamed Facility"
           placeholderText="Facility name is required"
           maxLengthValue={124}
           requiredFlag={true}
+          border
         />
         <Spacer y={20} />
         {facility && (
@@ -208,11 +212,9 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
         </DescRow>
         <div className="mt-5 mb-5 border-b border-gray-300" />
 
-        <Flag name={["useRt"]}>
-          <RtChartContainer>
-            <RtTimeseries data={rtTimeseriesData} />
-          </RtChartContainer>
-        </Flag>
+        <RtChartContainer>
+          <RtTimeseries data={rtTimeseriesData} />
+        </RtChartContainer>
 
         <LocaleInformationSection
           systemType={systemType}

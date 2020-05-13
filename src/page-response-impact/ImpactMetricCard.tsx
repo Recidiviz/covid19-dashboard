@@ -43,14 +43,18 @@ const Value = styled.div`
 `;
 
 const Subtitle = styled.div`
-  font-family: "Helvetica Neue", serif;
+  font-family: "Poppins", sans serif;
   font-size: 14px;
   font-weight: 300;
   line-height: 150%;
   color: ${Colors.opacityForest};
 `;
 
-const Icon = styled.img``;
+const Icon = styled.img`
+  @media (max-width: 900px) {
+    display: none;
+  }
+`;
 
 interface Props {
   title: string | React.ReactElement;

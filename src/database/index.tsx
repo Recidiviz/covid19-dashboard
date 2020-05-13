@@ -6,7 +6,7 @@ import "firebase/firestore";
 
 import createAuth0Client from "@auth0/auth0-spa-js";
 import { format, startOfDay, startOfToday } from "date-fns";
-import { pick, sortBy } from "lodash";
+import { pick, orderBy, uniqBy } from "lodash";
 
 import config from "../auth/auth_config.json";
 import { MMMMdyyyy } from "../constants";
@@ -204,7 +204,7 @@ export const getScenarios = async (): Promise<Scenario[]> => {
     // We're sorting in memory instead of in the query above due to a limitation
     // in the way our data is currently modeled. See this issue for more details:
     // https://github.com/Recidiviz/covid19-dashboard/issues/253
-    return sortBy(scenarios, "name");
+    return orderBy(scenarios, ["baseline", "name"], ["desc", "asc"]);
   } catch (error) {
     console.error(`Encountered error while attempting to retrieve scenarios:`);
     console.error(error);
@@ -290,9 +290,11 @@ export const getFacilities = async (
 export const getFacilityModelVersions = async ({
   facilityId,
   scenarioId,
+  distinctByObservedAt = false,
 }: {
   facilityId: string;
   scenarioId: string;
+  distinctByObservedAt?: boolean;
 }): Promise<ModelInputs[]> => {
   const db = await getDb();
 
@@ -304,11 +306,19 @@ export const getFacilityModelVersions = async ({
       .doc(facilityId)
       .collection(modelVersionCollectionId)
       .orderBy("observedAt", "asc")
+      .orderBy("updatedAt", "desc")
       .get();
 
-    return historyResults.docs.map((doc) => {
-      return buildModelInputs(doc.data());
-    });
+    let modelVersions = historyResults.docs.map((doc) =>
+      buildModelInputs(doc.data()),
+    );
+    return distinctByObservedAt
+      ? uniqBy(
+          modelVersions,
+          // make sure time doesn't enter into the uniqueness
+          (record) => record.observedAt.toDateString(),
+        )
+      : modelVersions;
   } catch (error) {
     console.error(
       "Encountered error while attempting to retrieve facility model versions:",
@@ -503,6 +513,10 @@ export const duplicateScenario = async (
     // Duplicate and save the Scenario
     const scenarioDoc = db.collection(scenariosCollectionId).doc();
 
+    const baselinePopulationsCopy = scenario.baselinePopulations
+      ? [...scenario.baselinePopulations]
+      : [];
+
     batch.set(scenarioDoc, {
       name: `Copy of ${scenario.name}`,
       description: `This is a copy of the '${
@@ -512,6 +526,7 @@ export const duplicateScenario = async (
       dailyReports: false,
       dataSharing: false,
       promoStatuses: {},
+      baselinePopulations: [...baselinePopulationsCopy],
       roles: {
         [userId]: "owner",
       },
@@ -545,7 +560,7 @@ export const duplicateScenario = async (
       });
     }
 
-    batch.commit();
+    await batch.commit();
   } catch (error) {
     console.error(
       `Encountered error while attempting to duplicate scenario: ${scenarioId}`,

@@ -11,20 +11,26 @@ const BackgroundAside = styled.aside`
   display: flex;
   height: 100%;
   justify-content: center;
-  position: absolute;
+  position: fixed;
   top: 0;
   width: 100%;
 `;
 
-const ModalContainer = styled.div`
+interface ModalContainerProps {
+  height?: string;
+  width?: string;
+}
+
+const ModalContainer = styled.div<ModalContainerProps>`
   align-self: center;
   background-color: ${Colors.slate};
   border-radius: 5px;
   display: flex;
   flex-direction: column;
-  width: 65vw;
+  height: ${(props) => props.height || "auto"};
+  width: ${(props) => props.width || "65vw"};
   padding: 35px;
-  position: static;
+  position: fixed;
   max-height: 90%;
   overflow-y: auto;
 `;
@@ -33,7 +39,9 @@ interface Props {
   numSteps?: number;
   title?: TitleProps["title"];
   open?: boolean;
-  closeModal?: (e: React.MouseEvent<HTMLElement>) => void | null;
+  closeModal?: TitleProps["closeModal"];
+  height?: string;
+  width?: string;
 }
 
 const isOutsideModal = (
@@ -45,7 +53,7 @@ const isOutsideModal = (
   !element.contains(event.target);
 
 const ModalDialog: React.FC<Props> = (props) => {
-  const { title, open, closeModal, children } = props;
+  const { title, open, closeModal, height, width, children } = props;
   const ref = useRef<HTMLDivElement>(null);
 
   if (!open) return null;
@@ -58,7 +66,7 @@ const ModalDialog: React.FC<Props> = (props) => {
 
   return ReactDOM.createPortal(
     <BackgroundAside onClick={handleOnClick}>
-      <ModalContainer ref={ref}>
+      <ModalContainer ref={ref} height={height} width={width}>
         <ModalTitle title={title} closeModal={closeModal} />
         {children}
       </ModalContainer>

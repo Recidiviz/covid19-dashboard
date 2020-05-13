@@ -35,6 +35,7 @@ interface SingleDayInputs {
   totalInfectious: number;
   totalPopulation: number;
   totalSusceptibleIncarcerated: number;
+  pSevereCase: number;
 }
 
 export enum seirIndex {
@@ -81,8 +82,6 @@ const dHospitalLag = 2.9;
 const dHospitalRecovery = 22;
 // days from hospital admission to deceased (fatality scenario)
 const dHospitalFatality = 8.3;
-// probability case will be severe enough for the hospital
-const pSevereCase = 0.26;
 // factor for inferring exposure based on confirmed cases
 const ratioExposedToInfected = dIncubation / dInfectious;
 // factor for estimating population adjustment based on expected turnover
@@ -107,6 +106,7 @@ function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
     totalPopulation,
     populationAdjustment,
     totalSusceptibleIncarcerated,
+    pSevereCase,
   } = inputs;
 
   const alpha = 1 / dIncubation;
@@ -257,6 +257,20 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
   ageGroupFatalityRates[ageGroupIndex.age85] = 0.1885;
   ageGroupFatalityRates[ageGroupIndex.staff] = 0.026;
 
+  // source: Centers for Disease Control,
+  // https://www.cdc.gov/mmwr/volumes/69/wr/mm6912e2.htm#T1_down
+  // we use the average of the range provided for each group
+  const ageGroupHospitalizationRates: number[] = [];
+  ageGroupHospitalizationRates[ageGroupIndex.ageUnknown] = 0.2605;
+  ageGroupHospitalizationRates[ageGroupIndex.age0] = 0.0205;
+  ageGroupHospitalizationRates[ageGroupIndex.age20] = 0.1755;
+  ageGroupHospitalizationRates[ageGroupIndex.age45] = 0.2475;
+  ageGroupHospitalizationRates[ageGroupIndex.age55] = 0.253;
+  ageGroupHospitalizationRates[ageGroupIndex.age65] = 0.3605;
+  ageGroupHospitalizationRates[ageGroupIndex.age75] = 0.446;
+  ageGroupHospitalizationRates[ageGroupIndex.age85] = 0.508;
+  ageGroupHospitalizationRates[ageGroupIndex.staff] = 0.2605;
+
   // adjust population figures based on expected turnover
   ageGroupPopulations = adjustPopulations({
     ageGroupPopulations,
@@ -350,6 +364,7 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
         rateOfSpreadCells,
         rateOfSpreadDorms,
         pFatalityRate: rate,
+        pSevereCase: ageGroupHospitalizationRates[ageGroup],
         facilityDormitoryPct,
         simulateStaff: ageGroup === ageGroupIndex.staff,
         populationAdjustment: expectedPopulationChanges[day],

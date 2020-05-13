@@ -12,10 +12,12 @@ export interface Props {
   open: boolean;
   setOpen: (open: boolean) => void;
   trigger?: string | React.ReactElement<any>;
+  height?: string;
+  width?: string;
 }
 
 const Modal: React.FC<Props> = (props) => {
-  const { trigger, modalTitle, children, open, setOpen } = props;
+  const { trigger, modalTitle, children, open, setOpen, height, width } = props;
 
   const closeModal = () => {
     if (props.onClose) {
@@ -27,7 +29,13 @@ const Modal: React.FC<Props> = (props) => {
   return (
     <ModalContainer>
       <div onClick={() => setOpen(true)}> {trigger}</div>
-      <ModalDialog title={modalTitle} open={open} closeModal={closeModal}>
+      <ModalDialog
+        title={modalTitle}
+        open={open}
+        closeModal={closeModal}
+        height={height}
+        width={width}
+      >
         {children}
       </ModalDialog>
     </ModalContainer>

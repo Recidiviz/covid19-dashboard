@@ -43,6 +43,7 @@ const CreateBaselineScenarioPage: React.FC = () => {
       baseline: true,
       dataSharing: false,
       dailyReports: false,
+      baselinePopulations: [],
       promoStatuses: {
         dataSharing: true,
         dailyReports: true,

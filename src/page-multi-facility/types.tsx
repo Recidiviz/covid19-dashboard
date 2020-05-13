@@ -26,6 +26,7 @@ export type Scenario = {
   dataSharing: boolean;
   dailyReports: boolean;
   promoStatuses: PromoStatuses;
+  baselinePopulations: BaselinePopulations[];
   description: string;
   roles: object;
   createdAt: Date;
@@ -41,4 +42,10 @@ export type PromoStatuses = {
 
 export type RtDataMapping = {
   [key in Facility["id"]]: RtData | null;
+};
+
+export type BaselinePopulations = {
+  date: Date;
+  staffPopulation: number;
+  incarceratedPopulation: number;
 };

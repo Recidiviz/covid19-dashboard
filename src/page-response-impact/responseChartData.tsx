@@ -13,18 +13,25 @@ import {
   curveInputsFromUserInputs,
   isCurveData,
 } from "../infection-model";
+import { NUM_DAYS } from "../infection-model";
 import { getAllValues, getColView } from "../infection-model/matrixUtils";
 import { seirIndex } from "../infection-model/seir";
 import { LocaleData } from "../locale-data-context";
 import { Facilities } from "../page-multi-facility/types";
 
-const NUM_DAYS = 90;
-const NUM_SEIR_CATEGORIES = 9;
-
 export type SystemWideData = {
-  staffPopulation: number;
-  prisonPopulation: number;
   hospitalBeds: number;
+  staffPopulation: number;
+  staffCases: number;
+  age0Cases: number;
+  age20Cases: number;
+  age45Cases: number;
+  age55Cases: number;
+  age65Cases: number;
+  age75Cases: number;
+  age85Cases: number;
+  ageUnknownCases: number;
+  incarceratedPopulation: number;
 };
 
 export function getModelInputs(
@@ -51,12 +58,9 @@ export function getCurveInputs(modelInputs: EpidemicModelState[]) {
 }
 
 function originalEpidemicModelInputs(systemWideData: SystemWideData) {
-  const { staffPopulation, prisonPopulation } = systemWideData;
   return {
-    staffCases: 1,
-    staffPopulation: staffPopulation,
-    ageUnknownCases: 1,
-    ageUnknownPopulation: prisonPopulation,
+    ...systemWideData,
+    ageUnknownPopulation: systemWideData.incarceratedPopulation,
     populationTurnover: 0,
     facilityOccupancyPct: 1,
     facilityDormitoryPct: 0.15,
@@ -85,12 +89,31 @@ export function getSystemWideSums(modelInputs: EpidemicModelState[]) {
   let sums = {
     hospitalBeds: 0,
     staffPopulation: 0,
-  };
-  modelInputs.forEach((input) => {
-    sums.hospitalBeds += input.hospitalBeds || 0;
-    sums.staffPopulation += input.staffPopulation || 0;
-    return sums;
-  });
+    staffCases: 0,
+    age0Cases: 0,
+    age20Cases: 0,
+    age45Cases: 0,
+    age55Cases: 0,
+    age65Cases: 0,
+    age75Cases: 0,
+    age85Cases: 0,
+    ageUnknownCases: 0,
+  } as SystemWideData;
+
+  modelInputs.reduce((sum: SystemWideData, input: any) => {
+    sum.hospitalBeds += input.hospitalBeds || 0;
+    sum.staffPopulation += input.staffPopulation || 0;
+    sum.staffCases += input.staffCases || 0;
+    sum.age0Cases += input.age0Cases || 0;
+    sum.age20Cases += input.age20Cases || 0;
+    sum.age45Cases += input.age45Cases || 0;
+    sum.age55Cases += input.age55Cases || 0;
+    sum.age65Cases += input.age65Cases || 0;
+    sum.age75Cases += input.age75Cases || 0;
+    sum.age85Cases += input.age85Casess || 0;
+    sum.ageUnknownCases += input.ageUnknownCases || 0;
+    return sum;
+  }, sums);
   return sums;
 }
 
@@ -114,7 +137,7 @@ function combineFacilitiesProjectionData(
       return (sum += value);
     }, 0);
   });
-  return ndarray(summedData, [NUM_DAYS, NUM_SEIR_CATEGORIES]);
+  return ndarray(summedData, [NUM_DAYS, seirIndex.__length]);
 }
 
 export function getCurveChartData(facilitiesInputs: CurveFunctionInputs[]) {

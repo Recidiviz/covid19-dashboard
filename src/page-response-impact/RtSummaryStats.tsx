@@ -4,6 +4,7 @@ import { ResponsiveOrdinalFrame } from "semiotic";
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
+import HelpButtonWithTooltip from "../design-system/HelpButtonWithTooltip";
 import { RtData, RtRecord } from "../infection-model/rt";
 import { RtDataMapping } from "../page-multi-facility/types";
 import * as rtStats from "./rtStatistics";
@@ -35,6 +36,10 @@ const LegendContainer = styled.div`
   font-size: 9px;
   font-weight: normal;
   line-height: 16px;
+`;
+
+const LegendText = styled.div`
+  margin-right: 5px;
 `;
 
 const LegendSpan = styled.span`
@@ -70,8 +75,8 @@ const DonutChartSubtitle = styled.text`
   transform: translate(0px, 20px);
 `;
 
-function filterRtData(data: RtData | null): data is RtData {
-  return data !== null;
+export function isRtData(data: RtData | null | undefined): data is RtData {
+  return data !== null && data !== undefined;
 }
 
 function rtDonutChartAnnotation(d: any) {
@@ -93,7 +98,7 @@ const RtSummaryStats: React.FC<Props> = ({ rtData }) => {
   const totalFacilitiesInScenario = rtDataValues.length;
 
   const facilitiesRtRecords: RtRecord[][] = rtDataValues
-    .filter(filterRtData)
+    .filter(isRtData)
     .map((rtData: RtData) => rtData.Rt);
 
   const numFacilitiesWithRtLt1 =
@@ -138,7 +143,12 @@ const RtSummaryStats: React.FC<Props> = ({ rtData }) => {
       <RtSummaryTextContainer>
         <LegendContainer>
           <LegendSpan />
-          <div>{`Facilities with R(t) < 1.0`}</div>
+          <LegendText>{`Facilities with R(t) < 1.0`}</LegendText>
+          <HelpButtonWithTooltip>
+            {`R(t) < 1.0 means the virus will stop spreading. An R(t) > 1.0
+              means the virus will spread quickly. Each facility needs at
+              least two days of case data to calculate an R(t).`}
+          </HelpButtonWithTooltip>
         </LegendContainer>
         <RtSummaryText className="mt-5 mb-5">
           Average R(t) reduction across all facilities since first confirmed

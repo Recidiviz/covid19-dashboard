@@ -5,8 +5,10 @@ import Colors from "./Colors";
 import closeIcon from "./icons/ic_close.svg";
 
 export interface TitleProps {
-  title?: string;
-  closeModal?: (e: React.MouseEvent<HTMLElement>) => void | null;
+  title?: string | React.ReactElement;
+  closeModal?: (
+    e: React.MouseEvent<HTMLElement>,
+  ) => void | null | Promise<void>;
 }
 
 const CloseButtonImg = styled.img`

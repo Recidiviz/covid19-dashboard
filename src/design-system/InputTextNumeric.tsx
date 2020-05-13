@@ -6,6 +6,7 @@ import InputText from "./InputText";
 
 interface Props extends InputBaseProps<number> {
   type: "number" | "percent";
+  style?: React.CSSProperties;
 }
 
 const PctAddon = styled.div`

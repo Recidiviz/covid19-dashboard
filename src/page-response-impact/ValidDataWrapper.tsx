@@ -1,9 +1,14 @@
+import { Link } from "gatsby";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
+import iconBackSrc from "../design-system/icons/ic_back.svg";
+import { Spacer } from "../design-system/Spacer";
 import { sumAgeGroupPopulations } from "../impact-dashboard/EpidemicModelContext";
 import { Facilities } from "../page-multi-facility/types";
+import { BackDiv, IconBack } from "./styles";
+
 const POPULATION_DATA_ERROR_MSG =
   "Impact could not be generated because one or more of your facilities does not have an incarcerated population count. Please add population numbers and try again.";
 const LOCALE_DATA_ERROR_MSG =
@@ -56,6 +61,13 @@ const ValidDataWrapper: React.FC<Props> = ({ children, facilities = [] }) => {
     <ValidDataWrapperContainer>
       {Object.values(errors).some((e) => e) ? (
         <div>
+          <Spacer y={24} />
+          <Link to="/">
+            <BackDiv className="ml-5">
+              <IconBack alt="back" src={iconBackSrc} />
+              Back to model
+            </BackDiv>
+          </Link>
           {errors.locale && (
             <ErrorMessage>{LOCALE_DATA_ERROR_MSG}</ErrorMessage>
           )}
