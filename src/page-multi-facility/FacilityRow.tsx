@@ -12,7 +12,7 @@ import Tooltip from "../design-system/Tooltip";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
 import { totalConfirmedCases } from "../impact-dashboard/EpidemicModelContext";
 import useModel from "../impact-dashboard/useModel";
-import { getUpdatedFacilityRtData, RtData } from "../infection-model/rt";
+import { getUpdatedFacilityRtData } from "../infection-model/rt";
 import { getNewestRt } from "../infection-model/rt";
 import { isRtData } from "../page-response-impact/RtSummaryStats";
 import AddCasesModal from "./AddCasesModal";
