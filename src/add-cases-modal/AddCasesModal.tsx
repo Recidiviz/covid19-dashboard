@@ -15,9 +15,9 @@ import {
 } from "../impact-dashboard/EpidemicModelContext";
 import { AgeGroupGrid } from "../impact-dashboard/FacilityInformation";
 import useModel from "../impact-dashboard/useModel";
-import { Facility, ModelInputs } from "./types";
+import { Facility, ModelInputs } from "../page-multi-facility/types";
 
-type Props = Pick<ModalProps, "trigger"> & {
+export type Props = Pick<ModalProps, "trigger"> & {
   facility: Facility;
   updateFacility: Function;
 };
@@ -57,8 +57,19 @@ const HorizRule = styled.div`
   width: 100%;
 `;
 
+const findMatchingDay = ({
+  date,
+  facilityModelVersions,
+}: {
+  date: Date;
+  facilityModelVersions: ModelInputs[];
+}) =>
+  facilityModelVersions.find(
+    ({ observedAt }) => date.toDateString() === observedAt.toDateString(),
+  );
+
 // Create a diff of the model to store changes in the update cases modal.
-// This is necessary so that we don't update the current modal if the modal is thrown away w/o saving or
+// This is necessary so that we don't update the current model if the modal is thrown away w/o saving or
 // if the date added in the modal is prior to the current date (backfill)
 const useModelDiff = (): [
   EpidemicModelUpdate,
@@ -130,12 +141,7 @@ const AddCasesModal: React.FC<Props> = ({
   const getTileClassName = ({ date, view }: { date: Date; view: string }) => {
     const now = new Date();
     if (view === "month" && facilityModelVersions !== undefined) {
-      if (
-        date <= now &&
-        !facilityModelVersions.some(
-          ({ observedAt }) => date.toDateString() === observedAt.toDateString(),
-        )
-      ) {
+      if (date <= now && !findMatchingDay({ facilityModelVersions, date })) {
         return `add-cases-calendar__day--no-data`;
       }
     }

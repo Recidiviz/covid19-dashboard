@@ -2,6 +2,7 @@ import { navigate } from "gatsby";
 import React, { useContext, useState } from "react";
 import styled from "styled-components";
 
+import AddCasesModal from "../add-cases-modal";
 import { deleteFacility, saveFacility } from "../database/index";
 import Colors from "../design-system/Colors";
 import iconDuplicatePath from "../design-system/icons/ic_duplicate.svg";
@@ -17,7 +18,6 @@ import FacilityInformation from "../impact-dashboard/FacilityInformation";
 import MitigationInformation from "../impact-dashboard/MitigationInformation";
 import useModel from "../impact-dashboard/useModel";
 import RtTimeseries from "../rt-timeseries";
-import AddCasesModal from "./AddCasesModal";
 import { FacilityContext } from "./FacilityContext";
 import FacilityProjections from "./FacilityProjections";
 import LocaleInformationSection from "./LocaleInformationSection";
