@@ -28,12 +28,7 @@ export const rtDataReducer = (
 
     case FacilityEvents.UPDATE:
       const { id, data } = action.payload;
-      if (!state[id]) {
-        return state;
-      }
-      const newState = { ...state };
-      newState[id] = data;
-      return newState;
+      return { ...state, [id]: data };
 
     default:
       return state;

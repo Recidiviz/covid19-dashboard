@@ -17,6 +17,7 @@ import { Flag } from "../feature-flags";
 import FacilityInformation from "../impact-dashboard/FacilityInformation";
 import MitigationInformation from "../impact-dashboard/MitigationInformation";
 import useModel from "../impact-dashboard/useModel";
+import { getUpdatedFacilityRtData } from "../infection-model/rt";
 import RtTimeseries from "../rt-timeseries";
 import AddCasesModal from "./AddCasesModal";
 import { FacilityContext } from "./FacilityContext";
@@ -108,7 +109,9 @@ interface Props {
 }
 
 const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
-  const { facility: initialFacility, rtData } = useContext(FacilityContext);
+  const { facility: initialFacility, rtData, dispatchRtData } = useContext(
+    FacilityContext,
+  );
   const [facility, updateFacility] = useState(initialFacility);
   const [facilityName, setFacilityName] = useState(facility?.name || undefined);
   const [description, setDescription] = useState(
@@ -163,6 +166,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
 
   const onModalSave = (newFacility: Facility) => {
     updateFacility(newFacility);
+    getUpdatedFacilityRtData(newFacility, dispatchRtData);
   };
 
   return (

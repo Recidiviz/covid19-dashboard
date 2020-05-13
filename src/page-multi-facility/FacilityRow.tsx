@@ -14,7 +14,7 @@ import { useFlag } from "../feature-flags";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
 import { totalConfirmedCases } from "../impact-dashboard/EpidemicModelContext";
 import useModel from "../impact-dashboard/useModel";
-import { getRtDataForFacility, RtData } from "../infection-model/rt";
+import { getUpdatedFacilityRtData, RtData } from "../infection-model/rt";
 import AddCasesModal from "./AddCasesModal";
 import { FacilityContext } from "./FacilityContext";
 import FacilityRowRtValuePill from "./FacilityRowRtValuePill";
@@ -88,6 +88,8 @@ const FacilityRow: React.FC<Props> = ({ facility: initialFacility }) => {
 
   const { rtData, setFacility, dispatchRtData } = useContext(FacilityContext);
 
+  console.log("rtData", rtData);
+
   const [facility, updateFacility] = useState(initialFacility);
   let useRt,
     facilityRtData: RtData | undefined | null = undefined,
@@ -119,21 +121,9 @@ const FacilityRow: React.FC<Props> = ({ facility: initialFacility }) => {
     navigate("/facility");
   };
 
-  async function getUpdatedFacilityRtData(facility: Facility) {
-    const facilityRtData = await getRtDataForFacility(facility);
-
-    dispatchRtData({
-      type: FacilityEvents.UPDATE,
-      payload: {
-        id: facility.id,
-        data: facilityRtData,
-      },
-    });
-  }
-
   const onModalSave = (newFacility: Facility) => {
     updateFacility(newFacility);
-    getUpdatedFacilityRtData(newFacility);
+    getUpdatedFacilityRtData(newFacility, dispatchRtData);
   };
 
   return (

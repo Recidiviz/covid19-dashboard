@@ -2,6 +2,7 @@ import { ascending } from "d3-array";
 import { formatISO, fromUnixTime, parseISO } from "date-fns";
 import { mapValues, maxBy, minBy, orderBy, uniqBy } from "lodash";
 
+import { FacilityEvents } from "../constants/dispatchEvents";
 import { getFacilityModelVersions } from "../database";
 import { totalConfirmedCases } from "../impact-dashboard/EpidemicModelContext";
 import { Facility } from "../page-multi-facility/types";
@@ -134,6 +135,21 @@ export const getRtDataForFacility = async (
     return null;
   }
 };
+
+export async function getUpdatedFacilityRtData(
+  facility: Facility,
+  dispatchRtData: Function,
+) {
+  const facilityRtData = await getRtDataForFacility(facility);
+
+  dispatchRtData({
+    type: FacilityEvents.UPDATE,
+    payload: {
+      id: facility.id,
+      data: facilityRtData,
+    },
+  });
+}
 
 export const getOldestRt = (rtRecords: RtRecord[]) => {
   return minBy(rtRecords, (rtRecord) => rtRecord.date);
