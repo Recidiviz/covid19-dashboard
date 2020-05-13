@@ -121,6 +121,11 @@ const AddCasesModal: React.FC<Props> = ({
   }, [facility]);
 
   const save = async () => {
+    const newInputs = {
+      ...facility.modelInputs,
+      ...inputs,
+      observedAt: observationDate,
+    };
     // Update the local state iff
     // The observedAt date in the modal is more recent than the observedAt date in the current modelInputs.
     // This needs to happen so that facility data will show the most updated data w/o requiring a hard reload.
@@ -131,12 +136,11 @@ const AddCasesModal: React.FC<Props> = ({
     ) {
       updateFacility({
         ...facility,
-        modelInputs: {
-          ...facility.modelInputs,
-          ...inputs,
-          observedAt: observationDate,
-        },
+        modelInputs: newInputs,
       });
+      // sending the full input object into the model context may trigger side effects
+      // such as a full reset, so just send the inputs that are editable
+      // in this dialog
       updateModel({ ...inputs, observedAt: observationDate });
     }
     setModalOpen(false);
@@ -144,7 +148,7 @@ const AddCasesModal: React.FC<Props> = ({
     // Save to DB with model changes
     await saveFacility(facility.scenarioId, {
       id: facility.id,
-      modelInputs: inputs,
+      modelInputs: newInputs,
     });
     await updateModelVersions({ facility, setFacilityModelVersions });
   };
