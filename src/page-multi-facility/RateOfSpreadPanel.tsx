@@ -2,7 +2,7 @@ import classNames from "classnames";
 import React, { useState } from "react";
 import styled from "styled-components";
 
-import { FetchedFacilities } from "../constants";
+import { FacilitiesState } from "../facilities-context/index";
 import Loading from "../design-system/Loading";
 import RtComparisonChart from "../rt-comparison-chart";
 import PanelHeader, { PanelHeaderText } from "./PanelHeader";
@@ -28,7 +28,7 @@ const DataButton = styled(PanelHeaderText)`
   }
 `;
 
-const RateOfSpreadPanel: React.FC<{ facilities: FetchedFacilities }> = ({
+const RateOfSpreadPanel: React.FC<{ facilities: FacilitiesState }> = ({
   facilities,
 }) => {
   const [rtDaysOffset, updateRtDaysOffset] = useState<0 | 1 | 7>(0);

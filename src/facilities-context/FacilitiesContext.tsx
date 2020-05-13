@@ -66,7 +66,7 @@ export function useFacilities() {
 
   if (context === undefined) {
     throw new Error(
-      "useFacilitiesState must be used within a FacilitiesProvider",
+      "useFacilities must be used within a FacilitiesProvider",
     );
   }
 
