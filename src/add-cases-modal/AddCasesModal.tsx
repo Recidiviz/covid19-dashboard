@@ -10,8 +10,8 @@ import InputButton from "../design-system/InputButton";
 import InputDate from "../design-system/InputDate";
 import Modal, { Props as ModalProps } from "../design-system/Modal";
 import {
-  EpidemicModelUpdate,
-  persistedKeys,
+  ModelInputsPopulationBrackets,
+  populationBracketKeys,
 } from "../impact-dashboard/EpidemicModelContext";
 import { AgeGroupGrid } from "../impact-dashboard/FacilityInformation";
 import useModel from "../impact-dashboard/useModel";
@@ -19,7 +19,7 @@ import { Facility, ModelInputs } from "../page-multi-facility/types";
 
 export type Props = Pick<ModalProps, "trigger"> & {
   facility: Facility;
-  updateFacility: Function;
+  updateFacility: (f: Facility) => void;
 };
 
 const noDataColor = Colors.darkRed;
@@ -62,29 +62,26 @@ const findMatchingDay = ({
   facilityModelVersions,
 }: {
   date: Date;
-  facilityModelVersions: ModelInputs[];
+  facilityModelVersions?: ModelInputs[];
 }) =>
-  facilityModelVersions.find(
+  facilityModelVersions?.find(
     ({ observedAt }) => date.toDateString() === observedAt.toDateString(),
   );
 
-// Create a diff of the model to store changes in the update cases modal.
-// This is necessary so that we don't update the current model if the modal is thrown away w/o saving or
-// if the date added in the modal is prior to the current date (backfill)
-const useModelDiff = (): [
-  EpidemicModelUpdate,
-  (update: EpidemicModelUpdate) => void,
-  () => void,
-] => {
-  const [diff, setDiff] = useState({});
-  const mergeDiff = (update: EpidemicModelUpdate) => {
-    setDiff({ ...diff, ...update });
-  };
-  const resetDiff = () => {
-    setDiff({});
-  };
-  return [diff, mergeDiff, resetDiff];
-};
+async function updateModelVersions({
+  facility,
+  setFacilityModelVersions,
+}: {
+  facility: Facility;
+  setFacilityModelVersions: Function;
+}) {
+  const modelVersions = await getFacilityModelVersions({
+    facilityId: facility.id,
+    scenarioId: facility.scenarioId,
+    distinctByObservedAt: true,
+  });
+  setFacilityModelVersions(modelVersions);
+}
 
 const AddCasesModal: React.FC<Props> = ({
   facility,
@@ -93,49 +90,63 @@ const AddCasesModal: React.FC<Props> = ({
 }) => {
   const [modalOpen, setModalOpen] = useState(false);
 
-  const [model, updateModel] = useModel();
-  let [modelDiff, fakeUpdateModel, resetModelDiff] = useModelDiff();
-  const newModel = { ...model, ...modelDiff };
+  // the current state of the facility is the default when we need to reset
+  const defaultInputs = pick(facility.modelInputs, populationBracketKeys);
+  const defaultObservationDate = facility.modelInputs.observedAt;
+
+  const [inputs, setInputs] = useState<ModelInputsPopulationBrackets>(
+    defaultInputs,
+  );
+  const [observationDate, setObservationDate] = useState(
+    defaultObservationDate,
+  );
+
+  const updateInputs = (update: ModelInputsPopulationBrackets) => {
+    setInputs({ ...inputs, ...update });
+  };
+
+  const resetModalData = () => {
+    setInputs(defaultInputs);
+    setObservationDate(defaultObservationDate);
+  };
 
   const [facilityModelVersions, setFacilityModelVersions] = useState<
     ModelInputs[] | undefined
   >();
 
-  useEffect(() => {
-    async function getModelVersions() {
-      const modelVersions = await getFacilityModelVersions({
-        facilityId: facility.id,
-        scenarioId: facility.scenarioId,
-        distinctByObservedAt: true,
-      });
-      setFacilityModelVersions(modelVersions);
-    }
-    getModelVersions();
-  });
+  const [, updateModel] = useModel();
 
-  const save = () => {
-    // Ensure that we don't insert keys (like `localeDataSource`) that is in model but not in the facility modelInputs
-    const modelInputs = {
-      ...facility.modelInputs,
-      ...pick(newModel, persistedKeys),
-    };
+  useEffect(() => {
+    updateModelVersions({ facility, setFacilityModelVersions });
+  }, [facility]);
+
+  const save = async () => {
     // Update the local state iff
     // The observedAt date in the modal is more recent than the observedAt date in the current modelInputs.
     // This needs to happen so that facility data will show the most updated data w/o requiring a hard reload.
     if (
-      newModel.observedAt &&
-      model.observedAt &&
-      startOfDay(newModel.observedAt) >= startOfDay(model.observedAt)
+      defaultObservationDate &&
+      observationDate &&
+      startOfDay(observationDate) >= startOfDay(defaultObservationDate)
     ) {
-      updateFacility({ ...facility, modelInputs });
-      updateModel(modelDiff);
+      updateFacility({
+        ...facility,
+        modelInputs: {
+          ...facility.modelInputs,
+          ...inputs,
+          observedAt: observationDate,
+        },
+      });
+      updateModel({ ...inputs, observedAt: observationDate });
     }
-    // Save to DB with model changes
-    saveFacility(facility.scenarioId, {
-      id: facility.id,
-      modelInputs,
-    });
     setModalOpen(false);
+
+    // Save to DB with model changes
+    await saveFacility(facility.scenarioId, {
+      id: facility.id,
+      modelInputs: inputs,
+    });
+    await updateModelVersions({ facility, setFacilityModelVersions });
   };
 
   const getTileClassName = ({ date, view }: { date: Date; view: string }) => {
@@ -151,7 +162,7 @@ const AddCasesModal: React.FC<Props> = ({
   return (
     <Modal
       modalTitle="Add Cases"
-      onClose={resetModelDiff}
+      onClose={resetModalData}
       open={modalOpen}
       setOpen={setModalOpen}
       trigger={trigger}
@@ -161,16 +172,25 @@ const AddCasesModal: React.FC<Props> = ({
           labelAbove={"Date observed"}
           onValueChange={(date) => {
             if (date) {
-              fakeUpdateModel({ observedAt: date });
+              setObservationDate(date);
+              const inputsForDate = findMatchingDay({
+                date,
+                facilityModelVersions,
+              });
+              if (inputsForDate) {
+                setInputs(pick(inputsForDate, populationBracketKeys));
+              } else {
+                setInputs({ ...defaultInputs });
+              }
             }
           }}
           tileClassName={getTileClassName}
-          valueEntered={newModel.observedAt || startOfToday()}
+          valueEntered={observationDate || startOfToday()}
         />
         <HorizRule />
         <AgeGroupGrid
-          model={newModel}
-          updateModel={fakeUpdateModel}
+          model={inputs}
+          updateModel={updateInputs}
           collapsible={true}
         />
         <HorizRule />

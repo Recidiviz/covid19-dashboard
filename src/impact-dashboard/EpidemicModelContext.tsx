@@ -20,7 +20,7 @@ export enum RateOfSpread {
 // and should probably be optional
 
 // fields that we want to store
-interface ModelInputsPersistent {
+export interface ModelInputsPopulationBrackets {
   age0Cases?: number;
   age0Population?: number;
   age20Cases?: number;
@@ -37,13 +37,15 @@ interface ModelInputsPersistent {
   age85Population?: number;
   ageUnknownCases?: number;
   ageUnknownPopulation?: number;
+  staffCases?: number;
+  staffPopulation?: number;
+}
+interface ModelInputsPersistent extends ModelInputsPopulationBrackets {
   facilityDormitoryPct?: number;
   facilityOccupancyPct?: number;
   plannedReleases?: PlannedReleases;
   populationTurnover?: number;
   rateOfSpreadFactor?: RateOfSpread;
-  staffCases?: number;
-  staffPopulation?: number;
   observedAt?: Date;
   updatedAt?: Date;
 }
@@ -80,9 +82,9 @@ export type EpidemicModelPersistent = ModelInputsPersistent &
 // we have to type all them out here again
 // but at least we can validate that none are illegal
 // TODO: is there a smarter way to get these values?
-export const persistedKeys: Array<keyof EpidemicModelPersistent> = [
-  "countyName",
-  "stateCode",
+export const populationBracketKeys: Array<
+  keyof ModelInputsPopulationBrackets
+> = [
   "age0Cases",
   "age0Population",
   "age20Cases",
@@ -99,13 +101,18 @@ export const persistedKeys: Array<keyof EpidemicModelPersistent> = [
   "age85Population",
   "ageUnknownCases",
   "ageUnknownPopulation",
+  "staffCases",
+  "staffPopulation",
+];
+export const persistedKeys: Array<keyof EpidemicModelPersistent> = [
+  ...populationBracketKeys,
+  "countyName",
+  "stateCode",
   "facilityDormitoryPct",
   "facilityOccupancyPct",
   "plannedReleases",
   "populationTurnover",
   "rateOfSpreadFactor",
-  "staffCases",
-  "staffPopulation",
   "observedAt",
   "updatedAt",
 ];
