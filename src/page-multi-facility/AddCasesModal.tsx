@@ -15,7 +15,7 @@ import {
 } from "../impact-dashboard/EpidemicModelContext";
 import { AgeGroupGrid } from "../impact-dashboard/FacilityInformation";
 import useModel from "../impact-dashboard/useModel";
-import { Facility, ModelInputs } from "../page-multi-facility/types";
+import { Facility, ModelInputs } from "./types";
 
 export type Props = Pick<ModalProps, "trigger"> & {
   facility: Facility;
