@@ -202,7 +202,6 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
                 fontFamily: "PingFang SC",
                 width: "100%",
                 marginTop: "20px",
-                visibility: !scenario?.baseline ? "hidden" : "visible",
               }}
               label="Generate Impact Report"
               onClick={() => navigate("/impact")}
