@@ -69,8 +69,8 @@ class TestCalculateRt(TestCase):
 
     def test_exclude_duplicates(self):
         data = {
-        'dates': ['2020-04-15', '2020-04-16', '2020-04-18', '2020-04-19'],
-        'cases': [50, 66, 66, 129]
+            'dates': ['2020-04-15', '2020-04-16', '2020-04-18', '2020-04-19'],
+            'cases': [50, 66, 66, 129]
         }
         self.req.get_json.return_value = data
 
