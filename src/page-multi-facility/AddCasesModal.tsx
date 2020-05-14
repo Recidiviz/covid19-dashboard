@@ -25,7 +25,7 @@ import { Facility, ModelInputs } from "./types";
 
 export type Props = Pick<ModalProps, "trigger"> & {
   facility: Facility;
-  updateFacility: (f: Facility) => void;
+  onSave: (f: Facility) => void;
 };
 
 const noDataColor = Colors.darkRed;
@@ -105,11 +105,7 @@ const findMatchingDay = ({
 
 const formatPopulation = (n: number) => numeral(n).format("0,0");
 
-const AddCasesModal: React.FC<Props> = ({
-  facility,
-  trigger,
-  updateFacility,
-}) => {
+const AddCasesModal: React.FC<Props> = ({ facility, trigger, onSave }) => {
   const [modalOpen, setModalOpen] = useState(false);
 
   // the current state of the facility is the default when we need to reset
@@ -151,10 +147,6 @@ const AddCasesModal: React.FC<Props> = ({
       observationDate &&
       startOfDay(observationDate) >= startOfDay(defaultObservationDate)
     ) {
-      updateFacility({
-        ...facility,
-        modelInputs: newInputs,
-      });
       // sending the full input object into the model context may trigger side effects
       // such as a full reset, so just send the inputs that are editable
       // in this dialog
@@ -167,7 +159,10 @@ const AddCasesModal: React.FC<Props> = ({
       id: facility.id,
       modelInputs: newInputs,
     });
+
     updateModelVersions();
+    // After the DB is updated, then process the onSave callback
+    onSave({ ...facility, modelInputs: newInputs });
   };
 
   const getTileClassName = useCallback(
