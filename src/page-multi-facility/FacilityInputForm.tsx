@@ -23,6 +23,7 @@ import { FacilityContext } from "./FacilityContext";
 import FacilityProjections from "./FacilityProjections";
 import LocaleInformationSection from "./LocaleInformationSection";
 import { Facility } from "./types";
+import HistoricalCasesChart from "./HistoricalCasesChart";
 
 const ButtonSection = styled.div`
   margin-top: 30px;
@@ -211,6 +212,10 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
           <PopUpMenu items={popupItems} />
         </DescRow>
         <div className="mt-5 mb-5 border-b border-gray-300" />
+
+        <HistoricalCasesChart facility={facility} />
+
+        <Spacer y={20} />
 
         <RtChartContainer>
           <RtTimeseries data={rtTimeseriesData} />
