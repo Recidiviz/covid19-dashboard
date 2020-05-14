@@ -24,15 +24,13 @@ class TestCalculateRt(TestCase):
 
         resp = self.get_response_json()
 
-        for date in data['dates']:
-            rt = next(x for x in resp['Rt'] if x['date'] == date)
-            self.assertIsInstance(rt['value'], float)
+        # the earliest date should not be present in the response
+        for metric in ['Rt', 'low90', 'high90']:
+            self.assertEqual(len(resp[metric]), len(data['dates']) - 1)
 
-            rt = next(x for x in resp['low90'] if x['date'] == date)
-            self.assertIsInstance(rt['value'], float)
-
-            rt = next(x for x in resp['high90'] if x['date'] == date)
-            self.assertIsInstance(rt['value'], float)
+            for date in data['dates'][1:]:
+                rt = next(x for x in resp[metric] if x['date'] == date)
+                self.assertIsInstance(rt['value'], float)
 
 
     def test_invalid_input(self):

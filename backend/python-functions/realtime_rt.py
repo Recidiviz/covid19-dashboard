@@ -136,5 +136,5 @@ def compute_r_t(historical_case_counts):
         raise ValueError('Unable to compute R(t) with the provided data')
 
     most_likely = posteriors.idxmax().rename('ML')
-    result = pd.concat([most_likely, hdis], axis=1)
+    result = pd.concat([most_likely, hdis], axis=1).iloc[1:]
     return result
