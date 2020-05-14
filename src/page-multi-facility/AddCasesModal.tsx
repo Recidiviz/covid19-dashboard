@@ -1,14 +1,15 @@
 import { startOfDay, startOfToday } from "date-fns";
 import hexAlpha from "hex-alpha";
 import { pick } from "lodash";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 
-import { getFacilityModelVersions, saveFacility } from "../database";
+import { saveFacility } from "../database";
 import Colors from "../design-system/Colors";
 import InputButton from "../design-system/InputButton";
 import InputDate from "../design-system/InputDate";
 import Modal, { Props as ModalProps } from "../design-system/Modal";
+import useFacilityModelVersions from "../hooks/useFacilityModelVersions";
 import {
   ModelInputsPopulationBrackets,
   populationBracketKeys,
@@ -68,21 +69,6 @@ const findMatchingDay = ({
     ({ observedAt }) => date.toDateString() === observedAt.toDateString(),
   );
 
-async function updateModelVersions({
-  facility,
-  setFacilityModelVersions,
-}: {
-  facility: Facility;
-  setFacilityModelVersions: Function;
-}) {
-  const modelVersions = await getFacilityModelVersions({
-    facilityId: facility.id,
-    scenarioId: facility.scenarioId,
-    distinctByObservedAt: true,
-  });
-  setFacilityModelVersions(modelVersions);
-}
-
 const AddCasesModal: React.FC<Props> = ({
   facility,
   trigger,
@@ -100,6 +86,9 @@ const AddCasesModal: React.FC<Props> = ({
   const [observationDate, setObservationDate] = useState(
     defaultObservationDate,
   );
+  const [facilityModelVersions, updateModelVersions] = useFacilityModelVersions(
+    facility,
+  );
 
   const updateInputs = (update: ModelInputsPopulationBrackets) => {
     setInputs({ ...inputs, ...update });
@@ -110,15 +99,7 @@ const AddCasesModal: React.FC<Props> = ({
     setObservationDate(defaultObservationDate);
   };
 
-  const [facilityModelVersions, setFacilityModelVersions] = useState<
-    ModelInputs[] | undefined
-  >();
-
   const [, updateModel] = useModel();
-
-  useEffect(() => {
-    updateModelVersions({ facility, setFacilityModelVersions });
-  }, [facility]);
 
   const save = async () => {
     const newInputs = {
@@ -150,7 +131,7 @@ const AddCasesModal: React.FC<Props> = ({
       id: facility.id,
       modelInputs: newInputs,
     });
-    await updateModelVersions({ facility, setFacilityModelVersions });
+    updateModelVersions();
   };
 
   const getTileClassName = ({ date, view }: { date: Date; view: string }) => {
