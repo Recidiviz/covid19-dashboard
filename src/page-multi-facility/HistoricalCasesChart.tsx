@@ -1,8 +1,11 @@
 import React from "react";
-// import styled from "styled-components";
+import styled from "styled-components";
 import { Facility, ModelInputs } from "./types";
 import { ResponsiveOrdinalFrame } from "semiotic";
 import ChartWrapper from "../design-system/ChartWrapper";
+import ChartTooltip from "../design-system/ChartTooltip";
+import { DateMMMMdyyyy } from "../design-system/DateFormats";
+
 import useFacilityModelVersions from "../hooks/useFacilityModelVersions";
 
 import * as dateFns from "date-fns";
@@ -11,6 +14,35 @@ import Colors from "../design-system/Colors";
 interface Props {
   facility: Facility | undefined;
 }
+
+type Summary = {
+  data: ModelInputs,
+  value: number
+}
+
+interface TooltipProps {
+  summary: Summary[];
+}
+
+const TooltipTitle = styled.div`
+  font-size: 9px;
+  font-weight: bold;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+`;
+
+const Tooltip: React.FC<TooltipProps> = ({ summary }) => {
+  const summaryData = summary[0];
+  const { data, value } = summaryData;
+  return (
+    <ChartTooltip>
+      <TooltipTitle>{value} cases</TooltipTitle>
+      <DateMMMMdyyyy date={data.observedAt} />
+    </ChartTooltip>
+  );
+};
 
 const HistoricalCasesChart: React.FC<Props> = ({ facility }) => {
   const [versions,] = facility
@@ -51,8 +83,26 @@ const HistoricalCasesChart: React.FC<Props> = ({ facility }) => {
 
   console.log({data})
 
+  function formatDateLabel (dateLabel: string) {
+    // I'm not sure I understand yet why creating a new date this way
+    // sets it to the day before, so adding 1 to the day for now.
+    const date = dateFns.addDays(new Date(dateLabel), 1);
+    // Show date label for every 5 days
+    if ((dateFns.getDate(date) % 5) === 0 && date) {
+      return(
+        <text>
+          {dateFns.format(date, 'M')}/{dateFns.format(date, 'dd')}
+        </text>
+      )
+    } else {
+      return null
+    }
+  }
+
   const frameProps = {
     data,
+    oPadding: 1,
+    pixelColumnWidth: 15,
     style: () => {
       return {
         fill: Colors.forest,
@@ -67,13 +117,12 @@ const HistoricalCasesChart: React.FC<Props> = ({ facility }) => {
       },
     ],
     oAccessor: (datum: any) => {
-      return dateFns.getDate(datum.observedAt);
+      return datum.observedAt;
     },
+    hoverAnnotation: true,
+    tooltipContent: Tooltip,
     rAccessor: "value",
-    oLabel: (datum: string) => {
-      if ((Number(datum) % 5) === 0) return <text>{datum}</text>
-      else return null
-    }
+    oLabel: (datum: string) => formatDateLabel(datum),
   }
 
   return (
