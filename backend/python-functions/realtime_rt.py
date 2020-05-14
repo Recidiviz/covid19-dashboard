@@ -118,6 +118,9 @@ def compute_r_t(historical_case_counts):
     case_df = pd.Series(historical_case_counts['cases'], index=historical_case_counts['dates'])
     case_df.index = pd.to_datetime(case_df.index)
     case_df.index.name = 'date'
+    # we believe duplicates are mostly an artifact of little-to-no testing
+    # and should be excluded from the model
+    case_df = case_df.drop_duplicates(keep='first')
 
     _, smoothed = prepare_cases(case_df)
 
