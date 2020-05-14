@@ -1,11 +1,23 @@
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import { useEffect, useState } from "react";
+import BounceLoader from "react-spinners/BounceLoader";
+import styled from "styled-components";
 
-import Loading from "../design-system/Loading";
+import Colors from "../design-system/Colors";
 import { MarkColors } from "./ChartArea";
 import CurveChart, { ChartData } from "./CurveChart";
 import { useEpidemicModelState } from "./EpidemicModelContext";
+
+const LoadingContainerCustom = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 177px;
+  padding-bottom: 32px;
+`;
 
 interface Props {
   chartHeight?: number;
@@ -48,7 +60,9 @@ const CurveChartContainer: React.FC<Props> = ({
   }, [groupStatus, curveData]);
 
   return !curveDataFiltered ? (
-    <Loading />
+    <LoadingContainerCustom>
+      <BounceLoader size={60} color={Colors.forest} />
+    </LoadingContainerCustom>
   ) : (
     <CurveChart
       chartHeight={chartHeight}
