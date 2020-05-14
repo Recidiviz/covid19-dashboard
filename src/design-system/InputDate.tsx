@@ -79,6 +79,7 @@ const InputContainer = styled.div`
 
 type Props = InputBaseProps<Date> & {
   tileClassName?: DatePickerProps["tileClassName"];
+  tileContent?: DatePickerProps["tileContent"];
 };
 
 const InputDate: React.FC<Props> = (props) => {
@@ -107,6 +108,7 @@ const InputDate: React.FC<Props> = (props) => {
               onValueChange(value)
         }
         tileClassName={props.tileClassName}
+        tileContent={props.tileContent}
         value={inputValue}
         yearPlaceholder="yyyy"
       />

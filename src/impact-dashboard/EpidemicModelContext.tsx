@@ -260,10 +260,12 @@ export function useEpidemicModelDispatch() {
 // calculation helpers
 // *******
 
-export function totalConfirmedCases(model: ModelInputsPersistent): number {
+export function totalConfirmedCases(
+  brackets: ModelInputsPopulationBrackets,
+): number {
   return sum(
     Object.values(
-      pick(model, [
+      pick(brackets, [
         "age0Cases",
         "age20Cases",
         "age45Cases",
@@ -278,10 +280,12 @@ export function totalConfirmedCases(model: ModelInputsPersistent): number {
   );
 }
 
-export function sumAgeGroupPopulations(facility: Facility): number {
+export function getTotalPopulation(
+  brackets: ModelInputsPopulationBrackets,
+): number {
   return sum(
     Object.values(
-      pick(facility.modelInputs, [
+      pick(brackets, [
         "age0Population",
         "age20Population",
         "age45Population",
@@ -293,4 +297,8 @@ export function sumAgeGroupPopulations(facility: Facility): number {
       ]),
     ),
   );
+}
+
+export function sumAgeGroupPopulations(facility: Facility): number {
+  return getTotalPopulation(facility.modelInputs);
 }

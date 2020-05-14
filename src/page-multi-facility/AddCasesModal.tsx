@@ -1,18 +1,23 @@
 import { startOfDay, startOfToday } from "date-fns";
 import hexAlpha from "hex-alpha";
 import { pick } from "lodash";
-import React, { useState } from "react";
+import numeral from "numeral";
+import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 
 import { saveFacility } from "../database";
 import Colors from "../design-system/Colors";
+import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import InputButton from "../design-system/InputButton";
 import InputDate from "../design-system/InputDate";
 import Modal, { Props as ModalProps } from "../design-system/Modal";
+import Tooltip from "../design-system/Tooltip";
 import useFacilityModelVersions from "../hooks/useFacilityModelVersions";
 import {
+  getTotalPopulation,
   ModelInputsPopulationBrackets,
   populationBracketKeys,
+  totalConfirmedCases,
 } from "../impact-dashboard/EpidemicModelContext";
 import { AgeGroupGrid } from "../impact-dashboard/FacilityInformation";
 import useModel from "../impact-dashboard/useModel";
@@ -32,6 +37,12 @@ const ModalContents = styled.div`
   font-weight: normal;
   justify-content: flex-start;
   margin-top: 30px;
+
+  .react-calendar__tile {
+    /* these are needed for tooltip display */
+    position: relative;
+    overflow: visible !important; /* needed to override an inline style */
+  }
 
   .add-cases-calendar__day--no-data {
     background: ${hexAlpha(noDataColor, 0.2)};
@@ -58,6 +69,29 @@ const HorizRule = styled.div`
   width: 100%;
 `;
 
+const CalendarTileTooltipAnchor = styled.div`
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+`;
+
+const TooltipContents = styled.div`
+  font-family: "Poppins", sans-serif;
+  font-size: 13px;
+  min-width: 80px;
+`;
+
+const TooltipData = styled.div`
+  margin-bottom: 0.5em;
+  width: 150px;
+`;
+
+const TooltipDate = styled.div`
+  font-size: 11px;
+`;
+
 const findMatchingDay = ({
   date,
   facilityModelVersions,
@@ -68,6 +102,8 @@ const findMatchingDay = ({
   facilityModelVersions?.find(
     ({ observedAt }) => date.toDateString() === observedAt.toDateString(),
   );
+
+const formatPopulation = (n: number) => numeral(n).format("0,0");
 
 const AddCasesModal: React.FC<Props> = ({
   facility,
@@ -134,20 +170,60 @@ const AddCasesModal: React.FC<Props> = ({
     updateModelVersions();
   };
 
-  const getTileClassName = ({ date, view }: { date: Date; view: string }) => {
-    const now = new Date();
-    if (view === "month" && facilityModelVersions !== undefined) {
-      if (
-        date <= now &&
-        // don't complain about dates before the first day of data for this facility
-        date >= facilityModelVersions[0].observedAt &&
-        !findMatchingDay({ facilityModelVersions, date })
-      ) {
-        return `add-cases-calendar__day--no-data`;
+  const getTileClassName = useCallback(
+    ({ date, view }: { date: Date; view: string }) => {
+      const now = new Date();
+      if (view === "month" && facilityModelVersions !== undefined) {
+        if (
+          date <= now &&
+          // don't complain about dates before the first day of data for this facility
+          date >= facilityModelVersions[0].observedAt &&
+          !findMatchingDay({ facilityModelVersions, date })
+        ) {
+          return `add-cases-calendar__day--no-data`;
+        }
       }
-    }
-    return null;
-  };
+      return null;
+    },
+    [facilityModelVersions],
+  );
+
+  const renderTooltip = useCallback(
+    ({ date }: { date: Date }) => {
+      const now = new Date();
+      const matchingDay = findMatchingDay({ facilityModelVersions, date });
+      return (
+        <Tooltip
+          content={
+            <TooltipContents>
+              {date <= now &&
+              facilityModelVersions &&
+              date >= facilityModelVersions[0].observedAt ? (
+                <TooltipData>
+                  {matchingDay ? (
+                    <span>
+                      {formatPopulation(totalConfirmedCases(matchingDay))} cases
+                      <br />
+                      {formatPopulation(getTotalPopulation(matchingDay))}{" "}
+                      residents and staff
+                    </span>
+                  ) : (
+                    "Missing case and population data"
+                  )}
+                </TooltipData>
+              ) : null}
+              <TooltipDate>
+                <DateMMMMdyyyy date={date} />
+              </TooltipDate>
+            </TooltipContents>
+          }
+        >
+          <CalendarTileTooltipAnchor />
+        </Tooltip>
+      );
+    },
+    [facilityModelVersions],
+  );
 
   return (
     <Modal
@@ -175,6 +251,7 @@ const AddCasesModal: React.FC<Props> = ({
             }
           }}
           tileClassName={getTileClassName}
+          tileContent={renderTooltip}
           valueEntered={observationDate || startOfToday()}
         />
         <HorizRule />
