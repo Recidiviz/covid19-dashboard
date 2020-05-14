@@ -41,7 +41,7 @@ class TestCalculateRt(TestCase):
         resp = self.get_response_json()
 
         self.assertIn('error', resp)
-        self.assertRaises(Exception, self.verify_response_data, resp, [])
+        self.assertRaises(KeyError, self.verify_response_data, resp, [])
 
     def test_empty_input(self):
         data = {
@@ -52,7 +52,7 @@ class TestCalculateRt(TestCase):
 
         resp = self.get_response_json()
         self.assertIn('error', resp)
-        self.assertRaises(Exception, self.verify_response_data, resp, data['dates'])
+        self.assertRaises(KeyError, self.verify_response_data, resp, data['dates'])
 
     def test_no_change_threshold(self):
         # even if there is little to no change day-over-day,
