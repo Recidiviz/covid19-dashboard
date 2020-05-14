@@ -12,7 +12,7 @@ import Tooltip from "../design-system/Tooltip";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
 import { totalConfirmedCases } from "../impact-dashboard/EpidemicModelContext";
 import useModel from "../impact-dashboard/useModel";
-import { getUpdatedFacilityRtData } from "../infection-model/rt";
+import { updateFacilityRtData } from "../infection-model/rt";
 import { getNewestRt } from "../infection-model/rt";
 import { isRtData } from "../page-response-impact/RtSummaryStats";
 import AddCasesModal from "./AddCasesModal";
@@ -118,7 +118,7 @@ const FacilityRow: React.FC<Props> = ({ facility: initialFacility }) => {
 
   const onModalSave = (newFacility: Facility) => {
     updateFacility(newFacility);
-    getUpdatedFacilityRtData(newFacility, dispatchRtData);
+    updateFacilityRtData(newFacility, dispatchRtData);
   };
 
   return (

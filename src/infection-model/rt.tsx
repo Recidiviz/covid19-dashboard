@@ -127,7 +127,7 @@ export const getRtDataForFacility = async (
   }
 };
 
-export async function getUpdatedFacilityRtData(
+export async function updateFacilityRtData(
   facility: Facility,
   dispatchRtData: Function,
 ) {

@@ -16,7 +16,7 @@ import Tooltip from "../design-system/Tooltip";
 import FacilityInformation from "../impact-dashboard/FacilityInformation";
 import MitigationInformation from "../impact-dashboard/MitigationInformation";
 import useModel from "../impact-dashboard/useModel";
-import { getUpdatedFacilityRtData } from "../infection-model/rt";
+import { updateFacilityRtData } from "../infection-model/rt";
 import RtTimeseries from "../rt-timeseries";
 import AddCasesModal from "./AddCasesModal";
 import { FacilityContext } from "./FacilityContext";
@@ -169,7 +169,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
 
   const onModalSave = (newFacility: Facility) => {
     updateFacility(newFacility);
-    getUpdatedFacilityRtData(newFacility, dispatchRtData);
+    updateFacilityRtData(newFacility, dispatchRtData);
   };
 
   return (
