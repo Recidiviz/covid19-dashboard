@@ -131,6 +131,7 @@ const AddCasesModal: React.FC<Props> = ({ facility, trigger, onSave }) => {
     // Update the local state iff
     // The observedAt date in the modal is more recent than the observedAt date in the current modelInputs.
     // This needs to happen so that facility data will show the most updated data w/o requiring a hard reload.
+    const latestFacilityData = { ...facility };
     if (
       defaultObservationDate &&
       observationDate &&
@@ -140,18 +141,22 @@ const AddCasesModal: React.FC<Props> = ({ facility, trigger, onSave }) => {
       // such as a full reset, so just send the inputs that are editable
       // in this dialog
       updateModel({ ...inputs, observedAt: observationDate });
+      // new inputs should be the new "current" model inputs
+      latestFacilityData.modelInputs = newInputs;
     }
     setModalOpen(false);
 
-    // Save to DB with model changes
+    // Save to DB with model changes;
+    // if they are not most recent the save function will handle it,
+    // unlike the local state handlers
     await saveFacility(facility.scenarioId, {
       id: facility.id,
       modelInputs: newInputs,
     });
 
-    updateModelVersions();
     // After the DB is updated, then process the onSave callback
-    onSave({ ...facility, modelInputs: newInputs });
+    onSave(latestFacilityData);
+    updateModelVersions();
   };
 
   const findMatchingDay = useCallback(
