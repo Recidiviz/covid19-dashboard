@@ -137,7 +137,12 @@ const AddCasesModal: React.FC<Props> = ({
   const getTileClassName = ({ date, view }: { date: Date; view: string }) => {
     const now = new Date();
     if (view === "month" && facilityModelVersions !== undefined) {
-      if (date <= now && !findMatchingDay({ facilityModelVersions, date })) {
+      if (
+        date <= now &&
+        // don't complain about dates before the first day of data for this facility
+        date >= facilityModelVersions[0].observedAt &&
+        !findMatchingDay({ facilityModelVersions, date })
+      ) {
         return `add-cases-calendar__day--no-data`;
       }
     }
