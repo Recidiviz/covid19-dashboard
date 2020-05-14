@@ -48,7 +48,12 @@ const CurveChartContainer: React.FC<Props> = ({
   }, [groupStatus, curveData]);
 
   return !curveDataFiltered ? (
-    <Loading />
+    <Loading
+      styles={{
+        minHeight: "177px",
+        paddingBottom: "32px",
+      }}
+    />
   ) : (
     <CurveChart
       chartHeight={chartHeight}
