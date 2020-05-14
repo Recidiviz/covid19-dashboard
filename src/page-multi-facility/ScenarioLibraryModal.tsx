@@ -299,8 +299,9 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
           >
             <DeleteModalContents>
               <ModalText>
-                This action can't be undone. All users currently viewing this
-                scenario will be returned to their baseline scenario.
+                This action can't be undone. When deleting the scenario
+                currently being viewed, users will be returned to their baseline
+                scenario.
               </ModalText>
               <ModalButtons>
                 <DeleteButton label="Delete scenario" onClick={removeScenario}>
