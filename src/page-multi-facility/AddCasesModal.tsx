@@ -21,7 +21,7 @@ import {
 } from "../impact-dashboard/EpidemicModelContext";
 import { AgeGroupGrid } from "../impact-dashboard/FacilityInformation";
 import useModel from "../impact-dashboard/useModel";
-import { Facility, ModelInputs } from "./types";
+import { Facility } from "./types";
 
 export type Props = Pick<ModalProps, "trigger"> & {
   facility: Facility;
@@ -92,17 +92,6 @@ const TooltipDate = styled.div`
   font-size: 11px;
 `;
 
-const findMatchingDay = ({
-  date,
-  facilityModelVersions,
-}: {
-  date: Date;
-  facilityModelVersions?: ModelInputs[];
-}) =>
-  facilityModelVersions?.find(
-    ({ observedAt }) => date.toDateString() === observedAt.toDateString(),
-  );
-
 const formatPopulation = (n: number) => numeral(n).format("0,0");
 
 const AddCasesModal: React.FC<Props> = ({ facility, trigger, onSave }) => {
@@ -165,6 +154,14 @@ const AddCasesModal: React.FC<Props> = ({ facility, trigger, onSave }) => {
     onSave({ ...facility, modelInputs: newInputs });
   };
 
+  const findMatchingDay = useCallback(
+    ({ date }: { date: Date }) =>
+      facilityModelVersions?.find(
+        ({ observedAt }) => date.toDateString() === observedAt.toDateString(),
+      ),
+    [facilityModelVersions],
+  );
+
   const getTileClassName = useCallback(
     ({ date, view }: { date: Date; view: string }) => {
       const now = new Date();
@@ -173,20 +170,20 @@ const AddCasesModal: React.FC<Props> = ({ facility, trigger, onSave }) => {
           date <= now &&
           // don't complain about dates before the first day of data for this facility
           date >= facilityModelVersions[0].observedAt &&
-          !findMatchingDay({ facilityModelVersions, date })
+          !findMatchingDay({ date })
         ) {
           return `add-cases-calendar__day--no-data`;
         }
       }
       return null;
     },
-    [facilityModelVersions],
+    [facilityModelVersions, findMatchingDay],
   );
 
   const renderTooltip = useCallback(
     ({ date }: { date: Date }) => {
       const now = new Date();
-      const matchingDay = findMatchingDay({ facilityModelVersions, date });
+      const matchingDay = findMatchingDay({ date });
       return (
         <Tooltip
           content={
@@ -217,7 +214,7 @@ const AddCasesModal: React.FC<Props> = ({ facility, trigger, onSave }) => {
         </Tooltip>
       );
     },
-    [facilityModelVersions],
+    [facilityModelVersions, findMatchingDay],
   );
 
   return (
@@ -236,7 +233,6 @@ const AddCasesModal: React.FC<Props> = ({ facility, trigger, onSave }) => {
               setObservationDate(date);
               const inputsForDate = findMatchingDay({
                 date,
-                facilityModelVersions,
               });
               if (inputsForDate) {
                 setInputs(pick(inputsForDate, populationBracketKeys));
