@@ -139,5 +139,6 @@ def compute_r_t(historical_case_counts):
         raise ValueError('Unable to compute R(t) with the provided data')
 
     most_likely = posteriors.idxmax().rename('ML')
+    # the first day is not a valid value because it has no priors; exclude it
     result = pd.concat([most_likely, hdis], axis=1).iloc[1:]
     return result
