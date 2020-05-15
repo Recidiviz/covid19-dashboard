@@ -1,3 +1,4 @@
+import numeral from "numeral";
 import React from "react";
 import styled from "styled-components";
 
@@ -40,7 +41,7 @@ const Metric: React.FC<Props> = (props) => {
   return (
     <MetricContainer>
       <Value>
-        {value}
+        {typeof value === "number" ? numeral(value).format("0,0") : value}
         <Label>{label}</Label>
       </Value>
     </MetricContainer>
