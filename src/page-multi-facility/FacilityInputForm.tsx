@@ -71,7 +71,7 @@ const CancelButton = styled(ModalButton)`
   color: ${Colors.forest};
 `;
 
-const RtChartEmptyState = styled.div`
+const RtChartEmptyState = styled.button`
   display: flex;
   align-items: center;
   text-align: center;
@@ -256,10 +256,21 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
           {rtTimeseriesData ? (
             <RtTimeseries data={rtTimeseriesData} />
           ) : (
-            <RtChartEmptyState>
-              Live rate of spread could not be calculated for this facility.
-              Click here to add at least 10 days of confirmed case data.
-            </RtChartEmptyState>
+            facility && (
+              <AddCasesRow>
+                <AddCasesModal
+                  facility={facility}
+                  trigger={
+                    <RtChartEmptyState>
+                      Live rate of spread could not be calculated for this
+                      facility. Click here to add at least 10 days of confirmed
+                      case data.
+                    </RtChartEmptyState>
+                  }
+                  onSave={onModalSave}
+                />
+              </AddCasesRow>
+            )
           )}
         </RtChartContainer>
 
