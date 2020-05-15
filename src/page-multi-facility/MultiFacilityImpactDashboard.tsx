@@ -1,5 +1,6 @@
 import { navigate } from "gatsby";
 import React, { useContext, useEffect, useState } from "react";
+import { ToastProvider } from "react-toast-notifications";
 import styled from "styled-components";
 
 import { FetchedFacilities } from "../constants";
@@ -8,6 +9,7 @@ import Colors from "../design-system/Colors";
 import iconAddSrc from "../design-system/icons/ic_add.svg";
 import Loading from "../design-system/Loading";
 import TextLabel from "../design-system/TextLabel";
+import Toast from "../design-system/Toast";
 import { useFlag } from "../feature-flags";
 import useFacilitiesRtData from "../hooks/useFacilitiesRtData";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
@@ -137,7 +139,11 @@ const MultiFacilityImpactDashboard: React.FC = () => {
   const showRateOfSpreadTab = useFlag(["showRateOfSpreadTab"]);
   return (
     <MultiFacilityImpactDashboardContainer>
-      {scenario.loading ? (
+          <ToastProvider
+            placement="bottom-center"
+            transitionDuration={0}
+            components={{ Toast }}
+          >      {scenario.loading ? (
         <Loading />
       ) : (
         <ScenarioSidebar numFacilities={facilities?.data.length} />
@@ -170,6 +176,7 @@ const MultiFacilityImpactDashboard: React.FC = () => {
         {selectedTab === 0 && projectionsPanel}
         {selectedTab === 1 && <RateOfSpreadPanel facilities={facilities} />}
       </div>
+      </ToastProvider>
     </MultiFacilityImpactDashboardContainer>
   );
 };

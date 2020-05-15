@@ -1,6 +1,7 @@
 import { startOfDay, startOfToday } from "date-fns";
 import { pick } from "lodash";
 import React, { useState } from "react";
+import { useToasts } from "react-toast-notifications";
 import styled from "styled-components";
 
 import { saveFacility } from "../database";
@@ -37,6 +38,7 @@ const HorizRule = styled.div`
   width: 100%;
 `;
 
+
 // Create a diff of the model to store changes in the update cases modal.
 // This is necessary so that we don't update the current modal if the modal is thrown away w/o saving or
 // if the date added in the modal is prior to the current date (backfill)
@@ -65,6 +67,7 @@ const AddCasesModal: React.FC<Props> = ({
   const [model, updateModel] = useModel();
   let [modelDiff, fakeUpdateModel, resetModelDiff] = useModelDiff();
   const newModel = { ...model, ...modelDiff };
+  const { addToast } = useToasts();
 
   const save = () => {
     // Ensure that we don't insert keys (like `localeDataSource`) that is in model but not in the facility modelInputs
@@ -89,6 +92,14 @@ const AddCasesModal: React.FC<Props> = ({
       modelInputs,
     });
     setModalOpen(false);
+    // Custom ID to identify the toast to support dismiss
+    let utcTimeString = new Date().getTime().toString();
+    addToast("Data successfully saved!", {
+      autoDismiss: true,
+      autoDismissTimeout: 10000,
+      id: utcTimeString,
+      customId: utcTimeString
+    });
   };
 
   return (

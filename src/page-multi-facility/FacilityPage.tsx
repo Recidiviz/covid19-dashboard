@@ -1,7 +1,9 @@
 import React, { useContext } from "react";
+import { ToastProvider } from "react-toast-notifications";
 import styled from "styled-components";
 
 import Loading from "../design-system/Loading";
+import Toast from "../design-system/Toast";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
 import { useLocaleDataState } from "../locale-data-context";
 import useScenario from "../scenario-context/useScenario";
@@ -26,14 +28,20 @@ const FacilityPage: React.FC = () => {
           facilityModel={facility?.modelInputs}
           localeDataSource={localeDataSource}
         >
-          <FacilityPageDiv>
-            <div className="font-body text-green min-h-screen tracking-normal w-full">
-              <div className="max-w-screen-xl px-4 mx-auto">
-                <SiteHeader />
-                <FacilityInputForm scenarioId={scenario.data.id} />
+          <ToastProvider
+            placement="bottom-center"
+            transitionDuration={0}
+            components={{ Toast }}
+          >
+            <FacilityPageDiv>
+              <div className="font-body text-green min-h-screen tracking-normal w-full">
+                <div className="max-w-screen-xl px-4 mx-auto">
+                  <SiteHeader />
+                  <FacilityInputForm scenarioId={scenario.data.id} />
+                </div>
               </div>
-            </div>
-          </FacilityPageDiv>
+            </FacilityPageDiv>
+          </ToastProvider>
         </EpidemicModelProvider>
       )}
     </>
