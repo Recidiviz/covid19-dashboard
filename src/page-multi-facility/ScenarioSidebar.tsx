@@ -12,9 +12,10 @@ import InputDescription from "../design-system/InputDescription";
 import InputName from "../design-system/InputName";
 import PromoBoxWithButton from "../design-system/PromoBoxWithButton";
 import { Spacer } from "../design-system/Spacer";
-import { useFlag } from "../feature-flags";
+import { Flag, useFlag } from "../feature-flags";
 import useRejectionToast from "../hooks/useRejectionToast";
 import useScenario from "../scenario-context/useScenario";
+import ScenarioShareButton from "../scenario-share/ScenarioShareButton";
 import ScenarioLibraryModal from "./ScenarioLibraryModal";
 import { Scenario } from "./types";
 
@@ -179,6 +180,14 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
             <IconCheck alt="check" src={iconCheckSrc} />
           </BaselineIndicator>
         </div>
+        <Flag name={["enableSharing"]}>
+          <div>
+            <Spacer y={20} />
+            <HorizontalRule />
+            <Spacer y={20} />
+            <ScenarioShareButton />
+          </div>
+        </Flag>
         <div>
           <Spacer y={20} />
           <HorizontalRule />
