@@ -21,9 +21,9 @@ import RtTimeseries from "../rt-timeseries";
 import AddCasesModal from "./AddCasesModal";
 import { FacilityContext } from "./FacilityContext";
 import FacilityProjections from "./FacilityProjections";
+import HistoricalCasesChart from "./HistoricalCasesChart";
 import LocaleInformationSection from "./LocaleInformationSection";
 import { Facility } from "./types";
-import HistoricalCasesChart from "./HistoricalCasesChart";
 
 const ButtonSection = styled.div`
   margin-top: 30px;
