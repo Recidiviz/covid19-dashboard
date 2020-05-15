@@ -263,7 +263,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
                   trigger={
                     <RtChartEmptyState>
                       Live rate of spread could not be calculated for this
-                      facility. Click here to add at least 10 days of confirmed
+                      facility. Click here to add at least 3 days of confirmed
                       case data.
                     </RtChartEmptyState>
                   }
