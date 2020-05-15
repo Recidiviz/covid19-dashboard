@@ -38,7 +38,8 @@ const WrappedInput = styled(CustomDebounceInput)`
 `;
 
 interface Props extends InputBaseProps<string> {
-  type: "text" | "number";
+  type: "text" | "number" | "email";
+  headerStyle?: boolean;
   onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
   onKeyDown?: (event: React.KeyboardEvent) => void;
   focus?: boolean;

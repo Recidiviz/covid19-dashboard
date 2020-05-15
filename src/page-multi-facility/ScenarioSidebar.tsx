@@ -15,7 +15,7 @@ import { Spacer } from "../design-system/Spacer";
 import { Flag, useFlag } from "../feature-flags";
 import useRejectionToast from "../hooks/useRejectionToast";
 import useScenario from "../scenario-context/useScenario";
-import ScenarioShareButton from "../scenario-share/ScenarioShareButton";
+import ScenarioShareModal from "../scenario-share/ScenarioShareModal";
 import ScenarioLibraryModal from "./ScenarioLibraryModal";
 import { Scenario } from "./types";
 
@@ -185,7 +185,7 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
             <Spacer y={20} />
             <HorizontalRule />
             <Spacer y={20} />
-            <ScenarioShareButton />
+            <ScenarioShareModal />
           </div>
         </Flag>
         <div>
