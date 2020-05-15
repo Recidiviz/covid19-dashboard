@@ -119,10 +119,19 @@ const HistoricalCasesChart: React.FC<Props> = ({ facility }) => {
     oAccessor: (datum: any) => {
       return datum.observedAt;
     },
+    size: [400,300],
+    responsiveWidth: true,
+    responseiveHeight: true,
     hoverAnnotation: true,
     tooltipContent: Tooltip,
     rAccessor: "value",
     oLabel: (datum: string) => formatDateLabel(datum),
+    customClickBehavior: (datum) => {
+      console.log('clicked: ', datum.summary[0])
+      const summaryData = datum.summary[0]
+      const data = summaryData.data
+      console.log('clicked data: ', data)
+    }
   }
 
   return (
