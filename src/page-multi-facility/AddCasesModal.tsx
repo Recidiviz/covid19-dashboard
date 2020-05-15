@@ -163,6 +163,7 @@ const AddCasesModal: React.FC<Props> = ({ facility, trigger, onSave }) => {
     // Custom ID to identify the toast to support dismiss
     let utcTimeString = new Date().getTime().toString();
     addToast("Data successfully saved!", {
+      appearance: "success",
       autoDismiss: true,
       autoDismissTimeout: 10000,
       id: utcTimeString,
