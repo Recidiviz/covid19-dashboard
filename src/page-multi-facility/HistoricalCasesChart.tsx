@@ -1,5 +1,5 @@
 import * as dateFns from "date-fns";
-import React from "react";
+import React, { useState } from "react";
 import { ResponsiveOrdinalFrame } from "semiotic";
 import styled from "styled-components";
 
@@ -7,6 +7,8 @@ import ChartTooltip from "../design-system/ChartTooltip";
 import ChartWrapper from "../design-system/ChartWrapper";
 import Colors from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
+import nextArrowIcon from "../design-system/icons/ic_next_arrow.svg";
+import prevArrowIcon from "../design-system/icons/ic_previous_arrow.svg";
 import useFacilityModelVersions from "../hooks/useFacilityModelVersions";
 import { totalConfirmedCases } from "../impact-dashboard/EpidemicModelContext";
 import { Facility, ModelInputs } from "./types";
@@ -44,17 +46,71 @@ const Tooltip: React.FC<TooltipProps> = ({ summary }) => {
   );
 };
 
+const ScrollChartDatesContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  flex-flow: row nowrap;
+  position: relative;
+`;
+
+const ScrollChartDatesButton = styled.button`
+  color: ${Colors.forest};
+  display: inline;
+  font: 10px/150% "Poppins", sans serif;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+`;
+
+const ArrowIcon = styled.img`
+  display: inline;
+  margin: 0 10px;
+`;
+
+interface ScrollChartDates {
+  onPreviousClick: () => void;
+  onNextClick: () => void;
+}
+
+const ScrollChartDates: React.FC<ScrollChartDates> = ({
+  onPreviousClick,
+  onNextClick,
+}) => {
+  return (
+    <ScrollChartDatesContainer>
+      <ScrollChartDatesButton onClick={onPreviousClick}>
+        <ArrowIcon src={prevArrowIcon} alt="previous arrow icon" />
+        Previous 15 days
+      </ScrollChartDatesButton>
+      <ScrollChartDatesButton onClick={onNextClick}>
+        Next 15 days
+        <ArrowIcon src={nextArrowIcon} alt="next arrow icon" />
+      </ScrollChartDatesButton>
+    </ScrollChartDatesContainer>
+  );
+};
+
 const HistoricalCasesChart: React.FC<Props> = ({ facility }) => {
+  const numDays = 30;
   const [versions] = useFacilityModelVersions(facility);
+  const [endDate, setEndDate] = useState(dateFns.endOfToday());
+  const [startDate, setStartDate] = useState(dateFns.subDays(endDate, numDays));
 
   console.log({ facility });
 
-  const numDays = 30;
-  const endDate = dateFns.endOfToday();
-  const startDate = dateFns.subDays(endDate, numDays);
+  React.useEffect(() => {
+    setStartDate(dateFns.subDays(endDate, numDays));
+  }, [endDate, numDays]);
 
   function getDatesInterval(startDate: Date, endDate: Date) {
     return dateFns.eachDayOfInterval({ start: startDate, end: endDate });
+  }
+
+  function onPreviousClick() {
+    setEndDate(dateFns.subDays(endDate, 15));
+  }
+
+  function onNextClick() {
+    setEndDate(dateFns.addDays(endDate, 15));
   }
 
   console.log({ versions });
@@ -127,7 +183,6 @@ const HistoricalCasesChart: React.FC<Props> = ({ facility }) => {
     },
     size: [400, 300],
     responsiveWidth: true,
-    responseiveHeight: true,
     hoverAnnotation: true,
     tooltipContent: Tooltip,
     rAccessor: "value",
@@ -143,6 +198,10 @@ const HistoricalCasesChart: React.FC<Props> = ({ facility }) => {
   return (
     <ChartWrapper>
       <ResponsiveOrdinalFrame {...frameProps} />
+      <ScrollChartDates
+        onPreviousClick={onPreviousClick}
+        onNextClick={onNextClick}
+      />
     </ChartWrapper>
   );
 };
