@@ -19,6 +19,7 @@ import ProjectionsHeader from "./ProjectionsHeader";
 import RateOfSpreadPanel from "./RateOfSpreadPanel";
 import ScenarioSidebar from "./ScenarioSidebar";
 import { Facilities } from "./types";
+import SystemSummary from "./SystemSummary"
 
 const MultiFacilityImpactDashboardContainer = styled.main.attrs({
   className: `
@@ -143,6 +144,7 @@ const MultiFacilityImpactDashboard: React.FC = () => {
         <ScenarioSidebar numFacilities={facilities?.data.length} />
       )}
       <div className="flex flex-col flex-1 pb-6 pl-8 justify-start">
+        <SystemSummary facilities={facilities}/>
         <div className="flex flex-row flex-none justify-between items-start">
           <AddFacilityButton onClick={openAddFacilityPage}>
             <IconAdd alt="add facility" src={iconAddSrc} />
