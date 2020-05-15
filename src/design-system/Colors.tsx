@@ -19,6 +19,7 @@ const BaseColors = {
   orange: "#e76f00",
   red: "#ff464a",
   darkRed: "#cb2500",
+  burgundy: "#943300",
   lightBlue: "#33b6ff",
   teal: "#25b894",
   green: "#006c67",

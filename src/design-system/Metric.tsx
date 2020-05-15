@@ -7,27 +7,27 @@ const MetricContainer = styled.div`
   border-radius: 4px;
   display: flex;
   flex-direction: column;
-  width: 100%;
-  margin: 15px 15px 15px 0;
+  margin: 5px;
+  background-color: ${Colors.lightGray};
+  flex: 1 1 30%;
+  height: 96px;
+  font-family: "Poppins", sans serif;
+  text-align: center;
+  line-height: 24px;
+  justify-content: center;
 `;
 
 const Value = styled.div`
-  display: flex;
-  flex-direction: column;
-  font-family: "Poppins", sans serif;
   font-size: 24px;
-  font-weight: 500;
-  line-height: 150%;
+  font-weight: 600;
+  color: ${Colors.burgundy};
 `;
 
 const Label = styled.div`
-  font-family: "Poppins", sans serif;
-  font-size: 14px;
-  font-weight: 300;
-  line-height: 150%;
+  font-size: 12px;
+  font-weight: normal;
   color: ${Colors.opacityForest};
 `;
-
 
 interface Props {
   value: number | string | React.ReactElement;
