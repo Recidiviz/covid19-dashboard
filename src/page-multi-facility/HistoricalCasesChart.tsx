@@ -8,6 +8,7 @@ import ChartWrapper from "../design-system/ChartWrapper";
 import Colors from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import useFacilityModelVersions from "../hooks/useFacilityModelVersions";
+import { totalConfirmedCases } from "../impact-dashboard/EpidemicModelContext";
 import { Facility, ModelInputs } from "./types";
 
 interface Props {
@@ -68,7 +69,10 @@ const HistoricalCasesChart: React.FC<Props> = ({ facility }) => {
       });
 
       if (existingVersion) {
-        return { ...existingVersion, value: existingVersion.ageUnknownCases };
+        return {
+          ...existingVersion,
+          value: totalConfirmedCases(existingVersion),
+        };
       } else {
         return {
           observedAt: date,
