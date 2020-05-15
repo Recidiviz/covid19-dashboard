@@ -55,11 +55,11 @@ const SystemSummary: React.FC<Props> = ({ facilities }) => {
   const metrics = {
     incarceratedPopulation: {
       value: 0,
-      label: "Total resident population",
+      label: "Resident population",
     },
     staffPopulation: {
       value: 0,
-      label: "Total staff population",
+      label: "Staff population",
     },
     facilitiesWithCases: {
       get value() {
@@ -70,11 +70,11 @@ const SystemSummary: React.FC<Props> = ({ facilities }) => {
     },
     incarceratedCases: {
       value: 0,
-      label: "Total resident cases",
+      label: "Resident cases",
     },
     staffCases: {
       value: 0,
-      label: "Total staff cases",
+      label: "Staff cases",
     },
     facilitiesWithRtLessThan1: {
       value: `${rtStats.numFacilitiesWithRtLessThan1(

@@ -14,11 +14,12 @@ const MetricContainer = styled.div`
   height: 96px;
   font-family: "Poppins", sans serif;
   text-align: center;
-  line-height: 24px;
   justify-content: center;
+  align-items: center;
 `;
 
 const Value = styled.div`
+  line-height: 24px;
   font-size: 24px;
   font-weight: 600;
   color: ${Colors.burgundy};
@@ -27,7 +28,9 @@ const Value = styled.div`
 const Label = styled.div`
   font-size: 12px;
   font-weight: normal;
+  line-height: 16px;
   color: ${Colors.opacityForest};
+  max-width: 150px;
 `;
 
 interface Props {
