@@ -12,6 +12,7 @@ import Tooltip from "../design-system/Tooltip";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
 import { totalConfirmedCases } from "../impact-dashboard/EpidemicModelContext";
 import useModel from "../impact-dashboard/useModel";
+import { updateFacilityRtData } from "../infection-model/rt";
 import { getNewestRt } from "../infection-model/rt";
 import { isRtData } from "../page-response-impact/RtSummaryStats";
 import AddCasesModal from "./AddCasesModal";
@@ -85,7 +86,7 @@ interface Props {
 const FacilityRow: React.FC<Props> = ({ facility: initialFacility }) => {
   const [model] = useModel();
 
-  const { rtData, setFacility } = useContext(FacilityContext);
+  const { rtData, setFacility, dispatchRtData } = useContext(FacilityContext);
 
   const [facility, updateFacility] = useState(initialFacility);
 
@@ -113,6 +114,11 @@ const FacilityRow: React.FC<Props> = ({ facility: initialFacility }) => {
   const openFacilityPage = () => {
     setFacility(facility);
     navigate("/facility");
+  };
+
+  const onModalSave = (newFacility: Facility) => {
+    updateFacility(newFacility);
+    updateFacilityRtData(newFacility, dispatchRtData);
   };
 
   return (
@@ -148,7 +154,7 @@ const FacilityRow: React.FC<Props> = ({ facility: initialFacility }) => {
                       </CaseText>
                     </Tooltip>
                   }
-                  updateFacility={updateFacility}
+                  onSave={onModalSave}
                 />
               </div>
             </div>

@@ -1,5 +1,6 @@
 import { useContext, useEffect } from "react";
 
+import { FacilityEvents } from "../constants/dispatchEvents";
 import { getRtDataForFacility } from "../infection-model/rt";
 import { FacilityContext } from "../page-multi-facility/FacilityContext";
 import { Facilities } from "../page-multi-facility/types";
@@ -15,7 +16,7 @@ const useFacilitiesRtData = (facilities: Facilities | null) => {
 
         const facilityRtData = await getRtDataForFacility(facility);
         dispatchRtData({
-          type: "add",
+          type: FacilityEvents.ADD,
           payload: { [facility.id]: facilityRtData },
         });
       }),

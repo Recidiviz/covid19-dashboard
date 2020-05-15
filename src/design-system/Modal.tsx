@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import ModalDialog from "./ModalDialog";
@@ -17,14 +17,28 @@ export interface Props {
 }
 
 const Modal: React.FC<Props> = (props) => {
-  const { trigger, modalTitle, children, open, setOpen, height, width } = props;
+  const {
+    trigger,
+    modalTitle,
+    children,
+    open,
+    setOpen,
+    height,
+    width,
+    onClose,
+  } = props;
+  const [prevOpen, setPrevOpen] = useState(open);
 
   const closeModal = () => {
-    if (props.onClose) {
-      props.onClose();
-    }
     setOpen(false);
   };
+
+  useEffect(() => {
+    if (!open && prevOpen && onClose) {
+      onClose();
+    }
+    setPrevOpen(open);
+  }, [open, onClose, prevOpen]);
 
   return (
     <ModalContainer>

@@ -4,17 +4,23 @@ import styled from "styled-components";
 
 import Colors from "./Colors";
 
-const LoadingContainer = styled.div`
+const LoadingContainer = styled.div<Props>`
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
   height: 100%;
+  min-height: ${(props) => props.styles?.minHeight};
+  padding-bottom: ${(props) => props.styles?.paddingBottom};
 `;
 
-const Loading: React.FC = () => {
+interface Props {
+  styles?: React.CSSProperties;
+}
+
+const Loading: React.FC<Props> = (props) => {
   return (
-    <LoadingContainer>
+    <LoadingContainer styles={props.styles}>
       <BounceLoader size={60} color={Colors.forest} />
     </LoadingContainer>
   );
