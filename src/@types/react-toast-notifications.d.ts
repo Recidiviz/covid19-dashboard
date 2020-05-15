@@ -15,7 +15,7 @@ declare module "react-toast-notifications" {
 
   export type TransitionState = "entering" | "entered" | "exiting" | "exited";
 
-  // Patch: adding customId  
+  // Patch: adding customId
   export interface ToastProps {
     customId?: string;
     appearance: AppearanceTypes;

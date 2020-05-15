@@ -139,43 +139,45 @@ const MultiFacilityImpactDashboard: React.FC = () => {
   const showRateOfSpreadTab = useFlag(["showRateOfSpreadTab"]);
   return (
     <MultiFacilityImpactDashboardContainer>
-          <ToastProvider
-            placement="bottom-center"
-            transitionDuration={0}
-            components={{ Toast }}
-          >      {scenario.loading ? (
-        <Loading />
-      ) : (
-        <ScenarioSidebar numFacilities={facilities?.data.length} />
-      )}
-      <div className="flex flex-col flex-1 pb-6 pl-8 justify-start">
-        <div className="flex flex-row flex-none justify-between items-start">
-          <AddFacilityButton onClick={openAddFacilityPage}>
-            <IconAdd alt="add facility" src={iconAddSrc} />
-            <AddFacilityButtonText>Add Facility</AddFacilityButtonText>
-          </AddFacilityButton>
-          <ScenarioTabs>
-            <ScenarioTabList>
-              <ScenarioTab
-                active={selectedTab === 0}
-                onClick={() => setSelectedTab(0)}
-              >
-                <TextLabel padding={false}>Projections</TextLabel>
-              </ScenarioTab>
-              {showRateOfSpreadTab ? (
+      <ToastProvider
+        placement="bottom-center"
+        transitionDuration={0}
+        components={{ Toast }}
+      >
+        {" "}
+        {scenario.loading ? (
+          <Loading />
+        ) : (
+          <ScenarioSidebar numFacilities={facilities?.data.length} />
+        )}
+        <div className="flex flex-col flex-1 pb-6 pl-8 justify-start">
+          <div className="flex flex-row flex-none justify-between items-start">
+            <AddFacilityButton onClick={openAddFacilityPage}>
+              <IconAdd alt="add facility" src={iconAddSrc} />
+              <AddFacilityButtonText>Add Facility</AddFacilityButtonText>
+            </AddFacilityButton>
+            <ScenarioTabs>
+              <ScenarioTabList>
                 <ScenarioTab
-                  active={selectedTab === 1}
-                  onClick={() => setSelectedTab(1)}
+                  active={selectedTab === 0}
+                  onClick={() => setSelectedTab(0)}
                 >
-                  <TextLabel padding={false}>Rate of spread</TextLabel>
+                  <TextLabel padding={false}>Projections</TextLabel>
                 </ScenarioTab>
-              ) : null}
-            </ScenarioTabList>
-          </ScenarioTabs>
+                {showRateOfSpreadTab ? (
+                  <ScenarioTab
+                    active={selectedTab === 1}
+                    onClick={() => setSelectedTab(1)}
+                  >
+                    <TextLabel padding={false}>Rate of spread</TextLabel>
+                  </ScenarioTab>
+                ) : null}
+              </ScenarioTabList>
+            </ScenarioTabs>
+          </div>
+          {selectedTab === 0 && projectionsPanel}
+          {selectedTab === 1 && <RateOfSpreadPanel facilities={facilities} />}
         </div>
-        {selectedTab === 0 && projectionsPanel}
-        {selectedTab === 1 && <RateOfSpreadPanel facilities={facilities} />}
-      </div>
       </ToastProvider>
     </MultiFacilityImpactDashboardContainer>
   );
