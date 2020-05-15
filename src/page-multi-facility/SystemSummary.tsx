@@ -1,13 +1,23 @@
-import React from "react";
+import React, { useContext } from "react";
 import styled from "styled-components";
 
+import { FetchedFacilities } from "../constants";
 import Colors from "../design-system/Colors";
+import Loading from "../design-system/Loading";
 import Metric from "../design-system/Metric";
-import { Facilities } from "./types";
+import {
+  getTotalPopulation,
+  totalIncarceratedConfirmedCases,
+} from "../impact-dashboard/EpidemicModelContext";
+import { isRtData, RtData, RtRecord } from "../infection-model/rt";
+import * as rtStats from "../page-response-impact/rtStatistics";
+import { FacilityContext } from "./FacilityContext";
+import { Facilities, Facility } from "./types";
 
 const SystemSummaryContainer = styled.div`
   border-bottom: 1px solid ${Colors.opacityGray};
   margin-bottom: 15px;
+  min-height: 230px;
 `;
 
 const SectionHeader = styled.div`
@@ -29,51 +39,89 @@ const MetricsContainer = styled.div`
 `;
 
 interface Props {
-  facilities?: Facilities[];
+  facilities: FetchedFacilities;
 }
 
 const SystemSummary: React.FC<Props> = ({ facilities }) => {
+  const numFacilities = facilities.data.length;
+
+  const { rtData } = useContext(FacilityContext);
+  const rtDataValues: (RtData | null)[] = Object.values({ ...rtData });
+
+  const facilitiesRtRecords: RtRecord[][] = rtDataValues
+    .filter(isRtData)
+    .map((rtData: RtData) => rtData.Rt);
+
   const metrics = {
     incarceratedPopulation: {
-      value: 10000,
+      value: 0,
       label: "Total resident population",
     },
     staffPopulation: {
-      value: 100,
+      value: 0,
       label: "Total staff population",
     },
+    facilitiesWithCases: {
+      get value() {
+        return `${this.sum} of ${numFacilities}`;
+      },
+      label: "Facilities with confirmed cases",
+      sum: 0,
+    },
     incarceratedCases: {
-      value: 1000,
+      value: 0,
       label: "Total resident cases",
     },
     staffCases: {
-      value: 10,
+      value: 0,
       label: "Total staff cases",
     },
-    facilitiesWithCases: {
-      value: "5 of 10",
-      label: "Facilities with confirmed cases",
-    },
-    facilitiesWithSlowingRos: {
-      value: "1 of 10",
+    facilitiesWithRtLessThan1: {
+      value: `${rtStats.numFacilitiesWithRtLessThan1(
+        facilitiesRtRecords,
+      )} of ${numFacilities}`,
       label: "Facilities with a slowing rate of spread",
     },
+  };
+
+  const calculateMetrics = (facilities: Facilities) => {
+    return facilities.reduce((metrics, facility: Facility) => {
+      const incarceratedCases =
+        totalIncarceratedConfirmedCases(facility.modelInputs) || 0;
+      const staffCases = facility.modelInputs.staffCases || 0;
+
+      metrics.incarceratedPopulation.value +=
+        getTotalPopulation(facility.modelInputs) || 0;
+      metrics.staffPopulation.value +=
+        facility.modelInputs.staffPopulation || 0;
+      metrics.incarceratedCases.value += incarceratedCases;
+      metrics.staffCases.value += staffCases;
+      if (incarceratedCases + staffCases > 0) {
+        metrics.facilitiesWithCases.sum += 1;
+      }
+
+      return metrics;
+    }, metrics);
   };
 
   return (
     <SystemSummaryContainer>
       <SectionHeader>System Summary</SectionHeader>
-      <MetricsContainer>
-        {Object.values(metrics).map((metric) => {
-          return (
-            <Metric
-              value={metric.value}
-              label={metric.label}
-              key={metric.label}
-            />
-          );
-        })}
-      </MetricsContainer>
+      {facilities.loading ? (
+        <Loading />
+      ) : (
+        <MetricsContainer>
+          {Object.values(calculateMetrics(facilities.data)).map((metric) => {
+            return (
+              <Metric
+                value={metric.value}
+                label={metric.label}
+                key={metric.label}
+              />
+            );
+          })}
+        </MetricsContainer>
+      )}
     </SystemSummaryContainer>
   );
 };

@@ -5,7 +5,7 @@ import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
 import HelpButtonWithTooltip from "../design-system/HelpButtonWithTooltip";
-import { RtData, RtRecord, isRtData } from "../infection-model/rt";
+import { isRtData, RtData, RtRecord } from "../infection-model/rt";
 import { RtDataMapping } from "../page-multi-facility/types";
 import * as rtStats from "./rtStatistics";
 
@@ -74,7 +74,6 @@ const DonutChartSubtitle = styled.text`
   line-height: 16px;
   transform: translate(0px, 20px);
 `;
-
 
 function rtDonutChartAnnotation(d: any) {
   return (
