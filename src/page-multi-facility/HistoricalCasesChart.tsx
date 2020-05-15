@@ -67,24 +67,32 @@ const ArrowIcon = styled.img`
 `;
 
 interface ScrollChartDates {
+  endDate: Date;
   onPreviousClick: () => void;
   onNextClick: () => void;
 }
 
 const ScrollChartDates: React.FC<ScrollChartDates> = ({
+  endDate,
   onPreviousClick,
   onNextClick,
 }) => {
+  const showNext15DaysButton = !dateFns.isSameDay(
+    endDate,
+    dateFns.endOfToday(),
+  );
   return (
     <ScrollChartDatesContainer>
       <ScrollChartDatesButton onClick={onPreviousClick}>
         <ArrowIcon src={prevArrowIcon} alt="previous arrow icon" />
         Previous 15 days
       </ScrollChartDatesButton>
-      <ScrollChartDatesButton onClick={onNextClick}>
-        Next 15 days
-        <ArrowIcon src={nextArrowIcon} alt="next arrow icon" />
-      </ScrollChartDatesButton>
+      {showNext15DaysButton && (
+        <ScrollChartDatesButton onClick={onNextClick}>
+          Next 15 days
+          <ArrowIcon src={nextArrowIcon} alt="next arrow icon" />
+        </ScrollChartDatesButton>
+      )}
     </ScrollChartDatesContainer>
   );
 };
@@ -199,6 +207,7 @@ const HistoricalCasesChart: React.FC<Props> = ({ facility }) => {
     <ChartWrapper>
       <ResponsiveOrdinalFrame {...frameProps} />
       <ScrollChartDates
+        endDate={endDate}
         onPreviousClick={onPreviousClick}
         onNextClick={onNextClick}
       />
