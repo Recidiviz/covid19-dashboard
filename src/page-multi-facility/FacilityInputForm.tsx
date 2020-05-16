@@ -16,11 +16,13 @@ import Tooltip from "../design-system/Tooltip";
 import FacilityInformation from "../impact-dashboard/FacilityInformation";
 import MitigationInformation from "../impact-dashboard/MitigationInformation";
 import useModel from "../impact-dashboard/useModel";
+import { updateFacilityRtData } from "../infection-model/rt";
 import RtTimeseries from "../rt-timeseries";
 import AddCasesModal from "./AddCasesModal";
 import { FacilityContext } from "./FacilityContext";
 import FacilityProjections from "./FacilityProjections";
 import LocaleInformationSection from "./LocaleInformationSection";
+import { Facility } from "./types";
 
 const ButtonSection = styled.div`
   margin-top: 30px;
@@ -106,7 +108,9 @@ interface Props {
 }
 
 const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
-  const { facility: initialFacility, rtData } = useContext(FacilityContext);
+  const { facility: initialFacility, rtData, dispatchRtData } = useContext(
+    FacilityContext,
+  );
   const [facility, updateFacility] = useState(initialFacility);
   const [facilityName, setFacilityName] = useState(facility?.name || undefined);
   const [description, setDescription] = useState(
@@ -163,6 +167,11 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
       // setting this value to null will suppress the chart
       null;
 
+  const onModalSave = (newFacility: Facility) => {
+    updateFacility(newFacility);
+    updateFacilityRtData(newFacility, dispatchRtData);
+  };
+
   return (
     <PageContainer>
       <Column width={"45%"}>
@@ -188,7 +197,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
                   </AddCasesButton>
                 </Tooltip>
               }
-              updateFacility={updateFacility}
+              onSave={onModalSave}
             />
           </AddCasesRow>
         )}

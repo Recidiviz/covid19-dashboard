@@ -70,7 +70,7 @@ const FormHeaderRow: React.FC<FormHeaderRowProps> = (props) => (
 );
 
 interface AgeGroupGridProps {
-  model: EpidemicModelState;
+  model: Partial<EpidemicModelState>;
   updateModel: (update: EpidemicModelUpdate) => void;
   collapsible?: boolean;
 }
@@ -166,7 +166,7 @@ interface AgeGroupRowProps {
   label: string;
   leftKey: keyof EpidemicModelUpdate;
   rightKey: keyof EpidemicModelUpdate;
-  model: EpidemicModelState;
+  model: Partial<EpidemicModelState>;
   updateModel: (update: EpidemicModelUpdate) => void;
 }
 

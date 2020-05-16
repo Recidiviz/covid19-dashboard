@@ -1,7 +1,7 @@
 import { RefObject, useEffect, useRef, useState } from "react";
 
 interface UseComponentVisibleOutput {
-  ref: RefObject<HTMLDivElement | null>;
+  ref: RefObject<HTMLDivElement> | null;
   isComponentVisible: boolean;
   setIsComponentVisible: Function;
 }

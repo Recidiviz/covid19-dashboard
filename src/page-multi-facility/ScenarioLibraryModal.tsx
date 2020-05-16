@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
-import { duplicateScenario, getScenarios } from "../database";
+import { deleteScenario, duplicateScenario, getScenarios } from "../database";
 import Colors from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import iconSrcCheck from "../design-system/icons/ic_check.svg";
 import iconSrcRecidiviz from "../design-system/icons/ic_recidiviz.svg";
+import { StyledButton } from "../design-system/InputButton";
 import Loading from "../design-system/Loading";
 import Modal, { Props as ModalProps } from "../design-system/Modal";
+import ModalDialog from "../design-system/ModalDialog";
 import PopUpMenu from "../design-system/PopUpMenu";
 import useScenario from "../scenario-context/useScenario";
 import { Scenario } from "./types";
-
-type Props = Pick<ModalProps, "trigger">;
 
 const ModalContents = styled.div`
   display: flex;
@@ -112,13 +112,56 @@ const IconRecidviz = styled.img`
   margin: auto;
 `;
 
+const DeleteModalContents = styled.div`
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  font-weight: normal;
+  justify-content: flex-start;
+  margin-top: 30px;
+`;
+
+const ModalText = styled.div`
+  font-size: 13px;
+  margin-bottom: 25px;
+`;
+
+const ModalButtons = styled.div`
+  /* display: flex;
+  flex-direction: column; */
+`;
+
+const ModalButton = styled(StyledButton)`
+  font-size: 14px;
+  font-weight: normal;
+`;
+
+const DeleteButton = styled(ModalButton)`
+  background: ${Colors.darkRed};
+  color: ${Colors.white};
+  margin-right: 15px;
+`;
+
+const CancelButton = styled(ModalButton)`
+  background: transparent;
+  border: 1px solid ${Colors.forest};
+  color: ${Colors.forest};
+`;
+
+type Props = Pick<ModalProps, "trigger">;
+
 const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
   const [modalOpen, setModalOpen] = useState(false);
-  const [, dispatchScenarioUpdate] = useScenario();
+  const [currentScenario, dispatchScenarioUpdate] = useScenario();
   const [scenarios, setScenarios] = useState({
     data: [] as Scenario[],
     loading: true,
   });
+  const [baselineScenario, setBaselineScenario] = useState<Scenario | null>();
+  const [scenarioIdPendingDeletion, setScenarioIdPendingDeletion] = useState<
+    string | null
+  >();
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   async function fetchScenarios() {
     const scenariosData = await getScenarios();
@@ -127,12 +170,28 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
         data: scenariosData,
         loading: false,
       });
+
+      setBaselineScenario(scenariosData.find((scenario) => scenario.baseline));
     }
   }
 
   useEffect(() => {
     fetchScenarios();
   }, []);
+
+  const openDeleteModal = (scenarioId: string) => {
+    setScenarioIdPendingDeletion(scenarioId);
+    setShowDeleteModal(true);
+  };
+
+  const closeDeleteModal = (event: React.MouseEvent<Element>) => {
+    // Needed so that the parent modal stays open after canceling or
+    // confirming a deletion.
+    event.stopPropagation();
+    event.preventDefault();
+    setScenarioIdPendingDeletion(null);
+    setShowDeleteModal(false);
+  };
 
   const copyScenario = (scenarioId: string) => {
     setScenarios({
@@ -148,6 +207,32 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
   const changeScenario = (scenario: Scenario) => {
     dispatchScenarioUpdate(scenario);
     setModalOpen(false);
+  };
+
+  const removeScenario = (event: React.MouseEvent<Element>) => {
+    if (scenarioIdPendingDeletion) {
+      setScenarios({
+        data: [],
+        loading: true,
+      });
+
+      deleteScenario(scenarioIdPendingDeletion).then(() => {
+        fetchScenarios().then(() => {
+          // If we delete the scenario that the user is currently viewing we reset the
+          // currently viewed scenario to be the baseline. Unlike deleting a scenario
+          // that is not currently being viewed, this will close the Scenario Library
+          // modal which is the expected behavior.
+          if (
+            scenarioIdPendingDeletion == currentScenario?.data?.id &&
+            baselineScenario
+          ) {
+            dispatchScenarioUpdate(baselineScenario);
+          }
+        });
+      });
+    }
+
+    closeDeleteModal(event);
   };
 
   return (
@@ -168,6 +253,14 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
               const popupItems = [
                 { name: "Duplicate", onClick: () => copyScenario(scenario.id) },
               ];
+
+              // Only show the Delete option for non-baseline scenarios
+              if (!scenario.baseline) {
+                popupItems.push({
+                  name: "Delete",
+                  onClick: () => openDeleteModal(scenario.id),
+                });
+              }
 
               return (
                 <ScenarioCard
@@ -198,6 +291,26 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
               );
             })
           )}
+          <ModalDialog
+            closeModal={closeDeleteModal}
+            open={showDeleteModal}
+            title="Are you sure?"
+            width="41vw"
+          >
+            <DeleteModalContents>
+              <ModalText>
+                This action can't be undone. When deleting the scenario
+                currently being viewed, users will be returned to their baseline
+                scenario.
+              </ModalText>
+              <ModalButtons>
+                <DeleteButton label="Delete scenario" onClick={removeScenario}>
+                  Delete scenario
+                </DeleteButton>
+                <CancelButton onClick={closeDeleteModal}>Cancel</CancelButton>
+              </ModalButtons>
+            </DeleteModalContents>
+          </ModalDialog>
         </ScenarioLibrary>
       </ModalContents>
     </Modal>

@@ -6,7 +6,7 @@ import styled from "styled-components";
 import Colors from "../design-system/Colors";
 import HelpButtonWithTooltip from "../design-system/HelpButtonWithTooltip";
 import { RtData, RtRecord } from "../infection-model/rt";
-import { RtDataMapping } from "../page-multi-facility/FacilityContext";
+import { RtDataMapping } from "../page-multi-facility/types";
 import * as rtStats from "./rtStatistics";
 
 interface Props {
