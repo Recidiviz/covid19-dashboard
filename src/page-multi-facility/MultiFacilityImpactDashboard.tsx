@@ -1,6 +1,5 @@
 import { navigate } from "gatsby";
 import React, { useContext, useEffect, useState } from "react";
-import { ToastProvider } from "react-toast-notifications";
 import styled from "styled-components";
 
 import { FetchedFacilities } from "../constants";
@@ -9,7 +8,6 @@ import Colors from "../design-system/Colors";
 import iconAddSrc from "../design-system/icons/ic_add.svg";
 import Loading from "../design-system/Loading";
 import TextLabel from "../design-system/TextLabel";
-import Toast from "../design-system/Toast";
 import { useFlag } from "../feature-flags";
 import useFacilitiesRtData from "../hooks/useFacilitiesRtData";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
@@ -139,46 +137,39 @@ const MultiFacilityImpactDashboard: React.FC = () => {
   const showRateOfSpreadTab = useFlag(["showRateOfSpreadTab"]);
   return (
     <MultiFacilityImpactDashboardContainer>
-      <ToastProvider
-        placement="bottom-center"
-        transitionDuration={0}
-        components={{ Toast }}
-      >
-        {" "}
-        {scenario.loading ? (
-          <Loading />
-        ) : (
-          <ScenarioSidebar numFacilities={facilities?.data.length} />
-        )}
-        <div className="flex flex-col flex-1 pb-6 pl-8 justify-start">
-          <div className="flex flex-row flex-none justify-between items-start">
-            <AddFacilityButton onClick={openAddFacilityPage}>
-              <IconAdd alt="add facility" src={iconAddSrc} />
-              <AddFacilityButtonText>Add Facility</AddFacilityButtonText>
-            </AddFacilityButton>
-            <ScenarioTabs>
-              <ScenarioTabList>
+      {scenario.loading ? (
+        <Loading />
+      ) : (
+        <ScenarioSidebar numFacilities={facilities?.data.length} />
+      )}
+      <div className="flex flex-col flex-1 pb-6 pl-8 justify-start">
+        <div className="flex flex-row flex-none justify-between items-start">
+          <AddFacilityButton onClick={openAddFacilityPage}>
+            <IconAdd alt="add facility" src={iconAddSrc} />
+            <AddFacilityButtonText>Add Facility</AddFacilityButtonText>
+          </AddFacilityButton>
+          <ScenarioTabs>
+            <ScenarioTabList>
+              <ScenarioTab
+                active={selectedTab === 0}
+                onClick={() => setSelectedTab(0)}
+              >
+                <TextLabel padding={false}>Projections</TextLabel>
+              </ScenarioTab>
+              {showRateOfSpreadTab ? (
                 <ScenarioTab
-                  active={selectedTab === 0}
-                  onClick={() => setSelectedTab(0)}
+                  active={selectedTab === 1}
+                  onClick={() => setSelectedTab(1)}
                 >
-                  <TextLabel padding={false}>Projections</TextLabel>
+                  <TextLabel padding={false}>Rate of spread</TextLabel>
                 </ScenarioTab>
-                {showRateOfSpreadTab ? (
-                  <ScenarioTab
-                    active={selectedTab === 1}
-                    onClick={() => setSelectedTab(1)}
-                  >
-                    <TextLabel padding={false}>Rate of spread</TextLabel>
-                  </ScenarioTab>
-                ) : null}
-              </ScenarioTabList>
-            </ScenarioTabs>
-          </div>
-          {selectedTab === 0 && projectionsPanel}
-          {selectedTab === 1 && <RateOfSpreadPanel facilities={facilities} />}
+              ) : null}
+            </ScenarioTabList>
+          </ScenarioTabs>
         </div>
-      </ToastProvider>
+        {selectedTab === 0 && projectionsPanel}
+        {selectedTab === 1 && <RateOfSpreadPanel facilities={facilities} />}
+      </div>
     </MultiFacilityImpactDashboardContainer>
   );
 };

@@ -3,7 +3,6 @@ import hexAlpha from "hex-alpha";
 import { pick } from "lodash";
 import numeral from "numeral";
 import React, { useCallback, useState } from "react";
-import { useToasts } from "react-toast-notifications";
 import styled from "styled-components";
 
 import { saveFacility } from "../database";
@@ -12,6 +11,7 @@ import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import InputButton from "../design-system/InputButton";
 import InputDate from "../design-system/InputDate";
 import Modal, { Props as ModalProps } from "../design-system/Modal";
+import { useToasts } from "../design-system/Toast";
 import Tooltip from "../design-system/Tooltip";
 import useFacilityModelVersions from "../hooks/useFacilityModelVersions";
 import {
@@ -160,15 +160,7 @@ const AddCasesModal: React.FC<Props> = ({ facility, trigger, onSave }) => {
     onSave(latestFacilityData);
     updateModelVersions();
 
-    // Custom ID to identify the toast to support dismiss
-    let utcTimeString = new Date().getTime().toString();
-    addToast("Data successfully saved!", {
-      appearance: "success",
-      autoDismiss: true,
-      autoDismissTimeout: 10000,
-      id: utcTimeString,
-      customId: utcTimeString,
-    });
+    addToast("Data successfully saved!");
   };
 
   const findMatchingDay = useCallback(
