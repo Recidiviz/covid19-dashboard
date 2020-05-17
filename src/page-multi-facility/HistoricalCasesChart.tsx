@@ -17,8 +17,14 @@ interface Props {
   facility: Facility | undefined;
 }
 
+type MissingDataInput = {
+  missing: boolean;
+  observedAt: Date;
+  value: number;
+};
+
 type Summary = {
-  data: ModelInputs;
+  data: ModelInputs & MissingDataInput;
   value: number;
 };
 
@@ -55,7 +61,12 @@ const Tooltip: React.FC<TooltipProps> = ({ summary }) => {
   const { data, value } = summaryData;
   return (
     <BarChartTooltip>
-      <TooltipTitle>{value} cases</TooltipTitle>
+      {data.missing ? (
+        <TooltipTitle>No data</TooltipTitle>
+      ) : (
+        <TooltipTitle>{value} cases</TooltipTitle>
+      )}
+
       <TooltipDate>
         <DateMMMMdyyyy date={data.observedAt} />
       </TooltipDate>
@@ -159,6 +170,7 @@ const HistoricalCasesChart: React.FC<Props> = ({ facility }) => {
         return {
           observedAt: date,
           value: 0,
+          missing: true,
         };
       }
     });
