@@ -26,23 +26,41 @@ interface TooltipProps {
   summary: Summary[];
 }
 
+const BarChartTooltip = styled(ChartTooltip)`
+  font-family: "Poppins", sans serif;
+  color: ${Colors.slate};
+  line-height: 16px;
+  min-width: 120px;
+`;
+
 const TooltipTitle = styled.div`
-  font-size: 9px;
-  font-weight: bold;
-  letter-spacing: 0.1em;
-  line-height: 1;
-  margin-bottom: 12px;
-  text-transform: uppercase;
+  font-size: 14px;
+  font-weight: 500;
+`;
+
+const TooltipDate = styled.div`
+  font-size: 12px;
+  font-weight: normal;
+  margin: 10px 0;
+`;
+
+const TooltipSubtitle = styled.div`
+  color: ${Colors.teal};
+  font-size: 12px;
+  font-weight: 600;
 `;
 
 const Tooltip: React.FC<TooltipProps> = ({ summary }) => {
   const summaryData = summary[0];
   const { data, value } = summaryData;
   return (
-    <ChartTooltip>
+    <BarChartTooltip>
       <TooltipTitle>{value} cases</TooltipTitle>
-      <DateMMMMdyyyy date={data.observedAt} />
-    </ChartTooltip>
+      <TooltipDate>
+        <DateMMMMdyyyy date={data.observedAt} />
+      </TooltipDate>
+      <TooltipSubtitle>Click to update</TooltipSubtitle>
+    </BarChartTooltip>
   );
 };
 
@@ -175,7 +193,7 @@ const HistoricalCasesChart: React.FC<Props> = ({ facility }) => {
     pixelColumnWidth: 15,
     style: () => {
       return {
-        fill: Colors.forest,
+        fill: Colors.opacityForest,
         stroke: "white",
       };
     },
