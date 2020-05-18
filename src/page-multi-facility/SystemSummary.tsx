@@ -1,7 +1,6 @@
-import React, { useContext } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
-import { FetchedFacilities } from "../constants";
 import Colors from "../design-system/Colors";
 import Loading from "../design-system/Loading";
 import Metric from "../design-system/Metric";
@@ -11,13 +10,12 @@ import {
 } from "../impact-dashboard/EpidemicModelContext";
 import { isRtData, RtData, RtRecord } from "../infection-model/rt";
 import * as rtStats from "../page-response-impact/rtStatistics";
-import { FacilityContext } from "./FacilityContext";
-import { Facilities, Facility } from "./types";
+import { Facilities, Facility, RtDataMapping } from "./types";
 
 const SystemSummaryContainer = styled.div`
   border-bottom: 1px solid ${Colors.opacityGray};
   margin-bottom: 15px;
-  min-height: 230px;
+  min-height: 280px;
 `;
 
 const SectionHeader = styled.div`
@@ -38,21 +36,8 @@ const MetricsContainer = styled.div`
   margin: 15px;
 `;
 
-interface Props {
-  facilities: FetchedFacilities;
-}
-
-const SystemSummary: React.FC<Props> = ({ facilities }) => {
-  const numFacilities = facilities.data.length;
-
-  const { rtData } = useContext(FacilityContext);
-  const rtDataValues: (RtData | null)[] = Object.values({ ...rtData });
-
-  const facilitiesRtRecords: RtRecord[][] = rtDataValues
-    .filter(isRtData)
-    .map((rtData: RtData) => rtData.Rt);
-
-  const metrics = {
+const defaultPopulationMetrics = () => {
+  return {
     incarceratedPopulation: {
       value: 0,
       label: "Resident population",
@@ -63,10 +48,11 @@ const SystemSummary: React.FC<Props> = ({ facilities }) => {
     },
     facilitiesWithCases: {
       get value() {
-        return `${this.sum} of ${numFacilities}`;
+        return `${this.sum} of ${this.total}`;
       },
       label: "Facilities with confirmed cases",
       sum: 0,
+      total: 0,
     },
     incarceratedCases: {
       value: 0,
@@ -76,50 +62,99 @@ const SystemSummary: React.FC<Props> = ({ facilities }) => {
       value: 0,
       label: "Staff cases",
     },
-    facilitiesWithRtLessThan1: {
-      value: `${rtStats.numFacilitiesWithRtLessThan1(
-        facilitiesRtRecords,
-      )} of ${numFacilities}`,
-      label: "Facilities with a slowing rate of spread",
-    },
   };
+};
 
-  const calculateMetrics = (facilities: Facilities) => {
-    return facilities.reduce((metrics, facility: Facility) => {
+const defaultRtMetrics = {
+  facilitiesWithRtLessThan1: {
+    get value() {
+      return `${this.sum} of ${this.total}`;
+    },
+    label: "Facilities with a slowing rate of spread",
+    sum: 0,
+    total: 0,
+  },
+};
+
+interface Props {
+  facilities: Facilities;
+  scenarioId: string | undefined;
+  rtData: RtDataMapping;
+}
+
+const SystemSummary: React.FC<Props> = ({ facilities, scenarioId, rtData }) => {
+  const [populationMetrics, setPopulationMetrics] = useState(
+    defaultPopulationMetrics(),
+  );
+  const [rtMetrics, setRtMetrics] = useState({ ...defaultRtMetrics });
+  const [metricsReady, setPopulationMetricsReady] = useState(false);
+
+  useEffect(() => {
+    setPopulationMetrics(defaultPopulationMetrics());
+    setPopulationMetricsReady(false);
+  }, [scenarioId]);
+
+  useEffect(() => {
+    const numFacilities = facilities.length;
+    if (numFacilities === 0) return;
+
+    const updatedMetrics = facilities.reduce((acc, facility: Facility) => {
       const incarceratedCases =
         totalIncarceratedConfirmedCases(facility.modelInputs) || 0;
       const staffCases = facility.modelInputs.staffCases || 0;
 
-      metrics.incarceratedPopulation.value +=
+      acc.incarceratedPopulation.value +=
         getTotalPopulation(facility.modelInputs) || 0;
-      metrics.staffPopulation.value +=
-        facility.modelInputs.staffPopulation || 0;
-      metrics.incarceratedCases.value += incarceratedCases;
-      metrics.staffCases.value += staffCases;
+      acc.staffPopulation.value += facility.modelInputs.staffPopulation || 0;
+      acc.incarceratedCases.value += incarceratedCases;
+      acc.staffCases.value += staffCases;
       if (incarceratedCases + staffCases > 0) {
-        metrics.facilitiesWithCases.sum += 1;
+        acc.facilitiesWithCases.sum += 1;
       }
+      acc.facilitiesWithCases.total = numFacilities;
+      return acc;
+    }, defaultPopulationMetrics());
+    setPopulationMetrics(updatedMetrics);
+    setPopulationMetricsReady(true);
+  }, [facilities]);
 
-      return metrics;
-    }, metrics);
-  };
+  useEffect(
+    () => {
+      const rtDataValues: (RtData | null)[] = Object.values(rtData);
+      const facilitiesRtRecords: RtRecord[][] = rtDataValues
+        .filter(isRtData)
+        .map((rtData: RtData) => rtData.Rt);
+
+      const udpatedMetrics = { ...rtMetrics };
+      udpatedMetrics.facilitiesWithRtLessThan1.sum = rtStats.numFacilitiesWithRtLessThan1(
+        facilitiesRtRecords,
+      );
+      udpatedMetrics.facilitiesWithRtLessThan1.total = facilities.length;
+
+      setRtMetrics(udpatedMetrics);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [rtData, facilities.length],
+  );
 
   return (
     <SystemSummaryContainer>
       <SectionHeader>System Summary</SectionHeader>
-      {facilities.loading ? (
+      {!metricsReady ? (
         <Loading />
       ) : (
         <MetricsContainer>
-          {Object.values(calculateMetrics(facilities.data)).map((metric) => {
-            return (
-              <Metric
-                value={metric.value}
-                label={metric.label}
-                key={metric.label}
-              />
-            );
-          })}
+          {Object.values({ ...populationMetrics, ...rtMetrics }).map(
+            (metric) => {
+              return (
+                <Metric
+                  value={metric.value}
+                  label={metric.label}
+                  key={metric.label}
+                />
+              );
+            },
+          )}
         </MetricsContainer>
       )}
     </SystemSummaryContainer>

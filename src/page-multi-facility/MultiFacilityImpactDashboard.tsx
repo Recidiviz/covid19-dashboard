@@ -9,7 +9,9 @@ import iconAddSrc from "../design-system/icons/ic_add.svg";
 import Loading from "../design-system/Loading";
 import TextLabel from "../design-system/TextLabel";
 import { useFlag } from "../feature-flags";
-import useFacilitiesRtData from "../hooks/useFacilitiesRtData";
+import useFacilitiesRtData, {
+  getFacilitiesRtDataById,
+} from "../hooks/useFacilitiesRtData";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
 import { useLocaleDataState } from "../locale-data-context";
 import useScenario from "../scenario-context/useScenario";
@@ -81,7 +83,7 @@ const MultiFacilityImpactDashboard: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
   const [scenario] = useScenario();
 
-  const { setFacility } = useContext(FacilityContext);
+  const { setFacility, rtData } = useContext(FacilityContext);
 
   const [facilities, setFacilities] = useState<FetchedFacilities>({
     data: [] as Facilities,
@@ -106,6 +108,8 @@ const MultiFacilityImpactDashboard: React.FC = () => {
   }, [scenario.data?.id]);
 
   useFacilitiesRtData(facilities.data);
+
+  const facilitiesRtData = getFacilitiesRtDataById(rtData, facilities.data);
 
   const openAddFacilityPage = () => {
     setFacility(null);
@@ -144,7 +148,13 @@ const MultiFacilityImpactDashboard: React.FC = () => {
         <ScenarioSidebar numFacilities={facilities?.data.length} />
       )}
       <div className="flex flex-col flex-1 pb-6 pl-8 justify-start">
-        <SystemSummary facilities={facilities} />
+        {facilitiesRtData && (
+          <SystemSummary
+            facilities={facilities.data}
+            scenarioId={scenario?.data?.id}
+            rtData={facilitiesRtData}
+          />
+        )}
         <div className="flex flex-row flex-none justify-between items-start">
           <AddFacilityButton onClick={openAddFacilityPage}>
             <IconAdd alt="add facility" src={iconAddSrc} />
