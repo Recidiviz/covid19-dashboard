@@ -8,6 +8,10 @@ service cloud.firestore {
   }
 
   match /databases/{database}/documents {
+    function userIsAuthenticated() {
+      return request.auth.uid != null;
+    }
+
     match /scenarios/{scenario} {
       function userIsOwner(scenario) {
         return request.auth.uid in scenario.data.roles
@@ -22,7 +26,7 @@ service cloud.firestore {
       }
 
       // any authenticated user can create scenarios for themselves
-      allow create: if request.auth.uid != null;
+      allow create: if userIsAuthenticated();
 
       // Only scenario owners should have read/write access to their scenarios
       allow read, write: if userIsOwner(resource);
@@ -38,6 +42,15 @@ service cloud.firestore {
         // viewers can only read scenario children
         allow read: if userIsViewer(get(/databases/$(database)/documents/scenarios/$(scenario)));
       }
+    }
+
+    match /users/{user} {
+      function userIsSelf(user) {
+        return user.data.auth0Id == request.auth.uid;
+      }
+
+      allow read: if userIsAuthenticated();
+      allow write: if userIsSelf(resource);
     }
   }
 }
