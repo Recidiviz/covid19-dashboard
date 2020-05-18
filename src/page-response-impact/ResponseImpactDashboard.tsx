@@ -8,7 +8,9 @@ import iconBackSrc from "../design-system/icons/ic_back.svg";
 import Loading from "../design-system/Loading";
 import { Column, PageContainer } from "../design-system/PageColumn";
 import { Spacer } from "../design-system/Spacer";
-import useFacilitiesRtData from "../hooks/useFacilitiesRtData";
+import useFacilitiesRtData, {
+  getFacilitiesRtDataById,
+} from "../hooks/useFacilitiesRtData";
 import { sumAgeGroupPopulations } from "../impact-dashboard/EpidemicModelContext";
 import { useLocaleDataState } from "../locale-data-context";
 import { FacilityContext } from "../page-multi-facility/FacilityContext";
@@ -79,6 +81,8 @@ const ResponseImpactDashboard: React.FC<Props> = ({
   const [populationFormSubmitted, setPopulationFormSubmitted] = useState(false);
 
   useFacilitiesRtData(facilities.data);
+
+  const facilitiesRtData = getFacilitiesRtDataById(rtData, facilities.data);
 
   async function saveBaselinePopulations(populations: BaselinePopulations) {
     const initialPopulations = scenario?.baselinePopulations || [];
@@ -183,7 +187,9 @@ const ResponseImpactDashboard: React.FC<Props> = ({
                     <ChartHeader>
                       Rate of spread, R(t), for modelled facilities
                     </ChartHeader>
-                    {rtData && <RtSummaryStats rtData={rtData} />}
+                    {facilitiesRtData && (
+                      <RtSummaryStats rtData={facilitiesRtData} />
+                    )}
                     <SectionSubheader>
                       Peak impact on community health and staff resources
                     </SectionSubheader>
