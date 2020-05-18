@@ -12,7 +12,7 @@ type MissingDataInput = {
   value: number;
 };
 
-type Summary = {
+export type Summary = {
   data: ModelInputs & MissingDataInput;
   value: number;
 };

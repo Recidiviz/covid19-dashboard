@@ -212,7 +212,9 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
           <PopUpMenu items={popupItems} />
         </DescRow>
 
-        <HistoricalCasesChart facility={facility} />
+        {facility && (
+          <HistoricalCasesChart facility={facility} onModalSave={onModalSave} />
+        )}
         <Spacer y={20} />
 
         <RtChartContainer>

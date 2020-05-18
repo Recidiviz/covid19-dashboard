@@ -7,7 +7,8 @@ import Colors from "../../design-system/Colors";
 import useFacilityModelVersions from "../../hooks/useFacilityModelVersions";
 import { totalConfirmedCases } from "../../impact-dashboard/EpidemicModelContext";
 import { Facility, ModelInputs } from "../types";
-import BarChartTooltip from "./BarChartTooltip";
+import BarChartTooltip, { Summary } from "./BarChartTooltip";
+import HistoricalAddCasesModal from "./HistoricalAddCasesModal";
 import ScrollChartDates from "./ScrollChartDates";
 
 function generateBarChartData(
@@ -55,14 +56,17 @@ function formatDateLabel(dateLabel: string) {
 }
 
 interface Props {
-  facility: Facility | undefined;
+  facility: Facility;
+  onModalSave: (f: Facility) => void;
 }
 
-const HistoricalCasesChart: React.FC<Props> = ({ facility }) => {
+const HistoricalCasesChart: React.FC<Props> = ({ facility, onModalSave }) => {
   const numDays = 30;
   const [versions] = useFacilityModelVersions(facility);
   const [endDate, setEndDate] = useState(dateFns.endOfToday());
   const [startDate, setStartDate] = useState(dateFns.subDays(endDate, numDays));
+  const [modalOpen, setModalOpen] = useState(false);
+  const [observedAt, setObservedAt] = useState(endDate);
 
   useEffect(() => {
     setStartDate(dateFns.subDays(endDate, numDays));
@@ -80,6 +84,8 @@ const HistoricalCasesChart: React.FC<Props> = ({ facility }) => {
     versions,
     getDatesInterval(startDate, endDate),
   );
+
+  if (!facility) return null;
 
   const frameProps = {
     data,
@@ -105,11 +111,10 @@ const HistoricalCasesChart: React.FC<Props> = ({ facility }) => {
     tooltipContent: BarChartTooltip,
     rAccessor: "value",
     oLabel: (datum: string) => formatDateLabel(datum),
-    customClickBehavior: (datum: any) => {
-      console.log("clicked: ", datum.summary[0]);
-      const summaryData = datum.summary[0];
-      const data = summaryData.data;
-      console.log("clicked data: ", data);
+    customClickBehavior: ({ summary }: { summary: Summary[] }) => {
+      const { data } = summary[0];
+      setObservedAt(data.observedAt);
+      setModalOpen(true);
     },
   };
 
@@ -120,6 +125,13 @@ const HistoricalCasesChart: React.FC<Props> = ({ facility }) => {
         endDate={endDate}
         onPreviousClick={onPreviousClick}
         onNextClick={onNextClick}
+      />
+      <HistoricalAddCasesModal
+        open={modalOpen}
+        setOpen={setModalOpen}
+        facility={facility}
+        observedAt={observedAt}
+        onModalSave={onModalSave}
       />
     </ChartWrapper>
   );

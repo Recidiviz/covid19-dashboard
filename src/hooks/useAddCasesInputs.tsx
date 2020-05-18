@@ -1,6 +1,6 @@
 import { startOfDay } from "date-fns";
 import { pick } from "lodash";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { saveFacility } from "../database";
 import {
@@ -8,27 +8,65 @@ import {
   populationBracketKeys,
 } from "../impact-dashboard/EpidemicModelContext";
 import useModel from "../impact-dashboard/useModel";
-import { Facility } from "../page-multi-facility/types";
+import { Facility, ModelInputs } from "../page-multi-facility/types";
 import useFacilityModelVersions from "./useFacilityModelVersions";
+
+export const getModelInputs = (modelInputs: ModelInputs) => {
+  return pick(modelInputs, populationBracketKeys);
+};
 
 const useAddCasesInputs = (
   facility: Facility,
   onSave: (f: Facility) => void,
+  observedAt?: Date | undefined,
 ) => {
+  const [facilityModelVersions, updateModelVersions] = useFacilityModelVersions(
+    facility,
+  );
+  const [observedAtVersion, setObservedAtVersion] = useState<
+    ModelInputs | undefined
+  >();
   // the current state of the facility is the default when we need to reset
-  const defaultInputs = pick(facility.modelInputs, populationBracketKeys);
-  const defaultObservationDate = facility.modelInputs.observedAt;
+  // If observedAt is provided and a version exists then use the version's inputs
+  const defaultInputs = getModelInputs(
+    observedAtVersion || facility.modelInputs,
+  );
+  // If observedAt is provided then set it as the default date
+  const defaultObservationDate = observedAt || facility.modelInputs.observedAt;
 
   const [inputs, setInputs] = useState<ModelInputsPopulationBrackets>(
     defaultInputs,
   );
+
   const [observationDate, setObservationDate] = useState(
     defaultObservationDate,
   );
-  const [facilityModelVersions, updateModelVersions] = useFacilityModelVersions(
-    facility,
+
+  // maybe export this so that we don't define it twice (it is also in the AddCasesModalContent component)
+  const findMatchingDay = useCallback(
+    ({ date }: { date: Date }) =>
+      facilityModelVersions?.find(
+        ({ observedAt }) => date.toDateString() === observedAt.toDateString(),
+      ),
+    [facilityModelVersions],
   );
 
+  useEffect(() => {
+    if (observedAt) {
+      const observedAtVersion = findMatchingDay({ date: observedAt });
+      setObservationDate(observedAt);
+
+      if (observedAtVersion) {
+        setInputs(getModelInputs(observedAtVersion));
+        setObservedAtVersion(observedAtVersion);
+      } else {
+        setInputs({});
+        setObservedAtVersion(undefined);
+      }
+    }
+  }, [observedAt]);
+
+  // TODO: Handle add cases modal for new facility?
   const updateInputs = (update: ModelInputsPopulationBrackets) => {
     setInputs({ ...inputs, ...update });
   };
@@ -39,14 +77,6 @@ const useAddCasesInputs = (
   };
 
   const [, updateModel] = useModel();
-
-  const findMatchingDay = useCallback(
-    ({ date }: { date: Date }) =>
-      facilityModelVersions?.find(
-        ({ observedAt }) => date.toDateString() === observedAt.toDateString(),
-      ),
-    [facilityModelVersions],
-  );
 
   const onDateChange = (date: Date | undefined) => {
     if (date) {
