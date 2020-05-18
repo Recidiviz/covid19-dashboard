@@ -70,7 +70,7 @@ const defaultRtMetrics = {
     get value() {
       return `${this.sum} of ${this.total}`;
     },
-    label: "Facilities with a slowing rate of spread",
+    label: "Facilities with a classifiable slowing rate of spread",
     sum: 0,
     total: 0,
   },
@@ -125,11 +125,12 @@ const SystemSummary: React.FC<Props> = ({ facilities, scenarioId, rtData }) => {
         .filter(isRtData)
         .map((rtData: RtData) => rtData.Rt);
 
-      const udpatedMetrics = { ...rtMetrics };
+      const udpatedMetrics = { ...defaultRtMetrics };
       udpatedMetrics.facilitiesWithRtLessThan1.sum = rtStats.numFacilitiesWithRtLessThan1(
         facilitiesRtRecords,
       );
-      udpatedMetrics.facilitiesWithRtLessThan1.total = facilities.length;
+      udpatedMetrics.facilitiesWithRtLessThan1.total =
+        facilitiesRtRecords.length;
 
       setRtMetrics(udpatedMetrics);
     },
