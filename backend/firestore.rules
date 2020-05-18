@@ -9,18 +9,34 @@ service cloud.firestore {
 
   match /databases/{database}/documents {
     match /scenarios/{scenario} {
-      function userCanAccess(scenario) {
-        return scenario.data.roles[request.auth.uid] == 'owner';
+      function userIsOwner(scenario) {
+        return request.auth.uid in scenario.data.roles
+          ? scenario.data.roles[request.auth.uid] == 'owner'
+          : false;
       }
 
+      function userIsViewer(scenario) {
+        return request.auth.uid in scenario.data.roles
+          ? scenario.data.roles[request.auth.uid] == 'viewer'
+          : false;
+      }
+
+      // any authenticated user can create scenarios for themselves
       allow create: if request.auth.uid != null;
 
-      // Scenario owners (and only scenario owners) should have read/write access to their scenarios and child documents
-      allow read, write: if userCanAccess(resource);
+      // Only scenario owners should have read/write access to their scenarios
+      allow read, write: if userIsOwner(resource);
+
+      // Scenario viewers should only be able to read scenarios
+      allow read: if userIsViewer(resource);
 
       match /{documents=**} {
-        allow read, delete, update: if userCanAccess(get(/databases/$(database)/documents/scenarios/$(scenario)));
-        allow create: if userCanAccess(getAfter(/databases/$(database)/documents/scenarios/$(scenario)));
+        // owners have full CRUD access to scenario children
+        allow read, delete, update: if userIsOwner(get(/databases/$(database)/documents/scenarios/$(scenario)));
+        allow create: if userIsOwner(getAfter(/databases/$(database)/documents/scenarios/$(scenario)));
+
+        // viewers can only read scenario children
+        allow read: if userIsViewer(get(/databases/$(database)/documents/scenarios/$(scenario)));
       }
     }
   }
