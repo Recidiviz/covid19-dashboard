@@ -89,7 +89,7 @@ const HistoricalCasesChart: React.FC<Props> = ({ facility, onModalSave }) => {
 
   const data = generateBarChartData(
     versions,
-    getDatesInterval(startDate, endDate),
+    getDatesInterval(startDate, dateFns.addDays(startDate, numDays)),
   );
 
   if (!facility) return null;
