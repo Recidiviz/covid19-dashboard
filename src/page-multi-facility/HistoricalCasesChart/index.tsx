@@ -1,6 +1,7 @@
 import * as dateFns from "date-fns";
 import React, { useEffect, useState } from "react";
 import { ResponsiveOrdinalFrame } from "semiotic";
+import styled from "styled-components";
 
 import ChartWrapper from "../../design-system/ChartWrapper";
 import Colors from "../../design-system/Colors";
@@ -35,6 +36,12 @@ function generateBarChartData(
   });
 }
 
+const XAxisText = styled.text`
+  fill: ${Colors.paleForest};
+  font-size: 10px;
+  font-weight: 500;
+`;
+
 function getDatesInterval(startDate: Date, endDate: Date) {
   return dateFns.eachDayOfInterval({ start: startDate, end: endDate });
 }
@@ -46,9 +53,9 @@ function formatDateLabel(dateLabel: string) {
   // Show date label for every 5 days
   if (dateFns.getDate(date) % 5 === 0 && date) {
     return (
-      <text>
+      <XAxisText>
         {dateFns.format(date, "M")}/{dateFns.format(date, "dd")}
-      </text>
+      </XAxisText>
     );
   } else {
     return null;
