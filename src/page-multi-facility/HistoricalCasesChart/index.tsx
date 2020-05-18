@@ -97,7 +97,6 @@ const HistoricalCasesChart: React.FC<Props> = ({ facility, onModalSave }) => {
   const frameProps = {
     data,
     oPadding: 1,
-    pixelColumnWidth: 15,
     style: () => {
       return {
         fill: Colors.opacityForest,
