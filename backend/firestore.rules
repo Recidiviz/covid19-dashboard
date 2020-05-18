@@ -10,14 +10,14 @@ service cloud.firestore {
   match /databases/{database}/documents {
     match /scenarios/{scenario} {
       function userIsOwner(scenario) {
-      	return request.auth.uid in scenario.data.roles
-        	? scenario.data.roles[request.auth.uid] == 'owner'
+        return request.auth.uid in scenario.data.roles
+          ? scenario.data.roles[request.auth.uid] == 'owner'
           : false;
       }
 
       function userIsViewer(scenario) {
         return request.auth.uid in scenario.data.roles
-        	? scenario.data.roles[request.auth.uid] == 'viewer'
+          ? scenario.data.roles[request.auth.uid] == 'viewer'
           : false;
       }
 
@@ -31,7 +31,7 @@ service cloud.firestore {
       allow read: if userIsViewer(resource);
 
       match /{documents=**} {
-      	// owners have full CRUD access to scenario children
+        // owners have full CRUD access to scenario children
         allow read, delete, update: if userIsOwner(get(/databases/$(database)/documents/scenarios/$(scenario)));
         allow create: if userIsOwner(getAfter(/databases/$(database)/documents/scenarios/$(scenario)));
 
