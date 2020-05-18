@@ -11,6 +11,7 @@ import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import InputButton from "../design-system/InputButton";
 import InputDate from "../design-system/InputDate";
 import Modal, { Props as ModalProps } from "../design-system/Modal";
+import { useToasts } from "../design-system/Toast";
 import Tooltip from "../design-system/Tooltip";
 import useFacilityModelVersions from "../hooks/useFacilityModelVersions";
 import {
@@ -96,6 +97,7 @@ const formatPopulation = (n: number) => numeral(n).format("0,0");
 
 const AddCasesModal: React.FC<Props> = ({ facility, trigger, onSave }) => {
   const [modalOpen, setModalOpen] = useState(false);
+  const { addToast } = useToasts();
 
   // the current state of the facility is the default when we need to reset
   const defaultInputs = pick(facility.modelInputs, populationBracketKeys);
@@ -157,6 +159,8 @@ const AddCasesModal: React.FC<Props> = ({ facility, trigger, onSave }) => {
     // After the DB is updated, then process the onSave callback
     onSave(latestFacilityData);
     updateModelVersions();
+
+    addToast("Data successfully saved!");
   };
 
   const findMatchingDay = useCallback(
