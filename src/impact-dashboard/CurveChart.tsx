@@ -143,6 +143,7 @@ const CurveChart: React.FC<CurveChartProps> = ({
     annotations: [
       addAnnotations
         ? {
+            // type: "react-annotation",
             type: "y",
             className: "threshold-annotation",
             count: hospitalBeds,

@@ -31,11 +31,8 @@ const SiteHeader: React.FC = () => {
       </Link>
       {/* <!-- Nav Items and Social Links --> */}
       <div className="flex items-center justify-between">
-        <Link
-          to="/get-involved"
-          className="mx-4 px-1 pt-1 font-medium text-green"
-        >
-          Get Involved
+        <Link to="/about" className="mx-4 px-1 pt-1 font-medium text-green">
+          About
         </Link>
         <div className="mx-4 px-1 pt-1 font-medium text-green">
           {!isAuthenticated && (
