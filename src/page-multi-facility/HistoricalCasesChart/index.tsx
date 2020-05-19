@@ -9,6 +9,7 @@ import useFacilityModelVersions from "../../hooks/useFacilityModelVersions";
 import { totalConfirmedCases } from "../../impact-dashboard/EpidemicModelContext";
 import { Facility, ModelInputs } from "../types";
 import BarChartTooltip, { Summary } from "./BarChartTooltip";
+import ChartHeader from "./ChartHeader";
 import HistoricalAddCasesModal from "./HistoricalAddCasesModal";
 import ScrollChartDates from "./ScrollChartDates";
 
@@ -135,6 +136,7 @@ const HistoricalCasesChart: React.FC<Props> = ({ facility, onModalSave }) => {
 
   return (
     <ChartWrapper>
+      <ChartHeader setModalOpen={setModalOpen} />
       <ResponsiveOrdinalFrame {...frameProps} />
       <ScrollChartDates
         endDate={endDate}
