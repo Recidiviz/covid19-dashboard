@@ -159,14 +159,6 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
     updateShowDeleteModal(false);
   };
 
-  const rtTimeseriesData = facility
-    ? rtData
-      ? rtData[facility.id]
-      : undefined
-    : // when creating a new facility, there will never be Rt data;
-      // setting this value to null will suppress the chart
-      null;
-
   const onModalSave = (newFacility: Facility) => {
     updateFacility(newFacility);
     updateFacilityRtData(newFacility, dispatchRtData);
@@ -212,9 +204,14 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
         </DescRow>
         <div className="mt-5 mb-5 border-b border-gray-300" />
 
-        <RtChartContainer>
-          <RtTimeseries data={rtTimeseriesData} />
-        </RtChartContainer>
+        {facility && (
+          <RtChartContainer>
+            <RtTimeseries
+              facility={facility}
+              data={rtData ? rtData[facility.id] : undefined}
+            />
+          </RtChartContainer>
+        )}
 
         <LocaleInformationSection
           systemType={systemType}
