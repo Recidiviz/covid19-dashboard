@@ -55,6 +55,7 @@ const AddHistoricalDataLabel = styled.label`
   display: inline;
   margin-left: 1rem;
   margin-right: 1rem;
+  cursor: pointer;
 `;
 
 const AddButtonImg = styled.img`
