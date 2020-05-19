@@ -5,7 +5,7 @@ import { GlobalStyles } from "../site-styles/styles";
 
 function getFullPageTitle(pageTitle?: string) {
   let parts = ["Recidiviz", "Covid-19 Incarceration Model"];
-  if (pageTitle) parts.push(pageTitle);
+  if (pageTitle) parts = [pageTitle].concat(parts);
 
   return parts.join(" • ");
 }

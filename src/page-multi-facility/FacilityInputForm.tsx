@@ -103,9 +103,14 @@ const AddCasesButton = styled.button`
 
 interface Props {
   scenarioId: string;
+  facilityId: string;
+  isRoot?: boolean;
+  isNew?: boolean;
 }
 
-const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
+const FacilityInputForm: React.FC<Props> = ({ facilityId, scenarioId }) => {
+  console.log("FacilityInputForm", FacilityInputForm);
+
   const { facility: initialFacility, rtData } = useContext(FacilityContext);
   const [facility, updateFacility] = useState(initialFacility);
   const [facilityName, setFacilityName] = useState(facility?.name || undefined);
@@ -116,6 +121,10 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
     facility?.systemType || undefined,
   );
   const model = useModel();
+
+  console.log("facilityName", facilityName);
+  console.log("facility", facility);
+  console.log("initialFacility", initialFacility);
 
   const save = () => {
     if (facilityName) {
@@ -147,9 +156,8 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   };
   const popupItems = [{ name: "Delete", onClick: openDeleteModal }];
   const removeFacility = async () => {
-    const facilityId = facility?.id;
-    if (facilityId) {
-      await deleteFacility(scenarioId, facilityId);
+    if (facility?.id) {
+      await deleteFacility(scenarioId, facility?.id);
       window.history.back();
     }
     updateShowDeleteModal(false);

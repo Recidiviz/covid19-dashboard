@@ -2,7 +2,7 @@ import classNames from "classnames";
 import React, { useState } from "react";
 import styled from "styled-components";
 
-import { FetchedFacilities } from "../constants";
+import { FetchedFacilities } from "../constants/Facilities";
 import Loading from "../design-system/Loading";
 import RtComparisonChart from "../rt-comparison-chart";
 import PanelHeader, { PanelHeaderText } from "./PanelHeader";

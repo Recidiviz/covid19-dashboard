@@ -1,14 +1,17 @@
-import { navigate } from "gatsby";
+import { Link, useLocation } from "@reach/router";
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 
-import { FetchedFacilities } from "../constants";
+import { FetchedFacilities } from "../constants/Facilities";
+import { Routes } from "../constants/Routes";
 import { getFacilities } from "../database";
 import Colors from "../design-system/Colors";
 import iconAddSrc from "../design-system/icons/ic_add.svg";
 import Loading from "../design-system/Loading";
 import TextLabel from "../design-system/TextLabel";
 import { useFlag } from "../feature-flags";
+import { RouteParam } from "../helpers/Routing";
+import { ReplaceUrlParams } from "../helpers/Routing";
 import useFacilitiesRtData from "../hooks/useFacilitiesRtData";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
 import { useLocaleDataState } from "../locale-data-context";
@@ -79,7 +82,9 @@ interface ScenarioPanelsProps {
 const MultiFacilityImpactDashboard: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
   const [scenario] = useScenario();
-
+  const location = useLocation();
+  const { scenarioId } = RouteParam(location.pathname, Routes.Facility.name);
+  const showRateOfSpreadTab = useFlag(["showRateOfSpreadTab"]);
   const { setFacility } = useContext(FacilityContext);
 
   const [facilities, setFacilities] = useState<FetchedFacilities>({
@@ -106,17 +111,16 @@ const MultiFacilityImpactDashboard: React.FC = () => {
 
   useFacilitiesRtData(facilities.data);
 
-  const openAddFacilityPage = () => {
-    setFacility(null);
-    navigate("/facility");
-  };
-
   const [selectedTab, setSelectedTab] = useState(0);
+
+  if (!scenarioId) {
+    return <Loading />;
+  }
 
   const projectionsPanel = (
     <>
       <ProjectionsHeader />
-      {facilities.loading ? (
+      {facilities.loading || !scenario.data?.id ? (
         <Loading />
       ) : (
         facilities?.data.map((facility) => {
@@ -126,7 +130,7 @@ const MultiFacilityImpactDashboard: React.FC = () => {
               facilityModel={facility.modelInputs}
               localeDataSource={localeDataSource}
             >
-              <FacilityRow facility={facility} />
+              <FacilityRow scenarioId={scenarioId} facility={facility} />
             </EpidemicModelProvider>
           );
         })
@@ -134,7 +138,9 @@ const MultiFacilityImpactDashboard: React.FC = () => {
     </>
   );
 
-  const showRateOfSpreadTab = useFlag(["showRateOfSpreadTab"]);
+  const newFacilityPath = ReplaceUrlParams(Routes.FacilityNew.url, {
+    scenarioId,
+  });
   return (
     <MultiFacilityImpactDashboardContainer>
       {scenario.loading ? (
@@ -144,10 +150,12 @@ const MultiFacilityImpactDashboard: React.FC = () => {
       )}
       <div className="flex flex-col flex-1 pb-6 pl-8 justify-start">
         <div className="flex flex-row flex-none justify-between items-start">
-          <AddFacilityButton onClick={openAddFacilityPage}>
-            <IconAdd alt="add facility" src={iconAddSrc} />
-            <AddFacilityButtonText>Add Facility</AddFacilityButtonText>
-          </AddFacilityButton>
+          <Link to={ReplaceUrlParams(Routes.FacilityNew.url, { scenarioId })}>
+            <AddFacilityButton>
+              <IconAdd alt="add facility" src={iconAddSrc} />
+              <AddFacilityButtonText>Add Facility</AddFacilityButtonText>
+            </AddFacilityButton>
+          </Link>
           <ScenarioTabs>
             <ScenarioTabList>
               <ScenarioTab

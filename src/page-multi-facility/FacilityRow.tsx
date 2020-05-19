@@ -1,14 +1,16 @@
+import { Link } from "@reach/router";
 import classNames from "classnames";
-import { navigate } from "gatsby";
 import React, { useContext, useState } from "react";
 import styled from "styled-components";
 
+import { Routes } from "../constants/Routes";
 import Colors, { MarkColors as markColors } from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import FontSizes from "../design-system/FontSizes";
 import iconEditSrc from "../design-system/icons/ic_edit.svg";
 import { Spacer } from "../design-system/Spacer";
 import Tooltip from "../design-system/Tooltip";
+import { ReplaceUrlParams } from "../helpers/Routing";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
 import { totalConfirmedCases } from "../impact-dashboard/EpidemicModelContext";
 import useModel from "../impact-dashboard/useModel";
@@ -80,9 +82,13 @@ const IconEdit = styled.img`
 
 interface Props {
   facility: Facility;
+  scenarioId: string;
 }
 
-const FacilityRow: React.FC<Props> = ({ facility: initialFacility }) => {
+const FacilityRow: React.FC<Props> = ({
+  facility: initialFacility,
+  scenarioId: scenarioId,
+}) => {
   const [model] = useModel();
 
   const { rtData, setFacility } = useContext(FacilityContext);
@@ -110,75 +116,84 @@ const FacilityRow: React.FC<Props> = ({ facility: initialFacility }) => {
   const { name, updatedAt } = facility;
   const confirmedCases = totalConfirmedCases(model);
 
-  const openFacilityPage = () => {
-    setFacility(facility);
-    navigate("/facility");
-  };
+  const facilityPath = ReplaceUrlParams(Routes.Facility.url, {
+    scenarioId,
+    facilityId: facility.id,
+  });
 
   return (
-    <FacilityRowDiv
-      onClick={openFacilityPage}
-      onMouseOver={showHover}
-      onMouseOut={hideHover}
-      className={classNames("cursor-pointer", { hover: rowHover })}
+    <Link
+      to={facilityPath}
+      onClick={() => {
+        setFacility(facility);
+      }}
     >
-      <DataContainer className="flex flex-row mb-8 border-b">
-        <div className="w-2/5 flex flex-col justify-between">
-          <div className="flex flex-row h-full">
-            <div className="w-1/4 font-bold flex justify-start">
-              <div
-                // prevent interaction with children from triggering a row click
-                onClick={(e) => e.stopPropagation()}
-                // suppress row hover UI state
-                onMouseOver={(e) => {
-                  e.stopPropagation();
-                  hideHover();
-                }}
-              >
-                <AddCasesModal
-                  facility={facility}
-                  trigger={
-                    <Tooltip
-                      content={
-                        <div>Click to add new or previous day cases</div>
-                      }
-                    >
-                      <CaseText className="hover:underline">
-                        {confirmedCases}
-                      </CaseText>
-                    </Tooltip>
-                  }
-                  updateFacility={updateFacility}
-                />
+      <FacilityRowDiv
+        onMouseOver={showHover}
+        onMouseOut={hideHover}
+        className={classNames("cursor-pointer", { hover: rowHover })}
+      >
+        <DataContainer className="flex flex-row mb-8 border-b">
+          <div className="w-2/5 flex flex-col justify-between">
+            <div className="flex flex-row h-full">
+              <div className="w-1/4 font-bold flex justify-start">
+                <div
+                  // prevent interaction with children from triggering a row click
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                  // suppress row hover UI state
+                  onMouseOver={(e) => {
+                    e.stopPropagation();
+                    hideHover();
+                  }}
+                >
+                  <AddCasesModal
+                    facility={facility}
+                    trigger={
+                      <Tooltip
+                        content={
+                          <div>Click to add new or previous day cases</div>
+                        }
+                      >
+                        <CaseText className="hover:underline">
+                          {confirmedCases}
+                        </CaseText>
+                      </Tooltip>
+                    }
+                    updateFacility={updateFacility}
+                  />
+                </div>
               </div>
+              <FacilityNameLabel>
+                <FacilityName>{name}</FacilityName>
+                <IconEdit alt="" src={iconEditSrc} />
+              </FacilityNameLabel>
             </div>
-            <FacilityNameLabel>
-              <FacilityName>{name}</FacilityName>
-              <IconEdit alt="" src={iconEditSrc} />
-            </FacilityNameLabel>
+            <div className="text-xs text-gray-500 pb-4">
+              <LastUpdatedLabel>
+                Last Update: <DateMMMMdyyyy date={updatedAt} />
+              </LastUpdatedLabel>
+              <Spacer x={32} />
+            </div>
           </div>
-          <div className="text-xs text-gray-500 pb-4">
-            <LastUpdatedLabel>
-              Last Update: <DateMMMMdyyyy date={updatedAt} />
-            </LastUpdatedLabel>
-            <Spacer x={32} />
+          <div className="w-3/5 relative">
+            {facilityRtData !== undefined && (
+              <FacilityRowRtValuePill latestRt={latestRt} />
+            )}
+            <CurveChartContainer
+              curveData={chartData}
+              chartHeight={144}
+              hideAxes={true}
+              groupStatus={groupStatus}
+              markColors={markColors}
+              addAnnotations={false}
+            />
           </div>
-        </div>
-        <div className="w-3/5 relative">
-          {facilityRtData !== undefined && (
-            <FacilityRowRtValuePill latestRt={latestRt} />
-          )}
-          <CurveChartContainer
-            curveData={chartData}
-            chartHeight={144}
-            hideAxes={true}
-            groupStatus={groupStatus}
-            markColors={markColors}
-            addAnnotations={false}
-          />
-        </div>
-      </DataContainer>
-    </FacilityRowDiv>
+        </DataContainer>
+      </FacilityRowDiv>
+    </Link>
   );
 };
 
