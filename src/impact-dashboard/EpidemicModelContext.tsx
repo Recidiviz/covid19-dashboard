@@ -280,6 +280,25 @@ export function totalConfirmedCases(
   );
 }
 
+export function totalIncarceratedConfirmedCases(
+  brackets: ModelInputsPopulationBrackets,
+): number {
+  return sum(
+    Object.values(
+      pick(brackets, [
+        "age0Cases",
+        "age20Cases",
+        "age45Cases",
+        "age55Cases",
+        "age65Cases",
+        "age75Cases",
+        "age85Cases",
+        "ageUnknownCases",
+      ]),
+    ),
+  );
+}
+
 export function getTotalPopulation(
   brackets: ModelInputsPopulationBrackets,
 ): number {

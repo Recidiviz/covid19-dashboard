@@ -48,6 +48,10 @@ const isError = (obj: RawRtData | ErrorResponse): obj is ErrorResponse => {
   return (obj as ErrorResponse).error !== undefined;
 };
 
+export function isRtData(data: RtData | null | undefined): data is RtData {
+  return data !== null && data !== undefined;
+}
+
 const getFetchUrl = () => {
   let url = "https://us-central1-c19-backend.cloudfunctions.net/calculate_rt";
   if (process.env.NODE_ENV !== "production") {

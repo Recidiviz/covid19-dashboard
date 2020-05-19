@@ -29,7 +29,7 @@ const AddCasesModal: React.FC<Props> = ({ facility, trigger, onSave }) => {
 
   return (
     <Modal
-      modalTitle="Add Cases"
+      modalTitle="Update Cases and Population"
       onClose={resetModalData}
       open={modalOpen}
       setOpen={setModalOpen}
