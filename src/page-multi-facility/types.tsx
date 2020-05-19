@@ -49,3 +49,9 @@ export type BaselinePopulations = {
   staffPopulation: number;
   incarceratedPopulation: number;
 };
+
+export type User = {
+  id: string;
+  name: string;
+  email: string;
+};
