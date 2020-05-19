@@ -80,9 +80,8 @@ const RtTimeseriesContainer: React.FC<Props> = ({ data }) => {
         )}
       </ChartHeader>
 
-      {notEnoughData ? (
-        <>
-          {facility && (
+      {notEnoughData
+        ? facility && (
             <AddCasesRow>
               <AddCasesModal
                 facility={facility}
@@ -96,11 +95,8 @@ const RtTimeseriesContainer: React.FC<Props> = ({ data }) => {
                 onSave={onModalSave}
               />
             </AddCasesRow>
-          )}
-        </>
-      ) : (
-        <>{data && <RtTimeseries data={data} />}</>
-      )}
+          )
+        : data && <RtTimeseries data={data} />}
     </>
   );
 };
