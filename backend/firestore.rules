@@ -50,7 +50,8 @@ service cloud.firestore {
       }
 
       allow read: if userIsAuthenticated();
-      allow write: if userIsSelf(resource);
+      allow update, delete: if userIsSelf(resource) && userIsSelf(request.resource);
+      allow create: if userIsSelf(request.resource);
     }
   }
 }
