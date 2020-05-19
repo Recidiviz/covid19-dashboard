@@ -5,8 +5,8 @@ import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
 import HelpButtonWithTooltip from "../design-system/HelpButtonWithTooltip";
-import { RtData, RtRecord } from "../infection-model/rt";
-import { RtDataMapping } from "../page-multi-facility/FacilityContext";
+import { isRtData, RtData, RtRecord } from "../infection-model/rt";
+import { RtDataMapping } from "../page-multi-facility/types";
 import * as rtStats from "./rtStatistics";
 
 interface Props {
@@ -74,10 +74,6 @@ const DonutChartSubtitle = styled.text`
   line-height: 16px;
   transform: translate(0px, 20px);
 `;
-
-export function isRtData(data: RtData | null | undefined): data is RtData {
-  return data !== null && data !== undefined;
-}
 
 function rtDonutChartAnnotation(d: any) {
   return (

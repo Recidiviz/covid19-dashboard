@@ -1,5 +1,4 @@
 import { scaleTime, timeFormat } from "d3";
-import hexAlpha from "hex-alpha";
 import numeral from "numeral";
 // no type defs for Semiotic
 const ResponsiveXYFrame = require("semiotic/lib/ResponsiveXYFrame") as any;
@@ -9,7 +8,6 @@ import styled from "styled-components";
 import ChartTooltip from "../design-system/ChartTooltip";
 import ChartWrapper from "../design-system/ChartWrapper";
 import Colors, { lighten } from "../design-system/Colors";
-import HelpButtonWithTooltip from "../design-system/HelpButtonWithTooltip";
 import { RtData, RtRecord } from "../infection-model/rt";
 
 interface Props {
@@ -24,27 +22,11 @@ type Line = {
 
 const formatDate = timeFormat("%B %-d");
 
-const borderStyle = `1px solid ${Colors.paleGreen}`;
 const RtTimeseriesWrapper = styled(ChartWrapper)`
   .uncertainty {
     fill: ${Colors.darkGray};
     fill-opacity: 0.3;
   }
-`;
-
-const ChartHeader = styled.div`
-  align-items: baseline;
-  border-bottom: ${borderStyle};
-  display: flex;
-  justify-content: space-between;
-`;
-
-const ChartTitle = styled.div`
-  color: ${hexAlpha(Colors.forest, 0.7)};
-  font-family: "Poppins", sans-serif;
-  font-size: 9px;
-  font-weight: 600;
-  padding: 5px 0;
 `;
 
 export const TooltipContents = styled.div`
@@ -59,6 +41,7 @@ export const TooltipLabel = styled.div`
   font-size: 11px;
   font-weight: normal;
 `;
+
 export const TooltipValue = styled.div`
   font-size: 14px;
   font-weight: 600;
@@ -104,15 +87,6 @@ const RtTimeseries: React.FC<Props> = ({ data }) => {
 
   return (
     <RtTimeseriesWrapper>
-      <ChartHeader>
-        <ChartTitle>Rate of Spread</ChartTitle>
-        <HelpButtonWithTooltip>
-          This chart shows the rate of spread of Covid-19 over time. When the Rt
-          value is above 1 (the red line), the virus is spreading. If the Rt
-          value is below 1, the virus is on track to be extinguished at this
-          facility.
-        </HelpButtonWithTooltip>
-      </ChartHeader>
       <ResponsiveXYFrame
         annotations={[
           {

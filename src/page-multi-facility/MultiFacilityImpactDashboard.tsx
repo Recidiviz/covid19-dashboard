@@ -12,8 +12,11 @@ import TextLabel from "../design-system/TextLabel";
 import { useFlag } from "../feature-flags";
 import { RouteParam } from "../helpers/Routing";
 import { ReplaceUrlParams } from "../helpers/Routing";
-import useFacilitiesRtData from "../hooks/useFacilitiesRtData";
+import useFacilitiesRtData, {
+  getFacilitiesRtDataById,
+} from "../hooks/useFacilitiesRtData";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
+import { updateFacilityRtData } from "../infection-model/rt";
 import { useLocaleDataState } from "../locale-data-context";
 import useScenario from "../scenario-context/useScenario";
 import { FacilityContext } from "./FacilityContext";
@@ -21,7 +24,8 @@ import FacilityRow from "./FacilityRow";
 import ProjectionsHeader from "./ProjectionsHeader";
 import RateOfSpreadPanel from "./RateOfSpreadPanel";
 import ScenarioSidebar from "./ScenarioSidebar";
-import { Facilities } from "./types";
+import SystemSummary from "./SystemSummary";
+import { Facilities, Facility } from "./types";
 
 const MultiFacilityImpactDashboardContainer = styled.main.attrs({
   className: `
@@ -85,7 +89,7 @@ const MultiFacilityImpactDashboard: React.FC = () => {
   const location = useLocation();
   const { scenarioId } = RouteParam(location.pathname, Routes.Facility.name);
   const showRateOfSpreadTab = useFlag(["showRateOfSpreadTab"]);
-  const { setFacility } = useContext(FacilityContext);
+  const { setFacility, rtData, dispatchRtData } = useContext(FacilityContext);
 
   const [facilities, setFacilities] = useState<FetchedFacilities>({
     data: [] as Facilities,
@@ -109,7 +113,19 @@ const MultiFacilityImpactDashboard: React.FC = () => {
     fetchFacilities();
   }, [scenario.data?.id]);
 
+  const handleFacilitySave = (newFacility: Facility) => {
+    setFacilities({
+      data: facilities.data.map((f) => {
+        if (f.id === newFacility.id) return { ...newFacility };
+        return { ...f };
+      }),
+      loading: facilities.loading,
+    });
+    updateFacilityRtData(newFacility, dispatchRtData);
+  };
+
   useFacilitiesRtData(facilities.data);
+  const facilitiesRtData = getFacilitiesRtDataById(rtData, facilities.data);
 
   const [selectedTab, setSelectedTab] = useState(0);
 
@@ -130,7 +146,11 @@ const MultiFacilityImpactDashboard: React.FC = () => {
               facilityModel={facility.modelInputs}
               localeDataSource={localeDataSource}
             >
-              <FacilityRow scenarioId={scenarioId} facility={facility} />
+              <FacilityRow
+                scenarioId={scenarioId}
+                facility={facility}
+                onSave={handleFacilitySave}
+              />
             </EpidemicModelProvider>
           );
         })
@@ -149,6 +169,13 @@ const MultiFacilityImpactDashboard: React.FC = () => {
         <ScenarioSidebar numFacilities={facilities?.data.length} />
       )}
       <div className="flex flex-col flex-1 pb-6 pl-8 justify-start">
+        {facilitiesRtData && (
+          <SystemSummary
+            facilities={facilities.data}
+            scenarioId={scenario?.data?.id}
+            rtData={facilitiesRtData}
+          />
+        )}
         <div className="flex flex-row flex-none justify-between items-start">
           <Link to={ReplaceUrlParams(Routes.FacilityNew.url, { scenarioId })}>
             <AddFacilityButton>

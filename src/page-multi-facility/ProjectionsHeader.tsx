@@ -7,8 +7,9 @@ const ProjectionsHeader: React.FC = () => {
   return (
     <PanelHeader>
       <div className="w-2/5 flex flex-row">
-        <PanelHeaderText className="w-1/4">Cases</PanelHeaderText>
-        <PanelHeaderText className="w-3/4">Facility</PanelHeaderText>
+        <PanelHeaderText className="w-1/6">Cases</PanelHeaderText>
+        <PanelHeaderText className="w-1/4">Residents</PanelHeaderText>
+        <PanelHeaderText className="w-2/4">Facility</PanelHeaderText>
       </div>
       <ProjectionsLegend />
     </PanelHeader>

@@ -13,9 +13,9 @@ import Tooltip from "../design-system/Tooltip";
 import { ReplaceUrlParams } from "../helpers/Routing";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
 import { totalConfirmedCases } from "../impact-dashboard/EpidemicModelContext";
+import { getTotalPopulation } from "../impact-dashboard/EpidemicModelContext";
 import useModel from "../impact-dashboard/useModel";
-import { getNewestRt } from "../infection-model/rt";
-import { isRtData } from "../page-response-impact/RtSummaryStats";
+import { getNewestRt, isRtData } from "../infection-model/rt";
 import AddCasesModal from "./AddCasesModal";
 import { FacilityContext } from "./FacilityContext";
 import FacilityRowRtValuePill from "./FacilityRowRtValuePill";
@@ -49,6 +49,7 @@ const FacilityNameLabel = styled.label`
   flex-direction: row;
   height: 100%;
   padding-right: 25px;
+  padding-left: 15px;
   width: 75%;
 `;
 
@@ -58,6 +59,10 @@ const DataContainer = styled.div`
 
 const CaseText = styled.div`
   color: ${Colors.darkRed};
+`;
+
+const PopulationText = styled.div`
+  color: ${Colors.forest};
 `;
 
 const FacilityName = styled.label`
@@ -82,18 +87,15 @@ const IconEdit = styled.img`
 
 interface Props {
   facility: Facility;
+
   scenarioId: string;
+  onSave: (f: Facility) => void;
 }
 
-const FacilityRow: React.FC<Props> = ({
-  facility: initialFacility,
-  scenarioId: scenarioId,
-}) => {
+const FacilityRow: React.FC<Props> = ({ facility, onSave, scenarioId }) => {
   const [model] = useModel();
 
   const { rtData, setFacility } = useContext(FacilityContext);
-
-  const [facility, updateFacility] = useState(initialFacility);
 
   const facilityRtData = rtData ? rtData[facility.id] : undefined;
 
@@ -115,6 +117,7 @@ const FacilityRow: React.FC<Props> = ({
 
   const { name, updatedAt } = facility;
   const confirmedCases = totalConfirmedCases(model);
+  const population = getTotalPopulation(model);
 
   const facilityPath = ReplaceUrlParams(Routes.Facility.url, {
     scenarioId,
@@ -157,12 +160,12 @@ const FacilityRow: React.FC<Props> = ({
                           <div>Click to add new or previous day cases</div>
                         }
                       >
-                        <CaseText className="hover:underline">
-                          {confirmedCases}
-                        </CaseText>
+                        <PopulationText className="hover:underline">
+                          {population}
+                        </PopulationText>
                       </Tooltip>
                     }
-                    updateFacility={updateFacility}
+                    onSave={onSave}
                   />
                 </div>
               </div>

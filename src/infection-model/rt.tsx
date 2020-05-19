@@ -7,6 +7,7 @@ import {
 } from "date-fns";
 import { mapValues, maxBy, minBy } from "lodash";
 
+import { FacilityEvents } from "../constants/dispatchEvents";
 import { RateOfSpreadType } from "../constants/EpidemicModel";
 import { getFacilityModelVersions } from "../database";
 import { totalConfirmedCases } from "../impact-dashboard/EpidemicModelContext";
@@ -46,6 +47,10 @@ export type RtData = {
 const isError = (obj: RawRtData | ErrorResponse): obj is ErrorResponse => {
   return (obj as ErrorResponse).error !== undefined;
 };
+
+export function isRtData(data: RtData | null | undefined): data is RtData {
+  return data !== null && data !== undefined;
+}
 
 const getFetchUrl = () => {
   let url = "https://us-central1-c19-backend.cloudfunctions.net/calculate_rt";
@@ -125,6 +130,21 @@ export const getRtDataForFacility = async (
     return null;
   }
 };
+
+export async function updateFacilityRtData(
+  facility: Facility,
+  dispatchRtData: Function,
+) {
+  const facilityRtData = await getRtDataForFacility(facility);
+
+  dispatchRtData({
+    type: FacilityEvents.UPDATE,
+    payload: {
+      id: facility.id,
+      data: facilityRtData,
+    },
+  });
+}
 
 export const getOldestRt = (rtRecords: RtRecord[]) => {
   return minBy(rtRecords, (rtRecord) => rtRecord.date);

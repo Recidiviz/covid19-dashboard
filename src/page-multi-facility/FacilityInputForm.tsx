@@ -16,11 +16,13 @@ import Tooltip from "../design-system/Tooltip";
 import FacilityInformation from "../impact-dashboard/FacilityInformation";
 import MitigationInformation from "../impact-dashboard/MitigationInformation";
 import useModel from "../impact-dashboard/useModel";
+import { updateFacilityRtData } from "../infection-model/rt";
 import RtTimeseries from "../rt-timeseries";
 import AddCasesModal from "./AddCasesModal";
 import { FacilityContext } from "./FacilityContext";
 import FacilityProjections from "./FacilityProjections";
 import LocaleInformationSection from "./LocaleInformationSection";
+import { Facility } from "./types";
 
 const ButtonSection = styled.div`
   margin-top: 30px;
@@ -109,9 +111,9 @@ interface Props {
 }
 
 const FacilityInputForm: React.FC<Props> = ({ facilityId, scenarioId }) => {
-  console.log("FacilityInputForm", FacilityInputForm);
-
-  const { facility: initialFacility, rtData } = useContext(FacilityContext);
+  const { facility: initialFacility, rtData, dispatchRtData } = useContext(
+    FacilityContext,
+  );
   const [facility, updateFacility] = useState(initialFacility);
   const [facilityName, setFacilityName] = useState(facility?.name || undefined);
   const [description, setDescription] = useState(
@@ -163,13 +165,10 @@ const FacilityInputForm: React.FC<Props> = ({ facilityId, scenarioId }) => {
     updateShowDeleteModal(false);
   };
 
-  const rtTimeseriesData = facility
-    ? rtData
-      ? rtData[facility.id]
-      : undefined
-    : // when creating a new facility, there will never be Rt data;
-      // setting this value to null will suppress the chart
-      null;
+  const onModalSave = (newFacility: Facility) => {
+    updateFacility(newFacility);
+    updateFacilityRtData(newFacility, dispatchRtData);
+  };
 
   return (
     <PageContainer>
@@ -196,7 +195,7 @@ const FacilityInputForm: React.FC<Props> = ({ facilityId, scenarioId }) => {
                   </AddCasesButton>
                 </Tooltip>
               }
-              updateFacility={updateFacility}
+              onSave={onModalSave}
             />
           </AddCasesRow>
         )}
@@ -211,9 +210,14 @@ const FacilityInputForm: React.FC<Props> = ({ facilityId, scenarioId }) => {
         </DescRow>
         <div className="mt-5 mb-5 border-b border-gray-300" />
 
-        <RtChartContainer>
-          <RtTimeseries data={rtTimeseriesData} />
-        </RtChartContainer>
+        {facility && (
+          <RtChartContainer>
+            <RtTimeseries
+              facility={facility}
+              data={rtData ? rtData[facility.id] : undefined}
+            />
+          </RtChartContainer>
+        )}
 
         <LocaleInformationSection
           systemType={systemType}
