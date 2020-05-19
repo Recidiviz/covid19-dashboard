@@ -92,16 +92,25 @@ const HistoricalCasesChart: React.FC<Props> = ({ facility, onModalSave }) => {
     getDatesInterval(startDate, dateFns.addDays(startDate, numDays)),
   );
 
+  const [hoveredPieceKey, setHoveredPieceKey] = useState<number | null>();
+
   if (!facility) return null;
 
   const frameProps = {
     data,
     oPadding: 1,
-    style: () => {
+    style: (d: { renderKey: number }) => {
       return {
-        fill: Colors.opacityForest,
-        stroke: "white",
+        fill: d.renderKey == hoveredPieceKey ? Colors.teal : Colors.forest,
+        stroke: Colors.white,
       };
+    },
+    customHoverBehavior: (d: { pieces: { renderKey: number }[] }) => {
+      if (d) {
+        setHoveredPieceKey(d.pieces[0].renderKey);
+      } else {
+        setHoveredPieceKey(null);
+      }
     },
     type: "bar",
     axes: [
