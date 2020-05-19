@@ -82,10 +82,8 @@ const CreateBaselineScenarioPage: React.FC = () => {
             folder - it's just a collection of facilities that are being
             modeled. The 'Baseline' scenario is one you should keep as close to
             the real-world as possible. When you want to model something new (a
-            policy change, for instance), you'll be able to make a copy of your
-            baseline scenario, make the change there, and compare it to
-            baseline. (Note: Creating multiple scenarios isn't ready just yet,
-            but it will be available within the next few days.)
+            policy change, for instance), you can make a copy of your baseline
+            scenario, make the change there, and compare it to baseline.
             <br />
             <br />
             If you have any questions or concerns, feel free to drop us a note
