@@ -11,6 +11,7 @@ import { Spacer } from "../design-system/Spacer";
 import Tooltip from "../design-system/Tooltip";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
 import { totalConfirmedCases } from "../impact-dashboard/EpidemicModelContext";
+import { getTotalPopulation } from "../impact-dashboard/EpidemicModelContext";
 import useModel from "../impact-dashboard/useModel";
 import { updateFacilityRtData } from "../infection-model/rt";
 import { getNewestRt } from "../infection-model/rt";
@@ -48,6 +49,7 @@ const FacilityNameLabel = styled.label`
   flex-direction: row;
   height: 100%;
   padding-right: 25px;
+  padding-left: 15px;
   width: 75%;
 `;
 
@@ -57,6 +59,10 @@ const DataContainer = styled.div`
 
 const CaseText = styled.div`
   color: ${Colors.darkRed};
+`;
+
+const PopulationText = styled.div`
+  color: ${Colors.forest};
 `;
 
 const FacilityName = styled.label`
@@ -110,6 +116,7 @@ const FacilityRow: React.FC<Props> = ({ facility: initialFacility }) => {
 
   const { name, updatedAt } = facility;
   const confirmedCases = totalConfirmedCases(model);
+  const population = getTotalPopulation(model);
 
   const openFacilityPage = () => {
     setFacility(facility);
@@ -131,7 +138,7 @@ const FacilityRow: React.FC<Props> = ({ facility: initialFacility }) => {
       <DataContainer className="flex flex-row mb-8 border-b">
         <div className="w-2/5 flex flex-col justify-between">
           <div className="flex flex-row h-full">
-            <div className="w-1/4 font-bold flex justify-start">
+            <div className="w-1/5 font-bold flex justify-start">
               <div
                 // prevent interaction with children from triggering a row click
                 onClick={(e) => e.stopPropagation()}
@@ -152,6 +159,33 @@ const FacilityRow: React.FC<Props> = ({ facility: initialFacility }) => {
                       <CaseText className="hover:underline">
                         {confirmedCases}
                       </CaseText>
+                    </Tooltip>
+                  }
+                  onSave={onModalSave}
+                />
+              </div>
+            </div>
+            <div className="w-1/4 font-bold flex justify-start">
+              <div
+                // prevent interaction with children from triggering a row click
+                onClick={(e) => e.stopPropagation()}
+                // suppress row hover UI state
+                onMouseOver={(e) => {
+                  e.stopPropagation();
+                  hideHover();
+                }}
+              >
+                <AddCasesModal
+                  facility={facility}
+                  trigger={
+                    <Tooltip
+                      content={
+                        <div>Click to add new or previous day cases</div>
+                      }
+                    >
+                      <PopulationText className="hover:underline">
+                        {population}
+                      </PopulationText>
                     </Tooltip>
                   }
                   onSave={onModalSave}
