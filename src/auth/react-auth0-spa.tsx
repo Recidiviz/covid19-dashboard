@@ -1,7 +1,10 @@
 // @ts-nocheck
 
 import createAuth0Client from "@auth0/auth0-spa-js";
+import { isEqualWith, pick } from "lodash";
 import React, { useContext, useEffect, useState } from "react";
+
+import { getUser, saveUser } from "../database";
 
 const DEFAULT_REDIRECT_CALLBACK = () =>
   window.history.replaceState({}, document.title, window.location.pathname);
@@ -73,6 +76,42 @@ export const Auth0Provider = ({
     setIsAuthenticated(true);
     setUser(user);
   };
+
+  useEffect(() => {
+    async function updateStoredUser() {
+      if (user !== undefined) {
+        const savedUser = await getUser(user.sub);
+        if (!savedUser) {
+          // this is expected, as auth0 users predate this feature.
+          // we can lazy-migrate them into our user database by
+          // creating a record now.
+          saveUser({
+            name: user.name,
+            email: user.email,
+            auth0Id: user.sub,
+          });
+        } else {
+          // if anything has changed, update our records.
+          // this anoints Auth0 as the ultimate source of truth
+          // for user info, synced at the beginning of a session
+          if (
+            !isEqualWith(
+              savedUser,
+              user,
+              (a, b) => a.name === b.name && a.email === b.email,
+            )
+          ) {
+            saveUser({
+              ...savedUser,
+              ...pick(user, ["email", "name"]),
+            });
+          }
+        }
+      }
+    }
+    updateStoredUser();
+  }, [user]);
+
   return (
     <Auth0Context.Provider
       value={{
