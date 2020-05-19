@@ -91,8 +91,8 @@ const BaselinePopulationForm: React.FC<Props> = ({
   saveBaselinePopulations,
   setPage,
 }) => {
-  // Default Original Date 2/1/2020
-  const defaultDate = new Date(2020, 1, 1);
+  // Default Original Date 12/31/2019
+  const defaultDate = new Date(2019, 11, 31);
 
   const [populations, setPopulations] = useState({
     staffPopulation: defaultStaffPopulation,
