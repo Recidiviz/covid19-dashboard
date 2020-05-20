@@ -3,7 +3,6 @@ import { useRef, useState } from "react";
 import useVisibility from "react-use-visibility";
 
 import Loading from "../design-system/Loading";
-import useFetchRtDataForFacility from "../hooks/useFetchRtDataForFacility";
 import { Facility } from "./types";
 
 interface Props {
@@ -14,13 +13,11 @@ interface Props {
 const FacilityRowPlaceholder: React.FC<Props> = (props) => {
   const shouldShowRef = useRef<boolean>(false);
   const [el, setEl] = useState<HTMLSpanElement | null>(null);
-  const fetchRtDataForFacility = useFetchRtDataForFacility();
 
   const visibility = useVisibility(el);
 
   if (visibility && !shouldShowRef.current) {
     shouldShowRef.current = true;
-    fetchRtDataForFacility(props.facility);
   }
 
   if (shouldShowRef.current) {
