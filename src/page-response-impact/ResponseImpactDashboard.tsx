@@ -112,6 +112,7 @@ const ResponseImpactDashboard: React.FC<Props> = ({
           <BaselinePopulationModal
             open={!populationFormSubmitted}
             numFacilities={facilities.data.length}
+            defaultDate={systemWideData.baselinePopulationDate}
             defaultStaffPopulation={systemWideData.staffPopulation}
             defaultIncarceratedPopulation={
               systemWideData.incarceratedPopulation

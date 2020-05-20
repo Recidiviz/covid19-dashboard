@@ -1,8 +1,14 @@
 import { parseISO } from "date-fns";
 import * as firebase from "firebase/app";
+import { pick } from "lodash";
 
 import { PlannedRelease } from "../impact-dashboard/EpidemicModelContext";
-import { Facility, ModelInputs, Scenario } from "../page-multi-facility/types";
+import {
+  Facility,
+  ModelInputs,
+  Scenario,
+  User,
+} from "../page-multi-facility/types";
 
 const timestampToDate = (timestamp: firebase.firestore.Timestamp): Date => {
   return timestamp.toDate();
@@ -68,6 +74,18 @@ export const buildScenario = (
   scenario.id = document.id;
   scenario.createdAt = timestampToDate(documentData.createdAt);
   scenario.updatedAt = timestampToDate(documentData.updatedAt);
+  scenario.baselinePopulations = documentData.baselinePopulations.map(
+    (population: {
+      date: firebase.firestore.Timestamp;
+      incarceratedPopulation: number;
+      staffPopulation: number;
+    }) => {
+      return {
+        ...population,
+        date: timestampToDate(population.date),
+      };
+    },
+  );
 
   // Runtime migration: make sure a default value is set for
   // promo status flags added since the last data shakeup
@@ -80,4 +98,10 @@ export const buildScenario = (
   });
 
   return scenario;
+};
+
+export const buildUser = (document: firebase.firestore.DocumentData): User => {
+  const data = document.data();
+
+  return { ...pick(data, ["name", "email"]), id: document.id };
 };

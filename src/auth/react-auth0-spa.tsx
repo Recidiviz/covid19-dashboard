@@ -1,7 +1,10 @@
 // @ts-nocheck
 
-import createAuth0Client from "@auth0/auth0-spa-js";
+import Auth0Client from "@auth0/auth0-spa-js/dist/typings/Auth0Client";
+import { isEqualWith, pick } from "lodash";
 import React, { useContext, useEffect, useState } from "react";
+
+import { getUser, saveUser } from "../database";
 
 const DEFAULT_REDIRECT_CALLBACK = () =>
   window.history.replaceState({}, document.title, window.location.pathname);
@@ -12,36 +15,42 @@ export const useAuth0 = () => {
   // We should look into that.
   return useContext(Auth0Context) || {};
 };
-export const Auth0Provider = ({
+
+interface Props {
+  onRedirectCallback: () => void;
+  auth0ClientPromise: Promise<Auth0Client>;
+}
+
+export const Auth0Provider: React.FC<Props> = ({
   children,
   onRedirectCallback = DEFAULT_REDIRECT_CALLBACK,
-  ...initOptions
+  auth0ClientPromise,
 }) => {
   const [isAuthenticated, setIsAuthenticated] = useState();
   const [user, setUser] = useState();
-  const [auth0Client, setAuth0] = useState();
+  const [auth0Client, setAuth0Client] = useState();
   const [loading, setLoading] = useState(true);
   const [popupOpen, setPopupOpen] = useState(false);
 
   useEffect(() => {
     const initAuth0 = async () => {
-      const auth0FromHook = await createAuth0Client(initOptions);
-      setAuth0(auth0FromHook);
+      let auth0Client = await auth0ClientPromise;
+      setAuth0Client(auth0Client);
 
       if (
         window.location.search.includes("code=") &&
         window.location.search.includes("state=")
       ) {
-        const { appState } = await auth0FromHook.handleRedirectCallback();
+        const { appState } = await auth0Client.handleRedirectCallback();
         onRedirectCallback(appState);
       }
 
-      const isAuthenticated = await auth0FromHook.isAuthenticated();
+      const isAuthenticated = await auth0Client.isAuthenticated();
 
       setIsAuthenticated(isAuthenticated);
 
       if (isAuthenticated) {
-        const user = await auth0FromHook.getUser();
+        const user = await auth0Client.getUser();
         setUser(user);
       }
 
@@ -73,6 +82,43 @@ export const Auth0Provider = ({
     setIsAuthenticated(true);
     setUser(user);
   };
+
+  // This hook is specific to our application and not derived from Auth0 example code
+  useEffect(() => {
+    async function updateStoredUser() {
+      if (user !== undefined) {
+        const savedUser = await getUser(user.sub);
+        if (!savedUser) {
+          // this is expected, as auth0 users predate this feature.
+          // we can lazy-migrate them into our user database by
+          // creating a record now.
+          saveUser({
+            name: user.name,
+            email: user.email,
+            auth0Id: user.sub,
+          });
+        } else {
+          // if anything has changed, update our records.
+          // this anoints Auth0 as the ultimate source of truth
+          // for user info, synced at the beginning of a session
+          if (
+            !isEqualWith(
+              savedUser,
+              user,
+              (a, b) => a.name === b.name && a.email === b.email,
+            )
+          ) {
+            saveUser({
+              ...savedUser,
+              ...pick(user, ["email", "name"]),
+            });
+          }
+        }
+      }
+    }
+    updateStoredUser();
+  }, [user]);
+
   return (
     <Auth0Context.Provider
       value={{
