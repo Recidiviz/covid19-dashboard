@@ -49,8 +49,16 @@ service cloud.firestore {
         return user.data.auth0Id == request.auth.uid;
       }
 
-      allow read: if userIsAuthenticated();
-      allow update: if userIsSelf(resource) && userIsSelf(request.resource);
+      // These rules limit read access to the users collection by enforcing that read queries
+      // must proivide either an email address or Auth0 User ID.  This prevents the potential
+      // of a malicious client-side user from accessing every single user document at once.
+      // This works because Firestore query constraints must match the same constraints
+      // specified by the Firestore rules:
+      // https://firebase.google.com/docs/firestore/security/rules-query#secure_and_query_documents_based_on_a_field
+      allow read: if userIsAuthenticated() && resource.data.email == resource.data.email;
+      allow read: if userIsAuthenticated() && resource.data.auth0Id == resource.data.auth0Id;
+
+      allow update, delete: if userIsSelf(resource) && userIsSelf(request.resource);
       allow create: if userIsSelf(request.resource);
     }
   }

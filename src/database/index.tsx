@@ -195,7 +195,7 @@ export const getScenarios = async (): Promise<Scenario[]> => {
 
     const scenarioResults = await db
       .collection(scenariosCollectionId)
-      .where(`roles.${currrentUserId()}`, "in", ["owner"])
+      .where(`roles.${currrentUserId()}`, "in", ["owner", "viewer"])
       .get();
 
     const scenarios = scenarioResults.docs.map((doc) => {
@@ -348,6 +348,46 @@ export const getUser = async (auth0Id: string): Promise<User | null> => {
   }
 };
 
+export const getScenarioUsers = async (
+  scenarioId: string,
+): Promise<Array<User> | null> => {
+  try {
+    const scenario = await getScenario(scenarioId);
+
+    if (!scenario) {
+      throw new Error(`No scenario found matching id ${scenarioId}`);
+    }
+
+    const auth0Ids = Object.keys(scenario.roles);
+
+    const users = [];
+    for (const auth0Id of auth0Ids) {
+      // We have to get the users one at a time because Firestore limits the number
+      // of elements that can be included within an "in" clause to 10. In other
+      // words, if a Scenario has more than 10 users, writing the query with a
+      // where clause that includes each of these user's auth0Ids would fail.
+      // https://firebase.google.com/docs/firestore/query-data/queries#in_and_array-contains-any
+      const user = await getUser(auth0Id);
+
+      if (!user) {
+        throw new Error(
+          "Error retrieving role for ${auth0Id} in scenario {scenarioId}",
+        );
+      }
+
+      users.push(user);
+    }
+
+    return users;
+  } catch (e) {
+    console.error(
+      "Encountered error while attempting to retrieve scenario users: \n",
+      e,
+    );
+    return null;
+  }
+};
+
 type UserToSave = Omit<User, "id"> &
   Optional<User, "id"> & {
     auth0Id?: string;
@@ -376,6 +416,89 @@ export const saveUser = async (userData: UserToSave): Promise<void> => {
     }
   } catch (e) {
     console.error("Encountered error while trying to save user:\n", e);
+  }
+};
+
+export const addScenarioUser = async (
+  scenarioId: string,
+  email: string,
+): Promise<User | null> => {
+  const db = await getDb();
+
+  try {
+    const userResult = await db
+      .collection(usersCollectionId)
+      .where("email", "==", email)
+      .get();
+
+    if (userResult.docs.length > 1) {
+      throw new Error(`Multiple users found matching email ${email}`);
+    } else if (userResult.docs.length === 0) {
+      throw new Error(`No users found matching email ${email}`);
+    }
+
+    const userDocument = userResult.docs[0];
+    const auth0Id = userDocument.data().auth0Id;
+
+    const scenario = await getScenario(scenarioId);
+
+    if (!scenario) {
+      throw new Error(`No scenario found matching id ${scenarioId}`);
+    }
+
+    scenario.roles = Object.assign({}, scenario.roles, {
+      [auth0Id]: "viewer",
+    });
+
+    const savedScenario = await saveScenario(scenario);
+
+    if (!savedScenario) {
+      throw new Error(`Error updating scenario roles`);
+    }
+
+    return buildUser(userDocument);
+  } catch (e) {
+    console.error(
+      "Encountered error while trying to add a scenario user:\n",
+      e,
+    );
+    return null;
+  }
+};
+
+export const removeScenarioUser = async (
+  scenarioId: string,
+  userId: string,
+): Promise<void> => {
+  const db = await getDb();
+
+  try {
+    const user = await db.collection(usersCollectionId).doc(userId).get();
+
+    if (!user) {
+      throw new Error(`No users found matching id ${userId}`);
+    }
+
+    const auth0Id = user.data()?.auth0Id;
+
+    const scenario = await getScenario(scenarioId);
+
+    if (!scenario) {
+      throw new Error(`No scenario found matching id ${scenarioId}`);
+    }
+
+    delete (scenario.roles as any)[auth0Id];
+
+    const savedScenario = await saveScenario(scenario);
+
+    if (!savedScenario) {
+      throw new Error(`Error removing scenario roles`);
+    }
+  } catch (e) {
+    console.error(
+      "Encountered error while trying to remove a scenario user:\n",
+      e,
+    );
   }
 };
 
