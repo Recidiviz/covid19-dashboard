@@ -44,7 +44,6 @@ const useAddCasesInputs = (
     defaultObservationDate,
   );
 
-  // maybe export this so that we don't define it twice (it is also in the AddCasesModalContent component)
   const findMatchingDay = useCallback(
     ({ date }: { date: Date }) =>
       facilityModelVersions?.find(
@@ -66,9 +65,8 @@ const useAddCasesInputs = (
         setObservedAtVersion(undefined);
       }
     }
-  }, [observedAt]);
+  }, [observedAt, findMatchingDay]);
 
-  // TODO: Handle add cases modal for new facility?
   const updateInputs = (update: ModelInputsPopulationBrackets) => {
     setInputs({ ...inputs, ...update });
   };
