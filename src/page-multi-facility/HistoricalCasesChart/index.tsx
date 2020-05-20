@@ -120,6 +120,7 @@ const HistoricalCasesChart: React.FC<Props> = ({ facility, onModalSave }) => {
         ticks: 5,
       },
     ],
+    margin: { top: 0, bottom: 50, left: 50, right: 25 },
     oAccessor: "observedAt",
     size: [400, 300],
     responsiveWidth: true,
