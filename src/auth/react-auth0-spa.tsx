@@ -1,6 +1,5 @@
 // @ts-nocheck
 
-import createAuth0Client from "@auth0/auth0-spa-js";
 import Auth0Client from "@auth0/auth0-spa-js/dist/typings/Auth0Client";
 import { isEqualWith, pick } from "lodash";
 import React, { useContext, useEffect, useState } from "react";
