@@ -38,6 +38,7 @@ const ModalContent = styled.div`
 export interface Props {
   open: boolean;
   numFacilities: number;
+  defaultDate: Date;
   defaultStaffPopulation: number;
   defaultIncarceratedPopulation: number;
   saveBaselinePopulations: (populations: any) => void;
@@ -81,6 +82,7 @@ const BaselinePopulationModal: React.FC<Props> = ({
   open,
   numFacilities,
   defaultStaffPopulation,
+  defaultDate,
   defaultIncarceratedPopulation,
   saveBaselinePopulations,
 }) => {
@@ -121,6 +123,7 @@ const BaselinePopulationModal: React.FC<Props> = ({
           ) : (
             <BaselinePopulationForm
               setPage={() => setPage(1)}
+              defaultDate={defaultDate}
               defaultStaffPopulation={defaultStaffPopulation}
               defaultIncarceratedPopulation={defaultIncarceratedPopulation}
               saveBaselinePopulations={saveBaselinePopulations}
