@@ -61,12 +61,12 @@ const AboutPage: React.FC = () => (
               <li className="my-2">
                 <span className="font-display">Exposed:</span> Residents and
                 staff who have had contact with an individual positive for
-                COVID-19 but are not yet spreading the virus to others
+                COVID-19 but are not yet spreading the virus to others.
               </li>
               <li className="my-2">
                 <span className="font-display">Infectious:</span> Residents and
-                staff who are have been exposed to COVID-19 and are now capable
-                of spreading it to other individuals
+                staff who have been exposed to COVID-19 and are now capable of
+                spreading it to other individuals.
               </li>
               <li className="my-2">
                 <span className="font-display">Hospitalized:</span> Residents
@@ -239,7 +239,7 @@ const AboutPage: React.FC = () => (
               to your system? Email to{" "}
               <a href="mailto:covid@recidiviz.org">covid@recidiviz.org</a> or
               set up a 15m consultation with the team{" "}
-              <a href="https://calendly.com/covid-cj/model" target="_blank">
+              <a href="https://calendly.com/covid19-cj/15min" target="_blank">
                 here
               </a>{" "}
               and we’ll add you to the community.
