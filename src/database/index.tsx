@@ -4,12 +4,10 @@ import * as firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
 
-import createAuth0Client from "@auth0/auth0-spa-js";
 import { format, startOfDay, startOfToday } from "date-fns";
 import { pick, orderBy, uniqBy } from "lodash";
 import { Optional } from "utility-types";
 
-import config from "../auth/auth_config.json";
 import { MMMMdyyyy } from "../constants";
 import { persistedKeys } from "../impact-dashboard/EpidemicModelContext";
 import {
@@ -24,6 +22,7 @@ import {
   buildScenario,
   buildUser,
 } from "./type-transforms";
+import AppAuth0ClientPromise from "../auth/AppAuth0ClientPromise";
 
 // As long as there is just one Auth0 config, this endpoint will work with any environment (local, prod, etc.).
 const tokenExchangeEndpoint =
@@ -44,6 +43,8 @@ let firebaseConfig = {
   appId: "1:508068404480:web:65bfe28b619e1ad572e7e5",
 };
 
+// Only call firebase.initializeApp if we're in the browser and not during
+// static render (it doesn't work).
 if (typeof window !== "undefined") {
   firebase.initializeApp(firebaseConfig);
 }
@@ -55,16 +56,8 @@ const authenticate = async () => {
   // TODO: Error handling.
   if (firebase.auth().currentUser) return;
 
-  const rekeyedConfig = {
-    domain: config.domain,
-    // eslint-disable-next-line @typescript-eslint/camelcase
-    client_id: config.clientId,
-    audience: config.audience,
-  };
-
-  const auth0Token = await (
-    await createAuth0Client(rekeyedConfig)
-  ).getTokenSilently();
+  let auth0Client = await AppAuth0ClientPromise;
+  const auth0Token = await auth0Client.getTokenSilently();
 
   const tokenExchangeResponse = await fetch(tokenExchangeEndpoint, {
     method: "POST",
