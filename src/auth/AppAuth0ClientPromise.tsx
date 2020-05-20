@@ -4,6 +4,7 @@ import Auth0Client from "@auth0/auth0-spa-js/dist/typings/Auth0Client";
 import staticAuthConfig from "./auth_config.json";
 
 let redirectUri =
+  // Note: The window variable is not defined static rendering.
   typeof window === "undefined" ? undefined : window.location.origin;
 
 const finalAuthConfig = {
@@ -29,6 +30,7 @@ const finalAuthConfig = {
  * that.
  */
 const AppAuth0ClientPromise: Promise<Auth0Client> =
+  // Note: The window variable is not defined static rendering.
   typeof window === "undefined"
     ? new Promise(() => undefined)
     : createAuth0Client(finalAuthConfig);

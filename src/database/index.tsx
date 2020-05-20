@@ -43,6 +43,8 @@ let firebaseConfig = {
   appId: "1:508068404480:web:65bfe28b619e1ad572e7e5",
 };
 
+// Only call firebase.initializeApp if we're in the browser and not during
+// static render (it doesn't work).
 if (typeof window !== "undefined") {
   firebase.initializeApp(firebaseConfig);
 }
