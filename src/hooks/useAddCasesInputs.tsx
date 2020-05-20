@@ -3,6 +3,7 @@ import { pick } from "lodash";
 import { useCallback, useEffect, useState } from "react";
 
 import { saveFacility } from "../database";
+import { useToasts } from "../design-system/Toast";
 import {
   ModelInputsPopulationBrackets,
   populationBracketKeys,
@@ -20,6 +21,7 @@ const useAddCasesInputs = (
   onSave: (f: Facility) => void,
   observedAt?: Date | undefined,
 ) => {
+  const { addToast } = useToasts();
   const [facilityModelVersions, updateModelVersions] = useFacilityModelVersions(
     facility,
   );
@@ -125,6 +127,7 @@ const useAddCasesInputs = (
     // After the DB is updated, then process the onSave callback
     onSave(latestFacilityData);
     updateModelVersions();
+    addToast("Data successfully saved!");
   };
 
   return {
