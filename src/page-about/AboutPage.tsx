@@ -34,8 +34,8 @@ const AboutPage: React.FC = () => (
               If you have any questions, comments, or concerns about the model
               itself, check the FAQ section below. If you’re interested in
               getting custom analyses and reporting based on your jurisdiction’s
-              data,or have additional questions we haven’t answered on the site,
-              reach out to{" "}
+              data, or have additional questions we haven’t answered on the
+              site, reach out to{" "}
               <a href="mailto:covid@recidiviz.org">covid@recidiviz.org</a> or
               schedule time with us{" "}
               <a
@@ -221,14 +221,35 @@ const AboutPage: React.FC = () => (
               our system for COVID-19?
             </h2>
             <ul className="list-disc list-inside md:list-outside text-base sm:text-lg font-body leading-normal">
-              <li className="my-2">BOP: COVID-19 Resource Page </li>
-              <li className="my-2">AJA: COVID-19 Resources </li>
               <li className="my-2">
-                CDC: Guidance on Management of Coronavirus (COVID-19) in
-                Correctional and Detention Facilities
+                <a
+                  href="https://www.bop.gov/coronavirus/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  BOP: COVID-19 Resource Page
+                </a>
+              </li>
+              <li className="my-2">
+                <a
+                  href="https://www.americanjail.org/content.asp?admin=Y&contentid=282"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  AJA: COVID-19 Resources
+                </a>
+              </li>
+              <li className="my-2">
+                <a
+                  href="https://www.cdc.gov/coronavirus/2019-ncov/community/correction-detention/guidance-correctional-detention.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  CDC: Guidance on Management of Coronavirus (COVID-19) in
+                  Correctional and Detention Facilities
+                </a>
               </li>
             </ul>
-            <p className="leading-7 text-base sm:text-lg mb-6 font-body"></p>
             <h2 className="text-xl text-left font-display font-normal mt-6 mb-3">
               How can I help other criminal justice systems?
             </h2>
@@ -247,7 +268,7 @@ const AboutPage: React.FC = () => (
             </h1>
             <p className="leading-7 text-base sm:text-lg my-6 font-body">
               Questions? Feedback? Need help refining this model or fitting it
-              to your system? Email to{" "}
+              to your system? Reach out to{" "}
               <a href="mailto:covid@recidiviz.org">covid@recidiviz.org</a> or
               set up a 15m consultation with the team{" "}
               <a
