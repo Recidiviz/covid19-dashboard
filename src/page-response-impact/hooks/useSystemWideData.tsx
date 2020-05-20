@@ -34,6 +34,7 @@ export function useSystemWideData(
       localeDefaultIncarceratedPopulation;
 
     if (populationsCopy.length > 0) {
+      userInputDate = populationsCopy[0].date
       userInputStaffPopulation = populationsCopy[0].staffPopulation;
       userInputIncarceratedPopulation =
         populationsCopy[0].incarceratedPopulation;
@@ -60,6 +61,7 @@ export function useSystemWideData(
 
     setSystemWideData({
       ...getSystemWideSums(modelInputs),
+      baselinePopulationDate: userInputDate || new Date(2020, 1, 1);
       staffPopulation: userInputStaffPopulation || currentStaffPopulation,
       incarceratedPopulation:
         userInputIncarceratedPopulation ||

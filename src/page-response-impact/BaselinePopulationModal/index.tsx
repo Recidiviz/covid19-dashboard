@@ -81,6 +81,7 @@ const BaselinePopulationModal: React.FC<Props> = ({
   open,
   numFacilities,
   defaultStaffPopulation,
+  defaultDate,
   defaultIncarceratedPopulation,
   saveBaselinePopulations,
 }) => {
@@ -121,6 +122,7 @@ const BaselinePopulationModal: React.FC<Props> = ({
           ) : (
             <BaselinePopulationForm
               setPage={() => setPage(1)}
+              defaultDate={defaultDate}
               defaultStaffPopulation={defaultStaffPopulation}
               defaultIncarceratedPopulation={defaultIncarceratedPopulation}
               saveBaselinePopulations={saveBaselinePopulations}
