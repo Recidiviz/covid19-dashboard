@@ -93,7 +93,6 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
   const { numFacilities } = props;
   const updatedAtDate = Number(scenario?.updatedAt);
   const showImpactButton = useFlag(["showImpactButton"]);
-  const showScenarioLibrary = useFlag(["showScenarioLibrary"]);
 
   const handleScenarioChange = (scenarioChange: any) => {
     const changes = Object.assign({}, scenario, scenarioChange);
@@ -131,19 +130,17 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
     <div className="flex flex-col w-1/4 mr-24" key={renderKey}>
       <div className="flex-1 flex flex-col pb-4">
         <ScenarioName>
-          {showScenarioLibrary && (
-            <ScenarioLibraryModal
-              trigger={
-                <IconFolder
-                  style={{
-                    marginTop: "8px",
-                  }}
-                  alt="folder"
-                  src={iconFolderSrc}
-                />
-              }
-            />
-          )}
+          <ScenarioLibraryModal
+            trigger={
+              <IconFolder
+                style={{
+                  marginTop: "8px",
+                }}
+                alt="folder"
+                src={iconFolderSrc}
+              />
+            }
+          />
           <InputName
             name={name}
             setName={setName}
@@ -205,7 +202,6 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
                 fontFamily: "PingFang SC",
                 width: "100%",
                 marginTop: "20px",
-                visibility: !scenario?.baseline ? "hidden" : "visible",
               }}
               label="Generate Impact Report"
               onClick={() => navigate("/impact")}

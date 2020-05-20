@@ -1,13 +1,24 @@
+import { pick } from "lodash";
 import { useContext, useEffect } from "react";
 
+import { FacilityEvents } from "../constants/dispatchEvents";
 import { getRtDataForFacility } from "../infection-model/rt";
 import { FacilityContext } from "../page-multi-facility/FacilityContext";
-import { Facilities } from "../page-multi-facility/types";
+import { Facilities, RtDataMapping } from "../page-multi-facility/types";
+
+export function getFacilitiesRtDataById(
+  rtData: RtDataMapping | undefined,
+  facilities: Facilities,
+) {
+  if (!rtData) return null;
+  const facilityIds = facilities.map((f) => f.id);
+  return pick(rtData, facilityIds);
+}
 
 const useFacilitiesRtData = (facilities: Facilities | null) => {
   const { rtData, dispatchRtData } = useContext(FacilityContext);
 
-  async function getRtDataForFacilities(facilities: Facilities) {
+  async function fetchRtDataForFacilities(facilities: Facilities) {
     return await Promise.all(
       [...facilities].map(async (facility) => {
         // don't fetch data if we already have it
@@ -15,7 +26,7 @@ const useFacilitiesRtData = (facilities: Facilities | null) => {
 
         const facilityRtData = await getRtDataForFacility(facility);
         dispatchRtData({
-          type: "add",
+          type: FacilityEvents.ADD,
           payload: { [facility.id]: facilityRtData },
         });
       }),
@@ -25,7 +36,7 @@ const useFacilitiesRtData = (facilities: Facilities | null) => {
   useEffect(
     () => {
       if (facilities) {
-        getRtDataForFacilities(facilities);
+        fetchRtDataForFacilities(facilities);
       }
     },
     // omitting dispatchRtData because it's not a stable reference,

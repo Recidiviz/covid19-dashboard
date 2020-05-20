@@ -1,8 +1,10 @@
 import { navigate } from "gatsby";
 import React, { useReducer, useState } from "react";
+import { ToastProvider } from "react-toast-notifications";
 
 import config from "../auth/auth_config.json";
 import { Auth0Provider } from "../auth/react-auth0-spa";
+import Toast from "../design-system/Toast";
 import { FeatureFlagsProvider } from "../feature-flags";
 import { LocaleDataProvider } from "../locale-data-context";
 import {
@@ -43,7 +45,13 @@ const SiteProvider: React.FC = (props) => {
             <FacilityContext.Provider
               value={{ facility, setFacility, rtData, dispatchRtData }}
             >
-              {props.children}
+              <ToastProvider
+                placement="bottom-center"
+                transitionDuration={0}
+                components={{ Toast }}
+              >
+                {props.children}
+              </ToastProvider>
             </FacilityContext.Provider>
           </ScenarioProvider>
         </LocaleDataProvider>

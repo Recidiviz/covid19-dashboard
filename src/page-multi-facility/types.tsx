@@ -1,4 +1,5 @@
 import { EpidemicModelPersistent } from "../impact-dashboard/EpidemicModelContext";
+import { RtData } from "../infection-model/rt";
 
 export interface ModelInputs extends EpidemicModelPersistent {
   observedAt: Date;
@@ -39,8 +40,18 @@ export type PromoStatuses = {
   addFacilities: boolean;
 };
 
+export type RtDataMapping = {
+  [key in Facility["id"]]: RtData | null;
+};
+
 export type BaselinePopulations = {
   date: Date;
   staffPopulation: number;
   incarceratedPopulation: number;
+};
+
+export type User = {
+  id: string;
+  name: string;
+  email: string;
 };
