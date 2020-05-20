@@ -15,6 +15,7 @@ import { useLocaleDataState } from "../locale-data-context";
 import useScenario from "../scenario-context/useScenario";
 import { FacilityContext } from "./FacilityContext";
 import FacilityRow from "./FacilityRow";
+import FacilityRowPlaceholder from "./FacilityRowPlaceholder";
 import ProjectionsHeader from "./ProjectionsHeader";
 import RateOfSpreadPanel from "./RateOfSpreadPanel";
 import ScenarioSidebar from "./ScenarioSidebar";
@@ -104,8 +105,6 @@ const MultiFacilityImpactDashboard: React.FC = () => {
     fetchFacilities();
   }, [scenario.data?.id]);
 
-  useFacilitiesRtData(facilities.data);
-
   const openAddFacilityPage = () => {
     setFacility(null);
     navigate("/facility");
@@ -119,17 +118,16 @@ const MultiFacilityImpactDashboard: React.FC = () => {
       {facilities.loading ? (
         <Loading />
       ) : (
-        facilities?.data.map((facility) => {
-          return (
+        facilities?.data.map((facility) => (
+          <FacilityRowPlaceholder key={facility.id} facility={facility}>
             <EpidemicModelProvider
-              key={facility.id}
               facilityModel={facility.modelInputs}
               localeDataSource={localeDataSource}
             >
               <FacilityRow facility={facility} />
             </EpidemicModelProvider>
-          );
-        })
+          </FacilityRowPlaceholder>
+        ))
       )}
     </>
   );
