@@ -137,7 +137,7 @@ const MultiFacilityImpactDashboard: React.FC = () => {
         <Loading />
       ) : (
         facilities?.data.map((facility) => (
-          <FacilityRowPlaceholder key={facility.id} facility={facility}>
+          <FacilityRowPlaceholder key={facility.id}>
             <EpidemicModelProvider
               facilityModel={facility.modelInputs}
               localeDataSource={localeDataSource}
