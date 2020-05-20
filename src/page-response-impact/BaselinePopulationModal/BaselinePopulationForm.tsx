@@ -92,9 +92,6 @@ const BaselinePopulationForm: React.FC<Props> = ({
   defaultDate,
   setPage,
 }) => {
-  // Default Original Date 12/31/2019
-  // const defaultDate = new Date(2019, 11, 31);
-
   const [populations, setPopulations] = useState({
     staffPopulation: defaultStaffPopulation,
     incarceratedPopulation: defaultIncarceratedPopulation,

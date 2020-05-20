@@ -60,8 +60,9 @@ export function useSystemWideData(
       modelInputs,
     );
 
-    // Default Original Date 12/31/2019
-    const defaultDate = new Date(2020, 1, 1);
+    // defaultDate outputs to 12/31/2019 in the UI, as the month is 0-indexed
+    // See: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date
+    const defaultDate = new Date(2019, 11, 31);
 
     setSystemWideData({
       ...getSystemWideSums(modelInputs),
