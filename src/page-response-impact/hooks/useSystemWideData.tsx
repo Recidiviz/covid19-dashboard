@@ -29,7 +29,8 @@ export function useSystemWideData(
       ? reverse([...baselinePopulations])
       : [];
 
-    let userInputStaffPopulation,
+    let userInputDate,
+      userInputStaffPopulation,
       userInputIncarceratedPopulation,
       localeDefaultIncarceratedPopulation;
 
@@ -59,9 +60,12 @@ export function useSystemWideData(
       modelInputs,
     );
 
+    // Default Original Date 12/31/2019
+    const defaultDate = new Date(2020, 1, 1);
+
     setSystemWideData({
       ...getSystemWideSums(modelInputs),
-      baselinePopulationDate: userInputDate || new Date(2020, 1, 1);
+      baselinePopulationDate: userInputDate || defaultDate,
       staffPopulation: userInputStaffPopulation || currentStaffPopulation,
       incarceratedPopulation:
         userInputIncarceratedPopulation ||
