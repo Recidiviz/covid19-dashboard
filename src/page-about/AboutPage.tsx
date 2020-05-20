@@ -25,18 +25,23 @@ const AboutPage: React.FC = () => (
             <p className="leading-7 text-base sm:text-lg mb-6 font-body">
               This is an interactive model to allow criminal justice leaders and
               their staff to project the likely impact of COVID-19 within
-              facilities. Choose your state on the 'Inputs' tab to pre-populate
-              this model with data from your state, or complete all of the gray
-              boxes on that tab to make the model more nuanced. The charts and
-              tables project how far into the future cases will peak in your
-              facilities and how high that peak will be. It also forecasts
-              hospital bed needs, and compares this to the number of hospital
-              beds available in your region
+              facilities. The charts and tables project how far into the future
+              cases will peak in your facilities and how high that peak will be.
+              It also forecasts hospital bed needs, and compares this to the
+              number of hospital beds available in your region.
             </p>
             <p className="leading-7 text-base sm:text-lg mt-6 mb-0 font-body">
-              If you have any questions, comments, or concerns, first check the
-              FAQ tab. If you still have a question, reach out to{" "}
-              <a href="mailto:covid@recidiviz.org">covid@recidiviz.org</a>.
+              If you have any questions, comments, or concerns about the model
+              itself, check the FAQ section below. If you’re interested in
+              getting custom analyses and reporting based on your jurisdiction’s
+              data,or have additional questions we haven’t answered on the site,
+              reach out to{" "}
+              <a href="mailto:covid@recidiviz.org">covid@recidiviz.org</a> or
+              schedule time with us{" "}
+              <a href="https://calendly.com/covid19-cj/15min" target="_blank">
+                here
+              </a>
+              .
             </p>
             <h1
               className="text-2xl sm:text-3xl text-left font-display mt-10"
@@ -46,33 +51,35 @@ const AboutPage: React.FC = () => (
             </h1>
             <ul className="list-disc list-inside md:list-outside text-base sm:text-lg font-body leading-normal">
               <li className="my-2">
-                Current cases: The cumulative number of confirmed COVID-19
-                cases. This includes anyone who has been exposed at any point,
-                even if they have progressed towards larger stages, including
-                hospitalization. Even recovered individuals are still considered
-                “cases” any time after they’ve progressed from the “susceptible”
-                bucket.
+                <span className="font-display">Current cases:</span> The
+                cumulative number of confirmed COVID-19 cases. This includes
+                anyone who has been exposed at any point, even if they have
+                progressed towards larger stages, including hospitalization.
+                Even recovered individuals are still considered “cases” any time
+                after they’ve progressed from the “susceptible” bucket.
               </li>
               <li className="my-2">
-                Exposed: Residents and staff who have had contact with an
-                individual positive for COVID-19 but are not yet spreading the
-                virus to others
+                <span className="font-display">Exposed:</span> Residents and
+                staff who have had contact with an individual positive for
+                COVID-19 but are not yet spreading the virus to others
               </li>
               <li className="my-2">
-                Infectious: Residents and staff who are have been exposed to
-                COVID-19 and are now capable of spreading it to other
-                individuals
+                <span className="font-display">Infectious:</span> Residents and
+                staff who are have been exposed to COVID-19 and are now capable
+                of spreading it to other individuals
               </li>
               <li className="my-2">
-                Hospitalized: Residents and staff who have been admitted to the
-                hospital.
+                <span className="font-display">Hospitalized:</span> Residents
+                and staff who have been admitted to the hospital.
               </li>
               <li className="my-2">
-                Fatalities: Residents and staff who are casualties of COVID-19.
+                <span className="font-display">Fatalities:</span> Residents and
+                staff who are casualties of COVID-19.
               </li>
               <li className="my-2">
-                Staff unable to work: Staff who are not reporting to work due to
-                illness, whether or not they are hospitalized.
+                <span className="font-display">Staff unable to work:</span>{" "}
+                Staff who are not reporting to work due to illness, whether or
+                not they are hospitalized.
               </li>
             </ul>
             <h1
@@ -81,11 +88,15 @@ const AboutPage: React.FC = () => (
             >
               Methodology
             </h1>
-            <ul className="list-disc list-inside md:list-outside text-base sm:text-lg font-body leading-normal">
-              <li className="my-2">Variables</li>
-              <li className="my-2">Calculations</li>
-              <li className="my-2">Assumptions</li>
-            </ul>
+            <p className="leading-7 text-base sm:text-lg mt-6 mb-0 font-body">
+              <a
+                href="https://docs.google.com/drawings/d/15_kbYlwO2rLBcII7ABUCDiBB_AoMIeCanaG2R5Wez2s/edit"
+                target="_blank"
+              >
+                Please refer to this diagram
+              </a>{" "}
+              for the variables, assumptions, and sources.
+            </p>
             <h1
               className="text-2xl sm:text-3xl text-left font-display mt-10"
               id="userGuides"
@@ -109,9 +120,6 @@ const AboutPage: React.FC = () => (
                   Generate Impact Report
                 </a>
               </li>
-              <li className="my-2">Hypothetical Scenario Modelling</li>
-              <li className="my-2">Sharing</li>
-              <li className="my-2">Generic getting started</li>
             </ul>
             <h1 className="text-2xl sm:text-3xl text-left font-display mt-10">
               FAQ
@@ -125,33 +133,29 @@ const AboutPage: React.FC = () => (
               in common criminal justice variables (population size and
               potential population releases). <br />
               <br />
-              It also uses an R0 (basic reproductive number, which estimates the
-              rate of an infection's spread) that is specific to prison and jail
-              populations, where airborne illnesses spread at a significantly
-              faster rate than is seen in the general population. See relevant
-              academic work on the spread of similar illnesses in enclosed
-              populations cited in the Variables tab.
+              It also uses a rate of spread (R(t), the basic reproductive number
+              which estimates the rate of an infection's spread) that is
+              specific to prison and jail populations, where airborne illnesses
+              spread at a significantly faster rate than is seen in the general
+              population. See relevant academic work on the spread of similar
+              illnesses in enclosed populations cited in the Methodology
+              section.
             </p>
             <h2 className="text-xl text-left font-display font-normal mt-6 mb-3">
               Can I get help expanding this model to better fit my jail or
               prison system?
             </h2>
             <p className="leading-7 text-base sm:text-lg mb-6 font-body">
-              Yes! You can set up a 15 or 30m consultation with the team that
-              produced this model - see{" "}
+              Yes! You can set up a{" "}
+              <a href="https://calendly.com/covid19-cj/15min" target="_blank">
+                consultation
+              </a>{" "}
+              with the team that produced this model - see{" "}
               <a href="https://www.recidiviz.org/covid">
                 https://www.recidiviz.org/covid
               </a>
-              .<br />
-              <br />
-              We also suggest joining the COVID-19 Criminal Justice community on
-              Slack (see{" "}
-              <a href="https://www.recidiviz.org/covid">
-                https://www.recidiviz.org/covid
-              </a>
-              ). This is a community of criminal justice department leads and
-              research staff sharing knowledge on how they're approaching the
-              challenges posed by COVID-19."
+              . We can help build custom analysis or customized reports for your
+              DOC.
             </p>
             <h2 className="text-xl text-left font-display font-normal mt-6 mb-3">
               Where can I learn more about how others in my field are preparing
@@ -171,11 +175,10 @@ const AboutPage: React.FC = () => (
               model?
             </h2>
             <p className="leading-7 text-base sm:text-lg mb-6 font-body">
-              First, check the <a href="#definitions">Definitions</a>,{" "}
-              <a href="#methodology">Methodology</a>, and{" "}
-              <a href="#userGuides">User Guides</a>. If your issue is not
-              addressed there, send any concerns about this model to
-              covid@recidiviz.org or set up time with the Recidiviz team at{" "}
+              First, check the <a href="#methodology">Methodology</a>. If your
+              issue is not addressed there, send any concerns about this model
+              to <a href="mailto:covid@recidiviz.org">covid@recidiviz.org</a> or
+              set up time with the Recidiviz team at{" "}
               <a href="https://www.recidiviz.org/covid">
                 https://www.recidiviz.org/covid
               </a>
@@ -184,24 +187,23 @@ const AboutPage: React.FC = () => (
               agencies anticipate and respond to the crisis.
               <br />
               <br />
-              For general questions or suggestions, we'd recommend bringing them
-              up in a space where other criminal justice agencies can contribute
-              and build on your ideas—you'll find a #covid-model channel in the
-              'Criminal Justice C19' community on Slack (see{" "}
+              For general policy questions or suggestions, we'd recommend
+              bringing them up in a space where other criminal justice agencies
+              can contribute and build on your ideas—you'll find a #covid-model
+              channel in the 'Criminal Justice C19' community on Slack (see{" "}
               <a href="https://www.recidiviz.org/covid">
                 https://www.recidiviz.org/covid
               </a>
-              )."
+              ).
             </p>
             <h2 className="text-xl text-left font-display font-normal mt-6 mb-3">
               Can I make changes to this model, or re-share it with others?
             </h2>
             <p className="leading-7 text-base sm:text-lg mb-6 font-body">
               You can modify and re-share this model, so long as you keep the
-              license notice in the{" "}
-              <a href="#termsOfService">Terms of Service</a> unchanged. It
-              ensures that others you pass the model along to also have the
-              ability to modify and re-share.
+              license notice in the Terms of Service unchanged. It ensures that
+              others you pass the model along to also have the ability to modify
+              and re-share.
             </p>
             <h2 className="text-xl text-left font-display font-normal mt-6 mb-3">
               What other guidelines or recommendations are available to prepare
@@ -234,18 +236,9 @@ const AboutPage: React.FC = () => (
             </h1>
             <p className="leading-7 text-base sm:text-lg my-6 font-body">
               Questions? Feedback? Need help refining this model or fitting it
-              to your system? Join the 'Criminal Justice C19' community on
-              Slack. This is a private community of criminal justice agency
-              leaders and research staff sharing knowledge on how they're
-              approaching the challenges posed by COVID-19.
-              <br />
-              <br />
-              To join, send an email to{" "}
-              <a href="mailto:covid@recidiviz.org">covid@recidiviz.org</a> with
-              the subject line ‘Join the Conversation’
-              <br />
-              <br />
-              Need help? Set up a 15m consultation with the team{" "}
+              to your system? Email to{" "}
+              <a href="mailto:covid@recidiviz.org">covid@recidiviz.org</a> or
+              set up a 15m consultation with the team{" "}
               <a href="https://calendly.com/covid-cj/model" target="_blank">
                 here
               </a>{" "}
