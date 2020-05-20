@@ -38,7 +38,7 @@ const ModalContent = styled.div`
 export interface Props {
   open: boolean;
   numFacilities: number;
-  defaultDate: Date;
+  defaultDate?: Date;
   defaultStaffPopulation: number;
   defaultIncarceratedPopulation: number;
   saveBaselinePopulations: (populations: any) => void;

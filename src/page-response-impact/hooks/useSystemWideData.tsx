@@ -16,9 +16,9 @@ export function useSystemWideData(
   modelInputs: EpidemicModelState[],
   localeDataSource: LocaleData,
 ) {
-  const [systemWideData, setSystemWideData] = useState<Partial<SystemWideData>>({
+  const [systemWideData, setSystemWideData] = useState<SystemWideData>({
     staffPopulation: 0,
-    incarceratedPopulation: 0
+    incarceratedPopulation: 0,
   } as SystemWideData);
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export function useSystemWideData(
       localeDefaultIncarceratedPopulation;
 
     if (populationsCopy.length > 0) {
-      userInputDate = populationsCopy[0].date
+      userInputDate = populationsCopy[0].date;
       userInputStaffPopulation = populationsCopy[0].staffPopulation;
       userInputIncarceratedPopulation =
         populationsCopy[0].incarceratedPopulation;
