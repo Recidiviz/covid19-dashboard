@@ -6,14 +6,21 @@ import "firebase/firestore";
 
 import { format, startOfDay, startOfToday } from "date-fns";
 import { pick, orderBy, uniqBy } from "lodash";
+import { Optional } from "utility-types";
 
 import { MMMMdyyyy } from "../constants";
 import { persistedKeys } from "../impact-dashboard/EpidemicModelContext";
-import { Facility, ModelInputs, Scenario } from "../page-multi-facility/types";
+import {
+  Facility,
+  ModelInputs,
+  Scenario,
+  User,
+} from "../page-multi-facility/types";
 import {
   buildFacility,
   buildModelInputs,
   buildScenario,
+  buildUser,
 } from "./type-transforms";
 import AppAuth0ClientPromise from "../auth/AppAuth0ClientPromise";
 
@@ -23,6 +30,7 @@ const tokenExchangeEndpoint =
 const scenariosCollectionId = "scenarios";
 const facilitiesCollectionId = "facilities";
 const modelVersionCollectionId = "modelVersions";
+const usersCollectionId = "users";
 
 // Note: None of these are secrets.
 let firebaseConfig = {
@@ -316,6 +324,56 @@ export const getFacilityModelVersions = async ({
     );
     console.error(error);
     return [];
+  }
+};
+
+export const getUser = async (auth0Id: string): Promise<User | null> => {
+  try {
+    const db = await getDb();
+    const userResult = await db
+      .collection(usersCollectionId)
+      .where("auth0Id", "==", auth0Id)
+      .get();
+    if (userResult.docs.length > 1) {
+      throw new Error(`Multiple users found matching id ${auth0Id}`);
+    } else if (userResult.docs.length === 0) {
+      throw new Error(`No users found matching id ${auth0Id}`);
+    }
+    return buildUser(userResult.docs[0]);
+  } catch (e) {
+    console.error("Encountered error while attempting to retrieve user: \n", e);
+    return null;
+  }
+};
+
+type UserToSave = Omit<User, "id"> &
+  Optional<User, "id"> & {
+    auth0Id?: string;
+  };
+
+export const saveUser = async (userData: UserToSave): Promise<void> => {
+  const db = await getDb();
+
+  try {
+    if (userData.id) {
+      // we are updating an existing user
+      db.collection(usersCollectionId)
+        .doc(userData.id)
+        .update(buildUpdatePayload(userData));
+    } else {
+      // we are creating a new user
+      // auth0Id is needed for lookups so don't allow creation without it
+      if (!userData.auth0Id) {
+        throw new Error(
+          `Missing required field "auth0Id" in object ${JSON.stringify(
+            userData,
+          )}`,
+        );
+      }
+      db.collection(usersCollectionId).add(buildCreatePayload(userData));
+    }
+  } catch (e) {
+    console.error("Encountered error while trying to save user:\n", e);
   }
 };
 
