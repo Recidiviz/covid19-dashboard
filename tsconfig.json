@@ -17,7 +17,8 @@
     "resolveJsonModule": true,
 
     // Output
-    "noEmit": true
+    "incremental": true,
+    "outDir": "node_modules/.cache/tsc"
   },
   "include": [
     "src"
