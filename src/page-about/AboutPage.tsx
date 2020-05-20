@@ -38,7 +38,11 @@ const AboutPage: React.FC = () => (
               reach out to{" "}
               <a href="mailto:covid@recidiviz.org">covid@recidiviz.org</a> or
               schedule time with us{" "}
-              <a href="https://calendly.com/covid19-cj/15min" target="_blank">
+              <a
+                href="https://calendly.com/covid19-cj/15min"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 here
               </a>
               .
@@ -92,6 +96,7 @@ const AboutPage: React.FC = () => (
               <a
                 href="https://docs.google.com/drawings/d/15_kbYlwO2rLBcII7ABUCDiBB_AoMIeCanaG2R5Wez2s/edit"
                 target="_blank"
+                rel="noopener noreferrer"
               >
                 Please refer to this diagram
               </a>{" "}
@@ -108,6 +113,7 @@ const AboutPage: React.FC = () => (
                 <a
                   href="https://docs.google.com/document/d/1Hfwjl7q9dLotR5ZZ203JSq5vGe8KDfeEDhE3GgjHA0U/edit"
                   target="_blank"
+                  rel="noopener noreferrer"
                 >
                   Calculating Live Rate of Spread (Rt)
                 </a>
@@ -116,6 +122,7 @@ const AboutPage: React.FC = () => (
                 <a
                   href="https://docs.google.com/document/d/1IuLVRI_BYbNHquiXh9yRJA-8B899T-Ee4qFAakddoQg/edit"
                   target="_blank"
+                  rel="noopener noreferrer"
                 >
                   Generate Impact Report
                 </a>
@@ -147,7 +154,11 @@ const AboutPage: React.FC = () => (
             </h2>
             <p className="leading-7 text-base sm:text-lg mb-6 font-body">
               Yes! You can set up a{" "}
-              <a href="https://calendly.com/covid19-cj/15min" target="_blank">
+              <a
+                href="https://calendly.com/covid19-cj/15min"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 consultation
               </a>{" "}
               with the team that produced this model - see{" "}
@@ -239,7 +250,11 @@ const AboutPage: React.FC = () => (
               to your system? Email to{" "}
               <a href="mailto:covid@recidiviz.org">covid@recidiviz.org</a> or
               set up a 15m consultation with the team{" "}
-              <a href="https://calendly.com/covid19-cj/15min" target="_blank">
+              <a
+                href="https://calendly.com/covid19-cj/15min"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 here
               </a>{" "}
               and we’ll add you to the community.
@@ -265,7 +280,11 @@ const AboutPage: React.FC = () => (
               FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
               License for more details. For a copy of the GNU General Public
               License v3, see{" "}
-              <a href="https://www.gnu.org/licenses/" target="_blank">
+              <a
+                href="https://www.gnu.org/licenses/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 https://www.gnu.org/licenses/
               </a>
               .{" "}
