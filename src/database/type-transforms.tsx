@@ -1,8 +1,14 @@
 import { parseISO } from "date-fns";
 import * as firebase from "firebase/app";
+import { pick } from "lodash";
 
 import { PlannedRelease } from "../impact-dashboard/EpidemicModelContext";
-import { Facility, ModelInputs, Scenario } from "../page-multi-facility/types";
+import {
+  Facility,
+  ModelInputs,
+  Scenario,
+  User,
+} from "../page-multi-facility/types";
 
 const timestampToDate = (timestamp: firebase.firestore.Timestamp): Date => {
   return timestamp.toDate();
@@ -80,4 +86,10 @@ export const buildScenario = (
   });
 
   return scenario;
+};
+
+export const buildUser = (document: firebase.firestore.DocumentData): User => {
+  const data = document.data();
+
+  return { ...pick(data, ["name", "email"]), id: document.id };
 };
