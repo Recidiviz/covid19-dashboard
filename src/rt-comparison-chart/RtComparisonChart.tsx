@@ -113,7 +113,7 @@ const Tooltip: React.FC<{
     <RtComparisonChartTooltip style={{ left, top }}>
       <p>{name}</p>
       <p>
-        {rt && `Rate of Spread: ${formatRt(rt)}`}
+        {!!rt && `Rate of Spread: ${formatRt(rt)}`}
         {rt === undefined &&
           `Insufficient data to calculate rate of spread. Click the number of
           cases on the Projections tab to add case numbers for the last several
