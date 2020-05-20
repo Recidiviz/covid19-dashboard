@@ -9,6 +9,7 @@ import useFacilityModelVersions from "../../hooks/useFacilityModelVersions";
 import { totalConfirmedCases } from "../../impact-dashboard/EpidemicModelContext";
 import { Facility, ModelInputs } from "../types";
 import BarChartTooltip, { Summary } from "./BarChartTooltip";
+import ChartHeader from "./ChartHeader";
 import HistoricalAddCasesModal from "./HistoricalAddCasesModal";
 import ScrollChartDates from "./ScrollChartDates";
 
@@ -92,16 +93,25 @@ const HistoricalCasesChart: React.FC<Props> = ({ facility, onModalSave }) => {
     getDatesInterval(startDate, dateFns.addDays(startDate, numDays)),
   );
 
+  const [hoveredPieceKey, setHoveredPieceKey] = useState<number | null>();
+
   if (!facility) return null;
 
   const frameProps = {
     data,
     oPadding: 1,
-    style: () => {
+    style: (d: { renderKey: number }) => {
       return {
-        fill: Colors.opacityForest,
-        stroke: "white",
+        fill: d.renderKey == hoveredPieceKey ? Colors.teal : Colors.forest,
+        stroke: Colors.white,
       };
+    },
+    customHoverBehavior: (d: { pieces: { renderKey: number }[] }) => {
+      if (d) {
+        setHoveredPieceKey(d.pieces[0].renderKey);
+      } else {
+        setHoveredPieceKey(null);
+      }
     },
     type: "bar",
     axes: [
@@ -126,6 +136,7 @@ const HistoricalCasesChart: React.FC<Props> = ({ facility, onModalSave }) => {
 
   return (
     <ChartWrapper>
+      <ChartHeader setModalOpen={setModalOpen} />
       <ResponsiveOrdinalFrame {...frameProps} />
       <ScrollChartDates
         endDate={endDate}
