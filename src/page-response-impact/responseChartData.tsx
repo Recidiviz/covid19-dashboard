@@ -20,6 +20,7 @@ import { LocaleData } from "../locale-data-context";
 import { Facilities } from "../page-multi-facility/types";
 
 export type SystemWideData = {
+  baselinePopulationDate?: Date;
   hospitalBeds: number;
   staffPopulation: number;
   staffCases: number;
