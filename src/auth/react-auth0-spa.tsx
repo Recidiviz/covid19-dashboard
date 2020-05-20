@@ -77,6 +77,7 @@ export const Auth0Provider = ({
     setUser(user);
   };
 
+  // This hook is specific to our application and not derived from Auth0 example code
   useEffect(() => {
     async function updateStoredUser() {
       if (user !== undefined) {

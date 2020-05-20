@@ -382,7 +382,7 @@ export const saveUser = async (userData: UserToSave): Promise<void> => {
       db.collection(usersCollectionId).add(buildCreatePayload(userData));
     }
   } catch (e) {
-    console.error("Encounter error while trying to save user:\n", e);
+    console.error("Encountered error while trying to save user:\n", e);
   }
 };
 
