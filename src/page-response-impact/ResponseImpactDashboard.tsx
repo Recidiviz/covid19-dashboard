@@ -143,14 +143,9 @@ const ResponseImpactDashboard: React.FC<Props> = ({
                 <PageContainer>
                   <Column>
                     <DescriptionTextDiv>
-                      New! This report compares the impact of your system's
-                      COVID-19 response against the model's initial assumptions
-                      and projections.
-                      <br />
-                      <br />
-                      Coming soon: Input historical case counts and facility
-                      information to customize the impact report for greater
-                      precision.
+                      This report compares the impact of your system's COVID-19
+                      response against the model's initial assumptions and
+                      projections.
                     </DescriptionTextDiv>
                     <Spacer y={40} />
                     <SectionHeader>Overall Population Safety</SectionHeader>
