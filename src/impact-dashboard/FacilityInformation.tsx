@@ -61,7 +61,7 @@ const FormHeaderRow: React.FC<FormHeaderRowProps> = (props) => (
   <LabelRow>
     <LabelCell />
     <InputCell>
-      <TextLabel>Current Cases</TextLabel>
+      <TextLabel>Current Cases (Cumulative)</TextLabel>
     </InputCell>
     <InputCell>
       <TextLabel>{props.label}</TextLabel>
