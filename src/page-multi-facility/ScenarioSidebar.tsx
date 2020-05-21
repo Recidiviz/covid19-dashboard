@@ -130,26 +130,30 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
     <div className="flex flex-col w-1/4 mr-24" key={renderKey}>
       <div className="flex-1 flex flex-col pb-4">
         <ScenarioName>
-          <ScenarioLibraryModal
-            trigger={
-              <IconFolder
-                style={{
-                  marginTop: "8px",
-                }}
-                alt="folder"
-                src={iconFolderSrc}
-              />
-            }
-          />
-          <InputName
-            name={name}
-            setName={setName}
-            placeholderValue={scenario?.name}
-            placeholderText="Scenario name is required"
-            maxLengthValue={124}
-            requiredFlag={true}
-            persistChanges={handleTextInputChange}
-          />
+          <div className="flex-none">
+            <ScenarioLibraryModal
+              trigger={
+                <IconFolder
+                  style={{
+                    marginTop: "8px",
+                  }}
+                  alt="folder"
+                  src={iconFolderSrc}
+                />
+              }
+            />
+          </div>
+          <div className="flex-initial">
+            <InputName
+              name={name}
+              setName={setName}
+              placeholderValue={scenario?.name}
+              placeholderText="Scenario name is required"
+              maxLengthValue={124}
+              requiredFlag={true}
+              persistChanges={handleTextInputChange}
+            />
+          </div>
         </ScenarioName>
         <Spacer y={20} />
         <InputDescription
