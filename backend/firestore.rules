@@ -58,7 +58,7 @@ service cloud.firestore {
       allow read: if userIsAuthenticated() && resource.data.email == resource.data.email;
       allow read: if userIsAuthenticated() && resource.data.auth0Id == resource.data.auth0Id;
 
-      allow update, delete: if userIsSelf(resource) && userIsSelf(request.resource);
+      allow update: if userIsSelf(resource) && userIsSelf(request.resource);
       allow create: if userIsSelf(request.resource);
     }
   }
