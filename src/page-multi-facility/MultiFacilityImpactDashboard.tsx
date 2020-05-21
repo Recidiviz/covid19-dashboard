@@ -9,11 +9,12 @@ import iconAddSrc from "../design-system/icons/ic_add.svg";
 import Loading from "../design-system/Loading";
 import TextLabel from "../design-system/TextLabel";
 import { useFlag } from "../feature-flags";
-import useFacilitiesRtData, {
-  getFacilitiesRtDataById,
-} from "../hooks/useFacilitiesRtData";
+import useFacilitiesRtData from "../hooks/useFacilitiesRtData";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
-import { updateFacilityRtData } from "../infection-model/rt";
+import {
+  getFacilitiesRtDataById,
+  updateFacilityRtData,
+} from "../infection-model/rt";
 import { useLocaleDataState } from "../locale-data-context";
 import useScenario from "../scenario-context/useScenario";
 import { FacilityContext } from "./FacilityContext";
