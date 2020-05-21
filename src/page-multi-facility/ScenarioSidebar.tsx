@@ -199,7 +199,7 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
                 background: Colors.green,
                 borderRadius: "4px",
                 fontSize: "14px",
-                fontFamily: "PingFang SC",
+                fontFamily: "Rubik, sans-serif",
                 width: "100%",
                 marginTop: "20px",
               }}
