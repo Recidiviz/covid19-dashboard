@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 
 import Colors from "./Colors";
-import { InputBaseProps, StyledInput, useInputValue } from "./Input";
+import { InputBaseProps, StyledInput } from "./Input";
 import InputLabelAndHelp from "./InputLabelAndHelp";
 
 const TextInputContainer = styled.div`
@@ -55,7 +55,6 @@ interface Props extends InputBaseProps<string> {
 }
 
 const InputText: React.FC<Props> = (props) => {
-  let inputValue = useInputValue(props);
   const placeholder = props.valuePlaceholder ?? props.labelPlaceholder;
   const nameInput = useRef() as React.MutableRefObject<HTMLInputElement>;
 
@@ -72,7 +71,7 @@ const InputText: React.FC<Props> = (props) => {
         <WrappedInput
           type={props.type}
           ref={nameInput}
-          value={inputValue ?? ""}
+          value={props.valueEntered ?? ""}
           headerStyle={!!props.headerStyle}
           placeholder={props.placeholder ?? placeholder}
           maxLength={props.maxLength}
