@@ -75,6 +75,7 @@
     "qs": "^6.9.3",
     "react": "^16.0.0",
     "react-date-picker": "^8.0.1",
+    "react-debounce-input": "^3.2.2",
     "react-dom": "^16.0.0",
     "react-helmet": "^6.0.0",
     "react-hot-loader": "^4.12.20",

@@ -1,3 +1,5 @@
+import React from "react";
+import { DebounceInput, DebounceInputProps } from "react-debounce-input";
 import styled, { css } from "styled-components";
 
 import Colors from "./Colors";
@@ -16,11 +18,22 @@ export interface InputValueProps<T> {
 
 export type InputBaseProps<T> = InputLabelProps & InputValueProps<T>;
 
-interface InputProps {
+interface StyleProps {
   headerStyle?: boolean;
 }
 
-export const StyledInput = styled.input<InputProps>`
+type Props = StyleProps &
+  DebounceInputProps<
+    HTMLInputElement,
+    React.InputHTMLAttributes<HTMLInputElement>
+  >;
+
+const CustomDebounceInput: React.FC<StyleProps & Props> = ({
+  headerStyle: _,
+  ...props
+}) => <DebounceInput {...props} />;
+
+export const StyledInput = styled(CustomDebounceInput)`
   background: ${Colors.gray};
   border-radius: 2px;
   border: none;

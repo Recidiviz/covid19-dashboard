@@ -5,13 +5,20 @@ import Colors from "./Colors";
 import { InputBaseProps, StyledInput } from "./Input";
 import InputLabelAndHelp from "./InputLabelAndHelp";
 
+/**
+ * How long after the last keystroke should we make updates based off the input?
+ */
+const InputTextTimeoutMs = 1000;
+
 const TextInputContainer = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
 `;
 
-const InputWrapper = styled(StyledInput)`
+const InputWrapper = styled.div`
+  ${StyledInput}
+
   align-items: center;
   display: flex;
   flex-direction: row;
@@ -19,7 +26,7 @@ const InputWrapper = styled(StyledInput)`
 
 const WrappedInput = styled(StyledInput)`
   margin: 0;
-  padding: 0;
+
   /*
     This is a little weird but we need a fixed number to override
     default sizing. Element will still flex as needed.
@@ -48,9 +55,7 @@ interface Props extends InputBaseProps<string> {
   onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
   onKeyDown?: (event: React.KeyboardEvent) => void;
   focus?: boolean;
-  maxLength?: number;
   placeholder?: string;
-  required?: boolean;
   style?: object;
 }
 
@@ -67,18 +72,17 @@ const InputText: React.FC<Props> = (props) => {
   return (
     <TextInputContainer>
       <InputLabelAndHelp label={props.labelAbove} labelHelp={props.labelHelp} />
-      <InputWrapper as="div" style={props.style}>
+      <InputWrapper style={props.style}>
         <WrappedInput
           type={props.type}
-          ref={nameInput}
+          inputRef={nameInput}
           value={props.valueEntered ?? ""}
           headerStyle={!!props.headerStyle}
           placeholder={props.placeholder ?? placeholder}
-          maxLength={props.maxLength}
-          required={props.required}
           onChange={(e) => props.onValueChange(e.target.value)}
           onBlur={props.onBlur}
           onKeyDown={props.onKeyDown}
+          debounceTimeout={InputTextTimeoutMs}
         />
         {props.children}
       </InputWrapper>
