@@ -130,17 +130,19 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
     <div className="flex flex-col w-1/4 mr-24" key={renderKey}>
       <div className="flex-1 flex flex-col pb-4">
         <ScenarioName>
-          <ScenarioLibraryModal
-            trigger={
-              <IconFolder
-                style={{
-                  marginTop: "8px",
-                }}
-                alt="folder"
-                src={iconFolderSrc}
-              />
-            }
-          />
+          <div className="flex-none">
+            <ScenarioLibraryModal
+              trigger={
+                <IconFolder
+                  style={{
+                    marginTop: "8px",
+                  }}
+                  alt="folder"
+                  src={iconFolderSrc}
+                />
+              }
+            />
+          </div>
           <InputName
             name={name}
             setName={setName}
@@ -199,7 +201,7 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
                 background: Colors.green,
                 borderRadius: "4px",
                 fontSize: "14px",
-                fontFamily: "PingFang SC",
+                fontFamily: "Rubik, sans-serif",
                 width: "100%",
                 marginTop: "20px",
               }}
