@@ -143,17 +143,15 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
               }
             />
           </div>
-          <div className="flex-initial">
-            <InputName
-              name={name}
-              setName={setName}
-              placeholderValue={scenario?.name}
-              placeholderText="Scenario name is required"
-              maxLengthValue={124}
-              requiredFlag={true}
-              persistChanges={handleTextInputChange}
-            />
-          </div>
+          <InputName
+            name={name}
+            setName={setName}
+            placeholderValue={scenario?.name}
+            placeholderText="Scenario name is required"
+            maxLengthValue={124}
+            requiredFlag={true}
+            persistChanges={handleTextInputChange}
+          />
         </ScenarioName>
         <Spacer y={20} />
         <InputDescription
