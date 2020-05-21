@@ -1,11 +1,12 @@
-import { orderBy, pickBy } from "lodash";
+import { orderBy } from "lodash";
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 
 import Loading from "../design-system/Loading";
+import { getFacilitiesRtDataById } from "../hooks/useFacilitiesRtData";
 import { getDaysAgoRt } from "../infection-model/rt";
 import { FacilityContext } from "../page-multi-facility/FacilityContext";
-import { Facilities } from "../page-multi-facility/types";
+import { Facilities, RtDataMapping } from "../page-multi-facility/types";
 import RtComparisonChart, {
   isRtComparisonData,
   RtComparisonData,
@@ -29,50 +30,46 @@ const RtComparisonChartContainer: React.FC<{
   rtDaysOffset: number;
 }> = ({ facilities, rtDaysOffset }) => {
   const { rtData: rtDataMapping } = useContext(FacilityContext);
-  const [chartData, updateChartData] = useState([] as RtComparisonData[]);
+  const [chartData, setChartData] = useState([] as RtComparisonData[]);
   const [loading, updateLoading] = useState(true);
 
+  const generateChartData = (
+    facilities: Facilities,
+    rtDataMapping: RtDataMapping | undefined,
+    rtDaysOffset: number,
+  ) => {
+    const facilitiesRtData =
+      getFacilitiesRtDataById(rtDataMapping, facilities) || {};
+    return Object.entries(facilitiesRtData)
+      .map(([facilityId, rtData]) => {
+        const facility = facilities.find(
+          (facility) => facility.id === facilityId,
+        );
+        if (!facility) return;
+        const values = {} as any;
+        if (rtData) {
+          Object.entries(rtData).forEach(([metric, records]) => {
+            const rtRecord = getDaysAgoRt(records, rtDaysOffset);
+            values[metric] = rtRecord?.value;
+          });
+        }
+        return {
+          name: facility.name,
+          id: facilityId,
+          values,
+        };
+      })
+      .filter(isRtComparisonData);
+  };
+
   useEffect(() => {
-    // when the offset changes, reset chart data state to force recomputation
-    updateChartData([]);
-  }, [rtDaysOffset]);
-
-  useEffect(
-    () => {
-      const existingIds = chartData.map((record) => record.id);
-      const newData = pickBy(
-        rtDataMapping,
-        (value, key) => !existingIds.includes(key),
-      );
-      const newRecords = Object.entries(newData)
-        .map(([key, rtData]) => {
-          const facility = facilities.find((f) => f.id === key);
-          if (!facility) return;
-          const values = {} as any;
-          if (rtData) {
-            Object.entries(rtData).forEach(([metric, records]) => {
-              const rtRecord = getDaysAgoRt(records, rtDaysOffset);
-              values[metric] = rtRecord?.value;
-            });
-          }
-          return {
-            name: facility.name,
-            id: key,
-            values,
-          };
-        })
-        .filter(isRtComparisonData);
-
-      if (newRecords.length) {
-        updateChartData(orderBy([...chartData, ...newRecords], ["values.Rt"]));
-      }
-    },
-    // change in rtDaysOffset triggers a state reset
-    // so it should be safe to exclude here;
-    // we don't want to display a mix of data from different days
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [facilities, rtDataMapping, chartData],
-  );
+    const chartData = generateChartData(
+      facilities,
+      rtDataMapping,
+      rtDaysOffset,
+    );
+    setChartData(orderBy(chartData, ["values.Rt"]));
+  }, [facilities, rtDataMapping, rtDaysOffset]);
 
   useEffect(() => {
     updateLoading(
