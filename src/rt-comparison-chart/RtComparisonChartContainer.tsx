@@ -3,8 +3,7 @@ import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 
 import Loading from "../design-system/Loading";
-import { getFacilitiesRtDataById } from "../hooks/useFacilitiesRtData";
-import { getDaysAgoRt } from "../infection-model/rt";
+import { getDaysAgoRt, getFacilitiesRtDataById } from "../infection-model/rt";
 import { FacilityContext } from "../page-multi-facility/FacilityContext";
 import { Facilities, RtDataMapping } from "../page-multi-facility/types";
 import RtComparisonChart, {
