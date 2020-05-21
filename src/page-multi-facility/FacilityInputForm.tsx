@@ -21,6 +21,7 @@ import RtTimeseries from "../rt-timeseries";
 import AddCasesModal from "./AddCasesModal";
 import { FacilityContext } from "./FacilityContext";
 import FacilityProjections from "./FacilityProjections";
+import HistoricalCasesChart from "./HistoricalCasesChart";
 import LocaleInformationSection from "./LocaleInformationSection";
 import { Facility } from "./types";
 
@@ -208,7 +209,11 @@ const FacilityInputForm: React.FC<Props> = ({ facilityId, scenarioId }) => {
           <Spacer x={20} />
           <PopUpMenu items={popupItems} />
         </DescRow>
-        <div className="mt-5 mb-5 border-b border-gray-300" />
+
+        {facility && (
+          <HistoricalCasesChart facility={facility} onModalSave={onModalSave} />
+        )}
+        <Spacer y={20} />
 
         {facility && (
           <RtChartContainer>

@@ -13123,6 +13123,13 @@ react-transition-group@^4.3.0:
     loose-envify "^1.4.0"
     prop-types "^15.6.2"
 
+react-use-visibility@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/react-use-visibility/-/react-use-visibility-0.3.0.tgz#1bf967dbde36a61af47d785156e5988c4c807e8e"
+  integrity sha512-CYlC/YngQ//IDdwO0tWw2p64tFAKBmjDAhxztX7K7aYn2Bme/GSUq8fExekCQ8vBvNK0+JJ9I0NCI3qprCwLkw==
+  dependencies:
+    lodash.throttle "^4.1.1"
+
 react-virtualized-auto-sizer@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/react-virtualized-auto-sizer/-/react-virtualized-auto-sizer-1.0.2.tgz#a61dd4f756458bbf63bd895a92379f9b70f803bd"

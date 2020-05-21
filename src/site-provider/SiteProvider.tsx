@@ -2,7 +2,7 @@ import { navigate } from "gatsby";
 import React, { useReducer, useState } from "react";
 import { ToastProvider } from "react-toast-notifications";
 
-import config from "../auth/auth_config.json";
+import AppAuth0ClientPromise from "../auth/AppAuth0ClientPromise";
 import { Auth0Provider } from "../auth/react-auth0-spa";
 import Toast from "../design-system/Toast";
 import { FeatureFlagsProvider } from "../feature-flags";
@@ -14,8 +14,7 @@ import {
 import { Facility } from "../page-multi-facility/types";
 import { ScenarioProvider } from "../scenario-context";
 
-// A function that routes the user to the right place
-// after login
+// A function that routes the user to the right place after login
 const onRedirectCallback = (appState: any) => {
   navigate(
     appState && appState.targetUrl
@@ -28,16 +27,10 @@ const SiteProvider: React.FC = (props) => {
   const [facility, setFacility] = useState<Facility | undefined>();
   const [rtData, dispatchRtData] = useReducer(rtDataReducer, {});
 
-  let redirectUri =
-    typeof window === "undefined" ? undefined : window.location.origin;
-
   return (
     <FeatureFlagsProvider>
       <Auth0Provider
-        domain={config.domain}
-        client_id={config.clientId}
-        audience={config.audience}
-        redirect_uri={redirectUri}
+        auth0ClientPromise={AppAuth0ClientPromise}
         onRedirectCallback={onRedirectCallback as any}
       >
         <LocaleDataProvider>

@@ -29,11 +29,13 @@ export function useSystemWideData(
       ? reverse([...baselinePopulations])
       : [];
 
-    let userInputStaffPopulation,
+    let userInputDate,
+      userInputStaffPopulation,
       userInputIncarceratedPopulation,
       localeDefaultIncarceratedPopulation;
 
     if (populationsCopy.length > 0) {
+      userInputDate = populationsCopy[0].date;
       userInputStaffPopulation = populationsCopy[0].staffPopulation;
       userInputIncarceratedPopulation =
         populationsCopy[0].incarceratedPopulation;
@@ -58,8 +60,13 @@ export function useSystemWideData(
       modelInputs,
     );
 
+    // defaultDate outputs to 12/31/2019 in the UI, as the month is 0-indexed
+    // See: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date
+    const defaultDate = new Date(2019, 11, 31);
+
     setSystemWideData({
       ...getSystemWideSums(modelInputs),
+      baselinePopulationDate: userInputDate || defaultDate,
       staffPopulation: userInputStaffPopulation || currentStaffPopulation,
       incarceratedPopulation:
         userInputIncarceratedPopulation ||
