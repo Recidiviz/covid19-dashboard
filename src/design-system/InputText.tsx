@@ -55,7 +55,9 @@ interface Props extends InputBaseProps<string> {
   onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
   onKeyDown?: (event: React.KeyboardEvent) => void;
   focus?: boolean;
+  maxLength?: number;
   placeholder?: string;
+  required?: boolean;
   style?: object;
 }
 
@@ -79,6 +81,8 @@ const InputText: React.FC<Props> = (props) => {
           value={props.valueEntered ?? ""}
           headerStyle={!!props.headerStyle}
           placeholder={props.placeholder ?? placeholder}
+          maxLength={props.maxLength}
+          required={props.required}
           onChange={(e) => props.onValueChange(e.target.value)}
           onBlur={props.onBlur}
           onKeyDown={props.onKeyDown}
