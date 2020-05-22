@@ -104,6 +104,13 @@ const AddCasesButton = styled.button`
   line-height: 1.3;
 `;
 
+const PageHeaderContainer = styled.div``;
+
+const HardReturn = styled.hr`
+  border-top: ${borderStyle};
+  margin-bottom: 12px;
+`;
+
 interface Props {
   scenarioId: string;
 }
@@ -166,8 +173,9 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   };
 
   return (
-    <PageContainer>
-      <Column width={"45%"}>
+    <>
+      <PageHeaderContainer>
+        <Spacer y={20} />
         <InputName
           name={facilityName}
           setName={setFacilityName}
@@ -175,86 +183,96 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
           placeholderText="Facility name is required"
           maxLengthValue={124}
           requiredFlag={true}
-          border
         />
-        <Spacer y={20} />
-        {facility && (
-          <AddCasesRow>
-            <AddCasesModal
-              facility={facility}
-              trigger={
-                <Tooltip content="Click to add new or previous day cases">
-                  <AddCasesButton>
-                    <ImgDuplicate alt="" src={iconDuplicatePath} />
-                    Add or update cases
-                  </AddCasesButton>
-                </Tooltip>
-              }
-              onSave={onModalSave}
-            />
-          </AddCasesRow>
-        )}
-        <DescRow>
-          <InputDescription
-            description={description}
-            setDescription={setDescription}
-            placeholderValue="Enter a description (optional)"
-          />
-          <Spacer x={20} />
+        <div className="flex justify-end">
+          {facility && (
+            <AddCasesRow>
+              <AddCasesModal
+                facility={facility}
+                trigger={
+                  <Tooltip content="Click to add new or previous day cases">
+                    <AddCasesButton>
+                      <ImgDuplicate alt="" src={iconDuplicatePath} />
+                      Add or update cases
+                    </AddCasesButton>
+                  </Tooltip>
+                }
+                onSave={onModalSave}
+              />
+            </AddCasesRow>
+          )}
+          <Spacer x={24} />
           <PopUpMenu items={popupItems} />
-        </DescRow>
-
-        {facility && (
-          <HistoricalCasesChart facility={facility} onModalSave={onModalSave} />
-        )}
-        <Spacer y={20} />
-
-        {facility && (
-          <RtChartContainer>
-            <RtTimeseries
-              facility={facility}
-              data={rtData ? rtData[facility.id] : undefined}
+        </div>
+      </PageHeaderContainer>
+      <PageContainer>
+        <Column width={"45%"}>
+          <HardReturn />
+          <DescRow>
+            <InputDescription
+              description={description}
+              setDescription={setDescription}
+              placeholderValue="Enter a description (optional)"
             />
-          </RtChartContainer>
-        )}
+            <Spacer x={20} />
+          </DescRow>
 
-        <LocaleInformationSection
-          systemType={systemType}
-          setSystemType={setSystemType}
-        />
-        <SectionHeader>Facility Details</SectionHeader>
-        <FacilityInformation />
-        <SectionHeader>Rate of Spread</SectionHeader>
-        <MitigationInformation />
-        <ButtonSection>
-          <InputButton label="Save" onClick={save} />
-        </ButtonSection>
-        <div className="mt-8" />
-      </Column>
-      <Column width={"55%"}>
-        <FacilityProjections />
-      </Column>
+          {facility && (
+            <HistoricalCasesChart
+              facility={facility}
+              onModalSave={onModalSave}
+            />
+          )}
+          <Spacer y={20} />
 
-      {/* MODAL */}
-      <ModalDialog
-        closeModal={closeDeleteModal}
-        open={showDeleteModal}
-        title="Are you sure?"
-      >
-        <ModalContents>
-          <ModalText>This action cannot be undone.</ModalText>
-          <ModalButtons>
-            <DeleteButton
-              label="Delete facility"
-              onClick={removeFacility} // replace with actual delete function (pass ID)
-            >
-              Delete facility
-            </DeleteButton>
-            <CancelButton onClick={closeDeleteModal}>Cancel</CancelButton>
-          </ModalButtons>
-        </ModalContents>
-      </ModalDialog>
-    </PageContainer>
+          {facility && (
+            <RtChartContainer>
+              <RtTimeseries
+                facility={facility}
+                data={rtData ? rtData[facility.id] : undefined}
+              />
+            </RtChartContainer>
+          )}
+
+          <LocaleInformationSection
+            systemType={systemType}
+            setSystemType={setSystemType}
+          />
+          <SectionHeader>Facility Details</SectionHeader>
+          <FacilityInformation />
+          <SectionHeader>Rate of Spread</SectionHeader>
+          <MitigationInformation />
+          <ButtonSection>
+            <InputButton label="Save" onClick={save} />
+          </ButtonSection>
+          <div className="mt-8" />
+        </Column>
+        <Column width={"55%"}>
+          <HardReturn />
+          <FacilityProjections />
+        </Column>
+
+        {/* MODAL */}
+        <ModalDialog
+          closeModal={closeDeleteModal}
+          open={showDeleteModal}
+          title="Are you sure?"
+        >
+          <ModalContents>
+            <ModalText>This action cannot be undone.</ModalText>
+            <ModalButtons>
+              <DeleteButton
+                label="Delete facility"
+                onClick={removeFacility} // replace with actual delete function (pass ID)
+              >
+                Delete facility
+              </DeleteButton>
+              <CancelButton onClick={closeDeleteModal}>Cancel</CancelButton>
+            </ModalButtons>
+          </ModalContents>
+        </ModalDialog>
+      </PageContainer>
+    </>
   );
 };
 
