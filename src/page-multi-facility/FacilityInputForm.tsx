@@ -1,5 +1,6 @@
 import { navigate } from "gatsby";
 import React, { useContext, useState } from "react";
+import { useHistory, useParams } from "react-router-dom";
 import styled from "styled-components";
 
 import { deleteFacility, saveFacility } from "../database/index";
@@ -104,14 +105,9 @@ const AddCasesButton = styled.button`
   line-height: 1.3;
 `;
 
-interface Props {
-  scenarioId: string;
-  facilityId: string;
-  isRoot?: boolean;
-  isNew?: boolean;
-}
-
-const FacilityInputForm: React.FC<Props> = ({ facilityId, scenarioId }) => {
+const FacilityInputForm = (props: { scenarioId: string }) => {
+  const history = useHistory();
+  const { scenarioId } = props;
   const { facility: initialFacility, rtData, dispatchRtData } = useContext(
     FacilityContext,
   );
@@ -124,10 +120,6 @@ const FacilityInputForm: React.FC<Props> = ({ facilityId, scenarioId }) => {
     facility?.systemType || undefined,
   );
   const model = useModel();
-
-  console.log("facilityName", facilityName);
-  console.log("facility", facility);
-  console.log("initialFacility", initialFacility);
 
   const save = () => {
     if (facilityName) {
@@ -142,7 +134,7 @@ const FacilityInputForm: React.FC<Props> = ({ facilityId, scenarioId }) => {
         systemType: systemType || null,
         modelInputs: modelUpdate,
       }).then(() => {
-        navigate("/");
+        history.push(`/app/scenario/${scenarioId}`);
       });
     } else {
       window.scroll({ top: 0, left: 0, behavior: "smooth" });
@@ -160,7 +152,7 @@ const FacilityInputForm: React.FC<Props> = ({ facilityId, scenarioId }) => {
   const popupItems = [{ name: "Delete", onClick: openDeleteModal }];
   const removeFacility = async () => {
     if (facility?.id) {
-      await deleteFacility(scenarioId, facility?.id);
+      await deleteFacility(scenarioId, facility.id);
       window.history.back();
     }
     updateShowDeleteModal(false);

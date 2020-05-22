@@ -1,5 +1,5 @@
 /**
- * Note: This file is identical to app.tsx, but app.tsx is the main file.
+ * Note: This file is identical to index.tsx, but app.tsx is the main file.
  *
  * The react-router-dom is used to handle all routes after being authenticated.
  */

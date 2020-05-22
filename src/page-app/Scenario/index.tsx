@@ -1,4 +1,3 @@
-import { RouteComponentProps } from "@reach/router";
 import React from "react";
 
 import Loading from "../../design-system/Loading";
@@ -8,10 +7,8 @@ import MultiFacilityImpactDashboard from "../../page-multi-facility/MultiFacilit
 import useScenario from "../../scenario-context/useScenario";
 import PageInfo from "../../site-metadata/PageInfo";
 
-type Props = RouteComponentProps;
-
 // eslint-disable-next-line react/display-name
-export default (props: Props) => {
+export default () => {
   const localeState = useLocaleDataState();
   const [scenario] = useScenario();
 

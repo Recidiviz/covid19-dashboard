@@ -1,5 +1,5 @@
-import { Link, useLocation } from "@reach/router";
 import React, { useContext, useEffect, useState } from "react";
+import { Link, useLocation, useParams } from "react-router-dom";
 import styled from "styled-components";
 
 import { FetchedFacilities } from "../constants/Facilities";
@@ -10,7 +10,6 @@ import iconAddSrc from "../design-system/icons/ic_add.svg";
 import Loading from "../design-system/Loading";
 import TextLabel from "../design-system/TextLabel";
 import { useFlag } from "../feature-flags";
-import { RouteParam } from "../helpers/Routing";
 import { ReplaceUrlParams } from "../helpers/Routing";
 import useFacilitiesRtData from "../hooks/useFacilitiesRtData";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
@@ -88,8 +87,8 @@ interface ScenarioPanelsProps {
 const MultiFacilityImpactDashboard: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
   const [scenario] = useScenario();
+  const { scenarioId: scenarioIdParam } = useParams();
   const location = useLocation();
-  const { scenarioId } = RouteParam(location.pathname, Routes.Facility.name);
   const showRateOfSpreadTab = useFlag(["showRateOfSpreadTab"]);
   const { setFacility, rtData, dispatchRtData } = useContext(FacilityContext);
 
@@ -131,7 +130,7 @@ const MultiFacilityImpactDashboard: React.FC = () => {
 
   const [selectedTab, setSelectedTab] = useState(0);
 
-  if (!scenarioId) {
+  if (!scenarioIdParam) {
     return <Loading />;
   }
 
@@ -148,7 +147,7 @@ const MultiFacilityImpactDashboard: React.FC = () => {
               localeDataSource={localeDataSource}
             >
               <FacilityRow
-                scenarioId={scenarioId}
+                scenarioId={scenarioIdParam}
                 facility={facility}
                 onSave={handleFacilitySave}
               />
@@ -159,9 +158,6 @@ const MultiFacilityImpactDashboard: React.FC = () => {
     </>
   );
 
-  const newFacilityPath = ReplaceUrlParams(Routes.FacilityNew.url, {
-    scenarioId,
-  });
   return (
     <MultiFacilityImpactDashboardContainer>
       {scenario.loading ? (
@@ -178,7 +174,7 @@ const MultiFacilityImpactDashboard: React.FC = () => {
           />
         )}
         <div className="flex flex-row flex-none justify-between items-start">
-          <Link to={ReplaceUrlParams(Routes.FacilityNew.url, { scenarioId })}>
+          <Link to={ReplaceUrlParams(Routes.Facility.url, { scenarioId: 'new' })}>
             <AddFacilityButton>
               <IconAdd alt="add facility" src={iconAddSrc} />
               <AddFacilityButtonText>Add Facility</AddFacilityButtonText>
