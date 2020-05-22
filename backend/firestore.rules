@@ -50,7 +50,7 @@ service cloud.firestore {
       }
 
       // These rules limit read access to the users collection by enforcing that read queries
-      // must proivide either an email address or Auth0 User ID.  This prevents the potential
+      // must provide either an email address or Auth0 User ID.  This prevents the potential
       // of a malicious client-side user from accessing every single user document at once.
       // This works because Firestore query constraints must match the same constraints
       // specified by the Firestore rules:

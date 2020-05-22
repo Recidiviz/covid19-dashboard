@@ -329,19 +329,36 @@ export const getFacilityModelVersions = async ({
   }
 };
 
+const getUserDocument = async (params: {
+  email?: string;
+  auth0Id?: string;
+}): Promise<firebase.firestore.DocumentData | never> => {
+  const db = await getDb();
+
+  const [key, value] = Object.entries(params)[0];
+
+  if (!key || !value) {
+    throw new Error(`Invalid user access attempt with input: ${key}:${value}`);
+  }
+
+  const userResult = await db
+    .collection(usersCollectionId)
+    .where(key, "==", value)
+    .get();
+
+  if (userResult.docs.length > 1) {
+    throw new Error(`Multiple users found matching ${key} ${value}`);
+  } else if (userResult.docs.length === 0) {
+    throw new Error(`No users found matching ${key} ${value}`);
+  }
+
+  return userResult.docs[0];
+};
+
 export const getUser = async (auth0Id: string): Promise<User | null> => {
   try {
-    const db = await getDb();
-    const userResult = await db
-      .collection(usersCollectionId)
-      .where("auth0Id", "==", auth0Id)
-      .get();
-    if (userResult.docs.length > 1) {
-      throw new Error(`Multiple users found matching id ${auth0Id}`);
-    } else if (userResult.docs.length === 0) {
-      throw new Error(`No users found matching id ${auth0Id}`);
-    }
-    return buildUser(userResult.docs[0]);
+    const userDocument = await getUserDocument({ auth0Id });
+    return buildUser(userDocument);
   } catch (e) {
     console.error("Encountered error while attempting to retrieve user: \n", e);
     return null;
@@ -360,25 +377,17 @@ export const getScenarioUsers = async (
 
     const auth0Ids = Object.keys(scenario.roles);
 
-    const users = [];
-    for (const auth0Id of auth0Ids) {
-      // We have to get the users one at a time because Firestore limits the number
-      // of elements that can be included within an "in" clause to 10. In other
-      // words, if a Scenario has more than 10 users, writing the query with a
-      // where clause that includes each of these user's auth0Ids would fail.
-      // https://firebase.google.com/docs/firestore/query-data/queries#in_and_array-contains-any
-      const user = await getUser(auth0Id);
+    // We have to get the users one at a time because Firestore limits the number
+    // of elements that can be included within an "in" clause to 10. In other
+    // words, if a Scenario has more than 10 users, writing the query with a
+    // where clause that includes each of these user's auth0Ids would fail.
+    // https://firebase.google.com/docs/firestore/query-data/queries#in_and_array-contains-any
+    const users = await Promise.all(
+      auth0Ids.map((auth0Id) => getUser(auth0Id)),
+    );
 
-      if (!user) {
-        throw new Error(
-          "Error retrieving role for ${auth0Id} in scenario {scenarioId}",
-        );
-      }
-
-      users.push(user);
-    }
-
-    return users;
+    // Appeasing the TypeScript gods by filtering out possible null values
+    return users.filter((user): user is User => user !== null);
   } catch (e) {
     console.error(
       "Encountered error while attempting to retrieve scenario users: \n",
@@ -423,23 +432,9 @@ export const addScenarioUser = async (
   scenarioId: string,
   email: string,
 ): Promise<User | null> => {
-  const db = await getDb();
-
   try {
-    const userResult = await db
-      .collection(usersCollectionId)
-      .where("email", "==", email)
-      .get();
-
-    if (userResult.docs.length > 1) {
-      throw new Error(`Multiple users found matching email ${email}`);
-    } else if (userResult.docs.length === 0) {
-      throw new Error(`No users found matching email ${email}`);
-    }
-
-    const userDocument = userResult.docs[0];
+    const userDocument = await getUserDocument({ email });
     const auth0Id = userDocument.data().auth0Id;
-
     const scenario = await getScenario(scenarioId);
 
     if (!scenario) {
