@@ -33,25 +33,10 @@ const WrappedInput = styled(StyledInput)`
   */
   width: 0;
   color: ${Colors.green};
-
-  // make placeholder font size smaller than the input's
-  &::-webkit-input-placeholder {
-    ${(props) => (props.headerStyle ? "font-size: 18px" : "")}
-  }
-  &::-moz-placeholder {
-    ${(props) => (props.headerStyle ? "font-size: 18px" : "")}
-  }
-  &:-ms-input-placeholder {
-    ${(props) => (props.headerStyle ? "font-size: 18px" : "")}
-  }
-  &:-moz-placeholder {
-    ${(props) => (props.headerStyle ? "font-size: 18px" : "")}
-  }
 `;
 
 interface Props extends InputBaseProps<string> {
   type: "text" | "number";
-  headerStyle?: boolean;
   onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
   onKeyDown?: (event: React.KeyboardEvent) => void;
   focus?: boolean;
@@ -77,7 +62,6 @@ const InputText: React.FC<Props> = (props) => {
           type={props.type}
           inputRef={nameInput}
           value={props.valueEntered ?? ""}
-          headerStyle={!!props.headerStyle}
           placeholder={props.labelPlaceholder}
           maxLength={props.maxLength}
           required={props.required}
