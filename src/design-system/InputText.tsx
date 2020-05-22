@@ -56,13 +56,11 @@ interface Props extends InputBaseProps<string> {
   onKeyDown?: (event: React.KeyboardEvent) => void;
   focus?: boolean;
   maxLength?: number;
-  placeholder?: string;
   required?: boolean;
   style?: object;
 }
 
 const InputText: React.FC<Props> = (props) => {
-  const placeholder = props.valuePlaceholder ?? props.labelPlaceholder;
   const nameInput = useRef() as React.MutableRefObject<HTMLInputElement>;
 
   useEffect(() => {
@@ -80,7 +78,7 @@ const InputText: React.FC<Props> = (props) => {
           inputRef={nameInput}
           value={props.valueEntered ?? ""}
           headerStyle={!!props.headerStyle}
-          placeholder={props.placeholder ?? placeholder}
+          placeholder={props.labelPlaceholder}
           maxLength={props.maxLength}
           required={props.required}
           onChange={(e) => props.onValueChange(e.target.value)}

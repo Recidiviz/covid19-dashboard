@@ -12,7 +12,6 @@ export interface InputLabelProps {
 
 export interface InputValueProps<T> {
   valueEntered: T | undefined;
-  valuePlaceholder?: T;
   onValueChange: (value: T | undefined) => void;
 }
 

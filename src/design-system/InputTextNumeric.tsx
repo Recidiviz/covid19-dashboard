@@ -41,7 +41,6 @@ const InputTextNumeric: React.FC<Props> = (props) => {
       {...props}
       type="number"
       valueEntered={formatValue(props.valueEntered)}
-      valuePlaceholder={formatValue(props.valuePlaceholder)}
       onValueChange={onValueChange}
       labelPlaceholder={
         props.labelPlaceholder ??
