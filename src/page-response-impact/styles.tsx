@@ -13,6 +13,7 @@ export const PageHeader = styled.h1`
   letter-spacing: -0.06em;
   padding: 24px 0;
 `;
+
 export const SectionHeader = styled.h1`
   color: ${Colors.forest};
   border-top: 1px solid ${Colors.opacityGray};
@@ -23,6 +24,7 @@ export const SectionHeader = styled.h1`
   letter-spacing: -0.06em;
   padding: 40px 0 24px;
 `;
+
 export const PlaceholderSpace = styled.div`
   border: 1px solid ${Colors.gray};
   background-color: ${Colors.darkGray};
@@ -30,6 +32,7 @@ export const PlaceholderSpace = styled.div`
   margin: 20px 0;
   width: 100%;
 `;
+
 export const ChartHeader = styled.h3<{ color?: string }>`
   border-top: 1px solid ${Colors.opacityGray};
   border-bottom: 1px solid ${Colors.opacityGray};
@@ -44,6 +47,7 @@ export const ChartHeader = styled.h3<{ color?: string }>`
   margin-bottom: 15px;
   padding: 5px 0;
 `;
+
 export const SectionSubheader = styled.h2`
   color: ${Colors.darkForest};
   font-family: "Poppins";
