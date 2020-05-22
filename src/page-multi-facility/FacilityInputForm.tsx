@@ -176,14 +176,17 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
     <>
       <PageHeaderContainer>
         <Spacer y={20} />
-        <InputName
-          name={facilityName}
-          setName={setFacilityName}
-          placeholderValue="Unnamed Facility"
-          placeholderText="Facility name is required"
-          maxLengthValue={124}
-          requiredFlag={true}
-        />
+        <div className="mx-5">
+          <InputName
+            name={facilityName}
+            setName={setFacilityName}
+            placeholderValue="Unnamed Facility"
+            placeholderText="Facility name is required"
+            maxLengthValue={124}
+            requiredFlag={true}
+          />
+        </div>
+
         <div className="flex justify-end">
           {facility && (
             <AddCasesRow>

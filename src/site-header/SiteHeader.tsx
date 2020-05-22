@@ -8,7 +8,7 @@ import Logo from "./Logo";
 
 const Nav = styled.nav`
   align-items: center;
-  border-bottom: 1px solid ${Colors.opacityGray};
+  /* border-bottom: 1px solid ${Colors.opacityGray}; */
   display: flex;
   flex-wrap: wrap;
   font-family: "Poppins", sans-serif;
