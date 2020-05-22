@@ -1,6 +1,5 @@
-import React from "react";
-import { DebounceInput, DebounceInputProps } from "react-debounce-input";
-import styled from "styled-components";
+import { DebounceInput } from "react-debounce-input";
+import { css } from "styled-components";
 
 import Colors from "./Colors";
 
@@ -17,16 +16,29 @@ export interface InputValueProps<T> {
 
 export type InputBaseProps<T> = InputLabelProps & InputValueProps<T>;
 
-type CustomDebounceInputProps = DebounceInputProps<
-  HTMLInputElement,
-  React.InputHTMLAttributes<HTMLInputElement>
->;
+/**
+ * This component has the same functionality as DebounceInput, except that it
+ * removes the type parameter. This is because we can't use DebounceInput as-is
+ * with styled-components. Specifically, we cannot do the following
+ *
+ *     let MyComponent = styled(DebounceInput<HTMLInputElement>)`
+ *       ...
+ *     `
+ *
+ * because it's invalid syntax.
+ *
+ * NOTE: This trick currently depends on DebounceInput being implemented as a
+ * class component. If it becomes a function component in the future, then we
+ * might need to use the slightly more complicated method of building a wrapper
+ * component (but it can that component can be used the same way).
+ *
+ * NOTE: If a future version of TypeScript/JSX/styled-components allows us to do
+ * this (or if there's an easier way to do this), then we should use that method
+ * instead.
+ */
+export class CustomDebounceInput extends DebounceInput<HTMLInputElement> {}
 
-const CustomDebounceInput: React.FC<CustomDebounceInputProps> = (props) => (
-  <DebounceInput<HTMLInputElement> {...props} />
-);
-
-export const StyledInput = styled(CustomDebounceInput)`
+export const InputStyle = css`
   background: ${Colors.gray};
   border-radius: 2px;
   border: none;

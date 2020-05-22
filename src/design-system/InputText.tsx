@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 
 import Colors from "./Colors";
-import { InputBaseProps, StyledInput } from "./Input";
+import { CustomDebounceInput, InputBaseProps, InputStyle } from "./Input";
 import InputLabelAndHelp from "./InputLabelAndHelp";
 
 /**
@@ -17,15 +17,17 @@ const TextInputContainer = styled.div`
 `;
 
 const InputWrapper = styled.div`
-  ${StyledInput}
+  ${InputStyle}
 
   align-items: center;
   display: flex;
   flex-direction: row;
 `;
 
-const WrappedInput = styled(StyledInput)`
+const WrappedInput = styled(CustomDebounceInput)`
+  ${InputStyle}
   margin: 0;
+  padding: 0;
 
   /*
     This is a little weird but we need a fixed number to override
