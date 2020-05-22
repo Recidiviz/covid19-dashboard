@@ -329,17 +329,12 @@ export const getFacilityModelVersions = async ({
   }
 };
 
-const getUserDocument = async (params: {
-  email?: string;
-  auth0Id?: string;
-}): Promise<firebase.firestore.DocumentData | never> => {
+const getUserDocument = async (
+  params: { email: string } | { auth0Id: string },
+): Promise<firebase.firestore.DocumentData | never> => {
   const db = await getDb();
 
   const [key, value] = Object.entries(params)[0];
-
-  if (!key || !value) {
-    throw new Error(`Invalid user access attempt with input: ${key}:${value}`);
-  }
 
   const userResult = await db
     .collection(usersCollectionId)
