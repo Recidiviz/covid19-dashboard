@@ -1,19 +1,9 @@
-import { pick } from "lodash";
 import { useContext, useEffect } from "react";
 
 import { FacilityEvents } from "../constants/dispatchEvents";
 import { getRtDataForFacility } from "../infection-model/rt";
 import { FacilityContext } from "../page-multi-facility/FacilityContext";
-import { Facilities, RtDataMapping } from "../page-multi-facility/types";
-
-export function getFacilitiesRtDataById(
-  rtData: RtDataMapping | undefined,
-  facilities: Facilities,
-) {
-  if (!rtData) return null;
-  const facilityIds = facilities.map((f) => f.id);
-  return pick(rtData, facilityIds);
-}
+import { Facilities } from "../page-multi-facility/types";
 
 const useFacilitiesRtData = (facilities: Facilities | null) => {
   const { rtData, dispatchRtData } = useContext(FacilityContext);

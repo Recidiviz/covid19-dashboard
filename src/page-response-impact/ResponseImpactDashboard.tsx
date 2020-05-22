@@ -8,10 +8,9 @@ import iconBackSrc from "../design-system/icons/ic_back.svg";
 import Loading from "../design-system/Loading";
 import { Column, PageContainer } from "../design-system/PageColumn";
 import { Spacer } from "../design-system/Spacer";
-import useFacilitiesRtData, {
-  getFacilitiesRtDataById,
-} from "../hooks/useFacilitiesRtData";
+import useFacilitiesRtData from "../hooks/useFacilitiesRtData";
 import { sumAgeGroupPopulations } from "../impact-dashboard/EpidemicModelContext";
+import { getFacilitiesRtDataById } from "../infection-model/rt";
 import { useLocaleDataState } from "../locale-data-context";
 import { FacilityContext } from "../page-multi-facility/FacilityContext";
 import { BaselinePopulations, Scenario } from "../page-multi-facility/types";
@@ -143,14 +142,9 @@ const ResponseImpactDashboard: React.FC<Props> = ({
                 <PageContainer>
                   <Column>
                     <DescriptionTextDiv>
-                      New! This report compares the impact of your system's
-                      COVID-19 response against the model's initial assumptions
-                      and projections.
-                      <br />
-                      <br />
-                      Coming soon: Input historical case counts and facility
-                      information to customize the impact report for greater
-                      precision.
+                      This report compares the impact of your system's COVID-19
+                      response against the model's initial assumptions and
+                      projections.
                     </DescriptionTextDiv>
                     <Spacer y={40} />
                     <SectionHeader>Overall Population Safety</SectionHeader>
