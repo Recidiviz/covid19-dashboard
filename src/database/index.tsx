@@ -123,6 +123,12 @@ const buildUpdatePayload = (entity: any) => {
   return payload;
 };
 
+function throwIfPermissionsError(error: { code?: string }) {
+  if (error.code === "permission-denied") {
+    throw new Error("You don't have permission to edit this scenario.");
+  }
+}
+
 const getBaselineScenarioRef = async (): Promise<firebase.firestore.DocumentReference | void> => {
   const db = await getDb();
 
@@ -251,8 +257,11 @@ export const saveScenario = async (scenario: any): Promise<Scenario | null> => {
 
     return await getScenario(scenarioId);
   } catch (error) {
+    // known errors should be rethrown for handling;
+    // anything else gets logged and swallowed
     console.error("Encountered error while attempting to save a scenario:");
     console.error(error);
+    throwIfPermissionsError(error);
     return null;
   }
 };
@@ -613,6 +622,7 @@ export const saveFacility = async (
   } catch (error) {
     console.error("Encountered error while attempting to save a facility:");
     console.error(error);
+    throwIfPermissionsError(error);
   }
 };
 

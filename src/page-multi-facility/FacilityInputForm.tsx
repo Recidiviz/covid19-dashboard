@@ -13,6 +13,7 @@ import { Column, PageContainer } from "../design-system/PageColumn";
 import PopUpMenu from "../design-system/PopUpMenu";
 import { Spacer } from "../design-system/Spacer";
 import Tooltip from "../design-system/Tooltip";
+import useRejectionToast from "../hooks/useRejectionToast";
 import FacilityInformation from "../impact-dashboard/FacilityInformation";
 import MitigationInformation from "../impact-dashboard/MitigationInformation";
 import useModel from "../impact-dashboard/useModel";
@@ -122,21 +123,23 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   );
   const model = useModel();
 
+  const rejectionToast = useRejectionToast();
+
   const save = () => {
     if (facilityName) {
       // Set observedAt to right now when updating a facility from this input form
       const modelUpdate = Object.assign({}, model[0]);
       modelUpdate.observedAt = new Date();
 
-      saveFacility(scenarioId, {
-        id: facility?.id,
-        name: facilityName || null,
-        description: description || null,
-        systemType: systemType || null,
-        modelInputs: modelUpdate,
-      }).then(() => {
-        navigate("/");
-      });
+      rejectionToast(
+        saveFacility(scenarioId, {
+          id: facility?.id,
+          name: facilityName || null,
+          description: description || null,
+          systemType: systemType || null,
+          modelInputs: modelUpdate,
+        }).then(() => navigate("/")),
+      );
     } else {
       window.scroll({ top: 0, left: 0, behavior: "smooth" });
     }
