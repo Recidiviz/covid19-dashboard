@@ -1,14 +1,14 @@
-import { navigate, RouteComponentProps, useLocation } from "@reach/router";
 import React, { useContext, useEffect, useState } from "react";
+import { Redirect, useParams } from "react-router-dom";
 
-import Layout from "../../components/Layout";
-import { FetchedFacilities } from "../../constants/Facilities";
-import { Routes } from "../../constants/Routes";
-import { getFacilities } from "../../database";
-import { ReplaceUrlParams, RouteParam } from "../../helpers/Routing";
-import { FacilityContext } from "../../page-multi-facility/FacilityContext";
-import { Facilities } from "../../page-multi-facility/types";
-import useScenario from "../../scenario-context/useScenario";
+import { FetchedFacilities } from "../../../constants/Facilities";
+import { Routes } from "../../../constants/Routes";
+import { getFacilities } from "../../../database";
+import { ReplaceUrlParams } from "../../../helpers/Routing";
+import { FacilityContext } from "../../../page-multi-facility/FacilityContext";
+import { Facilities } from "../../../page-multi-facility/types";
+import useScenario from "../../../scenario-context/useScenario";
+import ScenarioContainer from "../Container";
 
 type Props = RouteComponentProps<{
   isRoot?: boolean;
@@ -18,8 +18,8 @@ type Props = RouteComponentProps<{
 
 // eslint-disable-next-line react/display-name
 export default (props: Props) => {
+  const {facilityId: facilityIdParam} = useParams();
   const [scenario] = useScenario();
-  const location = useLocation();
   const { facility, setFacility } = useContext(FacilityContext);
   const [facilities, setFacilities] = useState<FetchedFacilities>({
     data: [] as Facilities,
@@ -36,11 +36,7 @@ export default (props: Props) => {
         return;
       }
 
-      const newFacility = facilitiesData.find(
-        (facility) =>
-          facility.id ===
-          RouteParam(location.pathname, Routes.Facility.name).facilityId,
-      );
+      const newFacility = facilitiesData.find((facility) => facility.id === facilityIdParam);
       console.log("newFacility", newFacility);
 
       setFacility(newFacility);
@@ -62,18 +58,14 @@ export default (props: Props) => {
     return null;
   }
 
-  const shouldRewriteUrl =
-    !!facility &&
-    RouteParam(location.pathname, Routes.Facility.name).facilityId !==
-      facility.id;
+  const shouldRewriteUrl = !!facility && facilityIdParam !== facility.id;
   const scenarioPath = ReplaceUrlParams(Routes.Scenario.url, {
     scenarioId: scenario.data.id,
   });
 
   if (shouldRewriteUrl && !facilities.loading) {
-    navigate(scenarioPath, { replace: true });
-    return null;
+    return <Redirect to={scenarioPath} />;
   } else {
-    return <Layout>{props.children}</Layout>;
+    return <ScenarioContainer>{props.children}</ScenarioContainer>;
   }
 };

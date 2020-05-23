@@ -82,6 +82,7 @@
     "react-hot-loader": "^4.12.20",
     "react-is": "^16.13.1",
     "react-popper": "^2.1.0",
+    "react-router-dom": "^5.2.0",
     "react-spinners": "^0.8.1",
     "react-toast-notifications": "^2.4.0",
     "react-use-visibility": "^0.3.0",

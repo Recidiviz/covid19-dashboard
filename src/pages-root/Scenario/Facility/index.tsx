@@ -1,13 +1,13 @@
 import { RouteComponentProps } from "@reach/router";
 import React, { useContext } from "react";
 
-import Loading from "../../design-system/Loading";
-import { EpidemicModelProvider } from "../../impact-dashboard/EpidemicModelContext";
-import { useLocaleDataState } from "../../locale-data-context";
-import { FacilityContext } from "../../page-multi-facility/FacilityContext";
-import FacilityInputForm from "../../page-multi-facility/FacilityInputForm";
-import useScenario from "../../scenario-context/useScenario";
-import PageInfo from "../../site-metadata/PageInfo";
+import Loading from "../../../design-system/Loading";
+import { EpidemicModelProvider } from "../../../impact-dashboard/EpidemicModelContext";
+import { useLocaleDataState } from "../../../locale-data-context";
+import { FacilityContext } from "../../../page-multi-facility/FacilityContext";
+import FacilityInputForm from "../../../page-multi-facility/FacilityInputForm";
+import useScenario from "../../../scenario-context/useScenario";
+import PageInfo from "../../../site-metadata/PageInfo";
 
 interface Props extends RouteComponentProps {
   facility?: any;
