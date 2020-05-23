@@ -2,6 +2,7 @@ import { navigate } from "gatsby";
 import React, { useState } from "react";
 import styled from "styled-components";
 
+import {Routes} from '../../constants/Routes';
 import Colors from "../../design-system/Colors";
 import InputButton from "../../design-system/InputButton";
 import ModalDialog from "../../design-system/ModalDialog";
@@ -89,7 +90,7 @@ const BaselinePopulationModal: React.FC<Props> = ({
   const [page, setPage] = useState(1);
 
   async function onCloseModal() {
-    await navigate("/");
+    await navigate(Routes.App.url);
   }
 
   return (

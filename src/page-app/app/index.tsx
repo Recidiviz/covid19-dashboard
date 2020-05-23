@@ -31,7 +31,7 @@ export default () => {
   return (
     <Layout>
       <Router>
-        <SiteHeader />
+        <SiteHeader isApp={true} />
         <Switch>
           <Route
             path={Routes.Facility.url}

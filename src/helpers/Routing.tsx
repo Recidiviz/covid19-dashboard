@@ -1,5 +1,3 @@
-import { Routes } from "../constants/Routes";
-
 /**
  * Replace the url params in a url template.
  *
@@ -22,9 +20,4 @@ export const ReplaceUrlParams = (
   }
 
   return urlFragments.join("/");
-};
-
-type RouteParamValues = {
-  scenarioId?: string;
-  facilityId?: string;
 };

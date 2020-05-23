@@ -5,9 +5,17 @@ export const Routes = {
     name: "root",
     url: `/`,
   },
+  Verify: {
+    name: "verify",
+    url: `/verify`,
+  },
   App: {
     name: "app",
     url: `/app`,
+  },
+  About: {
+    name: "about",
+    url: `/about`,
   },
   ScenarioRoot: {
     name: "scenario-root",
