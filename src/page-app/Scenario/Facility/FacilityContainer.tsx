@@ -5,6 +5,7 @@ import { FetchedFacilities } from "../../../constants/Facilities";
 import { Routes } from "../../../constants/Routes";
 import { getFacilities } from "../../../database";
 import Loading from "../../../design-system/Loading";
+import PageInfo from "../../../site-metadata/PageInfo";
 import { ReplaceUrlParams } from "../../../helpers/Routing";
 import useFacilitiesRtData from "../../../hooks/useFacilitiesRtData";
 import { FacilityContext } from "../../../page-multi-facility/FacilityContext";
@@ -61,11 +62,20 @@ const FacilityContainer = (props: Props) => {
   const scenarioPath = ReplaceUrlParams(Routes.Scenario.url, {
     scenarioId: scenarioIdParam,
   });
+
+  const facilityTitle = !!facility ? `${facility.name} facility page` : `New facility page`;
   
   if (facilities.loading) {
     return <Loading />
   } else {
-    return !shouldRewriteUrl ? <ScenarioContainer>{React.cloneElement(props.children, {initialFacility: facility})}</ScenarioContainer> : <Redirect to={scenarioPath} />;
+    return !shouldRewriteUrl ? (
+      <>
+        <PageInfo title={facilityTitle} />
+        <ScenarioContainer>
+          {React.cloneElement(props.children, {initialFacility: facility})}
+        </ScenarioContainer>
+      </>
+    ) : <Redirect to={scenarioPath} />;
   }
 
 };

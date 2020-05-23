@@ -21,7 +21,6 @@ export default (props: Props) => {
 
   return (
     <>
-      <PageInfo title="Facility Page" />
       <EpidemicModelProvider
         facilityModel={facility?.modelInputs}
         localeDataSource={localeDataSource}
