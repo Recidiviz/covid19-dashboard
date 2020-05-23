@@ -106,22 +106,19 @@ const AddCasesButton = styled.button`
 
 interface Props {
   scenarioId: string;
-  facilityId: string;
   isRoot?: boolean;
   isNew?: boolean;
 }
 
-const FacilityInputForm: React.FC<Props> = ({ facilityId, scenarioId }) => {
-  const { facility: initialFacility, rtData, dispatchRtData } = useContext(
-    FacilityContext,
-  );
+const FacilityInputForm: React.FC<Props> = () => {
+  const { facility: initialFacility, rtData, dispatchRtData } = useContext(FacilityContext);
   const [facility, updateFacility] = useState(initialFacility);
-  const [facilityName, setFacilityName] = useState(facility?.name || undefined);
+  const [facilityName, setFacilityName] = useState(initialFacility.name || undefined);
   const [description, setDescription] = useState(
-    facility?.description || undefined,
+    initialFacility.description || undefined,
   );
   const [systemType, setSystemType] = useState(
-    facility?.systemType || undefined,
+    initialFacility.systemType || undefined,
   );
   const model = useModel();
 
@@ -136,7 +133,7 @@ const FacilityInputForm: React.FC<Props> = ({ facilityId, scenarioId }) => {
       modelUpdate.observedAt = new Date();
 
       saveFacility(scenarioId, {
-        id: facility?.id,
+        id: initialFacility.id,
         name: facilityName || null,
         description: description || null,
         systemType: systemType || null,
@@ -159,8 +156,8 @@ const FacilityInputForm: React.FC<Props> = ({ facilityId, scenarioId }) => {
   };
   const popupItems = [{ name: "Delete", onClick: openDeleteModal }];
   const removeFacility = async () => {
-    if (facility?.id) {
-      await deleteFacility(scenarioId, facility?.id);
+    if (initialFacility.id) {
+      await deleteFacility(scenarioId, initialFacility.id);
       window.history.back();
     }
     updateShowDeleteModal(false);

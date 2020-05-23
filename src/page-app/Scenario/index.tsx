@@ -1,5 +1,5 @@
-import { RouteComponentProps } from "@reach/router";
 import React from "react";
+import { RouteComponentProps } from "react-router-dom";
 
 import Loading from "../../design-system/Loading";
 import { useLocaleDataState } from "../../locale-data-context";
