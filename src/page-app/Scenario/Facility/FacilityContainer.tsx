@@ -10,7 +10,7 @@ import useFacilitiesRtData from "../../../hooks/useFacilitiesRtData";
 import { FacilityContext } from "../../../page-multi-facility/FacilityContext";
 import { Facilities } from "../../../page-multi-facility/types";
 import PageInfo from "../../../site-metadata/PageInfo";
-import ScenarioContainer from "../ScenarioContainer";
+import ScenarioContainer from "../../scenario/ScenarioContainer";
 import Facility from ".";
 
 type Props = {
