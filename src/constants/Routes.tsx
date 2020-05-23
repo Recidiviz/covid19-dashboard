@@ -1,6 +1,18 @@
-export const scenarioRootUrl = '/app/scenario';
+export const scenarioRootUrl = "/app/scenario";
 
 export const Routes = {
+  Root: {
+    name: "root",
+    url: `/`,
+  },
+  App: {
+    name: "app",
+    url: `/app`,
+  },
+  ScenarioRoot: {
+    name: "scenario-root",
+    url: `${scenarioRootUrl}`,
+  },
   Scenario: {
     name: "scenario",
     url: `${scenarioRootUrl}/:scenarioId`,
@@ -8,9 +20,5 @@ export const Routes = {
   Facility: {
     name: "facility",
     url: `${scenarioRootUrl}/:scenarioId/facility/:facilityId`,
-  },
-  FacilityNew: {
-    name: "facility-new",
-    url: `${scenarioRootUrl}/:scenarioId/facility/new`,
   },
 };

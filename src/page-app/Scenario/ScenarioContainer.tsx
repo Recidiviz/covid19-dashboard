@@ -6,9 +6,9 @@ import { ReplaceUrlParams } from "../../helpers/Routing";
 import useScenario from "../../scenario-context/useScenario";
 
 // eslint-disable-next-line react/display-name
-const ScenarioContainer = (props: {children: any}) => {
+const ScenarioContainer = (props: { children: any }) => {
   const [scenario] = useScenario();
-  const {scenarioId: scenarioIdParam} = useParams();
+  const { scenarioId: scenarioIdParam } = useParams();
 
   if (!scenario.data) {
     return null;

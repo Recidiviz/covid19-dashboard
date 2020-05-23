@@ -105,16 +105,12 @@ const AddCasesButton = styled.button`
   line-height: 1.3;
 `;
 
-interface Props {
-  scenarioId: string;
-  isRoot?: boolean;
-  isNew?: boolean;
-}
-
-const FacilityInputForm: React.FC<Props> = () => {
+const FacilityInputForm = () => {
   const history = useHistory();
-  const {scenarioId: scenarioIdParam} = useParams();
-  const { facility: initialFacility, rtData, dispatchRtData } = useContext(FacilityContext);
+  const { scenarioId: scenarioIdParam } = useParams();
+  const { facility: initialFacility, rtData, dispatchRtData } = useContext(
+    FacilityContext,
+  );
   const [facility, updateFacility] = useState(initialFacility);
   const [facilityName, setFacilityName] = useState(facility?.name || undefined);
   const [description, setDescription] = useState(

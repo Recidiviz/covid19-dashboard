@@ -1,4 +1,4 @@
-import React, { useContext, useEffect,useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Redirect, useParams } from "react-router-dom";
 
 import { FetchedFacilities } from "../../../constants/Facilities";
@@ -10,33 +10,38 @@ import useFacilitiesRtData from "../../../hooks/useFacilitiesRtData";
 import { FacilityContext } from "../../../page-multi-facility/FacilityContext";
 import { Facilities } from "../../../page-multi-facility/types";
 import PageInfo from "../../../site-metadata/PageInfo";
-import ScenarioContainer from '../ScenarioContainer';
+import ScenarioContainer from "../ScenarioContainer";
 
 type Props = {
-  isNew?: boolean;
   children: any;
+  scenarioId: string;
 };
 
 // eslint-disable-next-line react/display-name
 const FacilityContainer = (props: Props) => {
-  const {facilityId: facilityIdParam, scenarioId: scenarioIdParam} = useParams();
+  const {
+    facilityId: facilityIdParam,
+  } = useParams();
+  const { scenarioId } = props;
   const { facility, setFacility } = useContext(FacilityContext);
 
   const [facilities, setFacilities] = useState<FetchedFacilities>({
     data: [] as Facilities,
     loading: true,
   });
-  
+
   async function fetchFacilities() {
-    const facilitiesData = await getFacilities(scenarioIdParam);
+    const facilitiesData = await getFacilities(scenarioId);
     if (facilitiesData) {
-      const targetFacility = facilitiesData.find(facilityData => facilityData.id === facilityIdParam)
+      const targetFacility = facilitiesData.find(
+        (facilityData) => facilityData.id === facilityIdParam,
+      );
       if (targetFacility) {
         setFacility(targetFacility);
       } else {
         setFacility(undefined);
       }
-      
+
       setFacilities({
         data: facilitiesData,
         loading: false,
@@ -44,10 +49,10 @@ const FacilityContainer = (props: Props) => {
     }
   }
 
-  useFacilitiesRtData(facilities.data)
+  useFacilitiesRtData(facilities.data);
 
   useEffect(() => {
-    if (facilityIdParam === 'new' || facilityIdParam === '') {
+    if (facilityIdParam === "new" || facilityIdParam === "") {
       setFacility(undefined);
       setFacilities({
         data: [],
@@ -59,25 +64,26 @@ const FacilityContainer = (props: Props) => {
   }, []);
 
   const shouldRewriteUrl = !!facility && facilityIdParam !== facility.id;
-  const scenarioPath = ReplaceUrlParams(Routes.Scenario.url, {
-    scenarioId: scenarioIdParam,
-  });
+  const scenarioPath = ReplaceUrlParams(Routes.Scenario.url, { scenarioId });
 
-  const facilityTitle = !!facility ? `${facility.name} facility page` : `New facility page`;
-  
+  const facilityTitle = !!facility
+    ? `${facility.name} facility page`
+    : `New facility page`;
+
   if (facilities.loading) {
-    return <Loading />
+    return <Loading />;
   } else {
     return !shouldRewriteUrl ? (
       <>
         <PageInfo title={facilityTitle} />
         <ScenarioContainer>
-          {React.cloneElement(props.children, {initialFacility: facility})}
+          {React.cloneElement(props.children, { initialFacility: facility })}
         </ScenarioContainer>
       </>
-    ) : <Redirect to={scenarioPath} />;
+    ) : (
+      <Redirect to={scenarioPath} />
+    );
   }
-
 };
 
 export default FacilityContainer;

@@ -9,24 +9,25 @@ import useScenario from "../../scenario-context/useScenario";
 
 const LocalStateCheckContainer = (props: { children: any }) => {
   const localeState = useLocaleDataState();
-  
+
   return (
     <AuthWall>
       <div className="font-body text-green min-h-screen tracking-normal w-full">
         <div className="max-w-screen-xl px-4 mx-auto">
-          {
-            localeState.failed ? (
-              // TODO: real error state?
-              <div>
-                Unable to load state and county data. Please try refreshing the page.
-              </div>
-            ) : props.children
-          }
+          {localeState.failed ? (
+            // TODO: real error state?
+            <div>
+              Unable to load state and county data. Please try refreshing the
+              page.
+            </div>
+          ) : (
+            props.children
+          )}
         </div>
       </div>
     </AuthWall>
-  )
-}
+  );
+};
 
 const LoadingCheckContainer = (props: { children: any }) => {
   const localeState = useLocaleDataState();
@@ -34,17 +35,17 @@ const LoadingCheckContainer = (props: { children: any }) => {
 
   return (
     <LocalStateCheckContainer>
-    {
-      localeState.loading || scenario.loading ? (
+      {localeState.loading || scenario.loading ? (
         <div className="mt-16">
           <Loading />
         </div>
-      ) : props.children
-    }
+      ) : (
+        props.children
+      )}
     </LocalStateCheckContainer>
-  )
+  );
 };
-    
+
 // eslint-disable-next-line react/display-name
 export default (props: { children: any }) => {
   const [scenario] = useScenario();
@@ -53,12 +54,7 @@ export default (props: { children: any }) => {
 
   return (
     <LoadingCheckContainer>
-      {
-        scenario.data ? 
-        appContent :
-        <CreateBaselineScenarioPage />
-      }
+      {scenario.data ? appContent : <CreateBaselineScenarioPage />}
     </LoadingCheckContainer>
-  )
+  );
 };
-

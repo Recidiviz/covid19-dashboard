@@ -9,9 +9,11 @@ import {
   BrowserRouter as Router,
   Redirect,
   Route,
+  RouteComponentProps,
   Switch,
 } from "react-router-dom";
 
+import {Routes} from '../../constants/Routes';
 import SiteHeader from "../../site-header/SiteHeader";
 import Layout from "../layout";
 import Scenario from "../scenario";
@@ -19,41 +21,44 @@ import Facility from "../scenario/facility";
 import FacilityContainer from "../scenario/facility/FacilityContainer";
 import ScenarioContainer from "../scenario/ScenarioContainer";
 
+interface FacilityParamProps {
+  scenarioId: string;
+  facilityId: string;
+}
+
 // eslint-disable-next-line react/display-name
-export default (props: any) => {
+export default () => {
   return (
     <Layout>
       <Router>
         <SiteHeader />
         <Switch>
-          <Route path="/app/scenario/:scenarioId/facility/:facilityId">
-            <FacilityContainer>
-              <Facility />
-            </FacilityContainer>  
-          </Route>
-          <Route path="/app/scenario/:scenarioId/facility/new">
-            <FacilityContainer>
-              <Facility isNew={true} />
-            </FacilityContainer>  
-          </Route>
-          <Route path="/app/scenario/:scenarioId">
+          <Route
+            path={Routes.Facility.url}
+            render={({ match }: RouteComponentProps<FacilityParamProps>) => (
+              <FacilityContainer scenarioId={match.params.scenarioId}>
+                <Facility />
+              </FacilityContainer>
+            )}
+          />
+          <Route path={Routes.Scenario.url}>
             <ScenarioContainer>
               <Scenario />
             </ScenarioContainer>
           </Route>
-          <Route path="/app/scenario">
+          <Route path={Routes.ScenarioRoot.url}>
             <ScenarioContainer>
               <Scenario />
             </ScenarioContainer>
           </Route>
-          <Route path="/app">
-            <Redirect to="/app/scenario" />
+          <Route path={Routes.App.url}>
+            <Redirect to={Routes.ScenarioRoot.url} />
           </Route>
-          <Route path="/">
-            <Redirect to="/app" />
+          <Route path={Routes.Root.url}>
+            <Redirect to={Routes.App.url} />
           </Route>
         </Switch>
       </Router>
     </Layout>
   );
-}
+};

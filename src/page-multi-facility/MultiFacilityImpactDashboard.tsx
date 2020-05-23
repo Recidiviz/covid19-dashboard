@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useParams, Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import styled from "styled-components";
 
 import { FetchedFacilities } from "../constants/Facilities";
@@ -158,9 +158,6 @@ const MultiFacilityImpactDashboard: React.FC = () => {
     </>
   );
 
-  const newFacilityPath = ReplaceUrlParams(Routes.FacilityNew.url, {
-    scenarioIdParam,
-  });
   return (
     <MultiFacilityImpactDashboardContainer>
       {scenario.loading ? (
@@ -177,7 +174,11 @@ const MultiFacilityImpactDashboard: React.FC = () => {
           />
         )}
         <div className="flex flex-row flex-none justify-between items-start">
-          <Link to={ReplaceUrlParams(Routes.FacilityNew.url, { scenarioId: scenarioIdParam })}>
+          <Link
+            to={ReplaceUrlParams(Routes.Facility.url, {
+              scenarioId: 'new',
+            })}
+          >
             <AddFacilityButton>
               <IconAdd alt="add facility" src={iconAddSrc} />
               <AddFacilityButtonText>Add Facility</AddFacilityButtonText>
