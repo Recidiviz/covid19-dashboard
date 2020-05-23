@@ -10,6 +10,5 @@ import App from '../page-app/app'
 
 // eslint-disable-next-line react/display-name
 export default () => {
-  console.log('test')
   return <App />
 };

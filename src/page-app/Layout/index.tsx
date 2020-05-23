@@ -33,9 +33,6 @@ const LocalStateCheckContainer = (props: { children: any }) => {
 const LoadingCheckContainer = (props: { children: any }) => {
   const localeState = useLocaleDataState();
   const [scenario] = useScenario();
-  
-  console.log('localeState', localeState)
-  console.log('scenario', scenario)
 
   return (
     <LocalStateCheckContainer>

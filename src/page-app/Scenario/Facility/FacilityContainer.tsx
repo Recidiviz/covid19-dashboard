@@ -9,7 +9,7 @@ import { ReplaceUrlParams } from "../../../helpers/Routing";
 import useFacilitiesRtData from "../../../hooks/useFacilitiesRtData";
 import { FacilityContext } from "../../../page-multi-facility/FacilityContext";
 import { Facilities } from "../../../page-multi-facility/types";
-import ScenarioContainer from '../Container';
+import ScenarioContainer from '../ScenarioContainer';
 
 type Props = {
   isNew?: boolean;
@@ -17,7 +17,7 @@ type Props = {
 };
 
 // eslint-disable-next-line react/display-name
-export default (props: Props) => {
+const FacilityContainer = (props: Props) => {
   const {facilityId: facilityIdParam, scenarioId: scenarioIdParam} = useParams();
   const { facility, setFacility } = useContext(FacilityContext);
 
@@ -26,20 +26,16 @@ export default (props: Props) => {
     loading: true,
   });
 
-  console.log('facilities', facilities)
-
   async function fetchFacilities() {
-    console.log('cath')
     const facilitiesData = await getFacilities(scenarioIdParam);
-    console.log('facilitiesData', facilitiesData)
     if (facilitiesData) {
+      const targetFacility = facilitiesData.find(facilityData => facilityData.id === facilityIdParam)
+      setFacility(targetFacility);
+      
       setFacilities({
         data: facilitiesData,
         loading: false,
       });
-      
-      const targetFacility = facilitiesData.find(facilityData => facilityData.id === facilityIdParam)
-      setFacility(targetFacility);
     }
   }
 
@@ -56,12 +52,11 @@ export default (props: Props) => {
     scenarioId: scenarioIdParam,
   });
 
-  console.log('facilities.loading', facilities.loading)
-
   if (facilities.loading) {
     return <Loading />
   } else {
     return !shouldRewriteUrl ? <ScenarioContainer>{React.cloneElement(props.children, {initialFacility: facility})}</ScenarioContainer> : <Redirect to={scenarioPath} />;
   }
-
 };
+
+export default FacilityContainer;

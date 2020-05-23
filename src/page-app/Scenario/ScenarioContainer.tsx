@@ -6,7 +6,7 @@ import { ReplaceUrlParams } from "../../helpers/Routing";
 import useScenario from "../../scenario-context/useScenario";
 
 // eslint-disable-next-line react/display-name
-export default (props: {children: any}) => {
+const ScenarioContainer = (props: {children: any}) => {
   const [scenario] = useScenario();
   const {scenarioId: scenarioIdParam} = useParams();
 
@@ -21,3 +21,5 @@ export default (props: {children: any}) => {
 
   return !shouldRewriteUrl ? props.children : <Redirect to={scenarioPath} />;
 };
+
+export default ScenarioContainer;

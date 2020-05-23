@@ -14,14 +14,13 @@ import {
 
 import Layout from "../layout";
 import Scenario from "../scenario";
-import ScenarioContainer from "../scenario/Container";
 import Facility from "../scenario/facility";
-import FacilityContainer from "../scenario/facility/Container";
+import FacilityContainer from "../scenario/facility/FacilityContainer";
+import ScenarioContainer from "../scenario/ScenarioContainer";
 
 
 // eslint-disable-next-line react/display-name
 export default (props: any) => {
-  console.log('props', props)
   return (
     <Layout>
       <Router>

@@ -122,10 +122,6 @@ const FacilityInputForm: React.FC<Props> = () => {
   );
   const model = useModel();
 
-  console.log("facilityName", facilityName);
-  console.log("facility", facility);
-  console.log("initialFacility", initialFacility);
-
   const save = () => {
     if (facilityName) {
       // Set observedAt to right now when updating a facility from this input form
