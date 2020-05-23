@@ -1,6 +1,6 @@
 import { navigate } from "gatsby";
-import { useParams } from "react-router-dom";
 import React, { useContext, useState } from "react";
+import { useHistory, useParams } from "react-router-dom";
 import styled from "styled-components";
 
 import { deleteFacility, saveFacility } from "../database/index";
@@ -112,15 +112,16 @@ interface Props {
 }
 
 const FacilityInputForm: React.FC<Props> = () => {
-  const {scenarioId} = useParams();
+  const history = useHistory();
+  const {scenarioId: scenarioIdParam} = useParams();
   const { facility: initialFacility, rtData, dispatchRtData } = useContext(FacilityContext);
   const [facility, updateFacility] = useState(initialFacility);
-  const [facilityName, setFacilityName] = useState(facility.name || undefined);
+  const [facilityName, setFacilityName] = useState(facility?.name || undefined);
   const [description, setDescription] = useState(
-    facility.description || undefined,
+    facility?.description || undefined,
   );
   const [systemType, setSystemType] = useState(
-    facility.systemType || undefined,
+    facility?.systemType || undefined,
   );
   const model = useModel();
 
@@ -130,14 +131,14 @@ const FacilityInputForm: React.FC<Props> = () => {
       const modelUpdate = Object.assign({}, model[0]);
       modelUpdate.observedAt = new Date();
 
-      saveFacility(scenarioId, {
-        id: facility.id,
+      saveFacility(scenarioIdParam, {
+        id: facility?.id,
         name: facilityName || null,
         description: description || null,
         systemType: systemType || null,
         modelInputs: modelUpdate,
       }).then(() => {
-        navigate("/");
+        history.push(`/app/scenario/${scenarioIdParam}`);
       });
     } else {
       window.scroll({ top: 0, left: 0, behavior: "smooth" });

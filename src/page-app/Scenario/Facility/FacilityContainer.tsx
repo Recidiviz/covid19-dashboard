@@ -28,9 +28,12 @@ const FacilityContainer = (props: Props) => {
 
   async function fetchFacilities() {
     const facilitiesData = await getFacilities(scenarioIdParam);
-    if (facilitiesData) {
+    if (facilitiesData && facilityIdParam !== 'new') {
       const targetFacility = facilitiesData.find(facilityData => facilityData.id === facilityIdParam)
-      setFacility(targetFacility);
+      if (targetFacility) {
+        setFacility(targetFacility);
+      } else {
+      }
       
       setFacilities({
         data: facilitiesData,
@@ -52,11 +55,16 @@ const FacilityContainer = (props: Props) => {
     scenarioId: scenarioIdParam,
   });
 
-  if (facilities.loading) {
-    return <Loading />
+  if (facilityIdParam === 'new') {
+    return <ScenarioContainer>{React.cloneElement(props.children, {initialFacility: undefined})}</ScenarioContainer> 
   } else {
-    return !shouldRewriteUrl ? <ScenarioContainer>{React.cloneElement(props.children, {initialFacility: facility})}</ScenarioContainer> : <Redirect to={scenarioPath} />;
+    if (facilities.loading) {
+      return <Loading />
+    } else {
+      return !shouldRewriteUrl ? <ScenarioContainer>{React.cloneElement(props.children, {initialFacility: facility})}</ScenarioContainer> : <Redirect to={scenarioPath} />;
+    }
   }
+
 };
 
 export default FacilityContainer;
