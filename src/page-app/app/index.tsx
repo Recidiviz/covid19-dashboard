@@ -12,18 +12,19 @@ import {
   Switch,
 } from "react-router-dom";
 
+import SiteHeader from "../../site-header/SiteHeader";
 import Layout from "../layout";
 import Scenario from "../scenario";
 import Facility from "../scenario/facility";
 import FacilityContainer from "../scenario/facility/FacilityContainer";
 import ScenarioContainer from "../scenario/ScenarioContainer";
 
-
 // eslint-disable-next-line react/display-name
 export default (props: any) => {
   return (
     <Layout>
       <Router>
+        <SiteHeader />
         <Switch>
           <Route path="/app/scenario/:scenarioId/facility/:facilityId">
             <FacilityContainer>

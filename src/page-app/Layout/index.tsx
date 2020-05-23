@@ -6,7 +6,6 @@ import Loading from "../../design-system/Loading";
 import { useLocaleDataState } from "../../locale-data-context";
 import CreateBaselineScenarioPage from "../../page-multi-facility/CreateBaselineScenarioPage";
 import useScenario from "../../scenario-context/useScenario";
-import SiteHeader from "../../site-header/SiteHeader";
 
 const LocalStateCheckContainer = (props: { children: any }) => {
   const localeState = useLocaleDataState();
@@ -15,7 +14,6 @@ const LocalStateCheckContainer = (props: { children: any }) => {
     <AuthWall>
       <div className="font-body text-green min-h-screen tracking-normal w-full">
         <div className="max-w-screen-xl px-4 mx-auto">
-          <SiteHeader />
           {
             localeState.failed ? (
               // TODO: real error state?

@@ -25,7 +25,7 @@ const SiteHeader: React.FC = () => {
 
   return (
     <Nav>
-      <Link to="/">
+      <Link to="/app">
         <Logo />
       </Link>
       {/* <!-- Nav Items and Social Links --> */}
