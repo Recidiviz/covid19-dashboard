@@ -37,7 +37,12 @@ const LoadingCheckContainer = (props: { children: any }) => {
     <LocalStateCheckContainer>
       {localeState.loading || scenario.loading ? (
         <div className="mt-16">
-          <Loading />
+          <Loading
+            styles={{
+              marginTop: "40px",
+              minHeight: "350px",
+            }}
+          />
         </div>
       ) : (
         props.children

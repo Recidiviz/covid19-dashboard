@@ -69,7 +69,14 @@ const FacilityContainer = (props: Props) => {
     : `New facility page`;
 
   if (facilities.loading) {
-    return <Loading />;
+    return (
+      <Loading
+        styles={{
+          minHeight: "350px",
+          marginTop: "40px",
+        }}
+      />
+    );
   } else {
     return !shouldRewriteUrl ? (
       <>
