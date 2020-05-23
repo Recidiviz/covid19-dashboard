@@ -1,6 +1,5 @@
-import { Link, useLocation } from "@reach/router";
 import React, { useContext, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link, useLocation } from "react-router-dom";
 import styled from "styled-components";
 
 import { FetchedFacilities } from "../constants/Facilities";

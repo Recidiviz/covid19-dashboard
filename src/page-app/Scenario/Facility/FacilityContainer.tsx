@@ -1,5 +1,5 @@
 import React, { useContext, useEffect,useState } from "react";
-import { Redirect, RouteComponentProps, useParams } from "react-router-dom";
+import { Redirect, useParams } from "react-router-dom";
 
 import { FetchedFacilities } from "../../../constants/Facilities";
 import { Routes } from "../../../constants/Routes";
@@ -25,14 +25,15 @@ const FacilityContainer = (props: Props) => {
     data: [] as Facilities,
     loading: true,
   });
-
+  
   async function fetchFacilities() {
     const facilitiesData = await getFacilities(scenarioIdParam);
-    if (facilitiesData && facilityIdParam !== 'new') {
+    if (facilitiesData) {
       const targetFacility = facilitiesData.find(facilityData => facilityData.id === facilityIdParam)
       if (targetFacility) {
         setFacility(targetFacility);
       } else {
+        setFacility(undefined);
       }
       
       setFacilities({
@@ -45,7 +46,13 @@ const FacilityContainer = (props: Props) => {
   useFacilitiesRtData(facilities.data)
 
   useEffect(() => {
-    if (facilityIdParam !== 'new' && facilityIdParam !== '') {
+    if (facilityIdParam === 'new' || facilityIdParam === '') {
+      setFacility(undefined);
+      setFacilities({
+        data: [],
+        loading: false,
+      });
+    } else {
       fetchFacilities();
     }
   }, []);
@@ -54,15 +61,11 @@ const FacilityContainer = (props: Props) => {
   const scenarioPath = ReplaceUrlParams(Routes.Scenario.url, {
     scenarioId: scenarioIdParam,
   });
-
-  if (facilityIdParam === 'new') {
-    return <ScenarioContainer>{React.cloneElement(props.children, {initialFacility: undefined})}</ScenarioContainer> 
+  
+  if (facilities.loading) {
+    return <Loading />
   } else {
-    if (facilities.loading) {
-      return <Loading />
-    } else {
-      return !shouldRewriteUrl ? <ScenarioContainer>{React.cloneElement(props.children, {initialFacility: facility})}</ScenarioContainer> : <Redirect to={scenarioPath} />;
-    }
+    return !shouldRewriteUrl ? <ScenarioContainer>{React.cloneElement(props.children, {initialFacility: facility})}</ScenarioContainer> : <Redirect to={scenarioPath} />;
   }
 
 };
