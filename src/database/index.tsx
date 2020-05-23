@@ -123,10 +123,14 @@ const buildUpdatePayload = (entity: any) => {
   return payload;
 };
 
-function throwIfPermissionsError(error: { code?: string }) {
+function throwIfPermissionsError(
+  error: { code?: string; message: string },
+  message: string,
+) {
   if (error.code === "permission-denied") {
-    throw new Error("You don't have permission to edit this scenario.");
+    error.message = message;
   }
+  throw error;
 }
 
 const getBaselineScenarioRef = async (): Promise<firebase.firestore.DocumentReference | void> => {
@@ -190,6 +194,10 @@ export const getScenario = async (
       `Encountered error while attempting to retrieve the scenario (${scenarioId}):`,
     );
     console.error(error);
+    throwIfPermissionsError(
+      error,
+      "You don't have permission to access this scenario.",
+    );
 
     return null;
   }
@@ -261,7 +269,10 @@ export const saveScenario = async (scenario: any): Promise<Scenario | null> => {
     // anything else gets logged and swallowed
     console.error("Encountered error while attempting to save a scenario:");
     console.error(error);
-    throwIfPermissionsError(error);
+    throwIfPermissionsError(
+      error,
+      "You don't have permission to edit this scenario.",
+    );
     return null;
   }
 };
@@ -290,8 +301,12 @@ export const getFacilities = async (
     return facilities;
   } catch (error) {
     console.error("Encountered error while attempting to retrieve facilities:");
-
     console.error(error);
+
+    throwIfPermissionsError(
+      error,
+      "You don't have permission to access these facilities.",
+    );
 
     return null;
   }
@@ -334,6 +349,10 @@ export const getFacilityModelVersions = async ({
       "Encountered error while attempting to retrieve facility model versions:",
     );
     console.error(error);
+    throwIfPermissionsError(
+      error,
+      "You don't have permission to access this facility's history.",
+    );
     return [];
   }
 };
@@ -622,7 +641,10 @@ export const saveFacility = async (
   } catch (error) {
     console.error("Encountered error while attempting to save a facility:");
     console.error(error);
-    throwIfPermissionsError(error);
+    throwIfPermissionsError(
+      error,
+      "You don't have permission to edit this facility.",
+    );
   }
 };
 
