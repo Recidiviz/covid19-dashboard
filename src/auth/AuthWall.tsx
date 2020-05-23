@@ -2,7 +2,7 @@ import { useLocation } from "@reach/router";
 import { navigate } from "gatsby";
 import React, { useEffect } from "react";
 
-import {Routes} from "../constants/Routes";
+import { Routes } from "../constants/Routes";
 import Loading from "../design-system/Loading";
 import { useAuth0 } from "./react-auth0-spa";
 
@@ -22,7 +22,14 @@ const AuthWall: React.FC = (props) => {
   }, [loading, isAuthenticated, loginWithRedirect, location.pathname]);
 
   if (loading) {
-    return <Loading />;
+    return (
+      <Loading
+        styles={{
+          marginTop: "40px",
+          minHeight: "350px",
+        }}
+      />
+    );
   }
 
   if (user && !user.email_verified) {
@@ -32,7 +39,14 @@ const AuthWall: React.FC = (props) => {
 
   // We could be here if loginWithRedirect hasn't completed yet.
   if (!isAuthenticated) {
-    return <Loading />;
+    return (
+      <Loading
+        styles={{
+          marginTop: "40px",
+          minHeight: "350px",
+        }}
+      />
+    );
   }
 
   return <>{props.children}</>;

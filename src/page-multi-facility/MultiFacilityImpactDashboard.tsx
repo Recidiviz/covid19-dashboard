@@ -138,7 +138,11 @@ const MultiFacilityImpactDashboard: React.FC = () => {
     <>
       <ProjectionsHeader />
       {facilities.loading || !scenario.data?.id ? (
-        <Loading />
+        <Loading
+          styles={{
+            minHeight: "100px",
+          }}
+        />
       ) : (
         facilities?.data.map((facility) => (
           <FacilityRowPlaceholder key={facility.id}>
@@ -161,7 +165,12 @@ const MultiFacilityImpactDashboard: React.FC = () => {
   return (
     <MultiFacilityImpactDashboardContainer>
       {scenario.loading ? (
-        <Loading />
+        <Loading
+          styles={{
+            marginTop: "20px",
+            minHeight: "100px",
+          }}
+        />
       ) : (
         <ScenarioSidebar numFacilities={facilities?.data.length} />
       )}
@@ -174,7 +183,9 @@ const MultiFacilityImpactDashboard: React.FC = () => {
           />
         )}
         <div className="flex flex-row flex-none justify-between items-start">
-          <Link to={ReplaceUrlParams(Routes.Facility.url, { scenarioId: 'new' })}>
+          <Link
+            to={ReplaceUrlParams(Routes.Facility.url, { scenarioId: "new" })}
+          >
             <AddFacilityButton>
               <IconAdd alt="add facility" src={iconAddSrc} />
               <AddFacilityButtonText>Add Facility</AddFacilityButtonText>

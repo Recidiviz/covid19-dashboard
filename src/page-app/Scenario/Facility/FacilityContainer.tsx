@@ -10,8 +10,8 @@ import useFacilitiesRtData from "../../../hooks/useFacilitiesRtData";
 import { FacilityContext } from "../../../page-multi-facility/FacilityContext";
 import { Facilities } from "../../../page-multi-facility/types";
 import PageInfo from "../../../site-metadata/PageInfo";
-import Facility from "../facility";
 import ScenarioContainer from "../ScenarioContainer";
+import Facility from ".";
 
 type Props = {
   scenarioId: string;
@@ -69,7 +69,14 @@ const FacilityContainer = (props: Props) => {
     : `New facility page`;
 
   if (facilities.loading) {
-    return <Loading />;
+    return (
+      <Loading
+        styles={{
+          minHeight: "350px",
+          marginTop: "40px",
+        }}
+      />
+    );
   } else {
     return !shouldRewriteUrl ? (
       <>
