@@ -1,4 +1,5 @@
 import { navigate } from "gatsby";
+import { useParams } from "react-router-dom";
 import React, { useContext, useState } from "react";
 import styled from "styled-components";
 
@@ -111,14 +112,15 @@ interface Props {
 }
 
 const FacilityInputForm: React.FC<Props> = () => {
+  const {scenarioId} = useParams();
   const { facility: initialFacility, rtData, dispatchRtData } = useContext(FacilityContext);
   const [facility, updateFacility] = useState(initialFacility);
-  const [facilityName, setFacilityName] = useState(initialFacility.name || undefined);
+  const [facilityName, setFacilityName] = useState(facility.name || undefined);
   const [description, setDescription] = useState(
-    initialFacility.description || undefined,
+    facility.description || undefined,
   );
   const [systemType, setSystemType] = useState(
-    initialFacility.systemType || undefined,
+    facility.systemType || undefined,
   );
   const model = useModel();
 
@@ -129,7 +131,7 @@ const FacilityInputForm: React.FC<Props> = () => {
       modelUpdate.observedAt = new Date();
 
       saveFacility(scenarioId, {
-        id: initialFacility.id,
+        id: facility.id,
         name: facilityName || null,
         description: description || null,
         systemType: systemType || null,
@@ -152,8 +154,8 @@ const FacilityInputForm: React.FC<Props> = () => {
   };
   const popupItems = [{ name: "Delete", onClick: openDeleteModal }];
   const removeFacility = async () => {
-    if (initialFacility.id) {
-      await deleteFacility(scenarioId, initialFacility.id);
+    if (facility.id) {
+      await deleteFacility(scenarioId, facility.id);
       window.history.back();
     }
     updateShowDeleteModal(false);
