@@ -5,11 +5,11 @@ import { FetchedFacilities } from "../../../constants/Facilities";
 import { Routes } from "../../../constants/Routes";
 import { getFacilities } from "../../../database";
 import Loading from "../../../design-system/Loading";
-import PageInfo from "../../../site-metadata/PageInfo";
 import { ReplaceUrlParams } from "../../../helpers/Routing";
 import useFacilitiesRtData from "../../../hooks/useFacilitiesRtData";
 import { FacilityContext } from "../../../page-multi-facility/FacilityContext";
 import { Facilities } from "../../../page-multi-facility/types";
+import PageInfo from "../../../site-metadata/PageInfo";
 import ScenarioContainer from '../ScenarioContainer';
 
 type Props = {
