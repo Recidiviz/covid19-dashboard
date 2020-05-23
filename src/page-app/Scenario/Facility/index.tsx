@@ -6,7 +6,7 @@ import { FacilityContext } from "../../../page-multi-facility/FacilityContext";
 import FacilityInputForm from "../../../page-multi-facility/FacilityInputForm";
 
 // eslint-disable-next-line react/display-name
-export default () => {
+export default (props: { scenarioId: string }) => {
   const { data: localeDataSource } = useLocaleDataState();
   const { facility } = useContext(FacilityContext);
 
@@ -16,7 +16,7 @@ export default () => {
         facilityModel={facility?.modelInputs}
         localeDataSource={localeDataSource}
       >
-        <FacilityInputForm />
+        <FacilityInputForm scenarioId={props.scenarioId} />
       </EpidemicModelProvider>
     </>
   );

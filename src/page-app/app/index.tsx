@@ -13,7 +13,7 @@ import {
   Switch,
 } from "react-router-dom";
 
-import {Routes} from '../../constants/Routes';
+import { Routes } from "../../constants/Routes";
 import SiteHeader from "../../site-header/SiteHeader";
 import Layout from "../layout";
 import Scenario from "../scenario";
@@ -35,11 +35,10 @@ export default () => {
         <Switch>
           <Route
             path={Routes.Facility.url}
-            render={({ match }: RouteComponentProps<FacilityParamProps>) => (
-              <FacilityContainer scenarioId={match.params.scenarioId}>
-                <Facility />
-              </FacilityContainer>
-            )}
+            render={({ match }: RouteComponentProps<FacilityParamProps>) => {
+              const { scenarioId } = match.params;
+              return <FacilityContainer scenarioId={scenarioId} />;
+            }}
           />
           <Route path={Routes.Scenario.url}>
             <ScenarioContainer>

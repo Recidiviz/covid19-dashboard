@@ -10,18 +10,16 @@ import useFacilitiesRtData from "../../../hooks/useFacilitiesRtData";
 import { FacilityContext } from "../../../page-multi-facility/FacilityContext";
 import { Facilities } from "../../../page-multi-facility/types";
 import PageInfo from "../../../site-metadata/PageInfo";
+import Facility from "../facility";
 import ScenarioContainer from "../ScenarioContainer";
 
 type Props = {
-  children: any;
   scenarioId: string;
 };
 
 // eslint-disable-next-line react/display-name
 const FacilityContainer = (props: Props) => {
-  const {
-    facilityId: facilityIdParam,
-  } = useParams();
+  const { facilityId: facilityIdParam } = useParams();
   const { scenarioId } = props;
   const { facility, setFacility } = useContext(FacilityContext);
 
@@ -77,7 +75,7 @@ const FacilityContainer = (props: Props) => {
       <>
         <PageInfo title={facilityTitle} />
         <ScenarioContainer>
-          {React.cloneElement(props.children, { initialFacility: facility })}
+          <Facility scenarioId={scenarioId} />
         </ScenarioContainer>
       </>
     ) : (

@@ -105,9 +105,9 @@ const AddCasesButton = styled.button`
   line-height: 1.3;
 `;
 
-const FacilityInputForm = () => {
+const FacilityInputForm = (props: { scenarioId: string }) => {
   const history = useHistory();
-  const { scenarioId: scenarioIdParam } = useParams();
+  const { scenarioId } = props;
   const { facility: initialFacility, rtData, dispatchRtData } = useContext(
     FacilityContext,
   );
@@ -127,14 +127,14 @@ const FacilityInputForm = () => {
       const modelUpdate = Object.assign({}, model[0]);
       modelUpdate.observedAt = new Date();
 
-      saveFacility(scenarioIdParam, {
+      saveFacility(scenarioId, {
         id: facility?.id,
         name: facilityName || null,
         description: description || null,
         systemType: systemType || null,
         modelInputs: modelUpdate,
       }).then(() => {
-        history.push(`/app/scenario/${scenarioIdParam}`);
+        history.push(`/app/scenario/${scenarioId}`);
       });
     } else {
       window.scroll({ top: 0, left: 0, behavior: "smooth" });
@@ -151,7 +151,7 @@ const FacilityInputForm = () => {
   };
   const popupItems = [{ name: "Delete", onClick: openDeleteModal }];
   const removeFacility = async () => {
-    if (facility.id) {
+    if (facility?.id) {
       await deleteFacility(scenarioId, facility.id);
       window.history.back();
     }
