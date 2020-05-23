@@ -4,4 +4,4 @@ import React from "react";
 import {scenarioRootUrl} from '../constants/Routes'
 
 // eslint-disable-next-line react/display-name
-export default () => <Redirect to={scenarioRootUrl} />;
+export default () => <Redirect to={'/app'} />;

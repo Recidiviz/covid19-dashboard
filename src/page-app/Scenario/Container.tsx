@@ -1,9 +1,10 @@
-import { Redirect, useHistory, useLocation, useParams } from "react-router-dom";
 import React from "react";
+import { Redirect, useParams } from "react-router-dom";
 
-import Layout from "../../components/Layout";
+import Layout from "../Layout";
 import { Routes } from "../../constants/Routes";
 import { ReplaceUrlParams } from "../../helpers/Routing";
+import { useLocaleDataState } from "../../locale-data-context";
 import useScenario from "../../scenario-context/useScenario";
 
 type Props = RouteComponentProps<{
@@ -14,6 +15,7 @@ type Props = RouteComponentProps<{
 
 // eslint-disable-next-line react/display-name
 export default (props: Props) => {
+  const localeState = useLocaleDataState();
   const [scenario] = useScenario();
   const {scenarioId: scenarioIdParam} = useParams();
 

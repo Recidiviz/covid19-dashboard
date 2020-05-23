@@ -13,10 +13,10 @@ import {
 } from "react-router-dom";
 
 import AuthWall from "../auth/AuthWall";
-import Scenario from "../pages-root/Scenario";
-import ScenarioContainer from "../pages-root/Scenario/Container";
-import Facility from "../pages-root/Scenario/Facility";
-import FacilityContainer from "../pages-root/Scenario/Facility/Container";
+import Scenario from "../page-app/Scenario";
+import ScenarioContainer from "../page-app/Scenario/Container";
+import Facility from "../page-app/Scenario/Facility";
+import FacilityContainer from "../page-app/Scenario/Facility/Container";
 
 
 // eslint-disable-next-line react/display-name
