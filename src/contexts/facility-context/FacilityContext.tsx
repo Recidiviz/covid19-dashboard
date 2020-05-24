@@ -1,7 +1,7 @@
 import React from "react";
 
-import { FacilityEvents } from "../constants/dispatchEvents";
-import { Facility, RtDataMapping } from "./types";
+import { FacilityEvents } from "../../constants/dispatchEvents";
+import { Facility, RtDataMapping } from "../../page-multi-facility/types";
 
 interface FacilityContextProps {
   facility?: Facility;

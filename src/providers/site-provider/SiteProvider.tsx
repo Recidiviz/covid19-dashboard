@@ -4,13 +4,13 @@ import { ToastProvider } from "react-toast-notifications";
 
 import AppAuth0ClientPromise from "../../auth/AppAuth0ClientPromise";
 import { Auth0Provider } from "../../auth/react-auth0-spa";
-import { LocaleDataProvider } from "../../contexts/locale-data-context";
-import { ScenarioProvider } from "../../contexts/scenario-context";
-import Toast from "../../design-system/Toast";
 import {
   FacilityContext,
   rtDataReducer,
-} from "../../page-multi-facility/FacilityContext";
+} from "../../contexts/facility-context/FacilityContext";
+import { LocaleDataProvider } from "../../contexts/locale-data-context";
+import { ScenarioProvider } from "../../contexts/scenario-context";
+import Toast from "../../design-system/Toast";
 import { Facility } from "../../page-multi-facility/types";
 import { FeatureFlagsProvider } from "../feature-flags";
 

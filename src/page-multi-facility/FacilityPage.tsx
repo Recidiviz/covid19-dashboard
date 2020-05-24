@@ -2,11 +2,11 @@ import React, { useContext } from "react";
 import styled from "styled-components";
 
 import SiteHeader from "../components/site-header/SiteHeader";
+import { FacilityContext } from "../contexts/facility-context/FacilityContext";
 import { useLocaleDataState } from "../contexts/locale-data-context";
 import useScenario from "../contexts/scenario-context/useScenario";
 import Loading from "../design-system/Loading";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
-import { FacilityContext } from "./FacilityContext";
 import FacilityInputForm from "./FacilityInputForm";
 
 const FacilityPageDiv = styled.div``;

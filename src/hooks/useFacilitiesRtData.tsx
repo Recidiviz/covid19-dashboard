@@ -1,8 +1,8 @@
 import { useContext, useEffect } from "react";
 
 import { FacilityEvents } from "../constants/dispatchEvents";
+import { FacilityContext } from "../contexts/facility-context/FacilityContext";
 import { getRtDataForFacility } from "../infection-model/rt";
-import { FacilityContext } from "../page-multi-facility/FacilityContext";
 import { Facilities } from "../page-multi-facility/types";
 
 const useFacilitiesRtData = (facilities: Facilities | null) => {

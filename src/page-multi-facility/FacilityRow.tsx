@@ -3,6 +3,7 @@ import { navigate } from "gatsby";
 import React, { useContext, useState } from "react";
 import styled from "styled-components";
 
+import { FacilityContext } from "../contexts/facility-context/FacilityContext";
 import Colors, { MarkColors as markColors } from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import FontSizes from "../design-system/FontSizes";
@@ -15,7 +16,6 @@ import { getTotalPopulation } from "../impact-dashboard/EpidemicModelContext";
 import useModel from "../impact-dashboard/useModel";
 import { getNewestRt, isRtData } from "../infection-model/rt";
 import AddCasesModal from "./AddCasesModal";
-import { FacilityContext } from "./FacilityContext";
 import FacilityRowRtValuePill from "./FacilityRowRtValuePill";
 import {
   useChartDataFromProjectionData,
