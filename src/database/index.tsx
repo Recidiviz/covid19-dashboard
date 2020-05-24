@@ -22,7 +22,7 @@ import {
   buildScenario,
   buildUser,
 } from "./type-transforms";
-import AppAuth0ClientPromise from "../auth/AppAuth0ClientPromise";
+import AppAuth0ClientPromise from "../providers/auth/AppAuth0ClientPromise";
 
 // As long as there is just one Auth0 config, this endpoint will work with any environment (local, prod, etc.).
 const tokenExchangeEndpoint =

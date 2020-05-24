@@ -4,7 +4,7 @@ import Auth0Client from "@auth0/auth0-spa-js/dist/typings/Auth0Client";
 import { isEqualWith, pick } from "lodash";
 import React, { useContext, useEffect, useState } from "react";
 
-import { getUser, saveUser } from "../database";
+import { getUser, saveUser } from "../../database";
 
 const DEFAULT_REDIRECT_CALLBACK = () =>
   window.history.replaceState({}, document.title, window.location.pathname);
