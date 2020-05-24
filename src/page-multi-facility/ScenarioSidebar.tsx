@@ -13,7 +13,7 @@ import InputDescription from "../design-system/InputDescription";
 import InputName from "../design-system/InputName";
 import PromoBoxWithButton from "../design-system/PromoBoxWithButton";
 import { Spacer } from "../design-system/Spacer";
-import { useFlag } from "../feature-flags";
+import { useFlag } from "../providers/feature-flags";
 import ScenarioLibraryModal from "./ScenarioLibraryModal";
 import { Scenario } from "./types";
 

@@ -7,12 +7,12 @@ import { Auth0Provider } from "../../auth/react-auth0-spa";
 import { LocaleDataProvider } from "../../contexts/locale-data-context";
 import { ScenarioProvider } from "../../contexts/scenario-context";
 import Toast from "../../design-system/Toast";
-import { FeatureFlagsProvider } from "../../feature-flags";
 import {
   FacilityContext,
   rtDataReducer,
 } from "../../page-multi-facility/FacilityContext";
 import { Facility } from "../../page-multi-facility/types";
+import { FeatureFlagsProvider } from "../feature-flags";
 
 // A function that routes the user to the right place after login
 const onRedirectCallback = (appState: any) => {
