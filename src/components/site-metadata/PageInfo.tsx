@@ -1,7 +1,7 @@
 import React from "react";
 import { Helmet } from "react-helmet";
 
-import { GlobalStyles } from "../site-styles/styles";
+import { GlobalStyles } from "../../site-styles/styles";
 
 function getFullPageTitle(pageTitle?: string) {
   let parts = ["Recidiviz", "Covid-19 Incarceration Model"];
