@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 
-import Modal, {
-  Props as ModalProps,
-} from "../../components/design-system/Modal";
 import useAddCasesInputs from "../../hooks/useAddCasesInputs";
-import { Facility } from "../types";
+import { Facility } from "../../page-multi-facility/types";
+import Modal, { Props as ModalProps } from "../design-system/Modal";
 import AddCasesModalContent from "./AddCasesModalContent";
 
 export type Props = Pick<ModalProps, "trigger"> & {

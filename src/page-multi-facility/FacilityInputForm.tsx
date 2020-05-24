@@ -2,6 +2,7 @@ import { navigate } from "gatsby";
 import React, { useContext, useState } from "react";
 import styled from "styled-components";
 
+import AddCasesModal from "../components/AddCasesModal";
 import Colors from "../components/design-system/Colors";
 import InputButton, {
   StyledButton,
@@ -21,7 +22,6 @@ import { FacilityContext } from "../contexts/facility-context/FacilityContext";
 import { deleteFacility, saveFacility } from "../database/index";
 import iconDuplicatePath from "../design-system/icons/ic_duplicate.svg";
 import { updateFacilityRtData } from "../infection-model/rt";
-import AddCasesModal from "./AddCasesModal";
 import FacilityProjections from "./FacilityProjections";
 import HistoricalCasesChart from "./HistoricalCasesChart";
 import LocaleInformationSection from "./LocaleInformationSection";

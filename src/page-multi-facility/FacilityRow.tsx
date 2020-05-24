@@ -3,6 +3,7 @@ import { navigate } from "gatsby";
 import React, { useContext, useState } from "react";
 import styled from "styled-components";
 
+import AddCasesModal from "../components/AddCasesModal";
 import Colors, {
   MarkColors as markColors,
 } from "../components/design-system/Colors";
@@ -17,7 +18,6 @@ import useModel from "../components/impact-dashboard/useModel";
 import { FacilityContext } from "../contexts/facility-context/FacilityContext";
 import iconEditSrc from "../design-system/icons/ic_edit.svg";
 import { getNewestRt, isRtData } from "../infection-model/rt";
-import AddCasesModal from "./AddCasesModal";
 import FacilityRowRtValuePill from "./FacilityRowRtValuePill";
 import {
   useChartDataFromProjectionData,
