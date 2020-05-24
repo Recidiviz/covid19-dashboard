@@ -57,10 +57,6 @@ const DataContainer = styled.div`
   border-color: ${Colors.opacityGray};
 `;
 
-const CaseText = styled.div`
-  color: ${Colors.darkRed};
-`;
-
 const PopulationText = styled.div`
   color: ${Colors.forest};
 `;
@@ -116,7 +112,6 @@ const FacilityRow: React.FC<Props> = ({ facility, onSave, scenarioId }) => {
   const hideHover = () => setRowHover(false);
 
   const { name, updatedAt } = facility;
-  const confirmedCases = totalConfirmedCases(model);
   const population = getTotalPopulation(model);
 
   const facilityPath = ReplaceUrlParams(Routes.Facility.url, {

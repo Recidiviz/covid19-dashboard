@@ -88,9 +88,8 @@ const MultiFacilityImpactDashboard: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
   const [scenario] = useScenario();
   const { scenarioId: scenarioIdParam } = useParams();
-  const location = useLocation();
   const showRateOfSpreadTab = useFlag(["showRateOfSpreadTab"]);
-  const { setFacility, rtData, dispatchRtData } = useContext(FacilityContext);
+  const { rtData, dispatchRtData } = useContext(FacilityContext);
 
   const [facilities, setFacilities] = useState<FetchedFacilities>({
     data: [] as Facilities,
