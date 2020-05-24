@@ -2,10 +2,13 @@ import { orderBy } from "lodash";
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 
-import Loading from "../design-system/Loading";
-import { getDaysAgoRt, getFacilitiesRtDataById } from "../infection-model/rt";
-import { FacilityContext } from "../page-multi-facility/FacilityContext";
-import { Facilities, RtDataMapping } from "../page-multi-facility/types";
+import Loading from "../../design-system/Loading";
+import {
+  getDaysAgoRt,
+  getFacilitiesRtDataById,
+} from "../../infection-model/rt";
+import { FacilityContext } from "../../page-multi-facility/FacilityContext";
+import { Facilities, RtDataMapping } from "../../page-multi-facility/types";
 import RtComparisonChart, {
   isRtComparisonData,
   RtComparisonData,

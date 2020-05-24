@@ -4,10 +4,10 @@ import React from "react";
 import { ResponsiveOrdinalFrame } from "semiotic";
 import styled from "styled-components";
 
-import ChartTooltip from "../design-system/ChartTooltip";
-import ChartWrapper from "../design-system/ChartWrapper";
-import Colors, { rtPillColors } from "../design-system/Colors";
-import { rtSpreadType } from "../infection-model/rt";
+import ChartTooltip from "../../design-system/ChartTooltip";
+import ChartWrapper from "../../design-system/ChartWrapper";
+import Colors, { rtPillColors } from "../../design-system/Colors";
+import { rtSpreadType } from "../../infection-model/rt";
 
 const RtComparisonChartWrapper = styled(ChartWrapper)``;
 

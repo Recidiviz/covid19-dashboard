@@ -2,9 +2,9 @@ import classNames from "classnames";
 import React, { useState } from "react";
 import styled from "styled-components";
 
+import RtComparisonChart from "../components/rt-comparison-chart";
 import { FetchedFacilities } from "../constants";
 import Loading from "../design-system/Loading";
-import RtComparisonChart from "../rt-comparison-chart";
 import PanelHeader, { PanelHeaderText } from "./PanelHeader";
 
 const SpreadContent = styled.div`
