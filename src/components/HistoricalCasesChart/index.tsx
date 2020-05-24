@@ -3,11 +3,11 @@ import React, { useEffect, useState } from "react";
 import { ResponsiveOrdinalFrame } from "semiotic";
 import styled from "styled-components";
 
-import ChartWrapper from "../../components/design-system/ChartWrapper";
-import Colors from "../../components/design-system/Colors";
-import { totalConfirmedCases } from "../../components/impact-dashboard/EpidemicModelContext";
 import useFacilityModelVersions from "../../hooks/useFacilityModelVersions";
-import { Facility, ModelInputs } from "../types";
+import { Facility, ModelInputs } from "../../page-multi-facility/types";
+import ChartWrapper from "../design-system/ChartWrapper";
+import Colors from "../design-system/Colors";
+import { totalConfirmedCases } from "../impact-dashboard/EpidemicModelContext";
 import BarChartTooltip, { Summary } from "./BarChartTooltip";
 import ChartHeader from "./ChartHeader";
 import HistoricalAddCasesModal from "./HistoricalAddCasesModal";

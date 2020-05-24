@@ -1,10 +1,10 @@
 import { startOfToday } from "date-fns";
 import React from "react";
 
-import AddCasesModalContent from "../../components/AddCasesModal/AddCasesModalContent";
-import ModalDialog from "../../components/design-system/ModalDialog";
 import useAddCasesInputs from "../../hooks/useAddCasesInputs";
-import { Facility } from "../types";
+import { Facility } from "../../page-multi-facility/types";
+import AddCasesModalContent from "../AddCasesModal/AddCasesModalContent";
+import ModalDialog from "../design-system/ModalDialog";
 
 interface Props {
   facility: Facility;

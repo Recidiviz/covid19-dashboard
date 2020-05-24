@@ -14,6 +14,7 @@ import { Column, PageContainer } from "../components/design-system/PageColumn";
 import PopUpMenu from "../components/design-system/PopUpMenu";
 import { Spacer } from "../components/design-system/Spacer";
 import Tooltip from "../components/design-system/Tooltip";
+import HistoricalCasesChart from "../components/HistoricalCasesChart";
 import FacilityInformation from "../components/impact-dashboard/FacilityInformation";
 import MitigationInformation from "../components/impact-dashboard/MitigationInformation";
 import useModel from "../components/impact-dashboard/useModel";
@@ -23,7 +24,6 @@ import { deleteFacility, saveFacility } from "../database/index";
 import iconDuplicatePath from "../design-system/icons/ic_duplicate.svg";
 import { updateFacilityRtData } from "../infection-model/rt";
 import FacilityProjections from "./FacilityProjections";
-import HistoricalCasesChart from "./HistoricalCasesChart";
 import LocaleInformationSection from "./LocaleInformationSection";
 import { Facility } from "./types";
 
