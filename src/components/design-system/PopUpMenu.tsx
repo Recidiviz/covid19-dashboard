@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import UseComponentToggleVisible from "../hooks/UseComponentToggleVisible";
+import UseComponentToggleVisible from "../../hooks/UseComponentToggleVisible";
 import Colors from "./Colors";
 
 interface Item {

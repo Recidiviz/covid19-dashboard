@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import React from "react";
 
-import { MMMD, MMMMdyyyy } from "../constants";
+import { MMMD, MMMMdyyyy } from "../../constants";
 
 interface Props {
   date: Date;

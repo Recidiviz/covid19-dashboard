@@ -1,9 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 
-import ChartTooltip from "../../design-system/ChartTooltip";
-import Colors from "../../design-system/Colors";
-import { DateMMMMdyyyy } from "../../design-system/DateFormats";
+import ChartTooltip from "../../components/design-system/ChartTooltip";
+import Colors from "../../components/design-system/Colors";
+import { DateMMMMdyyyy } from "../../components/design-system/DateFormats";
 import { ModelInputs } from "../types";
 
 type MissingDataInput = {

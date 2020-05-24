@@ -2,7 +2,7 @@ import React from "react";
 import { useRef, useState } from "react";
 import useVisibility from "react-use-visibility";
 
-import Loading from "../design-system/Loading";
+import Loading from "../components/design-system/Loading";
 
 interface Props {
   children: React.ReactElement;

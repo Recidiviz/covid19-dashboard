@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import Colors from "../design-system/Colors";
+import Colors from "../components/design-system/Colors";
 
 const HeaderContainer = styled.div`
   border-color: ${Colors.opacityGray};

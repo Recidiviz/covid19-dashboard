@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import { MarkColors as markColors } from "../design-system/Colors";
+import { MarkColors as markColors } from "../components/design-system/Colors";
 import { PanelHeaderText } from "./PanelHeader";
 
 const LegendItem = styled.div`

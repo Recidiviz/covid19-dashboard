@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 
-import Colors from "../design-system/Colors";
+import Colors from "./Colors";
 
 interface Props {
   enabled: boolean;

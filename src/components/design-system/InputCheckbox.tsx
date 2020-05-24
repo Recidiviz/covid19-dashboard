@@ -2,8 +2,8 @@ import { uniqueId } from "lodash";
 import React, { useState } from "react";
 import styled from "styled-components";
 
-import TextLabel from "../design-system/TextLabel";
 import Colors from "./Colors";
+import TextLabel from "./TextLabel";
 
 interface Props {
   checked?: boolean;

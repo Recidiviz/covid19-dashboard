@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import Colors from "../design-system/Colors";
+import Colors from "../components/design-system/Colors";
 
 const CardContainer = styled.div`
   background-color: rgba(22, 26, 33, 0.04);

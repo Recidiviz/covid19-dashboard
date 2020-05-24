@@ -1,8 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
-import InputLabelAndHelp from "../design-system/InputLabelAndHelp";
-import InputToggle from "../design-system/InputToggle";
+import InputLabelAndHelp from "../components/design-system/InputLabelAndHelp";
+import InputToggle from "../components/design-system/InputToggle";
 
 interface Props {
   onToggle: () => void;

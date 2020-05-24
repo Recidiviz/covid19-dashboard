@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import Colors from "../../design-system/Colors";
+import Colors from "../../components/design-system/Colors";
 import addIcon from "./icons/ic_plus.svg";
 
 const ChartHeaderDiv = styled.div`

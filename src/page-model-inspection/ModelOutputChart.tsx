@@ -6,8 +6,8 @@ import React from "react";
 import ResponsiveXYFrame from "semiotic/lib/ResponsiveXYFrame";
 import styled from "styled-components";
 
-import Colors from "../design-system/Colors";
-import { DateMMMMdyyyy } from "../design-system/DateFormats";
+import Colors from "../components/design-system/Colors";
+import { DateMMMMdyyyy } from "../components/design-system/DateFormats";
 import { getMarkColor } from "./helpers";
 
 const ChartContainer = styled.div`

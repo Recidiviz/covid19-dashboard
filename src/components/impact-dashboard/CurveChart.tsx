@@ -5,9 +5,9 @@ import React from "react";
 import ResponsiveXYFrame from "semiotic/lib/ResponsiveXYFrame";
 import styled from "styled-components";
 
-import ChartTooltip from "../../design-system/ChartTooltip";
-import ChartWrapper from "../../design-system/ChartWrapper";
-import { DateMMMMdyyyy } from "../../design-system/DateFormats";
+import ChartTooltip from "../design-system/ChartTooltip";
+import ChartWrapper from "../design-system/ChartWrapper";
+import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import { MarkColors } from "./ChartArea";
 
 const CurveChartWrapper = styled(ChartWrapper)`

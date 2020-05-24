@@ -2,22 +2,24 @@ import { navigate } from "gatsby";
 import React, { useContext, useState } from "react";
 import styled from "styled-components";
 
+import Colors from "../components/design-system/Colors";
+import InputButton, {
+  StyledButton,
+} from "../components/design-system/InputButton";
+import InputDescription from "../components/design-system/InputDescription";
+import InputName from "../components/design-system/InputName";
+import ModalDialog from "../components/design-system/ModalDialog";
+import { Column, PageContainer } from "../components/design-system/PageColumn";
+import PopUpMenu from "../components/design-system/PopUpMenu";
+import { Spacer } from "../components/design-system/Spacer";
+import Tooltip from "../components/design-system/Tooltip";
 import FacilityInformation from "../components/impact-dashboard/FacilityInformation";
 import MitigationInformation from "../components/impact-dashboard/MitigationInformation";
 import useModel from "../components/impact-dashboard/useModel";
 import RtTimeseries from "../components/rt-timeseries";
 import { FacilityContext } from "../contexts/facility-context/FacilityContext";
 import { deleteFacility, saveFacility } from "../database/index";
-import Colors from "../design-system/Colors";
 import iconDuplicatePath from "../design-system/icons/ic_duplicate.svg";
-import InputButton, { StyledButton } from "../design-system/InputButton";
-import InputDescription from "../design-system/InputDescription";
-import InputName from "../design-system/InputName";
-import ModalDialog from "../design-system/ModalDialog";
-import { Column, PageContainer } from "../design-system/PageColumn";
-import PopUpMenu from "../design-system/PopUpMenu";
-import { Spacer } from "../design-system/Spacer";
-import Tooltip from "../design-system/Tooltip";
 import { updateFacilityRtData } from "../infection-model/rt";
 import AddCasesModal from "./AddCasesModal";
 import FacilityProjections from "./FacilityProjections";

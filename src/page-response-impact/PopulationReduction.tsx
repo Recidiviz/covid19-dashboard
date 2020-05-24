@@ -2,7 +2,7 @@ import hexAlpha from "hex-alpha";
 import React from "react";
 import styled from "styled-components";
 
-import Colors from "../design-system/Colors";
+import Colors from "../components/design-system/Colors";
 import { calculatePercentDiff } from "./utils/numberUtils";
 import { getSubtitle } from "./utils/ResponseImpactCardStateUtils";
 

@@ -2,9 +2,9 @@ import React from "react";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 
-import InputSelect from "../../design-system/InputSelect";
-import InputTextNumeric from "../../design-system/InputTextNumeric";
 import LocaleDetails from "../../page-multi-facility/LocaleDetails";
+import InputSelect from "../design-system/InputSelect";
+import InputTextNumeric from "../design-system/InputTextNumeric";
 import useModel from "./useModel";
 
 const LocaleInformationDiv = styled.div`

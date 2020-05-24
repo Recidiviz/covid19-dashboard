@@ -2,11 +2,11 @@ import { navigate } from "gatsby";
 import React from "react";
 import styled from "styled-components";
 
+import Colors from "../components/design-system/Colors";
+import InputButton from "../components/design-system/InputButton";
+import ModalDialog from "../components/design-system/ModalDialog";
 import useScenario from "../contexts/scenario-context/useScenario";
 import { saveScenario } from "../database";
-import Colors from "../design-system/Colors";
-import InputButton from "../design-system/InputButton";
-import ModalDialog from "../design-system/ModalDialog";
 
 const CreateBaselineScenarioPageContainer = styled.div``;
 

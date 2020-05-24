@@ -5,10 +5,10 @@ const ResponsiveXYFrame = require("semiotic/lib/ResponsiveXYFrame") as any;
 import React from "react";
 import styled from "styled-components";
 
-import ChartTooltip from "../../design-system/ChartTooltip";
-import ChartWrapper from "../../design-system/ChartWrapper";
-import Colors, { lighten } from "../../design-system/Colors";
 import { RtData, RtRecord } from "../../infection-model/rt";
+import ChartTooltip from "../design-system/ChartTooltip";
+import ChartWrapper from "../design-system/ChartWrapper";
+import Colors, { lighten } from "../design-system/Colors";
 
 interface Props {
   data: RtData;

@@ -2,8 +2,8 @@ import { Link } from "gatsby";
 import React from "react";
 import styled from "styled-components";
 
-import Colors from "../../design-system/Colors";
 import { useAuth0 } from "../../providers/auth/react-auth0-spa";
+import Colors from "../design-system/Colors";
 import Logo from "./Logo";
 
 const Nav = styled.nav`

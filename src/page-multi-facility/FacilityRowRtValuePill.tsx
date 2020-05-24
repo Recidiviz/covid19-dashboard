@@ -2,15 +2,15 @@ import numeral from "numeral";
 import React from "react";
 import styled from "styled-components";
 
+import ChartTooltip from "../components/design-system/ChartTooltip";
+import { rtPillColors } from "../components/design-system/Colors";
+import PillCircle from "../components/design-system/PillCircle";
 import {
   TooltipContents,
   TooltipLabel,
   TooltipValue,
 } from "../components/rt-timeseries/RtTimeseries";
 import { RateOfSpreadType } from "../constants/EpidemicModel";
-import ChartTooltip from "../design-system/ChartTooltip";
-import { rtPillColors } from "../design-system/Colors";
-import PillCircle from "../design-system/PillCircle";
 import { rtSpreadType } from "../infection-model/rt";
 
 const RtValuePill = styled.div<{ spreadType: RateOfSpreadType }>`

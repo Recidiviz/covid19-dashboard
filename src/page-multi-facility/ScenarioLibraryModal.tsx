@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
+import Colors from "../components/design-system/Colors";
+import { DateMMMMdyyyy } from "../components/design-system/DateFormats";
+import { StyledButton } from "../components/design-system/InputButton";
+import Loading from "../components/design-system/Loading";
+import Modal, { Props as ModalProps } from "../components/design-system/Modal";
+import ModalDialog from "../components/design-system/ModalDialog";
+import PopUpMenu from "../components/design-system/PopUpMenu";
 import useScenario from "../contexts/scenario-context/useScenario";
 import { deleteScenario, duplicateScenario, getScenarios } from "../database";
-import Colors from "../design-system/Colors";
-import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import iconSrcCheck from "../design-system/icons/ic_check.svg";
 import iconSrcRecidiviz from "../design-system/icons/ic_recidiviz.svg";
-import { StyledButton } from "../design-system/InputButton";
-import Loading from "../design-system/Loading";
-import Modal, { Props as ModalProps } from "../design-system/Modal";
-import ModalDialog from "../design-system/ModalDialog";
-import PopUpMenu from "../design-system/PopUpMenu";
 import { Scenario } from "./types";
 
 const ModalContents = styled.div`

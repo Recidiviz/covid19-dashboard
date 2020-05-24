@@ -2,9 +2,9 @@ import { navigate } from "gatsby";
 import React, { useState } from "react";
 import styled from "styled-components";
 
-import Colors from "../../design-system/Colors";
-import InputButton from "../../design-system/InputButton";
-import ModalDialog from "../../design-system/ModalDialog";
+import Colors from "../../components/design-system/Colors";
+import InputButton from "../../components/design-system/InputButton";
+import ModalDialog from "../../components/design-system/ModalDialog";
 import BaselinePopulationForm from "./BaselinePopulationForm";
 const BaselinePopulationContainer = styled.div``;
 

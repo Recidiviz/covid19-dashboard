@@ -2,7 +2,6 @@ import { sum } from "d3-array";
 import ndarray from "ndarray";
 import React from "react";
 
-import Loading from "../../design-system/Loading";
 import { CurveData } from "../../infection-model";
 import {
   getAllValues,
@@ -10,6 +9,7 @@ import {
   getRowView,
 } from "../../infection-model/matrixUtils";
 import { seirIndex } from "../../infection-model/seir";
+import Loading from "../design-system/Loading";
 import { useEpidemicModelState } from "./EpidemicModelContext";
 import ImpactProjectionTable, { TableRow } from "./ImpactProjectionTable";
 

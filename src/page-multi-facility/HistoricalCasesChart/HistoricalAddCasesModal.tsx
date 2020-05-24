@@ -1,7 +1,7 @@
 import { startOfToday } from "date-fns";
 import React from "react";
 
-import ModalDialog from "../../design-system/ModalDialog";
+import ModalDialog from "../../components/design-system/ModalDialog";
 import useAddCasesInputs from "../../hooks/useAddCasesInputs";
 import AddCasesModalContent from "../AddCasesModal/AddCasesModalContent";
 import { Facility } from "../types";

@@ -2,7 +2,7 @@ import numeral from "numeral";
 import React from "react";
 import styled from "styled-components";
 
-import Colors from "../design-system/Colors";
+import Colors from "./Colors";
 
 const MetricContainer = styled.div`
   border-radius: 4px;

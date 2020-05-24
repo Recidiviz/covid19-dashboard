@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 
-import Modal, { Props as ModalProps } from "../../design-system/Modal";
+import Modal, {
+  Props as ModalProps,
+} from "../../components/design-system/Modal";
 import useAddCasesInputs from "../../hooks/useAddCasesInputs";
 import { Facility } from "../types";
 import AddCasesModalContent from "./AddCasesModalContent";

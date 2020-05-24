@@ -1,7 +1,7 @@
 import { lab } from "d3";
 import hexAlpha from "hex-alpha";
 
-import { RateOfSpreadType } from "../constants/EpidemicModel";
+import { RateOfSpreadType } from "../../constants/EpidemicModel";
 
 export function darken(color: string, amount: number) {
   // good to use Lab color because it's perceptually uniform

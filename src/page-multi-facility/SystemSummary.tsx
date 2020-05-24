@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
+import Colors from "../components/design-system/Colors";
+import Loading from "../components/design-system/Loading";
+import Metric from "../components/design-system/Metric";
 import {
   getTotalPopulation,
   totalIncarceratedConfirmedCases,
 } from "../components/impact-dashboard/EpidemicModelContext";
-import Colors from "../design-system/Colors";
-import Loading from "../design-system/Loading";
-import Metric from "../design-system/Metric";
 import { isRtData, RtData, RtRecord } from "../infection-model/rt";
 import * as rtStats from "../page-response-impact/rtStatistics";
 import { Facilities, Facility, RtDataMapping } from "./types";

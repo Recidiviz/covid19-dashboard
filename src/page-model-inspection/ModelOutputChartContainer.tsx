@@ -1,8 +1,8 @@
 import { sum, zip } from "d3-array";
 import React from "react";
 
+import Loading from "../components/design-system/Loading";
 import { useEpidemicModelState } from "../components/impact-dashboard/EpidemicModelContext";
-import Loading from "../design-system/Loading";
 import {
   calculateCurves,
   CurveData,

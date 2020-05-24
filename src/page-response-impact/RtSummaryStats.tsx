@@ -3,8 +3,8 @@ import React from "react";
 import { ResponsiveOrdinalFrame } from "semiotic";
 import styled from "styled-components";
 
-import Colors from "../design-system/Colors";
-import HelpButtonWithTooltip from "../design-system/HelpButtonWithTooltip";
+import Colors from "../components/design-system/Colors";
+import HelpButtonWithTooltip from "../components/design-system/HelpButtonWithTooltip";
 import { isRtData, RtData, RtRecord } from "../infection-model/rt";
 import { RtDataMapping } from "../page-multi-facility/types";
 import * as rtStats from "./rtStatistics";

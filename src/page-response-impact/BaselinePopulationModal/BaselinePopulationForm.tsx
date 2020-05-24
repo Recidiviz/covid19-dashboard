@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 
-import Colors from "../../design-system/Colors";
-import HelpButtonWithTooltip from "../../design-system/HelpButtonWithTooltip";
-import InputButton from "../../design-system/InputButton";
-import InputDate from "../../design-system/InputDate";
-import InputTextNumeric from "../../design-system/InputTextNumeric";
+import Colors from "../../components/design-system/Colors";
+import HelpButtonWithTooltip from "../../components/design-system/HelpButtonWithTooltip";
+import InputButton from "../../components/design-system/InputButton";
+import InputDate from "../../components/design-system/InputDate";
+import InputTextNumeric from "../../components/design-system/InputTextNumeric";
 import { Props as ModalProps } from ".";
 
 const ModalFooter = styled.div`

@@ -2,9 +2,9 @@ import React from "react";
 import { useState } from "react";
 import styled from "styled-components";
 
-import { MarkColors as markColors } from "../../design-system/Colors";
 import { CurveData } from "../../infection-model";
 import { useChartDataFromProjectionData } from "../../page-multi-facility/projectionCurveHooks";
+import { MarkColors as markColors } from "../design-system/Colors";
 import CurveChart from "./CurveChartContainer";
 import CurveChartLegend from "./CurveChartLegend";
 

@@ -3,17 +3,19 @@ import { navigate } from "gatsby";
 import React, { useContext, useState } from "react";
 import styled from "styled-components";
 
+import Colors, {
+  MarkColors as markColors,
+} from "../components/design-system/Colors";
+import { DateMMMMdyyyy } from "../components/design-system/DateFormats";
+import FontSizes from "../components/design-system/FontSizes";
+import { Spacer } from "../components/design-system/Spacer";
+import Tooltip from "../components/design-system/Tooltip";
 import CurveChartContainer from "../components/impact-dashboard/CurveChartContainer";
 import { totalConfirmedCases } from "../components/impact-dashboard/EpidemicModelContext";
 import { getTotalPopulation } from "../components/impact-dashboard/EpidemicModelContext";
 import useModel from "../components/impact-dashboard/useModel";
 import { FacilityContext } from "../contexts/facility-context/FacilityContext";
-import Colors, { MarkColors as markColors } from "../design-system/Colors";
-import { DateMMMMdyyyy } from "../design-system/DateFormats";
-import FontSizes from "../design-system/FontSizes";
 import iconEditSrc from "../design-system/icons/ic_edit.svg";
-import { Spacer } from "../design-system/Spacer";
-import Tooltip from "../design-system/Tooltip";
 import { getNewestRt, isRtData } from "../infection-model/rt";
 import AddCasesModal from "./AddCasesModal";
 import FacilityRowRtValuePill from "./FacilityRowRtValuePill";

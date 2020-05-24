@@ -3,13 +3,13 @@ import React, { useContext, useState } from "react";
 import styled from "styled-components";
 
 import { FacilityContext } from "../../contexts/facility-context/FacilityContext";
-import Colors from "../../design-system/Colors";
-import HelpButtonWithTooltip from "../../design-system/HelpButtonWithTooltip";
-import Loading from "../../design-system/Loading";
 import { RtData } from "../../infection-model/rt";
 import { updateFacilityRtData } from "../../infection-model/rt";
 import AddCasesModal from "../../page-multi-facility/AddCasesModal";
 import { Facility } from "../../page-multi-facility/types";
+import Colors from "../design-system/Colors";
+import HelpButtonWithTooltip from "../design-system/HelpButtonWithTooltip";
+import Loading from "../design-system/Loading";
 import RtTimeseries from "./RtTimeseries";
 
 const borderStyle = `1px solid ${Colors.paleGreen}`;
