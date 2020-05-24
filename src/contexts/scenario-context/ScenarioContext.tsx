@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 
-import { getBaselineScenario } from "../database";
-import { Scenario } from "../page-multi-facility/types";
+import { getBaselineScenario } from "../../database";
+import { Scenario } from "../../page-multi-facility/types";
 
 export type ScenarioUpdate = {
   loading?: boolean;

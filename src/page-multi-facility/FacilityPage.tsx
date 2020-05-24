@@ -2,10 +2,10 @@ import React, { useContext } from "react";
 import styled from "styled-components";
 
 import SiteHeader from "../components/site-header/SiteHeader";
+import useScenario from "../contexts/scenario-context/useScenario";
 import Loading from "../design-system/Loading";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
 import { useLocaleDataState } from "../locale-data-context";
-import useScenario from "../scenario-context/useScenario";
 import { FacilityContext } from "./FacilityContext";
 import FacilityInputForm from "./FacilityInputForm";
 

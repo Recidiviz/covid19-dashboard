@@ -3,6 +3,7 @@ import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 
 import { FetchedFacilities } from "../constants";
+import useScenario from "../contexts/scenario-context/useScenario";
 import { getFacilities } from "../database";
 import Colors from "../design-system/Colors";
 import iconAddSrc from "../design-system/icons/ic_add.svg";
@@ -16,7 +17,6 @@ import {
   updateFacilityRtData,
 } from "../infection-model/rt";
 import { useLocaleDataState } from "../locale-data-context";
-import useScenario from "../scenario-context/useScenario";
 import { FacilityContext } from "./FacilityContext";
 import FacilityRow from "./FacilityRow";
 import FacilityRowPlaceholder from "./FacilityRowPlaceholder";

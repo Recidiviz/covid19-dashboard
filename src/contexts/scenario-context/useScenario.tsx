@@ -1,4 +1,4 @@
-import { Scenario } from "../page-multi-facility/types";
+import { Scenario } from "../../page-multi-facility/types";
 import { useScenarioDispatch, useScenarioState } from "./ScenarioContext";
 
 export default function useScenario() {

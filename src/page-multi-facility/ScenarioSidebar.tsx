@@ -3,6 +3,7 @@ import { navigate } from "gatsby";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
+import useScenario from "../contexts/scenario-context/useScenario";
 import { saveScenario } from "../database";
 import Colors from "../design-system/Colors";
 import iconCheckSrc from "../design-system/icons/ic_check.svg";
@@ -13,7 +14,6 @@ import InputName from "../design-system/InputName";
 import PromoBoxWithButton from "../design-system/PromoBoxWithButton";
 import { Spacer } from "../design-system/Spacer";
 import { useFlag } from "../feature-flags";
-import useScenario from "../scenario-context/useScenario";
 import ScenarioLibraryModal from "./ScenarioLibraryModal";
 import { Scenario } from "./types";
 
