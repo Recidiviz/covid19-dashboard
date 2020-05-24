@@ -7,15 +7,22 @@ import { useLocaleDataState } from "../contexts/locale-data-context";
 import useScenario from "../contexts/scenario-context/useScenario";
 import CreateBaselineScenarioPage from "./CreateBaselineScenarioPage";
 import MultiFacilityImpactDashboard from "./MultiFacilityImpactDashboard";
+import ReadOnlyScenarioBanner from "./ReadOnlyScenarioBanner";
 
 const MultiFacilityPageDiv = styled.div``;
 
 const MultiFacilityPage: React.FC = () => {
   const localeState = useLocaleDataState();
-  const [scenario] = useScenario();
+  const [scenario, dispatchScenarioUpdate] = useScenario();
 
   return (
     <MultiFacilityPageDiv>
+      {scenario.data && (
+        <ReadOnlyScenarioBanner
+          scenario={scenario.data}
+          dispatchScenarioUpdate={dispatchScenarioUpdate}
+        />
+      )}
       <div className="font-body text-green min-h-screen tracking-normal w-full">
         <div className="max-w-screen-xl px-4 mx-auto">
           <SiteHeader />
