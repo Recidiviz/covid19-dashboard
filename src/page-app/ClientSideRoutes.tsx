@@ -16,7 +16,7 @@ import {
 import { Routes } from "../constants/Routes";
 import SiteHeader from "../site-header/SiteHeader";
 import DashboardContainer from "./DashboardContainer";
-import FacilityContainer from "./scenario/FacilityContainer";
+import FacilityContainer from "./facility/FacilityContainer";
 import ScenarioContainer from "./scenario/ScenarioContainer";
 import Scenario from "./scenario/ScenarioContent";
 
