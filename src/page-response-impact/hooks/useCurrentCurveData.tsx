@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 
+import { LocaleData } from "../../contexts/locale-data-context";
 import { EpidemicModelState } from "../../impact-dashboard/EpidemicModelContext";
 import { CurveFunctionInputs } from "../../infection-model";
-import { LocaleData } from "../../locale-data-context";
 import { getCurveInputs } from "../responseChartData";
 
 export function useCurrentCurveData(

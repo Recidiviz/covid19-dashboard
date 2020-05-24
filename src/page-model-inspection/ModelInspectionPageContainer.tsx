@@ -1,8 +1,8 @@
 import React from "react";
 
+import { useLocaleDataState } from "../contexts/locale-data-context";
 import Loading from "../design-system/Loading";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
-import { useLocaleDataState } from "../locale-data-context";
 import ModelInspectionPage from "./ModelInspectionPage";
 
 const ModelInspectionPageContainer: React.FC = () => {

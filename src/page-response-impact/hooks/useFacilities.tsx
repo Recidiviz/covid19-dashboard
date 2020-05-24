@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
+import { LocaleData } from "../../contexts/locale-data-context";
 import { getFacilities } from "../../database";
-import { LocaleData } from "../../locale-data-context";
 import { Facilities } from "../../page-multi-facility/types";
 
 export type FacilitiesState = {

@@ -3,6 +3,7 @@ import { Link } from "gatsby";
 import React, { useContext, useState } from "react";
 import styled from "styled-components";
 
+import { useLocaleDataState } from "../contexts/locale-data-context";
 import { saveScenario } from "../database";
 import iconBackSrc from "../design-system/icons/ic_back.svg";
 import Loading from "../design-system/Loading";
@@ -11,7 +12,6 @@ import { Spacer } from "../design-system/Spacer";
 import useFacilitiesRtData from "../hooks/useFacilitiesRtData";
 import { sumAgeGroupPopulations } from "../impact-dashboard/EpidemicModelContext";
 import { getFacilitiesRtDataById } from "../infection-model/rt";
-import { useLocaleDataState } from "../locale-data-context";
 import { FacilityContext } from "../page-multi-facility/FacilityContext";
 import { BaselinePopulations, Scenario } from "../page-multi-facility/types";
 import BaselinePopulationModal from "./BaselinePopulationModal";

@@ -1,6 +1,7 @@
 import { zip } from "d3-array";
 import ndarray from "ndarray";
 
+import { LocaleData } from "../contexts/locale-data-context";
 import {
   EpidemicModelState,
   getLocaleDefaults,
@@ -16,7 +17,6 @@ import {
 import { NUM_DAYS } from "../infection-model";
 import { getAllValues, getColView } from "../infection-model/matrixUtils";
 import { seirIndex } from "../infection-model/seir";
-import { LocaleData } from "../locale-data-context";
 import { Facilities } from "../page-multi-facility/types";
 
 export type SystemWideData = {

@@ -2,9 +2,9 @@ import React from "react";
 import styled from "styled-components";
 
 import SiteHeader from "../components/site-header/SiteHeader";
+import { useLocaleDataState } from "../contexts/locale-data-context";
 import useScenario from "../contexts/scenario-context/useScenario";
 import Loading from "../design-system/Loading";
-import { useLocaleDataState } from "../locale-data-context";
 import ResponseImpactDashboard from "./ResponseImpactDashboard";
 
 const ResponseImpactPageDiv = styled.div``;

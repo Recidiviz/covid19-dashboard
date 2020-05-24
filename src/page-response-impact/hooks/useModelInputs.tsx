@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
+import { LocaleData } from "../../contexts/locale-data-context";
 import { EpidemicModelState } from "../../impact-dashboard/EpidemicModelContext";
-import { LocaleData } from "../../locale-data-context";
 import { getModelInputs } from "../responseChartData";
 import { FacilitiesState } from "./useFacilities";
 

@@ -2,11 +2,11 @@ import numeral from "numeral";
 import React from "react";
 import styled from "styled-components";
 
-import Colors from "../design-system/Colors";
 import {
   LocaleRecord,
   useLocaleDataState,
-} from "../locale-data-context/LocaleDataContext";
+} from "../contexts/locale-data-context/LocaleDataContext";
+import Colors from "../design-system/Colors";
 
 const LocaleDetailsContainer = styled.div`
   color: ${Colors.green};
