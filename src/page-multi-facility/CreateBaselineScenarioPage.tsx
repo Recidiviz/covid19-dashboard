@@ -2,7 +2,7 @@ import { navigate } from "gatsby";
 import React from "react";
 import styled from "styled-components";
 
-import {Routes} from "../constants/Routes";
+import { Routes } from "../constants/Routes";
 import { saveScenario } from "../database";
 import Colors from "../design-system/Colors";
 import InputButton from "../design-system/InputButton";

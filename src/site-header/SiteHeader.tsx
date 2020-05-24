@@ -4,7 +4,7 @@ import { Link as RouterLink } from "react-router-dom";
 import styled from "styled-components";
 
 import { useAuth0 } from "../auth/react-auth0-spa";
-import {Routes} from '../constants/Routes';
+import { Routes } from "../constants/Routes";
 import Colors from "../design-system/Colors";
 import Logo from "./Logo";
 
@@ -20,27 +20,28 @@ const Nav = styled.nav`
   justify-content: space-between;
 `;
 
-const SiteHeader: React.FC<{isApp?: boolean}> = ({isApp: isApp}) => {
+const SiteHeader: React.FC<{ isApp?: boolean }> = ({ isApp: isApp }) => {
   const { isAuthenticated, loginWithRedirect, logout } = (useAuth0 as any)();
 
   const logoutWithRedirect = () => logout({ returnTo: window.location.origin });
 
   return (
     <Nav>
-      {
-        (isApp ? (
-          <RouterLink to={Routes.App.url}>
-            <Logo />
-          </RouterLink>
-        ) : (
-          <Link to={Routes.App.url}>
-            <Logo />
-          </Link>
-        ))
-      }
+      {isApp ? (
+        <RouterLink to={Routes.App.url}>
+          <Logo />
+        </RouterLink>
+      ) : (
+        <Link to={Routes.App.url}>
+          <Logo />
+        </Link>
+      )}
       {/* <!-- Nav Items and Social Links --> */}
       <div className="flex items-center justify-between">
-        <Link to={Routes.About.url} className="mx-4 px-1 pt-1 font-medium text-green">
+        <Link
+          to={Routes.About.url}
+          className="mx-4 px-1 pt-1 font-medium text-green"
+        >
           About
         </Link>
         <div className="mx-4 px-1 pt-1 font-medium text-green">
