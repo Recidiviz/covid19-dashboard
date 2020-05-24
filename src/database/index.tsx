@@ -195,7 +195,7 @@ export const getScenarios = async (): Promise<Scenario[]> => {
 
     const scenarioResults = await db
       .collection(scenariosCollectionId)
-      .where(`roles.${currrentUserId()}`, "in", ["owner"])
+      .where(`roles.${currrentUserId()}`, "in", ["owner", "viewer"])
       .get();
 
     const scenarios = scenarioResults.docs.map((doc) => {
@@ -725,6 +725,10 @@ export const duplicateScenario = async (
     }
 
     await batch.commit();
+
+    const duplicatedScenario = await scenarioDoc.get();
+
+    return buildScenario(duplicatedScenario);
   } catch (error) {
     console.error(
       `Encountered error while attempting to duplicate scenario: ${scenarioId}`,

@@ -13,12 +13,12 @@ import {
   Switch,
 } from "react-router-dom";
 
-import { Routes } from "../../constants/Routes";
-import SiteHeader from "../../site-header/SiteHeader";
-import Layout from "../layout";
-import Scenario from "../scenario";
-import FacilityContainer from "../scenario/facility/FacilityContainer";
-import ScenarioContainer from "../scenario/ScenarioContainer";
+import { Routes } from "../constants/Routes";
+import SiteHeader from "../site-header/SiteHeader";
+import DashboardContainer from "./DashboardContainer";
+import FacilityContainer from "./scenario/FacilityContainer";
+import ScenarioContainer from "./scenario/ScenarioContainer";
+import Scenario from "./scenario/ScenarioContent";
 
 interface FacilityParamProps {
   scenarioId: string;
@@ -28,7 +28,7 @@ interface FacilityParamProps {
 // eslint-disable-next-line react/display-name
 export default () => {
   return (
-    <Layout>
+    <DashboardContainer>
       <Router>
         <SiteHeader isApp={true} />
         <Switch>
@@ -57,6 +57,6 @@ export default () => {
           </Route>
         </Switch>
       </Router>
-    </Layout>
+    </DashboardContainer>
   );
 };

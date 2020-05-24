@@ -1,17 +1,17 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Redirect, useParams } from "react-router-dom";
 
-import { FetchedFacilities } from "../../../constants/Facilities";
-import { Routes } from "../../../constants/Routes";
-import { getFacilities } from "../../../database";
-import Loading from "../../../design-system/Loading";
-import { ReplaceUrlParams } from "../../../helpers/Routing";
-import useFacilitiesRtData from "../../../hooks/useFacilitiesRtData";
-import { FacilityContext } from "../../../page-multi-facility/FacilityContext";
-import { Facilities } from "../../../page-multi-facility/types";
-import PageInfo from "../../../site-metadata/PageInfo";
-import ScenarioContainer from "../../scenario/ScenarioContainer";
-import Facility from ".";
+import { FetchedFacilities } from "../../constants/Facilities";
+import { Routes } from "../../constants/Routes";
+import { getFacilities } from "../../database";
+import Loading from "../../design-system/Loading";
+import { ReplaceUrlParams } from "../../helpers/Routing";
+import useFacilitiesRtData from "../../hooks/useFacilitiesRtData";
+import { FacilityContext } from "../../page-multi-facility/FacilityContext";
+import { Facilities } from "../../page-multi-facility/types";
+import PageInfo from "../../site-metadata/PageInfo";
+import Facility from "./FacilityContent";
+import ScenarioContainer from "./ScenarioContainer";
 
 type Props = {
   scenarioId: string;

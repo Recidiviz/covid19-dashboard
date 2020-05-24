@@ -11,7 +11,7 @@ import DatePicker from "react-date-picker/dist/entry.nostyle";
 import styled from "styled-components";
 
 import Colors from "./Colors";
-import { InputBaseProps, useInputValue } from "./Input";
+import { InputBaseProps } from "./Input";
 import InputLabelAndHelp from "./InputLabelAndHelp";
 
 const InputContainer = styled.div`
@@ -84,7 +84,6 @@ type Props = InputBaseProps<Date> & {
 
 const InputDate: React.FC<Props> = (props) => {
   const { labelAbove, labelHelp, onValueChange } = props;
-  const inputValue = useInputValue(props);
 
   return (
     <InputContainer>
@@ -109,7 +108,7 @@ const InputDate: React.FC<Props> = (props) => {
         }
         tileClassName={props.tileClassName}
         tileContent={props.tileContent}
-        value={inputValue}
+        value={props.valueEntered}
         yearPlaceholder="yyyy"
       />
     </InputContainer>

@@ -6,7 +6,7 @@
 
 import React from "react";
 
-import App from "../page-app/app";
+import App from "../page-app/ClientSideRoutes";
 
 // eslint-disable-next-line react/display-name
 export default () => {

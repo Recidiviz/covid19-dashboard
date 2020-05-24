@@ -1,17 +1,25 @@
 /* eslint-disable filenames/match-exported */
 import React from "react";
 
-import AuthWall from "../../auth/AuthWall";
-import Loading from "../../design-system/Loading";
-import { useLocaleDataState } from "../../locale-data-context";
-import CreateBaselineScenarioPage from "../../page-multi-facility/CreateBaselineScenarioPage";
-import useScenario from "../../scenario-context/useScenario";
+import AuthWall from "../auth/AuthWall";
+import Loading from "../design-system/Loading";
+import { useLocaleDataState } from "../locale-data-context";
+import CreateBaselineScenarioPage from "../page-multi-facility/CreateBaselineScenarioPage";
+import ReadOnlyScenarioBanner from "../page-multi-facility/ReadOnlyScenarioBanner";
+import useScenario from "../scenario-context/useScenario";
 
 const LocalStateCheckContainer = (props: { children: any }) => {
   const localeState = useLocaleDataState();
+  const [scenario, dispatchScenarioUpdate] = useScenario();
 
   return (
     <AuthWall>
+      {scenario.data && (
+        <ReadOnlyScenarioBanner
+          scenario={scenario.data}
+          dispatchScenarioUpdate={dispatchScenarioUpdate}
+        />
+      )}
       <div className="font-body text-green min-h-screen tracking-normal w-full">
         <div className="max-w-screen-xl px-4 mx-auto">
           {localeState.failed ? (
