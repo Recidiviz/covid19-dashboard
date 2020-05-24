@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
-import { useAuth0 } from "../auth/react-auth0-spa";
+import Colors from "../components/design-system/Colors";
+import iconEyeSrc from "../components/design-system/icons/ic_eye.svg";
+import iconRecidivizSrc from "../components/design-system/icons/ic_recidiviz_color.svg";
+import Loading from "../components/design-system/Loading";
+import ModalDialog from "../components/design-system/ModalDialog";
 import { duplicateScenario } from "../database";
-import Colors from "../design-system/Colors";
-import iconEyeSrc from "../design-system/icons/ic_eye.svg";
-import iconRecidivizSrc from "../design-system/icons/ic_recidiviz_color.svg";
-import Loading from "../design-system/Loading";
-import ModalDialog from "../design-system/ModalDialog";
+import { useAuth0 } from "../providers/auth/react-auth0-spa";
 import { Scenario } from "./types";
 
 interface BannerProps {
