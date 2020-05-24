@@ -2,7 +2,7 @@ import { range, sum, zip } from "d3-array";
 import differenceInCalendarDays from "date-fns/differenceInCalendarDays";
 import ndarray from "ndarray";
 
-import { PlannedReleases } from "../impact-dashboard/EpidemicModelContext";
+import { PlannedReleases } from "../components/impact-dashboard/EpidemicModelContext";
 import {
   getAllValues,
   getColView,

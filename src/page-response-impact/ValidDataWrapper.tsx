@@ -2,10 +2,10 @@ import { Link } from "gatsby";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
+import { sumAgeGroupPopulations } from "../components/impact-dashboard/EpidemicModelContext";
 import Colors from "../design-system/Colors";
 import iconBackSrc from "../design-system/icons/ic_back.svg";
 import { Spacer } from "../design-system/Spacer";
-import { sumAgeGroupPopulations } from "../impact-dashboard/EpidemicModelContext";
 import { Facilities } from "../page-multi-facility/types";
 import { BackDiv, IconBack } from "./styles";
 

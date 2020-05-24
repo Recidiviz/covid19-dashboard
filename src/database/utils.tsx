@@ -1,6 +1,6 @@
 import mapObject from "map-obj";
 
-import { EpidemicModelPersistent } from "../impact-dashboard/EpidemicModelContext";
+import { EpidemicModelPersistent } from "../components/impact-dashboard/EpidemicModelContext";
 
 const undefinedString = "undefined";
 

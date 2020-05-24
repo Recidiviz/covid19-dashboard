@@ -1,12 +1,12 @@
 import { zip } from "d3-array";
 import ndarray from "ndarray";
 
-import { LocaleData } from "../contexts/locale-data-context";
 import {
   EpidemicModelState,
   getLocaleDefaults,
-} from "../impact-dashboard/EpidemicModelContext";
-import { RateOfSpread } from "../impact-dashboard/EpidemicModelContext";
+} from "../components/impact-dashboard/EpidemicModelContext";
+import { RateOfSpread } from "../components/impact-dashboard/EpidemicModelContext";
+import { LocaleData } from "../contexts/locale-data-context";
 import {
   calculateCurves,
   CurveData,

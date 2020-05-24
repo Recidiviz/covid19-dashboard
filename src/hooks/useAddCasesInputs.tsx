@@ -2,13 +2,13 @@ import { startOfDay } from "date-fns";
 import { pick } from "lodash";
 import { useCallback, useEffect, useState } from "react";
 
-import { saveFacility } from "../database";
-import { useToasts } from "../design-system/Toast";
 import {
   ModelInputsPopulationBrackets,
   populationBracketKeys,
-} from "../impact-dashboard/EpidemicModelContext";
-import useModel from "../impact-dashboard/useModel";
+} from "../components/impact-dashboard/EpidemicModelContext";
+import useModel from "../components/impact-dashboard/useModel";
+import { saveFacility } from "../database";
+import { useToasts } from "../design-system/Toast";
 import { Facility, ModelInputs } from "../page-multi-facility/types";
 import useFacilityModelVersions from "./useFacilityModelVersions";
 

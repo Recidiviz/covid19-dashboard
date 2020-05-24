@@ -2,14 +2,14 @@ import { sum } from "d3-array";
 import ndarray from "ndarray";
 import React from "react";
 
-import Loading from "../design-system/Loading";
-import { CurveData } from "../infection-model";
+import Loading from "../../design-system/Loading";
+import { CurveData } from "../../infection-model";
 import {
   getAllValues,
   getColView,
   getRowView,
-} from "../infection-model/matrixUtils";
-import { seirIndex } from "../infection-model/seir";
+} from "../../infection-model/matrixUtils";
+import { seirIndex } from "../../infection-model/seir";
 import { useEpidemicModelState } from "./EpidemicModelContext";
 import ImpactProjectionTable, { TableRow } from "./ImpactProjectionTable";
 

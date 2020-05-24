@@ -2,7 +2,7 @@ import { parseISO } from "date-fns";
 import * as firebase from "firebase/app";
 import { pick } from "lodash";
 
-import { PlannedRelease } from "../impact-dashboard/EpidemicModelContext";
+import { PlannedRelease } from "../components/impact-dashboard/EpidemicModelContext";
 import {
   Facility,
   ModelInputs,

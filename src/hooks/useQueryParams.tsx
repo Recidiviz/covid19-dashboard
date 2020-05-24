@@ -4,8 +4,8 @@ import { isEqual as isGenerallyEqual } from "lodash";
 import qs from "qs";
 import { useEffect, useState } from "react";
 
+import { EpidemicModelPersistent } from "../components/impact-dashboard/EpidemicModelContext";
 import { prepareForStorage, prepareFromStorage } from "../database/utils";
-import { EpidemicModelPersistent } from "../impact-dashboard/EpidemicModelContext";
 
 export interface QueryParams {
   [key: string]: any;

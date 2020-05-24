@@ -2,12 +2,12 @@ import numeral from "numeral";
 import React, { useState } from "react";
 import styled from "styled-components";
 
-import InputTextNumeric from "../design-system/InputTextNumeric";
-import TextLabel from "../design-system/TextLabel";
+import InputTextNumeric from "../../design-system/InputTextNumeric";
+import TextLabel from "../../design-system/TextLabel";
 import {
   curveInputsFromUserInputs,
   getAdjustedTotalPopulation,
-} from "../infection-model";
+} from "../../infection-model";
 import Description from "./Description";
 import {
   EpidemicModelState,

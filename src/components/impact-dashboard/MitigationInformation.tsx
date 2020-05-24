@@ -2,10 +2,10 @@ import { cloneDeep } from "lodash";
 import React from "react";
 import styled from "styled-components";
 
-import Colors from "../design-system/Colors";
-import InputDate from "../design-system/InputDate";
-import InputSelect from "../design-system/InputSelect";
-import InputTextNumeric from "../design-system/InputTextNumeric";
+import Colors from "../../design-system/Colors";
+import InputDate from "../../design-system/InputDate";
+import InputSelect from "../../design-system/InputSelect";
+import InputTextNumeric from "../../design-system/InputTextNumeric";
 import Description from "./Description";
 import {
   PlannedRelease,

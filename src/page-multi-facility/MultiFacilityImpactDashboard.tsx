@@ -2,6 +2,7 @@ import { navigate } from "gatsby";
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 
+import { EpidemicModelProvider } from "../components/impact-dashboard/EpidemicModelContext";
 import { FetchedFacilities } from "../constants";
 import { FacilityContext } from "../contexts/facility-context/FacilityContext";
 import { useLocaleDataState } from "../contexts/locale-data-context";
@@ -12,7 +13,6 @@ import iconAddSrc from "../design-system/icons/ic_add.svg";
 import Loading from "../design-system/Loading";
 import TextLabel from "../design-system/TextLabel";
 import useFacilitiesRtData from "../hooks/useFacilitiesRtData";
-import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
 import {
   getFacilitiesRtDataById,
   updateFacilityRtData,

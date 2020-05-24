@@ -2,7 +2,7 @@ import isEmpty from "lodash/isEmpty";
 import React from "react";
 import { useEffect, useState } from "react";
 
-import Loading from "../design-system/Loading";
+import Loading from "../../design-system/Loading";
 import { MarkColors } from "./ChartArea";
 import CurveChart, { ChartData } from "./CurveChart";
 import { useEpidemicModelState } from "./EpidemicModelContext";

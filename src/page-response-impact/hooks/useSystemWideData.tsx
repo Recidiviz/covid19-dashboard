@@ -1,11 +1,11 @@
 import { reverse } from "lodash";
 import { useEffect, useState } from "react";
 
-import { LocaleData } from "../../contexts/locale-data-context";
 import {
   EpidemicModelState,
   getLocaleDefaults,
-} from "../../impact-dashboard/EpidemicModelContext";
+} from "../../components/impact-dashboard/EpidemicModelContext";
+import { LocaleData } from "../../contexts/locale-data-context";
 import { Scenario } from "../../page-multi-facility/types";
 import { getSystemWideSums, SystemWideData } from "../responseChartData";
 import { FacilitiesState } from "./useFacilities";

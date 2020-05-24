@@ -1,10 +1,10 @@
 import React from "react";
 import styled from "styled-components";
 
+import FacilityInformation from "../components/impact-dashboard/FacilityInformation";
+import LocaleInformation from "../components/impact-dashboard/LocaleInformation";
+import MitigationInformation from "../components/impact-dashboard/MitigationInformation";
 import Colors from "../design-system/Colors";
-import FacilityInformation from "../impact-dashboard/FacilityInformation";
-import LocaleInformation from "../impact-dashboard/LocaleInformation";
-import MitigationInformation from "../impact-dashboard/MitigationInformation";
 import ModelInspectionTable from "./ModelInspectionTableContainer";
 import ModelOutputChartArea from "./ModelOutputChartArea";
 

@@ -1,12 +1,12 @@
 import styled from "styled-components";
 
-import Colors from "../../design-system/Colors";
 import {
   countEverHospitalizedForDay,
   countUnableToWorkForDay,
   getFatalitiesForDay,
   getHospitalizedForDay,
-} from "../../impact-dashboard/ImpactProjectionTableContainer";
+} from "../../components/impact-dashboard/ImpactProjectionTableContainer";
+import Colors from "../../design-system/Colors";
 import { CurveData, isCurveData } from "../../infection-model";
 import { NUM_DAYS } from "../../infection-model";
 import { calculatePercentDiff } from "./numberUtils";

@@ -1,9 +1,9 @@
 import React, { useContext } from "react";
 
+import ChartArea from "../components/impact-dashboard/ChartArea";
+import { useEpidemicModelState } from "../components/impact-dashboard/EpidemicModelContext";
+import ImpactProjectionTableContainer from "../components/impact-dashboard/ImpactProjectionTableContainer";
 import { FacilityContext } from "../contexts/facility-context/FacilityContext";
-import ChartArea from "../impact-dashboard/ChartArea";
-import { useEpidemicModelState } from "../impact-dashboard/EpidemicModelContext";
-import ImpactProjectionTableContainer from "../impact-dashboard/ImpactProjectionTableContainer";
 import { useProjectionData } from "./projectionCurveHooks";
 
 const FacilityProjections: React.FC = () => {

@@ -1,4 +1,4 @@
-import { EpidemicModelPersistent } from "../impact-dashboard/EpidemicModelContext";
+import { EpidemicModelPersistent } from "../components/impact-dashboard/EpidemicModelContext";
 import { RtData } from "../infection-model/rt";
 
 export interface ModelInputs extends EpidemicModelPersistent {

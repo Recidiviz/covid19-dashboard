@@ -3,10 +3,10 @@ import React, { useEffect, useState } from "react";
 import { ResponsiveOrdinalFrame } from "semiotic";
 import styled from "styled-components";
 
+import { totalConfirmedCases } from "../../components/impact-dashboard/EpidemicModelContext";
 import ChartWrapper from "../../design-system/ChartWrapper";
 import Colors from "../../design-system/Colors";
 import useFacilityModelVersions from "../../hooks/useFacilityModelVersions";
-import { totalConfirmedCases } from "../../impact-dashboard/EpidemicModelContext";
 import { Facility, ModelInputs } from "../types";
 import BarChartTooltip, { Summary } from "./BarChartTooltip";
 import ChartHeader from "./ChartHeader";

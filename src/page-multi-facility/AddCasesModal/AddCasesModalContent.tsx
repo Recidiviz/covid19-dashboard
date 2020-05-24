@@ -4,17 +4,17 @@ import numeral from "numeral";
 import React, { useCallback } from "react";
 import styled from "styled-components";
 
+import {
+  getTotalPopulation,
+  ModelInputsPopulationBrackets,
+  totalConfirmedCases,
+} from "../../components/impact-dashboard/EpidemicModelContext";
+import { AgeGroupGrid } from "../../components/impact-dashboard/FacilityInformation";
 import Colors from "../../design-system/Colors";
 import { DateMMMMdyyyy } from "../../design-system/DateFormats";
 import InputButton from "../../design-system/InputButton";
 import InputDate from "../../design-system/InputDate";
 import Tooltip from "../../design-system/Tooltip";
-import {
-  getTotalPopulation,
-  ModelInputsPopulationBrackets,
-  totalConfirmedCases,
-} from "../../impact-dashboard/EpidemicModelContext";
-import { AgeGroupGrid } from "../../impact-dashboard/FacilityInformation";
 import { ModelInputs } from "../types";
 
 const noDataColor = Colors.darkRed;

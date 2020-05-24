@@ -1,8 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
+import LocaleInformation from "../components/impact-dashboard/LocaleInformation";
 import InputSelect from "../design-system/InputSelect";
-import LocaleInformation from "../impact-dashboard/LocaleInformation";
 import { SectionHeader } from "./FacilityInputForm";
 
 const LocaleInformationSectionDiv = styled.div``;

@@ -1,7 +1,7 @@
 import { zip } from "d3-array";
 import { useEffect, useState } from "react";
 
-import { EpidemicModelInputs } from "../impact-dashboard/EpidemicModelContext";
+import { EpidemicModelInputs } from "../components/impact-dashboard/EpidemicModelContext";
 import {
   calculateCurves,
   CurveData,

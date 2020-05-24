@@ -1,8 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
+import CurveChart from "../components/impact-dashboard/CurveChart";
 import Colors, { MarkColors } from "../design-system/Colors";
-import CurveChart from "../impact-dashboard/CurveChart";
 import { CurveFunctionInputs } from "../infection-model";
 import ProjectionsLegend from "../page-multi-facility/ProjectionsLegend";
 import { getCurveChartData, SystemWideData } from "./responseChartData";

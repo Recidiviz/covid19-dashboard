@@ -2,7 +2,7 @@ import { range, sum } from "d3-array";
 import ndarray from "ndarray";
 import { Omit } from "utility-types";
 
-import { EpidemicModelInputs } from "../impact-dashboard/EpidemicModelContext";
+import { EpidemicModelInputs } from "../components/impact-dashboard/EpidemicModelContext";
 import {
   adjustPopulations,
   ageGroupIndex,

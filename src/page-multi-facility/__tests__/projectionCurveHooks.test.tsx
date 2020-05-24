@@ -2,7 +2,7 @@ import { render } from "@testing-library/react";
 import ndarray from "ndarray";
 import React from "react";
 
-import { EpidemicModelInputs } from "../../impact-dashboard/EpidemicModelContext";
+import { EpidemicModelInputs } from "../../components/impact-dashboard/EpidemicModelContext";
 import { CurveData } from "../../infection-model";
 import { RtData } from "../../infection-model/rt";
 import { ageGroupIndex, seirIndex } from "../../infection-model/seir";

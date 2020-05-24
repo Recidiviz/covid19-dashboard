@@ -7,10 +7,10 @@ import {
 } from "date-fns";
 import { mapValues, maxBy, minBy, pick } from "lodash";
 
+import { totalConfirmedCases } from "../components/impact-dashboard/EpidemicModelContext";
 import { FacilityEvents } from "../constants/dispatchEvents";
 import { RateOfSpreadType } from "../constants/EpidemicModel";
 import { getFacilityModelVersions } from "../database";
-import { totalConfirmedCases } from "../impact-dashboard/EpidemicModelContext";
 import {
   Facilities,
   Facility,
