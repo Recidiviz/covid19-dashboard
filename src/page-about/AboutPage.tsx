@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import SiteHeader from "../site-header/SiteHeader";
+import SiteHeader from "../components/site-header/SiteHeader";
 
 const AboutPageDiv = styled.div`
   a {
