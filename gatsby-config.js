@@ -28,7 +28,7 @@ module.exports = {
       options: {
         short_name: "COVID-19",
         name: "COVID-19 Dashboard",
-        icon: "src/site-metadata/icon-512.png",
+        icon: "src/components/site-metadata/icon-512.png",
         start_url: ".",
         display: "standalone",
         theme_color: "#000000",
