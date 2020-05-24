@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React from "react";
 
-import SiteProvider from "./src/site-provider/SiteProvider";
+import SiteProvider from "./src/providers/site-provider/SiteProvider";
 
 // Some libraries, including semiotic, assume the global variable `self` is
 // defined. This is true in the browser but not when running Gatsby from Node.

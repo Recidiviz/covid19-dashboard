@@ -2,17 +2,17 @@ import { navigate } from "gatsby";
 import React, { useReducer, useState } from "react";
 import { ToastProvider } from "react-toast-notifications";
 
-import AppAuth0ClientPromise from "../auth/AppAuth0ClientPromise";
-import { Auth0Provider } from "../auth/react-auth0-spa";
-import { ScenarioProvider } from "../contexts/scenario-context";
-import Toast from "../design-system/Toast";
-import { FeatureFlagsProvider } from "../feature-flags";
-import { LocaleDataProvider } from "../locale-data-context";
+import AppAuth0ClientPromise from "../../auth/AppAuth0ClientPromise";
+import { Auth0Provider } from "../../auth/react-auth0-spa";
+import { ScenarioProvider } from "../../contexts/scenario-context";
+import Toast from "../../design-system/Toast";
+import { FeatureFlagsProvider } from "../../feature-flags";
+import { LocaleDataProvider } from "../../locale-data-context";
 import {
   FacilityContext,
   rtDataReducer,
-} from "../page-multi-facility/FacilityContext";
-import { Facility } from "../page-multi-facility/types";
+} from "../../page-multi-facility/FacilityContext";
+import { Facility } from "../../page-multi-facility/types";
 
 // A function that routes the user to the right place after login
 const onRedirectCallback = (appState: any) => {
