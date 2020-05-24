@@ -1,8 +1,8 @@
-import { navigate } from "gatsby";
 import React, { useContext, useState } from "react";
-import { useHistory, useParams } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
+import { Routes } from "../constants/Routes";
 import { deleteFacility, saveFacility } from "../database/index";
 import Colors from "../design-system/Colors";
 import iconDuplicatePath from "../design-system/icons/ic_duplicate.svg";
@@ -14,6 +14,7 @@ import { Column, PageContainer } from "../design-system/PageColumn";
 import PopUpMenu from "../design-system/PopUpMenu";
 import { Spacer } from "../design-system/Spacer";
 import Tooltip from "../design-system/Tooltip";
+import { ReplaceUrlParams } from "../helpers/Routing";
 import FacilityInformation from "../impact-dashboard/FacilityInformation";
 import MitigationInformation from "../impact-dashboard/MitigationInformation";
 import useModel from "../impact-dashboard/useModel";
@@ -134,7 +135,9 @@ const FacilityInputForm = (props: { scenarioId: string }) => {
         systemType: systemType || null,
         modelInputs: modelUpdate,
       }).then(() => {
-        history.push(`/app/scenario/${scenarioId}`);
+        history.push(
+          ReplaceUrlParams(Routes.Scenario.url, { scenarioId: scenarioId }),
+        );
       });
     } else {
       window.scroll({ top: 0, left: 0, behavior: "smooth" });

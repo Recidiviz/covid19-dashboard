@@ -195,7 +195,7 @@ export const getScenarios = async (): Promise<Scenario[]> => {
 
     const scenarioResults = await db
       .collection(scenariosCollectionId)
-      .where(`roles.${currrentUserId()}`, "in", ["owner", "viewer"])
+      .where(`roles.${currrentUserId()}`, "in", ["owner"])
       .get();
 
     const scenarios = scenarioResults.docs.map((doc) => {
