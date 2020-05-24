@@ -9,6 +9,7 @@ import Colors, {
 } from "../components/design-system/Colors";
 import { DateMMMMdyyyy } from "../components/design-system/DateFormats";
 import FontSizes from "../components/design-system/FontSizes";
+import iconEditSrc from "../components/design-system/icons/ic_edit.svg";
 import { Spacer } from "../components/design-system/Spacer";
 import Tooltip from "../components/design-system/Tooltip";
 import CurveChartContainer from "../components/impact-dashboard/CurveChartContainer";
@@ -16,7 +17,6 @@ import { totalConfirmedCases } from "../components/impact-dashboard/EpidemicMode
 import { getTotalPopulation } from "../components/impact-dashboard/EpidemicModelContext";
 import useModel from "../components/impact-dashboard/useModel";
 import { FacilityContext } from "../contexts/facility-context/FacilityContext";
-import iconEditSrc from "../design-system/icons/ic_edit.svg";
 import { getNewestRt, isRtData } from "../infection-model/rt";
 import FacilityRowRtValuePill from "./FacilityRowRtValuePill";
 import {

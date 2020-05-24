@@ -4,6 +4,7 @@ import styled from "styled-components";
 
 import AddCasesModal from "../components/AddCasesModal";
 import Colors from "../components/design-system/Colors";
+import iconDuplicatePath from "../components/design-system/icons/ic_duplicate.svg";
 import InputButton, {
   StyledButton,
 } from "../components/design-system/InputButton";
@@ -21,7 +22,6 @@ import useModel from "../components/impact-dashboard/useModel";
 import RtTimeseries from "../components/rt-timeseries";
 import { FacilityContext } from "../contexts/facility-context/FacilityContext";
 import { deleteFacility, saveFacility } from "../database/index";
-import iconDuplicatePath from "../design-system/icons/ic_duplicate.svg";
 import { updateFacilityRtData } from "../infection-model/rt";
 import FacilityProjections from "./FacilityProjections";
 import LocaleInformationSection from "./LocaleInformationSection";

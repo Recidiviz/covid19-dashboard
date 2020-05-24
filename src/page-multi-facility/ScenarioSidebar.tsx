@@ -4,6 +4,8 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import Colors from "../components/design-system/Colors";
+import iconCheckSrc from "../components/design-system/icons/ic_check.svg";
+import iconFolderSrc from "../components/design-system/icons/ic_folder.svg";
 import InputButton from "../components/design-system/InputButton";
 import InputDescription from "../components/design-system/InputDescription";
 import InputName from "../components/design-system/InputName";
@@ -11,8 +13,6 @@ import PromoBoxWithButton from "../components/design-system/PromoBoxWithButton";
 import { Spacer } from "../components/design-system/Spacer";
 import useScenario from "../contexts/scenario-context/useScenario";
 import { saveScenario } from "../database";
-import iconCheckSrc from "../design-system/icons/ic_check.svg";
-import iconFolderSrc from "../design-system/icons/ic_folder.svg";
 import { useFlag } from "../providers/feature-flags";
 import ScenarioLibraryModal from "./ScenarioLibraryModal";
 import { Scenario } from "./types";

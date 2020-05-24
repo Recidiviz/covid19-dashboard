@@ -2,9 +2,9 @@ import * as dateFns from "date-fns";
 import React from "react";
 import styled from "styled-components";
 
-import nextArrowIcon from "../../design-system/icons/ic_next_arrow.svg";
-import prevArrowIcon from "../../design-system/icons/ic_previous_arrow.svg";
 import Colors from "../design-system/Colors";
+import nextArrowIcon from "../design-system/icons/ic_next_arrow.svg";
+import prevArrowIcon from "../design-system/icons/ic_previous_arrow.svg";
 
 const ScrollChartDatesContainer = styled.div`
   display: flex;

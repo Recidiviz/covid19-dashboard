@@ -3,9 +3,9 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import Colors from "../components/design-system/Colors";
+import iconBackSrc from "../components/design-system/icons/ic_back.svg";
 import { Spacer } from "../components/design-system/Spacer";
 import { sumAgeGroupPopulations } from "../components/impact-dashboard/EpidemicModelContext";
-import iconBackSrc from "../design-system/icons/ic_back.svg";
 import { Facilities } from "../page-multi-facility/types";
 import { BackDiv, IconBack } from "./styles";
 
