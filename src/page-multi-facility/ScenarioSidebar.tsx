@@ -3,6 +3,7 @@ import { navigate } from "gatsby";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
+import { Routes } from "../constants/Routes";
 import { saveScenario } from "../database";
 import Colors from "../design-system/Colors";
 import iconCheckSrc from "../design-system/icons/ic_check.svg";
@@ -206,7 +207,7 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
                 marginTop: "20px",
               }}
               label="Generate Impact Report"
-              onClick={() => navigate("/impact")}
+              onClick={() => navigate(Routes.Impact.url)}
             />
           )}
         </div>

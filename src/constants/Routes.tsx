@@ -5,6 +5,10 @@ export const Routes = {
     name: "root",
     url: `/`,
   },
+  Impact: {
+    name: "impact",
+    url: `/impact`,
+  },
   Verify: {
     name: "verify",
     url: `/verify`,
