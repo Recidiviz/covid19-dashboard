@@ -10258,7 +10258,7 @@ lodash.clonedeep@4.5.0:
   resolved "https://registry.yarnpkg.com/lodash.clonedeep/-/lodash.clonedeep-4.5.0.tgz#e23f3f9c4f8fbdde872529c1071857a086e5ccef"
   integrity sha1-4j8/nE+Pvd6HJSnBBxhXoIblzO8=
 
-lodash.debounce@^4.0.8:
+lodash.debounce@^4, lodash.debounce@^4.0.8:
   version "4.0.8"
   resolved "https://registry.yarnpkg.com/lodash.debounce/-/lodash.debounce-4.0.8.tgz#82d79bff30a67c4005ffd5e2515300ad9ca4d7af"
   integrity sha1-gteb/zCmfEAF/9XiUVMArZyk168=
@@ -12834,6 +12834,14 @@ react-date-picker@^8.0.1:
     react-calendar "^3.0.0"
     react-fit "^1.0.3"
     update-input-width "^1.1.1"
+
+react-debounce-input@^3.2.2:
+  version "3.2.2"
+  resolved "https://registry.yarnpkg.com/react-debounce-input/-/react-debounce-input-3.2.2.tgz#d2cc99c1ce47fae89037965f5699edc1b0317197"
+  integrity sha512-RIBu68Cq/gImKz/2h1cE042REDqyqj3D+7SJ3lnnIpJX0ht9D9PfH7KAnL+SgDz6hvKa9pZS2CnAxlkrLmnQlg==
+  dependencies:
+    lodash.debounce "^4"
+    prop-types "^15.7.2"
 
 react-dev-utils@^4.2.3:
   version "4.2.3"

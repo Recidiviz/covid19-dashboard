@@ -2,8 +2,13 @@ import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 
 import Colors from "./Colors";
-import { InputBaseProps, StyledInput, useInputValue } from "./Input";
+import { CustomDebounceInput, InputBaseProps, InputStyle } from "./Input";
 import InputLabelAndHelp from "./InputLabelAndHelp";
+
+/**
+ * How long after the last keystroke should we make updates based off the input?
+ */
+const InputTextTimeoutMs = 1000;
 
 const TextInputContainer = styled.div`
   display: flex;
@@ -11,52 +16,38 @@ const TextInputContainer = styled.div`
   width: 100%;
 `;
 
-const InputWrapper = styled(StyledInput)`
+const InputWrapper = styled.div`
+  ${InputStyle}
+
   align-items: center;
   display: flex;
   flex-direction: row;
 `;
 
-const WrappedInput = styled(StyledInput)`
+const WrappedInput = styled(CustomDebounceInput)`
+  ${InputStyle}
   margin: 0;
   padding: 0;
+
   /*
     This is a little weird but we need a fixed number to override
     default sizing. Element will still flex as needed.
   */
   width: 0;
   color: ${Colors.green};
-
-  // make placeholder font size smaller than the input's
-  &::-webkit-input-placeholder {
-    ${(props) => (props.headerStyle ? "font-size: 18px" : "")}
-  }
-  &::-moz-placeholder {
-    ${(props) => (props.headerStyle ? "font-size: 18px" : "")}
-  }
-  &:-ms-input-placeholder {
-    ${(props) => (props.headerStyle ? "font-size: 18px" : "")}
-  }
-  &:-moz-placeholder {
-    ${(props) => (props.headerStyle ? "font-size: 18px" : "")}
-  }
 `;
 
 interface Props extends InputBaseProps<string> {
   type: "text" | "number";
-  headerStyle?: boolean;
   onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
   onKeyDown?: (event: React.KeyboardEvent) => void;
   focus?: boolean;
   maxLength?: number;
-  placeholder?: string;
   required?: boolean;
   style?: object;
 }
 
 const InputText: React.FC<Props> = (props) => {
-  let inputValue = useInputValue(props);
-  const placeholder = props.valuePlaceholder ?? props.labelPlaceholder;
   const nameInput = useRef() as React.MutableRefObject<HTMLInputElement>;
 
   useEffect(() => {
@@ -68,18 +59,18 @@ const InputText: React.FC<Props> = (props) => {
   return (
     <TextInputContainer>
       <InputLabelAndHelp label={props.labelAbove} labelHelp={props.labelHelp} />
-      <InputWrapper as="div" style={props.style}>
+      <InputWrapper style={props.style}>
         <WrappedInput
           type={props.type}
-          ref={nameInput}
-          value={inputValue ?? ""}
-          headerStyle={!!props.headerStyle}
-          placeholder={props.placeholder ?? placeholder}
+          inputRef={nameInput}
+          value={props.valueEntered ?? ""}
+          placeholder={props.labelPlaceholder}
           maxLength={props.maxLength}
           required={props.required}
           onChange={(e) => props.onValueChange(e.target.value)}
           onBlur={props.onBlur}
           onKeyDown={props.onKeyDown}
+          debounceTimeout={InputTextTimeoutMs}
         />
         {props.children}
       </InputWrapper>
