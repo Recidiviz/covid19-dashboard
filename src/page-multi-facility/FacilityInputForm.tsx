@@ -13,6 +13,7 @@ import { Column, PageContainer } from "../design-system/PageColumn";
 import PopUpMenu from "../design-system/PopUpMenu";
 import { Spacer } from "../design-system/Spacer";
 import Tooltip from "../design-system/Tooltip";
+import useScreenWidth from "../hooks/useScreenWidth";
 import FacilityInformation from "../impact-dashboard/FacilityInformation";
 import MitigationInformation from "../impact-dashboard/MitigationInformation";
 import useModel from "../impact-dashboard/useModel";
@@ -25,8 +26,23 @@ import HistoricalCasesChart from "./HistoricalCasesChart";
 import LocaleInformationSection from "./LocaleInformationSection";
 import { Facility } from "./types";
 
-const ButtonSection = styled.div`
-  margin-top: 30px;
+interface ButtonSectionProps {
+  screenWidth: number;
+}
+
+const ButtonSection = styled.div<ButtonSectionProps>`
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  background-color: ${Colors.slate};
+  z-index: 1;
+  margin-left: ${({ screenWidth }) =>
+    screenWidth > 1280 ? (screenWidth - 1280) / 2 : 0}px;
 `;
 
 const DescRow = styled.div`
@@ -122,6 +138,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   );
   const model = useModel();
 
+  const screenWidth = useScreenWidth();
   const save = () => {
     if (facilityName) {
       // Set observedAt to right now when updating a facility from this input form
@@ -226,7 +243,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
         <FacilityInformation />
         <SectionHeader>Rate of Spread</SectionHeader>
         <MitigationInformation />
-        <ButtonSection>
+        <ButtonSection className="pl-8" screenWidth={screenWidth}>
           <InputButton label="Save" onClick={save} />
         </ButtonSection>
         <div className="mt-8" />
