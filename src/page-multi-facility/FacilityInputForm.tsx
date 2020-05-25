@@ -45,6 +45,10 @@ const ButtonSection = styled.div<ButtonSectionProps>`
     screenWidth > 1280 ? (screenWidth - 1280) / 2 : 0}px;
 `;
 
+const PageContainerWithBottomMargin = styled(PageContainer)`
+  margin-bottom: 60px;
+`;
+
 const DescRow = styled.div`
   display: flex;
   justify-content: space-between;
@@ -183,7 +187,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   };
 
   return (
-    <PageContainer>
+    <PageContainerWithBottomMargin>
       <Column width={"45%"}>
         <InputName
           name={facilityName}
@@ -271,7 +275,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
           </ModalButtons>
         </ModalContents>
       </ModalDialog>
-    </PageContainer>
+    </PageContainerWithBottomMargin>
   );
 };
 
