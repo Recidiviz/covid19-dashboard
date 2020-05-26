@@ -10,13 +10,13 @@ type MissingDataInput = {
   missing: boolean;
   observedAt: Date;
   cases: number;
-  population: number;
+  displayPopulation: number;
 };
 
 export type Summary = {
   data: ModelInputs & MissingDataInput;
   cases: number;
-  population: number;
+  displayPopulation: number;
 };
 
 interface TooltipProps {
@@ -58,14 +58,19 @@ const BarChartTooltip: React.FC<TooltipProps> = ({ summary }) => {
       ) : (
         <>
           <TooltipTitle>{data.cases} cases</TooltipTitle>
-          <TooltipTitle>{data.population + data.cases} residents</TooltipTitle>
+          <TooltipTitle>
+            {data.displayPopulation > 0
+              ? data.displayPopulation + data.cases
+              : 0}{" "}
+            residents
+          </TooltipTitle>
         </>
       )}
 
       <TooltipDate>
         <DateMMMMdyyyy date={data.observedAt} />
       </TooltipDate>
-      <TooltipSubtitle>Change</TooltipSubtitle>
+      <TooltipSubtitle>Click to update</TooltipSubtitle>
     </TooltipContainer>
   );
 };

@@ -7,8 +7,8 @@ import ChartWrapper from "../../design-system/ChartWrapper";
 import Colors from "../../design-system/Colors";
 import useFacilityModelVersions from "../../hooks/useFacilityModelVersions";
 import {
-  residentPopulation,
   totalConfirmedCases,
+  totalPopulation,
 } from "../../impact-dashboard/EpidemicModelContext";
 import { Facility, ModelInputs } from "../types";
 import BarChartTooltip, { Summary } from "./BarChartTooltip";
@@ -27,19 +27,22 @@ function generateBarChartData(
 
     if (existingVersion) {
       const cases = totalConfirmedCases(existingVersion);
-      // This is necessary since semiotic doesn't have an option to display a stacked bar chart overlay.
+      // This is necessary since semiotic doesn't have an option to display a an overlay bar chart.
       // So we display population (non-cases) = total population - cases
-      const populationToDisplay = residentPopulation(existingVersion) - cases;
+      const displayPopulation = Math.max(
+        totalPopulation(existingVersion) - cases,
+        0,
+      );
       return {
         ...existingVersion,
         cases: cases,
-        population: populationToDisplay,
+        displayPopulation: displayPopulation,
       };
     } else {
       return {
         observedAt: date,
         cases: 0,
-        population: 0,
+        displayPopulation: 0,
         missing: true,
       };
     }

@@ -10,8 +10,10 @@ import iconEditSrc from "../design-system/icons/ic_edit.svg";
 import { Spacer } from "../design-system/Spacer";
 import Tooltip from "../design-system/Tooltip";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
-import { totalConfirmedCases } from "../impact-dashboard/EpidemicModelContext";
-import { getTotalPopulation } from "../impact-dashboard/EpidemicModelContext";
+import {
+  totalConfirmedCases,
+  totalIncarceratedPopulation,
+} from "../impact-dashboard/EpidemicModelContext";
 import useModel from "../impact-dashboard/useModel";
 import { getNewestRt, isRtData } from "../infection-model/rt";
 import AddCasesModal from "./AddCasesModal";
@@ -113,7 +115,7 @@ const FacilityRow: React.FC<Props> = ({ facility, onSave }) => {
 
   const { name, updatedAt } = facility;
   const confirmedCases = totalConfirmedCases(model);
-  const population = getTotalPopulation(model);
+  const population = totalIncarceratedPopulation(model);
 
   const openFacilityPage = () => {
     setFacility(facility);

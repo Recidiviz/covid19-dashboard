@@ -299,7 +299,7 @@ export function totalIncarceratedConfirmedCases(
   );
 }
 
-export function getTotalPopulation(
+export function totalIncarceratedPopulation(
   brackets: ModelInputsPopulationBrackets,
 ): number {
   return sum(
@@ -318,12 +318,12 @@ export function getTotalPopulation(
   );
 }
 
-export function residentPopulation(
+export function totalPopulation(
   brackets: ModelInputsPopulationBrackets,
 ): number {
-  return sum([getTotalPopulation(brackets), brackets.staffPopulation]);
+  return sum([totalIncarceratedPopulation(brackets), brackets.staffPopulation]);
 }
 
 export function sumAgeGroupPopulations(facility: Facility): number {
-  return getTotalPopulation(facility.modelInputs);
+  return totalIncarceratedPopulation(facility.modelInputs);
 }
