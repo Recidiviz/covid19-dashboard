@@ -76,6 +76,6 @@ export const rtPillColors: {
   },
   [RateOfSpreadType.Missing]: {
     text: Colors.forest,
-    border: Colors.forest20,
+    border: Colors.forest50,
   },
 };
