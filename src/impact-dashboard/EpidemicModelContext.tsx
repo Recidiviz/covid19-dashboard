@@ -43,6 +43,7 @@ export interface ModelInputsPopulationBrackets {
 interface ModelInputsPersistent extends ModelInputsPopulationBrackets {
   facilityDormitoryPct?: number;
   facilityOccupancyPct?: number;
+  facilityCapacity?: number;
   plannedReleases?: PlannedReleases;
   populationTurnover?: number;
   rateOfSpreadFactor?: RateOfSpread;
@@ -110,6 +111,7 @@ export const persistedKeys: Array<keyof EpidemicModelPersistent> = [
   "stateCode",
   "facilityDormitoryPct",
   "facilityOccupancyPct",
+  "facilityCapacity",
   "plannedReleases",
   "populationTurnover",
   "rateOfSpreadFactor",
@@ -176,86 +178,6 @@ export function getLocaleDefaults(
   };
 }
 
-function epidemicModelReducer(
-  state: EpidemicModelState,
-  action: Action,
-): EpidemicModelState {
-  switch (action.type) {
-    case "update":
-      // the desired user flow is to fill out a form, review the entries,
-      // then submit it all at once; therefore we can just expose a single
-      // action and merge the whole object into previous state.
-      // it's not very granular but it doesn't need to be at the moment
-
-      let updates = { ...action.payload };
-      let { stateCode, countyName } = updates;
-
-      // change in state or county triggers a bigger reset
-      if (stateCode) {
-        countyName = countyName || "Total";
-      } else if (countyName) {
-        stateCode = state.stateCode;
-      }
-      if (stateCode && countyName) {
-        return getLocaleDefaults(state.localeDataSource, stateCode, countyName);
-      }
-
-      return Object.assign({}, state, updates);
-  }
-}
-
-export function EpidemicModelProvider({
-  children,
-  facilityModel,
-  localeDataSource,
-}: EpidemicModelProviderProps) {
-  const initialState = {
-    ...getLocaleDefaults(
-      localeDataSource,
-      facilityModel?.stateCode,
-      facilityModel?.countyName,
-    ),
-    ...(facilityModel || {}),
-  };
-
-  const [state, dispatch] = React.useReducer(
-    epidemicModelReducer,
-    initialState,
-  );
-
-  return (
-    <EpidemicModelStateContext.Provider value={state}>
-      <EpidemicModelDispatchContext.Provider value={dispatch}>
-        {children}
-      </EpidemicModelDispatchContext.Provider>
-    </EpidemicModelStateContext.Provider>
-  );
-}
-
-export function useEpidemicModelState() {
-  const context = React.useContext(EpidemicModelStateContext);
-
-  if (context === undefined) {
-    throw new Error(
-      "useEpidemicModelState must be used within an EpidemicModelProvider",
-    );
-  }
-
-  return context;
-}
-
-export function useEpidemicModelDispatch() {
-  const context = React.useContext(EpidemicModelDispatchContext);
-
-  if (context === undefined) {
-    throw new Error(
-      "useEpidemicModelDispatch must be used within an EpidemicModelProvider",
-    );
-  }
-
-  return context;
-}
-
 // *******
 // calculation helpers
 // *******
@@ -320,4 +242,93 @@ export function getTotalPopulation(
 
 export function sumAgeGroupPopulations(facility: Facility): number {
   return getTotalPopulation(facility.modelInputs);
+}
+
+// *******
+// state and context management
+// *******
+
+function epidemicModelReducer(
+  state: EpidemicModelState,
+  action: Action,
+): EpidemicModelState {
+  switch (action.type) {
+    case "update":
+      // the desired user flow is to fill out a form, review the entries,
+      // then submit it all at once; therefore we can just expose a single
+      // action and merge the whole object into previous state.
+      // it's not very granular but it doesn't need to be at the moment
+
+      let updates = { ...action.payload };
+      let { stateCode, countyName, facilityCapacity } = updates;
+
+      // change in state or county triggers a bigger reset
+      if (stateCode) {
+        countyName = countyName || "Total";
+      } else if (countyName) {
+        stateCode = state.stateCode;
+      }
+      if (stateCode && countyName) {
+        return getLocaleDefaults(state.localeDataSource, stateCode, countyName);
+      }
+
+      if (facilityCapacity) {
+        updates.facilityOccupancyPct =
+          getTotalPopulation(state) / facilityCapacity || 1;
+      }
+
+      return Object.assign({}, state, updates);
+  }
+}
+
+export function EpidemicModelProvider({
+  children,
+  facilityModel,
+  localeDataSource,
+}: EpidemicModelProviderProps) {
+  const initialState = {
+    ...getLocaleDefaults(
+      localeDataSource,
+      facilityModel?.stateCode,
+      facilityModel?.countyName,
+    ),
+    ...(facilityModel || {}),
+  };
+
+  const [state, dispatch] = React.useReducer(
+    epidemicModelReducer,
+    initialState,
+  );
+
+  return (
+    <EpidemicModelStateContext.Provider value={state}>
+      <EpidemicModelDispatchContext.Provider value={dispatch}>
+        {children}
+      </EpidemicModelDispatchContext.Provider>
+    </EpidemicModelStateContext.Provider>
+  );
+}
+
+export function useEpidemicModelState() {
+  const context = React.useContext(EpidemicModelStateContext);
+
+  if (context === undefined) {
+    throw new Error(
+      "useEpidemicModelState must be used within an EpidemicModelProvider",
+    );
+  }
+
+  return context;
+}
+
+export function useEpidemicModelDispatch() {
+  const context = React.useContext(EpidemicModelDispatchContext);
+
+  if (context === undefined) {
+    throw new Error(
+      "useEpidemicModelDispatch must be used within an EpidemicModelProvider",
+    );
+  }
+
+  return context;
 }
