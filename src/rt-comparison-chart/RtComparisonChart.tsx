@@ -265,7 +265,7 @@ const RtComparisonChart: React.FC<{ data: RtComparisonData[] }> = ({
     Math.max(...data.map((record) => record.values.high90 || 0)),
   );
 
-  const maxExtent = maxRtHigh90 >= 4 ? maxRtHigh90 + 1 : 5;
+  const maxExtent = Math.max(maxRtHigh90 + 1, 5);
 
   return (
     <RtComparisonChartWrapper>
