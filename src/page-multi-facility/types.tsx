@@ -28,7 +28,9 @@ export type Scenario = {
   promoStatuses: PromoStatuses;
   baselinePopulations: BaselinePopulations[];
   description: string;
-  roles: object;
+  roles: {
+    [key: string]: "owner" | "viewer";
+  };
   createdAt: Date;
   updatedAt: Date;
 };
