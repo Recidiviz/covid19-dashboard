@@ -5,8 +5,8 @@ import Colors from "../design-system/Colors";
 import Loading from "../design-system/Loading";
 import Metric from "../design-system/Metric";
 import {
-  getTotalPopulation,
   totalIncarceratedConfirmedCases,
+  totalIncarceratedPopulation,
 } from "../impact-dashboard/EpidemicModelContext";
 import { isRtData, RtData, RtRecord } from "../infection-model/rt";
 import * as rtStats from "../page-response-impact/rtStatistics";
@@ -104,7 +104,7 @@ const SystemSummary: React.FC<Props> = ({ facilities, scenarioId, rtData }) => {
       const staffCases = facility.modelInputs.staffCases || 0;
 
       acc.incarceratedPopulation.value +=
-        getTotalPopulation(facility.modelInputs) || 0;
+        totalIncarceratedPopulation(facility.modelInputs) || 0;
       acc.staffPopulation.value += facility.modelInputs.staffPopulation || 0;
       acc.incarceratedCases.value += incarceratedCases;
       acc.staffCases.value += staffCases;
