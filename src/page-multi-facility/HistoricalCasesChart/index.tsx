@@ -33,7 +33,6 @@ function generateBarChartData(
         totalPopulation(existingVersion) - cases,
         0,
       );
-      console.log(displayPopulation);
       return {
         ...existingVersion,
         cases: cases,
