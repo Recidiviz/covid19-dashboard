@@ -13,6 +13,7 @@ import InputName from "../design-system/InputName";
 import PromoBoxWithButton from "../design-system/PromoBoxWithButton";
 import { Spacer } from "../design-system/Spacer";
 import { Flag, useFlag } from "../feature-flags";
+import useReadOnlyMode from "../hooks/useReadOnlyMode";
 import useRejectionToast from "../hooks/useRejectionToast";
 import useScenario from "../scenario-context/useScenario";
 import ScenarioShareModal from "../scenario-share/ScenarioShareModal";
@@ -97,6 +98,7 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
   const showImpactButton = useFlag(["showImpactButton"]);
 
   const rejectionToast = useRejectionToast();
+  const readOnly = useReadOnlyMode(scenarioState.data);
 
   const handleScenarioChange = (scenarioChange: any) => {
     const changes = Object.assign({}, scenario, scenarioChange);
@@ -180,14 +182,16 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
             <IconCheck alt="check" src={iconCheckSrc} />
           </BaselineIndicator>
         </div>
-        <Flag name={["enableSharing"]}>
-          <div>
-            <Spacer y={20} />
-            <HorizontalRule />
-            <Spacer y={20} />
-            <ScenarioShareModal />
-          </div>
-        </Flag>
+        {!readOnly && (
+          <Flag name={["enableSharing"]}>
+            <div>
+              <Spacer y={20} />
+              <HorizontalRule />
+              <Spacer y={20} />
+              <ScenarioShareModal />
+            </div>
+          </Flag>
+        )}
         <div>
           <Spacer y={20} />
           <HorizontalRule />
