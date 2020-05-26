@@ -102,7 +102,7 @@ const HistoricalCasesChart: React.FC<Props> = ({ facility, onModalSave }) => {
     getDatesInterval(startDate, dateFns.addDays(startDate, numDays)),
   );
 
-  const [hoveredPieceKey, setHoveredPieceKey] = useState<number | null>();
+  const [hoveredPieceKey, setHoveredPieceKey] = useState<number[]>([]);
 
   const [headerStatus, setHeaderStatus] = useState({
     cases: true,
@@ -126,21 +126,24 @@ const HistoricalCasesChart: React.FC<Props> = ({ facility, onModalSave }) => {
     data,
     oPadding: 1,
     style: (d: { rName: string; renderKey: number }) => {
+      const hovered = hoveredPieceKey.includes(d.renderKey);
       return {
         fill:
           d.rName == "cases"
-            ? d.renderKey == hoveredPieceKey
-              ? Colors.teal
+            ? hovered
+              ? Colors.opacityForest
               : Colors.forest
-            : Colors.forest30,
+            : hovered
+            ? Colors.forest20
+            : Colors.forest50,
         stroke: Colors.white,
       };
     },
     customHoverBehavior: (d: { pieces: { renderKey: number }[] }) => {
       if (d) {
-        setHoveredPieceKey(d.pieces[0].renderKey);
+        setHoveredPieceKey(d.pieces.map((p) => p.renderKey));
       } else {
-        setHoveredPieceKey(null);
+        setHoveredPieceKey([]);
       }
     },
     type: "bar",
