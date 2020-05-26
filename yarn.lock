@@ -898,6 +898,13 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
+"@babel/runtime@^7.9.6":
+  version "7.9.6"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.9.6.tgz#a9102eb5cadedf3f31d08a9ecf294af7827ea29f"
+  integrity sha512-64AF1xY3OAkFHqOb9s4jpgk1Mm5vDZ4L3acHvAml+53nO1XbXLuDodsVpO4OIUsmemlUHMxNdYMNJmsvOwLrvQ==
+  dependencies:
+    regenerator-runtime "^0.13.4"
+
 "@babel/standalone@^7.9.5":
   version "7.9.5"
   resolved "https://registry.yarnpkg.com/@babel/standalone/-/standalone-7.9.5.tgz#aba82195a39a8ed8ae56eacff72cf2bda551a7c3"
@@ -12907,6 +12914,13 @@ react-dom@^16.0.0:
     object-assign "^4.1.1"
     prop-types "^15.6.2"
     scheduler "^0.19.1"
+
+react-error-boundary@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/react-error-boundary/-/react-error-boundary-2.2.1.tgz#32ed74386a90482060cc2fea948bb7135465c4cb"
+  integrity sha512-8SZMkJRFUb0JuluHKwuUtkh5vvVWBg3O/bJIWgNMhMJv529aG//TmcphR3cSMhCWjz1vFZDb4taJd6pmwP5mEQ==
+  dependencies:
+    "@babel/runtime" "^7.9.6"
 
 react-error-overlay@^3.0.0:
   version "3.0.0"

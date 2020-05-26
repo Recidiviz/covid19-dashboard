@@ -29,26 +29,26 @@ const SiteProvider: React.FC = (props) => {
 
   return (
     <FeatureFlagsProvider>
-      <Auth0Provider
-        auth0ClientPromise={AppAuth0ClientPromise}
-        onRedirectCallback={onRedirectCallback as any}
+      <ToastProvider
+        placement="bottom-center"
+        transitionDuration={0}
+        components={{ Toast }}
       >
-        <LocaleDataProvider>
-          <ScenarioProvider>
-            <FacilityContext.Provider
-              value={{ facility, setFacility, rtData, dispatchRtData }}
-            >
-              <ToastProvider
-                placement="bottom-center"
-                transitionDuration={0}
-                components={{ Toast }}
+        <Auth0Provider
+          auth0ClientPromise={AppAuth0ClientPromise}
+          onRedirectCallback={onRedirectCallback as any}
+        >
+          <LocaleDataProvider>
+            <ScenarioProvider>
+              <FacilityContext.Provider
+                value={{ facility, setFacility, rtData, dispatchRtData }}
               >
                 {props.children}
-              </ToastProvider>
-            </FacilityContext.Provider>
-          </ScenarioProvider>
-        </LocaleDataProvider>
-      </Auth0Provider>
+              </FacilityContext.Provider>
+            </ScenarioProvider>
+          </LocaleDataProvider>
+        </Auth0Provider>
+      </ToastProvider>
     </FeatureFlagsProvider>
   );
 };
