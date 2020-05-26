@@ -71,10 +71,10 @@ const AddButtonImg = styled.img`
 
 interface ChartHeaderProps {
   setModalOpen: (modalOpen: boolean) => void;
-  toggleHeader: (headerName: "cases" | "population") => void;
+  toggleHeader: (headerName: "cases" | "displayPopulation") => void;
   headerStatus: {
     cases: boolean;
-    population: boolean;
+    displayPopulation: boolean;
   };
 }
 
@@ -96,8 +96,8 @@ const ChartHeader: React.FC<ChartHeaderProps> = ({
           Cases
         </ChartTab>
         <ChartTab
-          className={classNames(toggledOffClass("population"))}
-          onClick={() => toggleHeader("population")}
+          className={classNames(toggledOffClass("displayPopulation"))}
+          onClick={() => toggleHeader("displayPopulation")}
         >
           Population
         </ChartTab>

@@ -33,6 +33,7 @@ function generateBarChartData(
         totalPopulation(existingVersion) - cases,
         0,
       );
+      console.log(displayPopulation);
       return {
         ...existingVersion,
         cases: cases,
@@ -109,7 +110,7 @@ const HistoricalCasesChart: React.FC<Props> = ({ facility, onModalSave }) => {
 
   const [headerStatus, setHeaderStatus] = useState({
     cases: true,
-    population: true,
+    displayPopulation: true,
   });
   const toggleHeader = (headerName: keyof typeof headerStatus) => {
     setHeaderStatus({
