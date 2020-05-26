@@ -318,6 +318,26 @@ export function getTotalPopulation(
   );
 }
 
+export function residentPopulation(
+  brackets: ModelInputsPopulationBrackets,
+): number {
+  return sum(
+    Object.values(
+      pick(brackets, [
+        "age0Population",
+        "age20Population",
+        "age45Population",
+        "age55Population",
+        "age65Population",
+        "age75Population",
+        "age85Population",
+        "ageUnknownPopulation",
+        "staffPopulation",
+      ]),
+    ),
+  );
+}
+
 export function sumAgeGroupPopulations(facility: Facility): number {
   return getTotalPopulation(facility.modelInputs);
 }

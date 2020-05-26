@@ -6,7 +6,10 @@ import styled from "styled-components";
 import ChartWrapper from "../../design-system/ChartWrapper";
 import Colors from "../../design-system/Colors";
 import useFacilityModelVersions from "../../hooks/useFacilityModelVersions";
-import { totalConfirmedCases } from "../../impact-dashboard/EpidemicModelContext";
+import {
+  residentPopulation,
+  totalConfirmedCases,
+} from "../../impact-dashboard/EpidemicModelContext";
 import { Facility, ModelInputs } from "../types";
 import BarChartTooltip, { Summary } from "./BarChartTooltip";
 import ChartHeader from "./ChartHeader";
@@ -25,12 +28,14 @@ function generateBarChartData(
     if (existingVersion) {
       return {
         ...existingVersion,
-        value: totalConfirmedCases(existingVersion),
+        cases: totalConfirmedCases(existingVersion),
+        population: residentPopulation(existingVersion),
       };
     } else {
       return {
         observedAt: date,
-        value: 0,
+        cases: 0,
+        population: 0,
         missing: true,
       };
     }
@@ -100,9 +105,14 @@ const HistoricalCasesChart: React.FC<Props> = ({ facility, onModalSave }) => {
   const frameProps = {
     data,
     oPadding: 1,
-    style: (d: { renderKey: number }) => {
+    style: (d: { rIndex: number; renderKey: number }) => {
       return {
-        fill: d.renderKey == hoveredPieceKey ? Colors.teal : Colors.forest,
+        fill:
+          d.rIndex == 0
+            ? d.renderKey == hoveredPieceKey
+              ? Colors.teal
+              : Colors.forest
+            : Colors.forest30,
         stroke: Colors.white,
       };
     },
@@ -126,7 +136,7 @@ const HistoricalCasesChart: React.FC<Props> = ({ facility, onModalSave }) => {
     responsiveWidth: true,
     hoverAnnotation: true,
     tooltipContent: BarChartTooltip,
-    rAccessor: "value",
+    rAccessor: ["cases", "population"],
     oLabel: (datum: string) => formatDateLabel(datum),
     customClickBehavior: ({ summary }: { summary: Summary[] }) => {
       const { data } = summary[0];

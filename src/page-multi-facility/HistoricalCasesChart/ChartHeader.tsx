@@ -31,6 +31,11 @@ const ChartTab = styled.label`
   border-bottom: 1px solid ${Colors.forest};
   cursor: pointer;
   margin-right: 1.625rem;
+
+  &.toggled-off {
+    border: none;
+    opacity: 0.5;
+  }
 `;
 
 const AddHistoricalDataButton = styled.button`
@@ -73,6 +78,7 @@ const ChartHeader: React.FC<ChartHeaderProps> = ({ setModalOpen }) => {
     <ChartHeaderDiv>
       <ChartTabContainer>
         <ChartTab>Cases</ChartTab>
+        <ChartTab>Population</ChartTab>
       </ChartTabContainer>
       <AddHistoricalDataButton onClick={() => setModalOpen(true)}>
         <AddButtonImg src={addIcon} />

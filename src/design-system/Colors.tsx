@@ -45,7 +45,7 @@ const Colors = {
   opacityForest: hexAlpha(BaseColors.forest, 0.7),
   opacityGray: hexAlpha(BaseColors.forestGray, 0.2),
   forest50: hexAlpha(BaseColors.forest, 0.5),
-  forest30: hexAlpha(BaseColors.forest, 0.5),
+  forest30: hexAlpha(BaseColors.forest, 0.3),
   darkRed10: hexAlpha(BaseColors.darkRed, 0.1),
 };
 
