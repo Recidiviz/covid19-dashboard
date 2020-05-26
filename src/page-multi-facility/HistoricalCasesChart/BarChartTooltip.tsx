@@ -58,7 +58,7 @@ const BarChartTooltip: React.FC<TooltipProps> = ({ summary }) => {
       ) : (
         <>
           <TooltipTitle>{data.cases} cases</TooltipTitle>
-          <TooltipTitle>{data.population} residents</TooltipTitle>
+          <TooltipTitle>{data.population + data.cases} residents</TooltipTitle>
         </>
       )}
 

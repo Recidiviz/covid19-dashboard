@@ -26,10 +26,14 @@ function generateBarChartData(
     });
 
     if (existingVersion) {
+      const cases = totalConfirmedCases(existingVersion);
+      // This is necessary since semiotic doesn't have an option to display a stacked bar chart overlay.
+      // So we display population (non-cases) = total population - cases
+      const populationToDisplay = residentPopulation(existingVersion) - cases;
       return {
         ...existingVersion,
-        cases: totalConfirmedCases(existingVersion),
-        population: residentPopulation(existingVersion),
+        cases: cases,
+        population: populationToDisplay,
       };
     } else {
       return {
@@ -100,15 +104,31 @@ const HistoricalCasesChart: React.FC<Props> = ({ facility, onModalSave }) => {
 
   const [hoveredPieceKey, setHoveredPieceKey] = useState<number | null>();
 
+  const [headerStatus, setHeaderStatus] = useState({
+    cases: true,
+    population: true,
+  });
+  const toggleHeader = (headerName: keyof typeof headerStatus) => {
+    setHeaderStatus({
+      ...headerStatus,
+      [headerName]: !headerStatus[headerName],
+    });
+  };
+
   if (!facility) return null;
+
+  // Display the header based on what header is toggled on.
+  const headersToDisplay = (Object.keys(headerStatus) as Array<
+    keyof typeof headerStatus
+  >).filter((headerName) => headerStatus[headerName]);
 
   const frameProps = {
     data,
     oPadding: 1,
-    style: (d: { rIndex: number; renderKey: number }) => {
+    style: (d: { rName: string; renderKey: number }) => {
       return {
         fill:
-          d.rIndex == 0
+          d.rName == "cases"
             ? d.renderKey == hoveredPieceKey
               ? Colors.teal
               : Colors.forest
@@ -136,7 +156,7 @@ const HistoricalCasesChart: React.FC<Props> = ({ facility, onModalSave }) => {
     responsiveWidth: true,
     hoverAnnotation: true,
     tooltipContent: BarChartTooltip,
-    rAccessor: ["cases", "population"],
+    rAccessor: headersToDisplay,
     oLabel: (datum: string) => formatDateLabel(datum),
     customClickBehavior: ({ summary }: { summary: Summary[] }) => {
       const { data } = summary[0];
@@ -147,7 +167,11 @@ const HistoricalCasesChart: React.FC<Props> = ({ facility, onModalSave }) => {
 
   return (
     <ChartWrapper>
-      <ChartHeader setModalOpen={setModalOpen} />
+      <ChartHeader
+        setModalOpen={setModalOpen}
+        toggleHeader={toggleHeader}
+        headerStatus={headerStatus}
+      />
       <ResponsiveOrdinalFrame {...frameProps} />
       <ScrollChartDates
         endDate={endDate}

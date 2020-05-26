@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import React from "react";
 import styled from "styled-components";
 
@@ -20,7 +21,7 @@ const ChartTabContainer = styled.div`
   justify-content: flex-start;
 `;
 
-const ChartTab = styled.label`
+const ChartTab = styled.button`
   font-size: 9px;
   font-weight: 600;
   line-height: 16px;
@@ -29,7 +30,6 @@ const ChartTab = styled.label`
   color: ${Colors.forest};
   padding-bottom: 4px;
   border-bottom: 1px solid ${Colors.forest};
-  cursor: pointer;
   margin-right: 1.625rem;
 
   &.toggled-off {
@@ -71,14 +71,36 @@ const AddButtonImg = styled.img`
 
 interface ChartHeaderProps {
   setModalOpen: (modalOpen: boolean) => void;
+  toggleHeader: (headerName: "cases" | "population") => void;
+  headerStatus: {
+    cases: boolean;
+    population: boolean;
+  };
 }
 
-const ChartHeader: React.FC<ChartHeaderProps> = ({ setModalOpen }) => {
+const ChartHeader: React.FC<ChartHeaderProps> = ({
+  setModalOpen,
+  toggleHeader,
+  headerStatus,
+}) => {
+  const toggledOffClass = (key: keyof typeof headerStatus) => ({
+    "toggled-off": !headerStatus[key],
+  });
   return (
     <ChartHeaderDiv>
       <ChartTabContainer>
-        <ChartTab>Cases</ChartTab>
-        <ChartTab>Population</ChartTab>
+        <ChartTab
+          className={classNames(toggledOffClass("cases"))}
+          onClick={() => toggleHeader("cases")}
+        >
+          Cases
+        </ChartTab>
+        <ChartTab
+          className={classNames(toggledOffClass("population"))}
+          onClick={() => toggleHeader("population")}
+        >
+          Population
+        </ChartTab>
       </ChartTabContainer>
       <AddHistoricalDataButton onClick={() => setModalOpen(true)}>
         <AddButtonImg src={addIcon} />
