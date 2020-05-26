@@ -59,7 +59,7 @@ const ScenarioHeaderText = styled.h1`
 `;
 
 const ScenarioDataViz = styled.div`
-  color ${Colors.opacityGray};
+  color: ${Colors.opacityGray};
   display: flex;
   height: 45%;
   background-color: ${Colors.gray};

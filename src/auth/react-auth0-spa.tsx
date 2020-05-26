@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import createAuth0Client from "@auth0/auth0-spa-js";
+import Auth0Client from "@auth0/auth0-spa-js/dist/typings/Auth0Client";
 import { isEqualWith, pick } from "lodash";
 import React, { useContext, useEffect, useState } from "react";
 
@@ -15,36 +15,42 @@ export const useAuth0 = () => {
   // We should look into that.
   return useContext(Auth0Context) || {};
 };
-export const Auth0Provider = ({
+
+interface Props {
+  onRedirectCallback: () => void;
+  auth0ClientPromise: Promise<Auth0Client>;
+}
+
+export const Auth0Provider: React.FC<Props> = ({
   children,
   onRedirectCallback = DEFAULT_REDIRECT_CALLBACK,
-  ...initOptions
+  auth0ClientPromise,
 }) => {
   const [isAuthenticated, setIsAuthenticated] = useState();
   const [user, setUser] = useState();
-  const [auth0Client, setAuth0] = useState();
+  const [auth0Client, setAuth0Client] = useState();
   const [loading, setLoading] = useState(true);
   const [popupOpen, setPopupOpen] = useState(false);
 
   useEffect(() => {
     const initAuth0 = async () => {
-      const auth0FromHook = await createAuth0Client(initOptions);
-      setAuth0(auth0FromHook);
+      let auth0Client = await auth0ClientPromise;
+      setAuth0Client(auth0Client);
 
       if (
         window.location.search.includes("code=") &&
         window.location.search.includes("state=")
       ) {
-        const { appState } = await auth0FromHook.handleRedirectCallback();
+        const { appState } = await auth0Client.handleRedirectCallback();
         onRedirectCallback(appState);
       }
 
-      const isAuthenticated = await auth0FromHook.isAuthenticated();
+      const isAuthenticated = await auth0Client.isAuthenticated();
 
       setIsAuthenticated(isAuthenticated);
 
       if (isAuthenticated) {
-        const user = await auth0FromHook.getUser();
+        const user = await auth0Client.getUser();
         setUser(user);
       }
 

@@ -74,6 +74,22 @@ export const buildScenario = (
   scenario.id = document.id;
   scenario.createdAt = timestampToDate(documentData.createdAt);
   scenario.updatedAt = timestampToDate(documentData.updatedAt);
+  scenario.baselinePopulations = documentData.hasOwnProperty(
+    "baselinePopulations",
+  )
+    ? documentData.baselinePopulations.map(
+        (population: {
+          date: firebase.firestore.Timestamp;
+          incarceratedPopulation: number;
+          staffPopulation: number;
+        }) => {
+          return {
+            ...population,
+            date: timestampToDate(population.date),
+          };
+        },
+      )
+    : [];
 
   // Runtime migration: make sure a default value is set for
   // promo status flags added since the last data shakeup
