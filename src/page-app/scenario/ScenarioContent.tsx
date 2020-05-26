@@ -8,8 +8,7 @@ import MultiFacilityImpactDashboard from "../../page-multi-facility/MultiFacilit
 import useScenario from "../../scenario-context/useScenario";
 import PageInfo from "../../site-metadata/PageInfo";
 
-// eslint-disable-next-line react/display-name
-export default () => {
+const ScenarioContent = () => {
   const localeState = useLocaleDataState();
   const [scenario] = useScenario();
 
@@ -35,3 +34,5 @@ export default () => {
     <CreateBaselineScenarioPage />
   );
 };
+
+export default ScenarioContent;

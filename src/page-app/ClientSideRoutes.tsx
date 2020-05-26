@@ -3,7 +3,6 @@
  * The pathname params are accessed because of the url fragment in that file.
  */
 
-/* eslint-disable filenames/match-exported */
 import React from "react";
 import {
   BrowserRouter as Router,

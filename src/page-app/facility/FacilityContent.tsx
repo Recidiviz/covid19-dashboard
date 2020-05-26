@@ -5,8 +5,7 @@ import { useLocaleDataState } from "../../locale-data-context";
 import { FacilityContext } from "../../page-multi-facility/FacilityContext";
 import FacilityInputForm from "../../page-multi-facility/FacilityInputForm";
 
-// eslint-disable-next-line react/display-name
-export default (props: { scenarioId: string }) => {
+const FacilityContent = (props: { scenarioId: string }) => {
   const { data: localeDataSource } = useLocaleDataState();
   const { facility } = useContext(FacilityContext);
 
@@ -21,3 +20,5 @@ export default (props: { scenarioId: string }) => {
     </>
   );
 };
+
+export default FacilityContent;

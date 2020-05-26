@@ -5,7 +5,6 @@ import { Routes } from "../../constants/Routes";
 import { ReplaceUrlParams } from "../../helpers/Routing";
 import useScenario from "../../scenario-context/useScenario";
 
-// eslint-disable-next-line react/display-name
 const ScenarioContainer = (props: { children: any }) => {
   const [scenario] = useScenario();
   const { scenarioId: scenarioIdParam } = useParams();
