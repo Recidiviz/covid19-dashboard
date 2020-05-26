@@ -37,7 +37,7 @@ const ScenarioShareModal: React.FC = () => {
         <InputText
           labelAbove="To:"
           onValueChange={setEmailAddress}
-          valuePlaceholder="Email"
+          labelPlaceholder="Email"
           type="email"
           valueEntered={emailAddress}
         />
