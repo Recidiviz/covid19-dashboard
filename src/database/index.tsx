@@ -761,6 +761,10 @@ export const duplicateScenario = async (
     }
 
     await batch.commit();
+
+    const duplicatedScenario = await scenarioDoc.get();
+
+    return buildScenario(duplicatedScenario);
   } catch (error) {
     console.error(
       `Encountered error while attempting to duplicate scenario: ${scenarioId}`,

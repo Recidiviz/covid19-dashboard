@@ -76,6 +76,7 @@
     "qs": "^6.9.3",
     "react": "^16.0.0",
     "react-date-picker": "^8.0.1",
+    "react-debounce-input": "^3.2.2",
     "react-dom": "^16.0.0",
     "react-error-boundary": "^2.2.1",
     "react-helmet": "^6.0.0",
