@@ -1,3 +1,4 @@
+import { flattenDeep } from "lodash";
 import React from "react";
 import styled from "styled-components";
 
@@ -23,6 +24,16 @@ const ProjectionCharts: React.FC<Props> = ({
   originalCurveInputs,
   currentCurveInputs,
 }) => {
+  const originalCurveData = getCurveChartData(originalCurveInputs);
+  const currentCurveData = getCurveChartData(currentCurveInputs);
+  const maxValue = Math.ceil(
+    Math.max(
+      ...flattenDeep([
+        Object.values(currentCurveData),
+        Object.values(originalCurveData),
+      ]),
+    ),
+  );
   return (
     <>
       <CurveChartContainer>
@@ -33,9 +44,10 @@ const ProjectionCharts: React.FC<Props> = ({
         <CurveChart
           chartHeight={250}
           hideAxes={false}
+          yAxisExtent={[0, maxValue]}
           hospitalBeds={systemWideData.hospitalBeds}
           markColors={MarkColors}
-          curveData={getCurveChartData(originalCurveInputs)}
+          curveData={originalCurveData}
         />
       </CurveChartContainer>
       <CurveChartContainer>
@@ -46,9 +58,10 @@ const ProjectionCharts: React.FC<Props> = ({
         <CurveChart
           chartHeight={250}
           hideAxes={false}
+          yAxisExtent={[0, maxValue]}
           hospitalBeds={systemWideData.hospitalBeds}
           markColors={MarkColors}
-          curveData={getCurveChartData(currentCurveInputs)}
+          curveData={currentCurveData}
         />
       </CurveChartContainer>
     </>
