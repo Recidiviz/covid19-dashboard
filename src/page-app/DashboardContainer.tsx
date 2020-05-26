@@ -1,7 +1,7 @@
-/* eslint-disable filenames/match-exported */
 import React from "react";
 
 import AuthWall from "../auth/AuthWall";
+import { Loading as LoadingStyles } from "../constants/Styles";
 import Loading from "../design-system/Loading";
 import { useLocaleDataState } from "../locale-data-context";
 import CreateBaselineScenarioPage from "../page-multi-facility/CreateBaselineScenarioPage";
@@ -45,12 +45,7 @@ const LoadingCheckContainer = (props: { children: any }) => {
     <LocalStateCheckContainer>
       {localeState.loading || scenario.loading ? (
         <div className="mt-16">
-          <Loading
-            styles={{
-              marginTop: "40px",
-              minHeight: "350px",
-            }}
-          />
+          <Loading styles={LoadingStyles.base} />
         </div>
       ) : (
         props.children
@@ -59,8 +54,7 @@ const LoadingCheckContainer = (props: { children: any }) => {
   );
 };
 
-// eslint-disable-next-line react/display-name
-export default (props: { children: any }) => {
+const DashboardContainer = (props: { children: any }) => {
   const [scenario] = useScenario();
 
   const appContent = props.children;
@@ -71,3 +65,5 @@ export default (props: { children: any }) => {
     </LoadingCheckContainer>
   );
 };
+
+export default DashboardContainer;

@@ -3,6 +3,7 @@ import { Redirect, useParams } from "react-router-dom";
 
 import { FetchedFacilities } from "../../constants/Facilities";
 import { Routes } from "../../constants/Routes";
+import { Loading as LoadingStyles } from "../../constants/Styles";
 import { getFacilities } from "../../database";
 import Loading from "../../design-system/Loading";
 import { ReplaceUrlParams } from "../../helpers/Routing";
@@ -28,28 +29,28 @@ const FacilityContainer = (props: Props) => {
     loading: true,
   });
 
-  async function fetchFacilities() {
-    const facilitiesData = await getFacilities(scenarioId);
-    if (facilitiesData) {
-      const targetFacility = facilitiesData.find(
-        (facilityData) => facilityData.id === facilityIdParam,
-      );
-      if (targetFacility) {
-        setFacility(targetFacility);
-      } else {
-        setFacility(undefined);
-      }
-
-      setFacilities({
-        data: facilitiesData,
-        loading: false,
-      });
-    }
-  }
-
   useFacilitiesRtData(facilities.data);
 
   useEffect(() => {
+    async function fetchFacilities() {
+      const facilitiesData = await getFacilities(scenarioId);
+      if (facilitiesData) {
+        const targetFacility = facilitiesData.find(
+          (facilityData) => facilityData.id === facilityIdParam,
+        );
+        if (targetFacility) {
+          setFacility(targetFacility);
+        } else {
+          setFacility(undefined);
+        }
+
+        setFacilities({
+          data: facilitiesData,
+          loading: false,
+        });
+      }
+    }
+
     if (facilityIdParam === "new" || facilityIdParam === "") {
       setFacility(undefined);
       setFacilities({
@@ -59,7 +60,7 @@ const FacilityContainer = (props: Props) => {
     } else {
       fetchFacilities();
     }
-  }, []);
+  }, [scenarioId, facilityIdParam, setFacilities, setFacility]);
 
   const shouldRewriteUrl = !!facility && facilityIdParam !== facility.id;
   const scenarioPath = ReplaceUrlParams(Routes.Scenario.url, { scenarioId });
@@ -69,14 +70,7 @@ const FacilityContainer = (props: Props) => {
     : `New facility page`;
 
   if (facilities.loading) {
-    return (
-      <Loading
-        styles={{
-          minHeight: "350px",
-          marginTop: "40px",
-        }}
-      />
-    );
+    return <Loading styles={LoadingStyles.base} />;
   } else {
     return !shouldRewriteUrl ? (
       <>

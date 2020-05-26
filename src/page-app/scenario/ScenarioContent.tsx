@@ -1,5 +1,6 @@
 import React from "react";
 
+import { Loading as LoadingStyles } from "../../constants/Styles";
 import Loading from "../../design-system/Loading";
 import { useLocaleDataState } from "../../locale-data-context";
 import CreateBaselineScenarioPage from "../../page-multi-facility/CreateBaselineScenarioPage";
@@ -19,12 +20,7 @@ export default () => {
     </div>
   ) : localeState.loading || scenario.loading ? (
     <div className="mt-16">
-      <Loading
-        styles={{
-          marginTop: "40px",
-          minHeight: "350px",
-        }}
-      />
+      <Loading styles={LoadingStyles.base} />
     </div>
   ) : scenario.data ? (
     <>

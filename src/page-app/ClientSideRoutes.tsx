@@ -25,8 +25,7 @@ interface FacilityParamProps {
   facilityId: string;
 }
 
-// eslint-disable-next-line react/display-name
-export default () => {
+const ClientSideRoutes = () => {
   return (
     <DashboardContainer>
       <Router>
@@ -60,3 +59,5 @@ export default () => {
     </DashboardContainer>
   );
 };
+
+export default ClientSideRoutes;
