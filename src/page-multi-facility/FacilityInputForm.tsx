@@ -157,7 +157,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   const removeFacility = async () => {
     const facilityId = facility?.id;
     if (facilityId) {
-      await deleteFacility(scenarioId, facilityId);
+      await rejectionToast(deleteFacility(scenarioId, facilityId));
       window.history.back();
     }
     updateShowDeleteModal(false);

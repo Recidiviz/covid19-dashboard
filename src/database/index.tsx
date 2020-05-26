@@ -687,6 +687,10 @@ export const deleteFacility = async (
       `Encountered error while attempting to delete the facility (${facilityId}):`,
     );
     console.error(error);
+    throwIfPermissionsError(
+      error,
+      "You don't have permission to delete this facility.",
+    );
   }
 };
 
@@ -804,5 +808,9 @@ export const deleteScenario = async (
       `Encountered error while attempting to delete scenario: ${scenarioId}`,
     );
     console.error(error);
+    throwIfPermissionsError(
+      error,
+      "You don't have permission to delete this scenario.",
+    );
   }
 };
