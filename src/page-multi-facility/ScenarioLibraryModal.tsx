@@ -11,6 +11,7 @@ import Loading from "../design-system/Loading";
 import Modal, { Props as ModalProps } from "../design-system/Modal";
 import ModalDialog from "../design-system/ModalDialog";
 import PopUpMenu from "../design-system/PopUpMenu";
+import useRejectionToast from "../hooks/useRejectionToast";
 import useScenario from "../scenario-context/useScenario";
 import { Scenario } from "./types";
 
@@ -59,7 +60,7 @@ const ScenarioHeaderText = styled.h1`
 `;
 
 const ScenarioDataViz = styled.div`
-  color ${Colors.opacityGray};
+  color: ${Colors.opacityGray};
   display: flex;
   height: 45%;
   background-color: ${Colors.gray};
@@ -162,6 +163,7 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
     string | null
   >();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const rejectionToast = useRejectionToast();
 
   async function fetchScenarios() {
     const scenariosData = await getScenarios();
@@ -211,25 +213,27 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
 
   const removeScenario = (event: React.MouseEvent<Element>) => {
     if (scenarioIdPendingDeletion) {
-      setScenarios({
-        data: [],
-        loading: true,
-      });
-
-      deleteScenario(scenarioIdPendingDeletion).then(() => {
-        fetchScenarios().then(() => {
-          // If we delete the scenario that the user is currently viewing we reset the
-          // currently viewed scenario to be the baseline. Unlike deleting a scenario
-          // that is not currently being viewed, this will close the Scenario Library
-          // modal which is the expected behavior.
-          if (
-            scenarioIdPendingDeletion == currentScenario?.data?.id &&
-            baselineScenario
-          ) {
-            dispatchScenarioUpdate(baselineScenario);
-          }
-        });
-      });
+      rejectionToast(
+        deleteScenario(scenarioIdPendingDeletion).then(() => {
+          // refresh scenario data after delete
+          setScenarios({
+            data: [],
+            loading: true,
+          });
+          fetchScenarios().then(() => {
+            // If we delete the scenario that the user is currently viewing we reset the
+            // currently viewed scenario to be the baseline. Unlike deleting a scenario
+            // that is not currently being viewed, this will close the Scenario Library
+            // modal which is the expected behavior.
+            if (
+              scenarioIdPendingDeletion == currentScenario?.data?.id &&
+              baselineScenario
+            ) {
+              dispatchScenarioUpdate(baselineScenario);
+            }
+          });
+        }),
+      );
     }
 
     closeDeleteModal(event);

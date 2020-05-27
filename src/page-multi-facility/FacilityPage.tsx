@@ -8,6 +8,7 @@ import useScenario from "../scenario-context/useScenario";
 import SiteHeader from "../site-header/SiteHeader";
 import { FacilityContext } from "./FacilityContext";
 import FacilityInputForm from "./FacilityInputForm";
+import ReadOnlyScenarioBanner from "./ReadOnlyScenarioBanner";
 
 const FacilityPageDiv = styled.div``;
 
@@ -15,7 +16,7 @@ const FacilityPageDiv = styled.div``;
 const FacilityPage: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
   const { facility } = useContext(FacilityContext);
-  const [scenario] = useScenario();
+  const [scenario, dispatchScenarioUpdate] = useScenario();
 
   return (
     <>
@@ -27,6 +28,12 @@ const FacilityPage: React.FC = () => {
           localeDataSource={localeDataSource}
         >
           <FacilityPageDiv>
+            {scenario.data && (
+              <ReadOnlyScenarioBanner
+                scenario={scenario.data}
+                dispatchScenarioUpdate={dispatchScenarioUpdate}
+              />
+            )}
             <div className="font-body text-green min-h-screen tracking-normal w-full">
               <div className="max-w-screen-xl px-4 mx-auto">
                 <SiteHeader />

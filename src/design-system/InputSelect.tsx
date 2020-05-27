@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 
 import Colors from "./Colors";
-import { StyledInput } from "./Input";
+import { InputStyle } from "./Input";
 import TextLabel from "./TextLabel";
 
 interface Props {
@@ -41,7 +41,8 @@ const SelectWrapper = styled.div`
   }
 `;
 
-const StyledSelect = styled(StyledInput)`
+const StyledSelect = styled.input`
+  ${InputStyle}
   appearance: none;
   padding-right: ${caretSize * 2 + 16}px;
   text-overflow: ellipsis;

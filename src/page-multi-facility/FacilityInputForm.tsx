@@ -13,6 +13,8 @@ import { Column, PageContainer } from "../design-system/PageColumn";
 import PopUpMenu from "../design-system/PopUpMenu";
 import { Spacer } from "../design-system/Spacer";
 import Tooltip from "../design-system/Tooltip";
+import useRejectionToast from "../hooks/useRejectionToast";
+import useScreenWidth from "../hooks/useScreenWidth";
 import FacilityInformation from "../impact-dashboard/FacilityInformation";
 import MitigationInformation from "../impact-dashboard/MitigationInformation";
 import useModel from "../impact-dashboard/useModel";
@@ -25,8 +27,27 @@ import HistoricalCasesChart from "./HistoricalCasesChart";
 import LocaleInformationSection from "./LocaleInformationSection";
 import { Facility } from "./types";
 
-const ButtonSection = styled.div`
-  margin-top: 30px;
+interface ButtonSectionProps {
+  screenWidth: number;
+}
+
+const ButtonSection = styled.div<ButtonSectionProps>`
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  background-color: ${Colors.slate};
+  z-index: 1;
+  margin-left: ${({ screenWidth }) =>
+    screenWidth > 1280 ? (screenWidth - 1280) / 2 : 0}px;
+`;
+
+const PageContainerWithBottomMargin = styled(PageContainer)`
+  margin-bottom: 60px;
 `;
 
 const DescRow = styled.div`
@@ -122,21 +143,24 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   );
   const model = useModel();
 
+  const rejectionToast = useRejectionToast();
+
+  const screenWidth = useScreenWidth();
   const save = () => {
     if (facilityName) {
       // Set observedAt to right now when updating a facility from this input form
       const modelUpdate = Object.assign({}, model[0]);
       modelUpdate.observedAt = new Date();
 
-      saveFacility(scenarioId, {
-        id: facility?.id,
-        name: facilityName || null,
-        description: description || null,
-        systemType: systemType || null,
-        modelInputs: modelUpdate,
-      }).then(() => {
-        navigate("/");
-      });
+      rejectionToast(
+        saveFacility(scenarioId, {
+          id: facility?.id,
+          name: facilityName || null,
+          description: description || null,
+          systemType: systemType || null,
+          modelInputs: modelUpdate,
+        }).then(() => navigate("/")),
+      );
     } else {
       window.scroll({ top: 0, left: 0, behavior: "smooth" });
     }
@@ -154,7 +178,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   const removeFacility = async () => {
     const facilityId = facility?.id;
     if (facilityId) {
-      await deleteFacility(scenarioId, facilityId);
+      await rejectionToast(deleteFacility(scenarioId, facilityId));
       window.history.back();
     }
     updateShowDeleteModal(false);
@@ -166,7 +190,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   };
 
   return (
-    <PageContainer>
+    <PageContainerWithBottomMargin>
       <Column width={"45%"}>
         <InputName
           name={facilityName}
@@ -226,7 +250,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
         <FacilityInformation />
         <SectionHeader>Rate of Spread</SectionHeader>
         <MitigationInformation />
-        <ButtonSection>
+        <ButtonSection className="pl-8" screenWidth={screenWidth}>
           <InputButton label="Save" onClick={save} />
         </ButtonSection>
         <div className="mt-8" />
@@ -254,7 +278,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
           </ModalButtons>
         </ModalContents>
       </ModalDialog>
-    </PageContainer>
+    </PageContainerWithBottomMargin>
   );
 };
 

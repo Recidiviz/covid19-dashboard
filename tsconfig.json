@@ -1,16 +1,24 @@
 {
   "compilerOptions": {
+    // Target language and language features
     "target": "es5",
     "module": "commonjs",
     "jsx": "react",
-    "strict": true,
     "esModuleInterop": true,
+
+    // What to typecheck
+    "strict": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true,
+
+    // Where to typecheck
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "noEmit": true
+
+    // Output
+    "incremental": true,
+    "outDir": "node_modules/.cache/tsc"
   },
   "include": [
     "src"

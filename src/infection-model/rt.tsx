@@ -5,13 +5,17 @@ import {
   fromUnixTime,
   parseISO,
 } from "date-fns";
-import { mapValues, maxBy, minBy } from "lodash";
+import { mapValues, maxBy, minBy, pick } from "lodash";
 
 import { FacilityEvents } from "../constants/dispatchEvents";
 import { RateOfSpreadType } from "../constants/EpidemicModel";
 import { getFacilityModelVersions } from "../database";
 import { totalConfirmedCases } from "../impact-dashboard/EpidemicModelContext";
-import { Facility } from "../page-multi-facility/types";
+import {
+  Facilities,
+  Facility,
+  RtDataMapping,
+} from "../page-multi-facility/types";
 
 type RawRtRecord = {
   date: string; // timestamp
@@ -173,3 +177,12 @@ export const rtSpreadType = (rtValue: number | null | undefined) => {
     return RateOfSpreadType.Controlled;
   }
 };
+
+export function getFacilitiesRtDataById(
+  rtData: RtDataMapping | undefined,
+  facilities: Facilities,
+) {
+  if (!rtData) return null;
+  const facilityIds = facilities.map((f) => f.id);
+  return pick(rtData, facilityIds);
+}

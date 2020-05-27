@@ -13,6 +13,7 @@ import InputName from "../design-system/InputName";
 import PromoBoxWithButton from "../design-system/PromoBoxWithButton";
 import { Spacer } from "../design-system/Spacer";
 import { useFlag } from "../feature-flags";
+import useRejectionToast from "../hooks/useRejectionToast";
 import useScenario from "../scenario-context/useScenario";
 import ScenarioLibraryModal from "./ScenarioLibraryModal";
 import { Scenario } from "./types";
@@ -94,11 +95,13 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
   const updatedAtDate = Number(scenario?.updatedAt);
   const showImpactButton = useFlag(["showImpactButton"]);
 
+  const rejectionToast = useRejectionToast();
+
   const handleScenarioChange = (scenarioChange: any) => {
     const changes = Object.assign({}, scenario, scenarioChange);
-    saveScenario(changes).then((_) => {
-      dispatchScenarioUpdate(changes);
-    });
+    rejectionToast(
+      saveScenario(changes).then(() => dispatchScenarioUpdate(changes)),
+    );
   };
 
   const handleTextInputChange = (textInputChanges: {
@@ -130,17 +133,19 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
     <div className="flex flex-col w-1/4 mr-24" key={renderKey}>
       <div className="flex-1 flex flex-col pb-4">
         <ScenarioName>
-          <ScenarioLibraryModal
-            trigger={
-              <IconFolder
-                style={{
-                  marginTop: "8px",
-                }}
-                alt="folder"
-                src={iconFolderSrc}
-              />
-            }
-          />
+          <div className="flex-none">
+            <ScenarioLibraryModal
+              trigger={
+                <IconFolder
+                  style={{
+                    marginTop: "8px",
+                  }}
+                  alt="folder"
+                  src={iconFolderSrc}
+                />
+              }
+            />
+          </div>
           <InputName
             name={name}
             setName={setName}
@@ -199,7 +204,7 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
                 background: Colors.green,
                 borderRadius: "4px",
                 fontSize: "14px",
-                fontFamily: "PingFang SC",
+                fontFamily: "Rubik, sans-serif",
                 width: "100%",
                 marginTop: "20px",
               }}

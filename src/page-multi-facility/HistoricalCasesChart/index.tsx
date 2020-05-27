@@ -6,7 +6,10 @@ import styled from "styled-components";
 import ChartWrapper from "../../design-system/ChartWrapper";
 import Colors from "../../design-system/Colors";
 import useFacilityModelVersions from "../../hooks/useFacilityModelVersions";
-import { totalConfirmedCases } from "../../impact-dashboard/EpidemicModelContext";
+import {
+  totalConfirmedCases,
+  totalPopulation,
+} from "../../impact-dashboard/EpidemicModelContext";
 import { Facility, ModelInputs } from "../types";
 import BarChartTooltip, { Summary } from "./BarChartTooltip";
 import ChartHeader from "./ChartHeader";
@@ -23,14 +26,23 @@ function generateBarChartData(
     });
 
     if (existingVersion) {
+      const cases = totalConfirmedCases(existingVersion);
+      // This is necessary since semiotic doesn't have an option to display a an overlay bar chart.
+      // So we display population (non-cases) = total population - cases
+      const displayPopulation = Math.max(
+        totalPopulation(existingVersion) - cases,
+        0,
+      );
       return {
         ...existingVersion,
-        value: totalConfirmedCases(existingVersion),
+        cases: cases,
+        displayPopulation: displayPopulation,
       };
     } else {
       return {
         observedAt: date,
-        value: 0,
+        cases: 0,
+        displayPopulation: 0,
         missing: true,
       };
     }
@@ -93,24 +105,48 @@ const HistoricalCasesChart: React.FC<Props> = ({ facility, onModalSave }) => {
     getDatesInterval(startDate, dateFns.addDays(startDate, numDays)),
   );
 
-  const [hoveredPieceKey, setHoveredPieceKey] = useState<number | null>();
+  const [hoveredPieceKey, setHoveredPieceKey] = useState<number[]>([]);
+
+  const [headerStatus, setHeaderStatus] = useState({
+    cases: true,
+    displayPopulation: true,
+  });
+  const toggleHeader = (headerName: keyof typeof headerStatus) => {
+    setHeaderStatus({
+      ...headerStatus,
+      [headerName]: !headerStatus[headerName],
+    });
+  };
 
   if (!facility) return null;
+
+  // Display the header based on what header is toggled on.
+  const headersToDisplay = (Object.keys(headerStatus) as Array<
+    keyof typeof headerStatus
+  >).filter((headerName) => headerStatus[headerName]);
 
   const frameProps = {
     data,
     oPadding: 1,
-    style: (d: { renderKey: number }) => {
+    style: (d: { rName: string; renderKey: number }) => {
+      const hovered = hoveredPieceKey.includes(d.renderKey);
       return {
-        fill: d.renderKey == hoveredPieceKey ? Colors.teal : Colors.forest,
+        fill:
+          d.rName == "cases"
+            ? hovered
+              ? Colors.opacityForest
+              : Colors.forest
+            : hovered
+            ? Colors.forest20
+            : Colors.forest50,
         stroke: Colors.white,
       };
     },
     customHoverBehavior: (d: { pieces: { renderKey: number }[] }) => {
       if (d) {
-        setHoveredPieceKey(d.pieces[0].renderKey);
+        setHoveredPieceKey(d.pieces.map((p) => p.renderKey));
       } else {
-        setHoveredPieceKey(null);
+        setHoveredPieceKey([]);
       }
     },
     type: "bar",
@@ -126,7 +162,7 @@ const HistoricalCasesChart: React.FC<Props> = ({ facility, onModalSave }) => {
     responsiveWidth: true,
     hoverAnnotation: true,
     tooltipContent: BarChartTooltip,
-    rAccessor: "value",
+    rAccessor: headersToDisplay,
     oLabel: (datum: string) => formatDateLabel(datum),
     customClickBehavior: ({ summary }: { summary: Summary[] }) => {
       const { data } = summary[0];
@@ -137,7 +173,11 @@ const HistoricalCasesChart: React.FC<Props> = ({ facility, onModalSave }) => {
 
   return (
     <ChartWrapper>
-      <ChartHeader setModalOpen={setModalOpen} />
+      <ChartHeader
+        setModalOpen={setModalOpen}
+        toggleHeader={toggleHeader}
+        headerStatus={headerStatus}
+      />
       <ResponsiveOrdinalFrame {...frameProps} />
       <ScrollChartDates
         endDate={endDate}
