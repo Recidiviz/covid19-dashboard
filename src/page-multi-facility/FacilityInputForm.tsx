@@ -228,6 +228,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
       </PageHeaderContainer>
       <PageContainerWithBottomMargin>
         <Column width={"45%"}>
+          <Spacer y={14} />
           <DescRow>
             <InputDescription
               description={description}
@@ -264,6 +265,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
           <div className="mt-8" />
         </Column>
         <Column width={"55%"}>
+          <Spacer y={5} />
           <FacilityProjections />
         </Column>
 
