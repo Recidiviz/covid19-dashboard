@@ -70,12 +70,10 @@ const EditInPlace: React.FC<Props> = ({
   persistChanges,
   minHeight,
 }) => {
-  const [editing, setEditing] = useState(false);
   const textAreaRef = useRef(null);
-
   const [value, setValue] = useState(initialValue);
-
   const valueIsInvalid = requiredFlag && !value?.trim();
+  const [editing, setEditing] = useState(valueIsInvalid);
 
   useEffect(() => {
     if (autoResizeVertically) {
