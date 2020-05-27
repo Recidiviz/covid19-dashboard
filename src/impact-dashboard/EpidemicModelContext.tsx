@@ -179,86 +179,6 @@ export function getLocaleDefaults(
   };
 }
 
-// *******
-// calculation helpers
-// *******
-
-export function totalConfirmedCases(
-  brackets: ModelInputsPopulationBrackets,
-): number {
-  return sum(
-    Object.values(
-      pick(brackets, [
-        "age0Cases",
-        "age20Cases",
-        "age45Cases",
-        "age55Cases",
-        "age65Cases",
-        "age75Cases",
-        "age85Cases",
-        "ageUnknownCases",
-        "staffCases",
-      ]),
-    ),
-  );
-}
-
-export function totalIncarceratedConfirmedCases(
-  brackets: ModelInputsPopulationBrackets,
-): number {
-  return sum(
-    Object.values(
-      pick(brackets, [
-        "age0Cases",
-        "age20Cases",
-        "age45Cases",
-        "age55Cases",
-        "age65Cases",
-        "age75Cases",
-        "age85Cases",
-        "ageUnknownCases",
-      ]),
-    ),
-  );
-}
-
-export function getTotalPopulation(
-  brackets: ModelInputsPopulationBrackets,
-): number {
-  return sum(
-    Object.values(
-      pick(brackets, [
-        "age0Population",
-        "age20Population",
-        "age45Population",
-        "age55Population",
-        "age65Population",
-        "age75Population",
-        "age85Population",
-        "ageUnknownPopulation",
-      ]),
-    ),
-  );
-}
-
-export function sumAgeGroupPopulations(facility: Facility): number {
-  return getTotalPopulation(facility.modelInputs);
-}
-
-export function calculateFacilityOccupancyPct(
-  userInputs: EpidemicModelInputs,
-): number {
-  const { facilityCapacity } = userInputs;
-
-  return facilityCapacity
-    ? getTotalPopulation(userInputs) / facilityCapacity
-    : 1;
-}
-
-// *******
-// state and context management
-// *******
-
 function epidemicModelReducer(
   state: EpidemicModelState,
   action: Action,
@@ -337,4 +257,86 @@ export function useEpidemicModelDispatch() {
   }
 
   return context;
+}
+
+// *******
+// calculation helpers
+// *******
+
+export function totalConfirmedCases(
+  brackets: ModelInputsPopulationBrackets,
+): number {
+  return sum(
+    Object.values(
+      pick(brackets, [
+        "age0Cases",
+        "age20Cases",
+        "age45Cases",
+        "age55Cases",
+        "age65Cases",
+        "age75Cases",
+        "age85Cases",
+        "ageUnknownCases",
+        "staffCases",
+      ]),
+    ),
+  );
+}
+
+export function totalIncarceratedConfirmedCases(
+  brackets: ModelInputsPopulationBrackets,
+): number {
+  return sum(
+    Object.values(
+      pick(brackets, [
+        "age0Cases",
+        "age20Cases",
+        "age45Cases",
+        "age55Cases",
+        "age65Cases",
+        "age75Cases",
+        "age85Cases",
+        "ageUnknownCases",
+      ]),
+    ),
+  );
+}
+
+export function totalIncarceratedPopulation(
+  brackets: ModelInputsPopulationBrackets,
+): number {
+  return sum(
+    Object.values(
+      pick(brackets, [
+        "age0Population",
+        "age20Population",
+        "age45Population",
+        "age55Population",
+        "age65Population",
+        "age75Population",
+        "age85Population",
+        "ageUnknownPopulation",
+      ]),
+    ),
+  );
+}
+
+export function totalPopulation(
+  brackets: ModelInputsPopulationBrackets,
+): number {
+  return sum([totalIncarceratedPopulation(brackets), brackets.staffPopulation]);
+}
+
+export function sumAgeGroupPopulations(facility: Facility): number {
+  return totalIncarceratedPopulation(facility.modelInputs);
+}
+
+export function calculateFacilityOccupancyPct(
+  userInputs: EpidemicModelInputs,
+): number {
+  const { facilityCapacity } = userInputs;
+
+  return facilityCapacity
+    ? totalIncarceratedPopulation(userInputs) / facilityCapacity
+    : 1;
 }

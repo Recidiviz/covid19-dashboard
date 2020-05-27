@@ -77,6 +77,7 @@ interface CurveChartProps {
   hospitalBeds: number;
   markColors: MarkColors;
   hideAxes?: boolean;
+  yAxisExtent?: number[];
   addAnnotations?: boolean;
 }
 
@@ -110,6 +111,7 @@ const CurveChart: React.FC<CurveChartProps> = ({
   hospitalBeds,
   markColors,
   hideAxes,
+  yAxisExtent = [0],
   addAnnotations = true,
 }) => {
   const frameProps = {
@@ -128,7 +130,7 @@ const CurveChart: React.FC<CurveChartProps> = ({
     responsiveHeight: true,
     responsiveWidth: true,
     size: [450, 450],
-    yExtent: { extent: [0], includeAnnotations: false },
+    yExtent: { extent: yAxisExtent, includeAnnotations: false },
     margin: hideAxes ? null : { left: 60, bottom: 60, right: 10, top: 0 },
     lineStyle: ({ key }) => ({
       stroke: markColors[key],

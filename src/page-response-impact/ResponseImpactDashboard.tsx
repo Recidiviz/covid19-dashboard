@@ -9,6 +9,7 @@ import Loading from "../design-system/Loading";
 import { Column, PageContainer } from "../design-system/PageColumn";
 import { Spacer } from "../design-system/Spacer";
 import useFacilitiesRtData from "../hooks/useFacilitiesRtData";
+import useRejectionToast from "../hooks/useRejectionToast";
 import { sumAgeGroupPopulations } from "../impact-dashboard/EpidemicModelContext";
 import { getFacilitiesRtDataById } from "../infection-model/rt";
 import { useLocaleDataState } from "../locale-data-context";
@@ -81,16 +82,20 @@ const ResponseImpactDashboard: React.FC<Props> = ({
 
   useFacilitiesRtData(facilities.data);
 
+  const rejectionToast = useRejectionToast();
+
   const facilitiesRtData = getFacilitiesRtDataById(rtData, facilities.data);
 
   async function saveBaselinePopulations(populations: BaselinePopulations) {
     const initialPopulations = scenario?.baselinePopulations || [];
-    const savedScenario = await saveScenario({
-      ...scenario,
-      baselinePopulations: [...initialPopulations, populations],
-    });
-    if (savedScenario) dispatchScenarioUpdate(savedScenario);
-    setPopulationFormSubmitted(true);
+    rejectionToast(
+      saveScenario({
+        ...scenario,
+        baselinePopulations: [...initialPopulations, populations],
+      }).then((savedScenario) => {
+        if (savedScenario) dispatchScenarioUpdate(savedScenario);
+      }),
+    ).then(() => setPopulationFormSubmitted(true));
   }
 
   // current incarcerated population

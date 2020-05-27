@@ -5,7 +5,7 @@ import "firebase/auth";
 import "firebase/firestore";
 
 import { format, startOfDay, startOfToday } from "date-fns";
-import { pick, orderBy, uniqBy } from "lodash";
+import { pick, orderBy, uniqBy, findKey } from "lodash";
 import { Optional } from "utility-types";
 
 import { MMMMdyyyy } from "../constants";
@@ -14,6 +14,7 @@ import {
   Facility,
   ModelInputs,
   Scenario,
+  ScenarioUsers,
   User,
 } from "../page-multi-facility/types";
 import {
@@ -23,6 +24,7 @@ import {
   buildUser,
 } from "./type-transforms";
 import AppAuth0ClientPromise from "../auth/AppAuth0ClientPromise";
+import { ascending } from "d3-array";
 
 // As long as there is just one Auth0 config, this endpoint will work with any environment (local, prod, etc.).
 const tokenExchangeEndpoint =
@@ -123,6 +125,16 @@ const buildUpdatePayload = (entity: any) => {
   return payload;
 };
 
+function throwIfPermissionsError(
+  error: { code?: string; message: string },
+  message: string,
+) {
+  if (error.code === "permission-denied") {
+    error.message = message;
+  }
+  throw error;
+}
+
 const getBaselineScenarioRef = async (): Promise<firebase.firestore.DocumentReference | void> => {
   const db = await getDb();
 
@@ -184,6 +196,10 @@ export const getScenario = async (
       `Encountered error while attempting to retrieve the scenario (${scenarioId}):`,
     );
     console.error(error);
+    throwIfPermissionsError(
+      error,
+      "You don't have permission to access this scenario.",
+    );
 
     return null;
   }
@@ -251,8 +267,14 @@ export const saveScenario = async (scenario: any): Promise<Scenario | null> => {
 
     return await getScenario(scenarioId);
   } catch (error) {
+    // known errors should be rethrown for handling;
+    // anything else gets logged and swallowed
     console.error("Encountered error while attempting to save a scenario:");
     console.error(error);
+    throwIfPermissionsError(
+      error,
+      "You don't have permission to edit this scenario.",
+    );
     return null;
   }
 };
@@ -281,8 +303,12 @@ export const getFacilities = async (
     return facilities;
   } catch (error) {
     console.error("Encountered error while attempting to retrieve facilities:");
-
     console.error(error);
+
+    throwIfPermissionsError(
+      error,
+      "You don't have permission to access these facilities.",
+    );
 
     return null;
   }
@@ -325,6 +351,10 @@ export const getFacilityModelVersions = async ({
       "Encountered error while attempting to retrieve facility model versions:",
     );
     console.error(error);
+    throwIfPermissionsError(
+      error,
+      "You don't have permission to access this facility's history.",
+    );
     return [];
   }
 };
@@ -362,7 +392,7 @@ export const getUser = async (auth0Id: string): Promise<User | null> => {
 
 export const getScenarioUsers = async (
   scenarioId: string,
-): Promise<Array<User> | null> => {
+): Promise<ScenarioUsers | null> => {
   try {
     const scenario = await getScenario(scenarioId);
 
@@ -370,19 +400,28 @@ export const getScenarioUsers = async (
       throw new Error(`No scenario found matching id ${scenarioId}`);
     }
 
-    const auth0Ids = Object.keys(scenario.roles);
+    const ownerId = findKey(scenario.roles, (role) => role === "owner");
+    const viewerIds = Object.entries(scenario.roles)
+      .filter(([, role]) => role === "viewer")
+      .map(([id]) => id);
 
     // We have to get the users one at a time because Firestore limits the number
     // of elements that can be included within an "in" clause to 10. In other
     // words, if a Scenario has more than 10 users, writing the query with a
     // where clause that includes each of these user's auth0Ids would fail.
     // https://firebase.google.com/docs/firestore/query-data/queries#in_and_array-contains-any
-    const users = await Promise.all(
-      auth0Ids.map((auth0Id) => getUser(auth0Id)),
-    );
+    const userFetches = viewerIds.map((auth0Id) => getUser(auth0Id));
+    if (ownerId) userFetches.push(getUser(ownerId));
 
-    // Appeasing the TypeScript gods by filtering out possible null values
-    return users.filter((user): user is User => user !== null);
+    const users = await Promise.all(userFetches);
+    const owner = ownerId ? users.pop() : null;
+    return {
+      owner,
+      viewers: users
+        // Appeasing the TypeScript gods by filtering out possible null values
+        .filter((user): user is User => user !== null)
+        .sort((a, b) => ascending(a.name, b.name)),
+    };
   } catch (e) {
     console.error(
       "Encountered error while attempting to retrieve scenario users: \n",
@@ -426,7 +465,7 @@ export const saveUser = async (userData: UserToSave): Promise<void> => {
 export const addScenarioUser = async (
   scenarioId: string,
   email: string,
-): Promise<User | null> => {
+): Promise<User> => {
   try {
     const userDocument = await getUserDocument({ email });
     const auth0Id = userDocument.data().auth0Id;
@@ -452,7 +491,11 @@ export const addScenarioUser = async (
       "Encountered error while trying to add a scenario user:\n",
       e,
     );
-    return null;
+    throwIfPermissionsError(
+      e,
+      "You don't have permission to edit this scenario.",
+    );
+    throw e;
   }
 };
 
@@ -489,6 +532,11 @@ export const removeScenarioUser = async (
       "Encountered error while trying to remove a scenario user:\n",
       e,
     );
+    throwIfPermissionsError(
+      e,
+      "You don't have permission to edit this scenario.",
+    );
+    throw e;
   }
 };
 
@@ -613,6 +661,10 @@ export const saveFacility = async (
   } catch (error) {
     console.error("Encountered error while attempting to save a facility:");
     console.error(error);
+    throwIfPermissionsError(
+      error,
+      "You don't have permission to edit this facility.",
+    );
   }
 };
 
@@ -655,6 +707,10 @@ export const deleteFacility = async (
       `Encountered error while attempting to delete the facility (${facilityId}):`,
     );
     console.error(error);
+    throwIfPermissionsError(
+      error,
+      "You don't have permission to delete this facility.",
+    );
   }
 };
 
@@ -776,5 +832,9 @@ export const deleteScenario = async (
       `Encountered error while attempting to delete scenario: ${scenarioId}`,
     );
     console.error(error);
+    throwIfPermissionsError(
+      error,
+      "You don't have permission to delete this scenario.",
+    );
   }
 };

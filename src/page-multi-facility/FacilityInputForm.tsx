@@ -13,6 +13,7 @@ import { Column, PageContainer } from "../design-system/PageColumn";
 import PopUpMenu from "../design-system/PopUpMenu";
 import { Spacer } from "../design-system/Spacer";
 import Tooltip from "../design-system/Tooltip";
+import useRejectionToast from "../hooks/useRejectionToast";
 import useScreenWidth from "../hooks/useScreenWidth";
 import FacilityInformation from "../impact-dashboard/FacilityInformation";
 import MitigationInformation from "../impact-dashboard/MitigationInformation";
@@ -142,6 +143,8 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   );
   const model = useModel();
 
+  const rejectionToast = useRejectionToast();
+
   const screenWidth = useScreenWidth();
   const save = () => {
     if (facilityName) {
@@ -149,15 +152,15 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
       const modelUpdate = Object.assign({}, model[0]);
       modelUpdate.observedAt = new Date();
 
-      saveFacility(scenarioId, {
-        id: facility?.id,
-        name: facilityName || null,
-        description: description || null,
-        systemType: systemType || null,
-        modelInputs: modelUpdate,
-      }).then(() => {
-        navigate("/");
-      });
+      rejectionToast(
+        saveFacility(scenarioId, {
+          id: facility?.id,
+          name: facilityName || null,
+          description: description || null,
+          systemType: systemType || null,
+          modelInputs: modelUpdate,
+        }).then(() => navigate("/")),
+      );
     } else {
       window.scroll({ top: 0, left: 0, behavior: "smooth" });
     }
@@ -175,7 +178,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   const removeFacility = async () => {
     const facilityId = facility?.id;
     if (facilityId) {
-      await deleteFacility(scenarioId, facilityId);
+      await rejectionToast(deleteFacility(scenarioId, facilityId));
       window.history.back();
     }
     updateShowDeleteModal(false);
