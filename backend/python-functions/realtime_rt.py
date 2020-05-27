@@ -123,7 +123,8 @@ def compute_r_t(historical_case_counts):
     # counts must be cumulative; reject any that are obviously not
     # (i.e. their values decrease over time)
     if case_df.diff().min() < 0:
-        raise ValueError('Case counts must be cumulative')
+        raise ValueError(
+            'Case counts must be cumulative and monotonically increasing')
 
     # we believe duplicates are mostly an artifact of little-to-no testing
     # and should be excluded from the model
