@@ -42,7 +42,6 @@ export interface ModelInputsPopulationBrackets {
 }
 interface ModelInputsPersistent extends ModelInputsPopulationBrackets {
   facilityDormitoryPct?: number;
-  facilityOccupancyPct?: number;
   facilityCapacity?: number;
   plannedReleases?: PlannedReleases;
   populationTurnover?: number;
@@ -62,7 +61,7 @@ export interface EpidemicModelInputs extends ModelInputsUpdate {
   rateOfSpreadFactor: RateOfSpread;
   usePopulationSubsets: boolean;
   facilityDormitoryPct: number;
-  facilityOccupancyPct: number;
+  facilityCapacity: number;
   populationTurnover: number;
 }
 
@@ -111,7 +110,6 @@ export const persistedKeys: Array<keyof EpidemicModelPersistent> = [
   "countyName",
   "stateCode",
   "facilityDormitoryPct",
-  "facilityOccupancyPct",
   "facilityCapacity",
   "plannedReleases",
   "populationTurnover",
@@ -173,7 +171,9 @@ export function getLocaleDefaults(
       dataSource.get(stateCode)?.get(countyName)?.totalJailPopulation || 0,
     // user input defaults
     rateOfSpreadFactor: RateOfSpread.high,
-    facilityOccupancyPct: 1,
+    facilityCapacity:
+      dataSource.get(stateCode)?.get(countyName)?.totalIncarceratedPopulation ||
+      0,
     facilityDormitoryPct: 0.15,
     populationTurnover: 0,
   };

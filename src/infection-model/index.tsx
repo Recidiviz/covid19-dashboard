@@ -30,6 +30,7 @@ export type CurveFunctionInputs = Omit<
 > & {
   rateOfSpreadCells: number;
   rateOfSpreadDorms: number;
+  facilityOccupancyPct: number;
 };
 
 function prepareAgeGroupPopulations({

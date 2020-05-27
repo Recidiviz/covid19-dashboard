@@ -33,7 +33,6 @@ describe("curveInputsFromUserInputs function", () => {
       ageUnknownCases: 0,
       ageUnknownPopulation: 0,
       facilityDormitoryPct: 0.3,
-      facilityOccupancyPct: 1.15,
       facilityCapacity: 10000,
       populationTurnover: 0,
       staffCases: 7,
@@ -46,7 +45,6 @@ describe("curveInputsFromUserInputs function", () => {
   test("the facilityOccupancyPct is calculated based on facilityCapacity", () => {
     const { facilityOccupancyPct } = curveInputsFromUserInputs(inputs);
 
-    expect(facilityOccupancyPct).not.toBe(inputs.facilityOccupancyPct);
     expect(facilityOccupancyPct).toBe(0.7304);
   });
 
@@ -54,7 +52,6 @@ describe("curveInputsFromUserInputs function", () => {
     delete inputs.facilityCapacity;
     const { facilityOccupancyPct } = curveInputsFromUserInputs(inputs);
 
-    expect(facilityOccupancyPct).not.toBe(inputs.facilityOccupancyPct);
     expect(facilityOccupancyPct).toBe(1);
   });
 });
@@ -80,7 +77,6 @@ describe("curveInputsWithRt function", () => {
       ageUnknownCases: 0,
       ageUnknownPopulation: 0,
       facilityDormitoryPct: 0.3,
-      facilityOccupancyPct: 1.15,
       facilityCapacity: 8000,
       populationTurnover: 0,
       staffCases: 7,
@@ -97,7 +93,6 @@ describe("curveInputsWithRt function", () => {
       facilityOccupancyPct = result.facilityOccupancyPct;
     }
 
-    expect(facilityOccupancyPct).not.toBe(inputs.facilityOccupancyPct);
     expect(facilityOccupancyPct).toBe(0.913);
   });
 
@@ -109,7 +104,6 @@ describe("curveInputsWithRt function", () => {
       facilityOccupancyPct = result.facilityOccupancyPct;
     }
 
-    expect(facilityOccupancyPct).not.toBe(inputs.facilityOccupancyPct);
     expect(facilityOccupancyPct).toBe(1);
   });
 });
@@ -136,6 +130,7 @@ describe("calculateAllCurves function", () => {
       ageUnknownPopulation: 0,
       facilityDormitoryPct: 0.3,
       facilityOccupancyPct: 1.15,
+      facilityCapacity: 1000,
       populationTurnover: 0,
       rateOfSpreadCells: 1.8,
       rateOfSpreadDorms: 2.4,
