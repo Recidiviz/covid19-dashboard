@@ -19,7 +19,6 @@ import FacilityInformation from "../impact-dashboard/FacilityInformation";
 import MitigationInformation from "../impact-dashboard/MitigationInformation";
 import useModel from "../impact-dashboard/useModel";
 import { updateFacilityRtData } from "../infection-model/rt";
-import { PageHeader } from "../page-response-impact/styles";
 import RtTimeseries from "../rt-timeseries";
 import AddCasesModal from "./AddCasesModal";
 import { FacilityContext } from "./FacilityContext";
