@@ -78,3 +78,13 @@ class TestCalculateRt(TestCase):
         # duplicate case counts will be dropped
         expected_response_dates = [data['dates'][1], data['dates'][3]]
         self.verify_response_data(resp, expected_response_dates)
+
+    def test_ensure_cumulative(self):
+        data = {
+            'dates': ['2020-04-15', '2020-04-16', '2020-04-18', '2020-04-19'],
+            'cases': [50, 66, 20, 129]
+        }
+        self.req.get_json.return_value = data
+
+        resp = self.get_response_json()
+        self.assertIn('error', resp)
