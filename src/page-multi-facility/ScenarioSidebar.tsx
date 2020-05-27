@@ -183,14 +183,12 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
           </BaselineIndicator>
         </div>
         {!readOnly && (
-          <Flag name={["enableSharing"]}>
-            <div>
-              <Spacer y={20} />
-              <HorizontalRule />
-              <Spacer y={20} />
-              <ScenarioShareModal />
-            </div>
-          </Flag>
+          <div>
+            <Spacer y={20} />
+            <HorizontalRule />
+            <Spacer y={20} />
+            <ScenarioShareModal />
+          </div>
         )}
         <div>
           <Spacer y={20} />
