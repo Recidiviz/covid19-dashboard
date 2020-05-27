@@ -91,6 +91,7 @@ class TestCalculateRt(TestCase):
 
         # make sure it doesn't get confused by dates being out of order
         data = data = {
+            # here the values decrease but not when sorted in date order
             'dates': ['2020-04-15', '2020-04-18', '2020-04-12', '2020-04-19'],
             'cases': [50, 66, 20, 129]
         }
@@ -98,4 +99,15 @@ class TestCalculateRt(TestCase):
 
         resp = self.get_response_json()
         self.assertNotIn('error', resp)
+
+        data = {
+            # here the values increase but not when sorted in date order
+            'dates': ['2020-04-15', '2020-04-18', '2020-04-12', '2020-04-19'],
+            'cases': [20, 50, 66, 129]
+        }
+        self.req.get_json.return_value = data
+
+        resp = self.get_response_json()
+        self.assertIn('error', resp)
+
 
