@@ -28,7 +28,9 @@ export type Scenario = {
   promoStatuses: PromoStatuses;
   baselinePopulations: BaselinePopulations[];
   description: string;
-  roles: object;
+  roles: {
+    [key: string]: "owner" | "viewer";
+  };
   createdAt: Date;
   updatedAt: Date;
 };
@@ -54,4 +56,9 @@ export type User = {
   id: string;
   name: string;
   email: string;
+};
+
+export type ScenarioUsers = {
+  owner: User | null | undefined;
+  viewers: User[];
 };
