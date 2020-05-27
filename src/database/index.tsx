@@ -414,7 +414,7 @@ export const getScenarioUsers = async (
     if (ownerId) userFetches.push(getUser(ownerId));
 
     const users = await Promise.all(userFetches);
-    let owner = ownerId ? users.pop() : null;
+    const owner = ownerId ? users.pop() : null;
     return {
       owner,
       viewers: users
