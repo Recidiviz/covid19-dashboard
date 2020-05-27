@@ -16,9 +16,11 @@ import { Spacer } from "../design-system/Spacer";
 import useCurrentUserId from "../hooks/useCurrentUserId";
 import useReadOnlyMode from "../hooks/useReadOnlyMode";
 import useRejectionToast from "../hooks/useRejectionToast";
-import { ScenarioUsers, User } from "../page-multi-facility/types";
+import { ScenarioUsers } from "../page-multi-facility/types";
 import useScenario from "../scenario-context/useScenario";
+import AvatarCluster from "./AvatarCluster";
 import ScenarioShareButton from "./ScenarioShareButton";
+import UserAvatar from "./UserAvatar";
 
 const ShareForm = styled.form`
   align-items: flex-end;
@@ -45,30 +47,14 @@ const UserListItem = styled.li`
   margin: 8px;
 `;
 
+const UserName = styled.div`
+  margin-left: 16px;
+`;
+
 const RemoveButton = styled.button`
   color: ${Colors.darkRed};
   margin-left: auto;
 `;
-
-const bubbleSize = 32;
-const UserInitialImg = styled.img`
-  border-radius: ${bubbleSize / 2}px;
-  display: inline-block;
-  height: ${bubbleSize}px;
-  margin-right: ${bubbleSize / 2}px;
-  width: ${bubbleSize}px;
-`;
-
-const UserAvatar: React.FC<{ user: User }> = ({ user }) => {
-  return (
-    <UserInitialImg
-      alt=""
-      src={`https://cdn.auth0.com/avatars/${user.name
-        .charAt(0)
-        .toLowerCase()}.png?ssl=1`}
-    />
-  );
-};
 
 const UserList: React.FC<{
   users: ScenarioUsers;
@@ -83,16 +69,16 @@ const UserList: React.FC<{
       {users.owner && (
         <UserListItem>
           <UserAvatar user={users.owner} />
-          <div>
+          <UserName>
             {users.owner.name}
             {!readOnly && " (You)"}
-          </div>
+          </UserName>
         </UserListItem>
       )}
       {users.viewers.map((user) => (
         <UserListItem key={user.id}>
           <UserAvatar user={user} />
-          <div>{user.name}</div>
+          <UserName>{user.name}</UserName>
           {scenario.data && !readOnly && (
             <RemoveButton
               onClick={() => {
@@ -113,6 +99,13 @@ const UserList: React.FC<{
     </UserListContainer>
   );
 };
+
+const ShareButtonContainer = styled.button`
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+`;
 
 const ScenarioShareModal: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -176,7 +169,12 @@ const ScenarioShareModal: React.FC = () => {
       modalTitle={`Share ${scenario.data?.name}`}
       open={modalOpen}
       setOpen={setModalOpen}
-      trigger={<ScenarioShareButton />}
+      trigger={
+        <ShareButtonContainer>
+          <ScenarioShareButton />
+          <AvatarCluster users={users} />
+        </ShareButtonContainer>
+      }
       width="450px"
     >
       <Spacer y={30} />
