@@ -118,6 +118,14 @@ def compute_r_t(historical_case_counts):
     case_df = pd.Series(historical_case_counts['cases'], index=historical_case_counts['dates'])
     case_df.index = pd.to_datetime(case_df.index)
     case_df.index.name = 'date'
+    case_df.sort_index(inplace=True)
+
+    # counts must be cumulative; reject any that are obviously not
+    # (i.e. their values decrease over time)
+    if case_df.diff().min() < 0:
+        raise ValueError(
+            'Case counts must be cumulative and monotonically increasing')
+
     # we believe duplicates are mostly an artifact of little-to-no testing
     # and should be excluded from the model
     case_df = case_df.drop_duplicates(keep='first')
