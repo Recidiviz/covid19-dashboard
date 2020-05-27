@@ -123,6 +123,16 @@ const buildUpdatePayload = (entity: any) => {
   return payload;
 };
 
+function throwIfPermissionsError(
+  error: { code?: string; message: string },
+  message: string,
+) {
+  if (error.code === "permission-denied") {
+    error.message = message;
+  }
+  throw error;
+}
+
 const getBaselineScenarioRef = async (): Promise<firebase.firestore.DocumentReference | void> => {
   const db = await getDb();
 
@@ -184,6 +194,10 @@ export const getScenario = async (
       `Encountered error while attempting to retrieve the scenario (${scenarioId}):`,
     );
     console.error(error);
+    throwIfPermissionsError(
+      error,
+      "You don't have permission to access this scenario.",
+    );
 
     return null;
   }
@@ -195,7 +209,7 @@ export const getScenarios = async (): Promise<Scenario[]> => {
 
     const scenarioResults = await db
       .collection(scenariosCollectionId)
-      .where(`roles.${currrentUserId()}`, "in", ["owner"])
+      .where(`roles.${currrentUserId()}`, "in", ["owner", "viewer"])
       .get();
 
     const scenarios = scenarioResults.docs.map((doc) => {
@@ -251,8 +265,14 @@ export const saveScenario = async (scenario: any): Promise<Scenario | null> => {
 
     return await getScenario(scenarioId);
   } catch (error) {
+    // known errors should be rethrown for handling;
+    // anything else gets logged and swallowed
     console.error("Encountered error while attempting to save a scenario:");
     console.error(error);
+    throwIfPermissionsError(
+      error,
+      "You don't have permission to edit this scenario.",
+    );
     return null;
   }
 };
@@ -281,8 +301,12 @@ export const getFacilities = async (
     return facilities;
   } catch (error) {
     console.error("Encountered error while attempting to retrieve facilities:");
-
     console.error(error);
+
+    throwIfPermissionsError(
+      error,
+      "You don't have permission to access these facilities.",
+    );
 
     return null;
   }
@@ -325,25 +349,73 @@ export const getFacilityModelVersions = async ({
       "Encountered error while attempting to retrieve facility model versions:",
     );
     console.error(error);
+    throwIfPermissionsError(
+      error,
+      "You don't have permission to access this facility's history.",
+    );
     return [];
   }
 };
 
+const getUserDocument = async (
+  params: { email: string } | { auth0Id: string },
+): Promise<firebase.firestore.DocumentData | never> => {
+  const db = await getDb();
+
+  const [key, value] = Object.entries(params)[0];
+
+  const userResult = await db
+    .collection(usersCollectionId)
+    .where(key, "==", value)
+    .get();
+
+  if (userResult.docs.length > 1) {
+    throw new Error(`Multiple users found matching ${key} ${value}`);
+  } else if (userResult.docs.length === 0) {
+    throw new Error(`No users found matching ${key} ${value}`);
+  }
+
+  return userResult.docs[0];
+};
+
 export const getUser = async (auth0Id: string): Promise<User | null> => {
   try {
-    const db = await getDb();
-    const userResult = await db
-      .collection(usersCollectionId)
-      .where("auth0Id", "==", auth0Id)
-      .get();
-    if (userResult.docs.length > 1) {
-      throw new Error(`Multiple users found matching id ${auth0Id}`);
-    } else if (userResult.docs.length === 0) {
-      throw new Error(`No users found matching id ${auth0Id}`);
-    }
-    return buildUser(userResult.docs[0]);
+    const userDocument = await getUserDocument({ auth0Id });
+    return buildUser(userDocument);
   } catch (e) {
     console.error("Encountered error while attempting to retrieve user: \n", e);
+    return null;
+  }
+};
+
+export const getScenarioUsers = async (
+  scenarioId: string,
+): Promise<Array<User> | null> => {
+  try {
+    const scenario = await getScenario(scenarioId);
+
+    if (!scenario) {
+      throw new Error(`No scenario found matching id ${scenarioId}`);
+    }
+
+    const auth0Ids = Object.keys(scenario.roles);
+
+    // We have to get the users one at a time because Firestore limits the number
+    // of elements that can be included within an "in" clause to 10. In other
+    // words, if a Scenario has more than 10 users, writing the query with a
+    // where clause that includes each of these user's auth0Ids would fail.
+    // https://firebase.google.com/docs/firestore/query-data/queries#in_and_array-contains-any
+    const users = await Promise.all(
+      auth0Ids.map((auth0Id) => getUser(auth0Id)),
+    );
+
+    // Appeasing the TypeScript gods by filtering out possible null values
+    return users.filter((user): user is User => user !== null);
+  } catch (e) {
+    console.error(
+      "Encountered error while attempting to retrieve scenario users: \n",
+      e,
+    );
     return null;
   }
 };
@@ -376,6 +448,75 @@ export const saveUser = async (userData: UserToSave): Promise<void> => {
     }
   } catch (e) {
     console.error("Encountered error while trying to save user:\n", e);
+  }
+};
+
+export const addScenarioUser = async (
+  scenarioId: string,
+  email: string,
+): Promise<User | null> => {
+  try {
+    const userDocument = await getUserDocument({ email });
+    const auth0Id = userDocument.data().auth0Id;
+    const scenario = await getScenario(scenarioId);
+
+    if (!scenario) {
+      throw new Error(`No scenario found matching id ${scenarioId}`);
+    }
+
+    scenario.roles = Object.assign({}, scenario.roles, {
+      [auth0Id]: "viewer",
+    });
+
+    const savedScenario = await saveScenario(scenario);
+
+    if (!savedScenario) {
+      throw new Error(`Error updating scenario roles`);
+    }
+
+    return buildUser(userDocument);
+  } catch (e) {
+    console.error(
+      "Encountered error while trying to add a scenario user:\n",
+      e,
+    );
+    return null;
+  }
+};
+
+export const removeScenarioUser = async (
+  scenarioId: string,
+  userId: string,
+): Promise<void> => {
+  const db = await getDb();
+
+  try {
+    const user = await db.collection(usersCollectionId).doc(userId).get();
+
+    if (!user) {
+      throw new Error(`No users found matching id ${userId}`);
+    }
+
+    const auth0Id = user.data()?.auth0Id;
+
+    const scenario = await getScenario(scenarioId);
+
+    if (!scenario) {
+      throw new Error(`No scenario found matching id ${scenarioId}`);
+    }
+
+    delete (scenario.roles as any)[auth0Id];
+
+    const savedScenario = await saveScenario(scenario);
+
+    if (!savedScenario) {
+      throw new Error(`Error removing scenario roles`);
+    }
+  } catch (e) {
+    console.error(
+      "Encountered error while trying to remove a scenario user:\n",
+      e,
+    );
   }
 };
 
@@ -500,6 +641,10 @@ export const saveFacility = async (
   } catch (error) {
     console.error("Encountered error while attempting to save a facility:");
     console.error(error);
+    throwIfPermissionsError(
+      error,
+      "You don't have permission to edit this facility.",
+    );
   }
 };
 
@@ -542,6 +687,10 @@ export const deleteFacility = async (
       `Encountered error while attempting to delete the facility (${facilityId}):`,
     );
     console.error(error);
+    throwIfPermissionsError(
+      error,
+      "You don't have permission to delete this facility.",
+    );
   }
 };
 
@@ -612,6 +761,10 @@ export const duplicateScenario = async (
     }
 
     await batch.commit();
+
+    const duplicatedScenario = await scenarioDoc.get();
+
+    return buildScenario(duplicatedScenario);
   } catch (error) {
     console.error(
       `Encountered error while attempting to duplicate scenario: ${scenarioId}`,
@@ -659,5 +812,9 @@ export const deleteScenario = async (
       `Encountered error while attempting to delete scenario: ${scenarioId}`,
     );
     console.error(error);
+    throwIfPermissionsError(
+      error,
+      "You don't have permission to delete this scenario.",
+    );
   }
 };

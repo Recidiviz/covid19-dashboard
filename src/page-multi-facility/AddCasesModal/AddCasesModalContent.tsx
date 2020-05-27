@@ -10,9 +10,9 @@ import InputButton from "../../design-system/InputButton";
 import InputDate from "../../design-system/InputDate";
 import Tooltip from "../../design-system/Tooltip";
 import {
-  getTotalPopulation,
   ModelInputsPopulationBrackets,
   totalConfirmedCases,
+  totalIncarceratedPopulation,
 } from "../../impact-dashboard/EpidemicModelContext";
 import { AgeGroupGrid } from "../../impact-dashboard/FacilityInformation";
 import { ModelInputs } from "../types";
@@ -142,7 +142,9 @@ const AddCasesModalContent: React.FC<Props> = ({
                     <span>
                       {formatPopulation(totalConfirmedCases(matchingDay))} cases
                       <br />
-                      {formatPopulation(getTotalPopulation(matchingDay))}{" "}
+                      {formatPopulation(
+                        totalIncarceratedPopulation(matchingDay),
+                      )}{" "}
                       residents and staff
                     </span>
                   ) : (

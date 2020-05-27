@@ -11,6 +11,7 @@ import {
 import useModel from "../impact-dashboard/useModel";
 import { Facility, ModelInputs } from "../page-multi-facility/types";
 import useFacilityModelVersions from "./useFacilityModelVersions";
+import useRejectionToast from "./useRejectionToast";
 
 export const getModelInputs = (modelInputs: ModelInputs) => {
   return pick(modelInputs, populationBracketKeys);
@@ -92,6 +93,8 @@ const useAddCasesInputs = (
     }
   };
 
+  const rejectionToast = useRejectionToast();
+
   const saveCases = async () => {
     const newInputs = {
       ...facility.modelInputs,
@@ -102,30 +105,34 @@ const useAddCasesInputs = (
     // The observedAt date in the modal is more recent than the observedAt date in the current modelInputs.
     // This needs to happen so that facility data will show the most updated data w/o requiring a hard reload.
     const latestFacilityData = { ...facility };
-    if (
-      defaultObservationDate &&
-      observationDate &&
-      startOfDay(observationDate) >= startOfDay(defaultObservationDate)
-    ) {
-      // sending the full input object into the model context may trigger side effects
-      // such as a full reset, so just send the inputs that are editable
-      // in this dialog
-      updateModel({ ...inputs, observedAt: observationDate });
-      // new inputs should be the new "current" model inputs
-      latestFacilityData.modelInputs = newInputs;
-    }
+
     // Save to DB with model changes;
     // if they are not most recent the save function will handle it,
     // unlike the local state handlers
-    await saveFacility(facility.scenarioId, {
-      id: facility.id,
-      modelInputs: newInputs,
-    });
+    rejectionToast(
+      saveFacility(facility.scenarioId, {
+        id: facility.id,
+        modelInputs: newInputs,
+      }).then(() => {
+        // don't update the UI unless save succeeds; there may have been a permission rejection
+        if (
+          defaultObservationDate &&
+          observationDate &&
+          startOfDay(observationDate) >= startOfDay(defaultObservationDate)
+        ) {
+          // sending the full input object into the model context may trigger side effects
+          // such as a full reset, so just send the inputs that are editable
+          // in this dialog
+          updateModel({ ...inputs, observedAt: observationDate });
+          // new inputs should be the new "current" model inputs
+          latestFacilityData.modelInputs = newInputs;
+        }
 
-    // After the DB is updated, then process the onSave callback
-    onSave(latestFacilityData);
-    updateModelVersions();
-    addToast("Data successfully saved!");
+        onSave(latestFacilityData);
+        updateModelVersions();
+        addToast("Data successfully saved!");
+      }),
+    );
   };
 
   return {

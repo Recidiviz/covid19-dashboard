@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import styled, { css } from "styled-components";
+import { DebounceInput } from "react-debounce-input";
+import { css } from "styled-components";
 
 import Colors from "./Colors";
 
@@ -11,39 +11,34 @@ export interface InputLabelProps {
 
 export interface InputValueProps<T> {
   valueEntered: T | undefined;
-  valueDefault?: T;
-  valuePlaceholder?: T;
   onValueChange: (value: T | undefined) => void;
-}
-
-export function useInputValue<T>(props: InputValueProps<T>) {
-  // We display the default value when valueEntered has never existed. A naive
-  // implementation would display the default value as long as valueEntered
-  // currently does not exist, but this means that if the user clears the entire
-  // input, it would immediately be populated with the default value -- this can
-  // be unexpected behavior.
-  let [shouldShowDefault, setShouldShowDefault] = useState(
-    props.valueEntered == null,
-  );
-
-  useEffect(() => {
-    // As soon as the user has entered some value, we should never show the
-    // default value again.
-    if (shouldShowDefault && props.valueEntered != null) {
-      setShouldShowDefault(false);
-    }
-  }, [shouldShowDefault, props.valueEntered]);
-
-  return shouldShowDefault ? props.valueDefault : props.valueEntered;
 }
 
 export type InputBaseProps<T> = InputLabelProps & InputValueProps<T>;
 
-interface InputProps {
-  headerStyle?: boolean;
-}
+/**
+ * This component has the same functionality as DebounceInput, except that it
+ * removes the type parameter. This is because we can't use DebounceInput as-is
+ * with styled-components. Specifically, we cannot do the following
+ *
+ *     let MyComponent = styled(DebounceInput<HTMLInputElement>)`
+ *       ...
+ *     `
+ *
+ * because it's invalid syntax.
+ *
+ * NOTE: This trick currently depends on DebounceInput being implemented as a
+ * class component. If it becomes a function component in the future, then we
+ * might need to use the slightly more complicated method of building a wrapper
+ * component (but it can that component can be used the same way).
+ *
+ * NOTE: If a future version of TypeScript/JSX/styled-components allows us to do
+ * this (or if there's an easier way to do this), then we should use that method
+ * instead.
+ */
+export class CustomDebounceInput extends DebounceInput<HTMLInputElement> {}
 
-export const StyledInput = styled.input<InputProps>`
+export const InputStyle = css`
   background: ${Colors.gray};
   border-radius: 2px;
   border: none;
@@ -58,20 +53,4 @@ export const StyledInput = styled.input<InputProps>`
   outline: 0 solid transparent;
   padding: 0 16px;
   width: 100%;
-
-  ${(props) =>
-    props.headerStyle &&
-    css`
-      font-family: "Libre Baskerville", serif;
-      font-style: normal;
-      font-weight: normal;
-      font-size: 64px;
-      line-height: 64px;
-      letter-spacing: -0.03em;
-      color: #006c67;
-      font-size: 1.875rem;
-      margin: 0 !important;
-      padding: 0 !important;
-      background-color: transparent;
-    `};
 `;
