@@ -11,10 +11,12 @@ export const PageContainer = styled.div`
   }
 `;
 
-export const Column = styled.div<{ width?: string }>`
+const borderStyle = `1px solid ${Colors.paleGreen}`;
+
+export const Column = styled.div<{ width?: string; borderTop?: boolean }>`
   margin: 0 20px 20px;
   width: ${(props) => props.width || "50%"};
-  border-top: 1px solid ${Colors.paleGreen};
+  border-top: ${(props) => (props.borderTop ? borderStyle : "none")};
 
   @media (max-width: 700px) {
     width: inherit;
