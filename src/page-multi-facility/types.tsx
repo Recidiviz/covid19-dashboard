@@ -57,3 +57,8 @@ export type User = {
   name: string;
   email: string;
 };
+
+export type ScenarioUsers = {
+  owner: User | null | undefined;
+  viewers: User[];
+};
