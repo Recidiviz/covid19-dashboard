@@ -37,7 +37,7 @@ describe("useProjectionData", () => {
       ageUnknownCases: 1500,
       ageUnknownPopulation: 6543,
       facilityDormitoryPct: 0.3,
-      facilityOccupancyPct: 1.15,
+      facilityCapacity: 2000,
       populationTurnover: 0,
       staffCases: 7,
       staffPopulation: 23,

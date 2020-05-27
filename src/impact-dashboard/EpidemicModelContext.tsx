@@ -80,6 +80,7 @@ interface Metadata extends MetadataPersistent {
 
 export type EpidemicModelPersistent = ModelInputsPersistent &
   MetadataPersistent;
+
 // we have to type all them out here again
 // but at least we can validate that none are illegal
 // TODO: is there a smarter way to get these values?
@@ -244,6 +245,16 @@ export function sumAgeGroupPopulations(facility: Facility): number {
   return getTotalPopulation(facility.modelInputs);
 }
 
+export function calculateFacilityOccupancyPct(
+  userInputs: EpidemicModelInputs,
+): number {
+  const { facilityCapacity } = userInputs;
+
+  return facilityCapacity
+    ? getTotalPopulation(userInputs) / facilityCapacity
+    : 1;
+}
+
 // *******
 // state and context management
 // *******
@@ -260,7 +271,7 @@ function epidemicModelReducer(
       // it's not very granular but it doesn't need to be at the moment
 
       let updates = { ...action.payload };
-      let { stateCode, countyName, facilityCapacity } = updates;
+      let { stateCode, countyName } = updates;
 
       // change in state or county triggers a bigger reset
       if (stateCode) {
@@ -270,11 +281,6 @@ function epidemicModelReducer(
       }
       if (stateCode && countyName) {
         return getLocaleDefaults(state.localeDataSource, stateCode, countyName);
-      }
-
-      if (facilityCapacity) {
-        updates.facilityOccupancyPct =
-          getTotalPopulation(state) / facilityCapacity || 1;
       }
 
       return Object.assign({}, state, updates);

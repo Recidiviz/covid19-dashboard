@@ -2,7 +2,10 @@ import { range, sum } from "d3-array";
 import ndarray from "ndarray";
 import { Omit } from "utility-types";
 
-import { EpidemicModelInputs } from "../impact-dashboard/EpidemicModelContext";
+import {
+  calculateFacilityOccupancyPct,
+  EpidemicModelInputs,
+} from "../impact-dashboard/EpidemicModelContext";
 import {
   adjustPopulations,
   ageGroupIndex,
@@ -75,7 +78,9 @@ enum R0Dorms {
 export function curveInputsFromUserInputs(
   userInputs: EpidemicModelInputs,
 ): CurveFunctionInputs {
-  const { facilityOccupancyPct, rateOfSpreadFactor } = userInputs;
+  const facilityOccupancyPct = calculateFacilityOccupancyPct(userInputs);
+  const { rateOfSpreadFactor } = userInputs;
+
   // translate qualitative rate of spread factor into numbers
   let rateOfSpreadCells = R0Cells[rateOfSpreadFactor];
   let rateOfSpreadDorms = R0Dorms[rateOfSpreadFactor];
@@ -95,7 +100,7 @@ export function curveInputsFromUserInputs(
 
   const curveInputs = {
     ...userInputs,
-    ...{ rateOfSpreadCells, rateOfSpreadDorms },
+    ...{ rateOfSpreadCells, rateOfSpreadDorms, facilityOccupancyPct },
   };
   delete curveInputs.rateOfSpreadFactor;
   return curveInputs;
@@ -108,12 +113,18 @@ export function curveInputsWithRt(
   if (rt === undefined) {
     return;
   }
+  const facilityOccupancyPct = calculateFacilityOccupancyPct(userInputs);
+
   // with Rt there is no distinction between these rates
   const rateOfSpreadValues = {
     rateOfSpreadCells: rt,
     rateOfSpreadDorms: rt,
   };
-  const curveInputs = { ...userInputs, ...rateOfSpreadValues };
+  const curveInputs = {
+    ...userInputs,
+    ...rateOfSpreadValues,
+    facilityOccupancyPct,
+  };
   delete curveInputs.rateOfSpreadFactor;
   return curveInputs;
 }
