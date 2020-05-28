@@ -108,16 +108,17 @@ const Tooltip: React.FC<{
   rt: number | undefined;
   left: number;
   top: number;
-}> = ({ name, rt, left, top }) => {
+  error: Error | undefined;
+}> = ({ name, rt, left, top, error }) => {
   return (
     <RtComparisonChartTooltip style={{ left, top }}>
       <p>{name}</p>
       <p>
         {!!rt && `Rate of Spread: ${formatRt(rt)}`}
-        {rt === undefined &&
+        {(rt === undefined || !!error) &&
           `Insufficient data to calculate rate of spread. Click the number of
           cases on the Projections tab to add case numbers for the last several
-          days or weeks.`}
+          days or weeks.${error ? ` (${error})` : ""}`}
         {rt === 0 && "Covid-19 is not active at this facility."}
       </p>
       <p>
@@ -188,6 +189,7 @@ const renderHtmlHoverState = ({
       rt={values.Rt}
       top={middle - pillRadius}
       left={rScale(values.Rt) | 0}
+      error={values.error}
     />
   );
 };
@@ -251,6 +253,7 @@ export type RtComparisonData = {
     Rt?: number;
     low90?: number;
     high90?: number;
+    error?: Error;
   };
 };
 

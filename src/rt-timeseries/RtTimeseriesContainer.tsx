@@ -5,11 +5,11 @@ import styled from "styled-components";
 import Colors from "../design-system/Colors";
 import HelpButtonWithTooltip from "../design-system/HelpButtonWithTooltip";
 import Loading from "../design-system/Loading";
-import { RtData } from "../infection-model/rt";
+import { getRtStatus, RtData } from "../infection-model/rt";
 import { updateFacilityRtData } from "../infection-model/rt";
 import AddCasesModal from "../page-multi-facility/AddCasesModal";
 import { FacilityContext } from "../page-multi-facility/FacilityContext";
-import { Facility } from "../page-multi-facility/types";
+import { Facility, RtValue } from "../page-multi-facility/types";
 import RtTimeseries from "./RtTimeseries";
 
 const borderStyle = `1px solid ${Colors.paleGreen}`;
@@ -46,7 +46,7 @@ const RtChartEmptyState = styled.button`
 `;
 
 interface Props {
-  data?: RtData | null;
+  data?: RtValue;
   facility: Facility;
 }
 
@@ -61,10 +61,12 @@ const RtTimeseriesContainer: React.FC<Props> = ({ data }) => {
     updateFacilityRtData(newFacility, dispatchRtData);
   };
 
-  const isLoading = data === undefined;
-  const notEnoughData = data === null || (data && data.Rt.length < 2);
+  const rtStatus = getRtStatus(data);
 
-  if (isLoading) return <Loading />;
+  const notEnoughData =
+    rtStatus.error || (rtStatus.ready && (data as RtData).Rt.length < 2);
+
+  if (rtStatus.loading) return <Loading />;
 
   return (
     <>
@@ -96,7 +98,7 @@ const RtTimeseriesContainer: React.FC<Props> = ({ data }) => {
               />
             </AddCasesRow>
           )
-        : data && <RtTimeseries data={data} />}
+        : rtStatus.ready && <RtTimeseries data={data as RtData} />}
     </>
   );
 };

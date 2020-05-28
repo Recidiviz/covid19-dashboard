@@ -9,8 +9,9 @@ import {
   curveInputsWithRt,
 } from "../infection-model";
 import { getAllValues, getColView } from "../infection-model/matrixUtils";
-import { RtData } from "../infection-model/rt";
+import { isRtData, isRtError } from "../infection-model/rt";
 import { seirIndex } from "../infection-model/seir";
+import { RtValue } from "./types";
 
 function getCurves(
   input: EpidemicModelInputs,
@@ -27,16 +28,15 @@ function getCurves(
 export const useProjectionData = (
   input: EpidemicModelInputs,
   useRt?: boolean,
-  rtData?: RtData | null,
+  rtData?: RtValue,
 ): CurveData | undefined => {
   let latestRt: number | undefined;
 
   if (useRt) {
-    // a null value indicates Rt fetching failed
-    if (rtData === null) {
+    if (isRtError(rtData)) {
       useRt = false;
-    } else {
-      latestRt = rtData?.Rt[rtData.Rt.length - 1].value;
+    } else if (isRtData(rtData)) {
+      latestRt = rtData.Rt[rtData.Rt.length - 1].value;
     }
   }
 

@@ -5,7 +5,7 @@ import {
   fromUnixTime,
   parseISO,
 } from "date-fns";
-import { mapValues, maxBy, minBy, pick } from "lodash";
+import { has, mapValues, maxBy, minBy, pick } from "lodash";
 
 import { FacilityEvents } from "../constants/dispatchEvents";
 import { RateOfSpreadType } from "../constants/EpidemicModel";
@@ -15,6 +15,7 @@ import {
   Facilities,
   Facility,
   RtDataMapping,
+  RtValue,
 } from "../page-multi-facility/types";
 
 type RawRtRecord = {
@@ -48,12 +49,28 @@ export type RtData = {
   high90: RtRecord[];
 };
 
+export type RtError = {
+  error: string;
+};
+
 const isError = (obj: RawRtData | ErrorResponse): obj is ErrorResponse => {
   return (obj as ErrorResponse).error !== undefined;
 };
 
-export function isRtData(data: RtData | null | undefined): data is RtData {
-  return data !== null && data !== undefined;
+export function isRtData(data: RtData | RtError | undefined): data is RtData {
+  return has(data, "Rt") && has(data, "low90") && has(data, "high90");
+}
+
+export function isRtError(data: any): data is RtError {
+  return has(data, "error");
+}
+
+export function getRtStatus(data: RtData | RtError | undefined) {
+  return {
+    loading: data === undefined,
+    error: isRtError(data),
+    ready: isRtData(data),
+  };
 }
 
 const getFetchUrl = () => {
@@ -123,15 +140,13 @@ export const cleanRtData = (rawData: RawRtData) => {
 
 export const getRtDataForFacility = async (
   facility: Facility,
-): Promise<RtData | null> => {
+): Promise<RtValue> => {
   try {
     const { cases, dates } = await getRtInputsForFacility(facility);
     const fetchedData = await fetchRt({ dates, cases });
     return cleanRtData(fetchedData);
   } catch (error) {
-    console.error(`Error fetching R(t) data for facility ${facility.id}:`);
-    console.error(error);
-    return null;
+    return { error };
   }
 };
 
@@ -168,8 +183,8 @@ export const getDaysAgoRt = (rtRecords: RtRecord[], daysAgo: number) => {
   );
 };
 
-export const rtSpreadType = (rtValue: number | null | undefined) => {
-  if (rtValue === null || rtValue === undefined) {
+export const rtSpreadType = (rtValue: number | RtError | undefined) => {
+  if (isRtError(rtValue) || rtValue === undefined) {
     return RateOfSpreadType.Missing;
   } else if (rtValue > 1) {
     return RateOfSpreadType.Infectious;
@@ -182,7 +197,7 @@ export function getFacilitiesRtDataById(
   rtData: RtDataMapping | undefined,
   facilities: Facilities,
 ) {
-  if (!rtData) return null;
+  if (!rtData) return undefined;
   const facilityIds = facilities.map((f) => f.id);
   return pick(rtData, facilityIds);
 }
