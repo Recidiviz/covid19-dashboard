@@ -125,7 +125,9 @@ const AddCasesButton = styled.button`
   line-height: 1.3;
 `;
 
-const PageHeaderContainer = styled.div``;
+const PageHeaderContainer = styled.div`
+  padding-right: 20px;
+`;
 
 interface Props {
   scenarioId: string;
@@ -265,7 +267,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
           <div className="mt-8" />
         </Column>
         <Column width={"55%"} borderTop>
-          <Spacer y={5} />
+          <Spacer y={14} />
           <FacilityProjections />
         </Column>
 
