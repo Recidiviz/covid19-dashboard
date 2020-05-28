@@ -106,6 +106,10 @@ const EditInPlace: React.FC<Props> = ({
     }
   };
 
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
   return (
     <EditInPlaceDiv minHeight={minHeight}>
       {!editing && ((requiredFlag && value) || !requiredFlag) ? (

@@ -1,5 +1,5 @@
 import hexAlpha from "hex-alpha";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
@@ -58,6 +58,10 @@ const RtTimeseriesContainer: React.FC<Props> = ({ data }) => {
     FacilityContext,
   );
   const [facility, updateFacility] = useState(initialFacility);
+
+  useEffect(() => {
+    updateFacility(initialFacility);
+  }, [initialFacility]);
 
   if (data === undefined) return <Loading />;
 
