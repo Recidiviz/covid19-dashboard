@@ -60,6 +60,11 @@ const ModalDialog: React.FC<Props> = (props) => {
   if (!open) return null;
 
   const handleOnClick = (event: React.MouseEvent<HTMLElement>) => {
+    // Stopping propogation so that the event does not fall through to elements
+    // "beneath" the modal.  This is useful in the case where we have a modal
+    // within a modal (i.e. a delete confirmation).
+    event.stopPropagation();
+
     if (isOutsideModal(event, ref.current) && closeModal) {
       closeModal(event);
     }

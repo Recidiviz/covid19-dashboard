@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 
 import Colors from "./Colors";
+import { InputStyle } from "./Input";
 import TextLabel from "./TextLabel";
 
 interface Props {
@@ -11,51 +12,42 @@ interface Props {
   onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   onBlur?: (e: React.FormEvent<HTMLTextAreaElement>) => void;
   onKeyDown?: (event: React.KeyboardEvent) => void;
+  focus?: boolean;
   required?: boolean;
+  onValueChange: (value: any | undefined) => void;
 }
 
-const TextAreaInput = styled.textarea`
-  margin-top: 8px;
-  border: none;
-  padding: 16px;
-  background: #e0e4e4;
-  border-radius: 2px;
-  color: ${(props) => props.color || Colors.green};
-  resize: none;
-  width: 100%;
-
-  // make placeholder font size smaller than the textarea's
-  &::-webkit-input-placeholder {
-    font-size: 18px;
-  }
-  &::-moz-placeholder {
-    font-size: 18px;
-  }
-  &:-ms-input-placeholder {
-    font-size: 18px;
-  }
-  &:-moz-placeholder {
-    font-size: 18px;
-  }
+const TextArea = styled.textarea`
+  ${InputStyle}
+  padding: 16px 16px;
+  height: 96px;
 `;
 
 const TextAreaContainer = styled.div`
-  margin-bottom: 24px;
+  margin-bottom: 16px;
   display: flex;
   flex-direction: column;
 `;
 
 const InputTextArea: React.FC<Props> = (props) => {
+  const nameTextArea = useRef() as React.MutableRefObject<HTMLTextAreaElement>;
+
+  useEffect(() => {
+    if (!props.focus) return;
+
+    nameTextArea.current.focus();
+  }, []);
+
   return (
     <TextAreaContainer>
       <TextLabel>{props.label}</TextLabel>
-      <TextAreaInput
-        onChange={props.onChange}
-        onBlur={props.onBlur}
+      <TextArea
+        ref={nameTextArea}
         value={props.value}
         placeholder={props.placeholder}
         required={props.required}
-        name={props.label}
+        onChange={(e) => props.onValueChange(e.target.value)}
+        onBlur={props.onBlur}
         onKeyDown={props.onKeyDown}
       />
     </TextAreaContainer>
