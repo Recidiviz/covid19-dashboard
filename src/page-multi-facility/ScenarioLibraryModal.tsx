@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
-import {
-  currrentUserId,
-  deleteScenario,
-  duplicateScenario,
-  getScenarios,
-} from "../database";
+import { deleteScenario, duplicateScenario, getScenarios } from "../database";
 import Colors from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import iconSrcCheck from "../design-system/icons/ic_check.svg";
@@ -19,6 +14,7 @@ import PopUpMenu from "../design-system/PopUpMenu";
 import useRejectionToast from "../hooks/useRejectionToast";
 import useScenario from "../scenario-context/useScenario";
 import { Scenario } from "./types";
+import useCurrentUserId from "../hooks/useCurrentUserId";
 
 const ModalContents = styled.div`
   display: flex;
@@ -181,6 +177,7 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
   >();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const rejectionToast = useRejectionToast();
+  const currentUserId = useCurrentUserId();
 
   const sortScenarios = (list: any) => {
     if (Array.isArray(list)) {
@@ -209,10 +206,9 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
     if (scenariosData) {
       const oScenarios = [] as Scenario[];
       const sScenarios = [] as Scenario[];
-      const userId = currrentUserId();
 
       scenariosData.forEach((scenario) => {
-        if (userId && scenario.roles[userId] === "owner") {
+        if (currentUserId && scenario.roles[currentUserId] === "owner") {
           oScenarios.push(scenario);
         } else {
           sScenarios.push(scenario);
