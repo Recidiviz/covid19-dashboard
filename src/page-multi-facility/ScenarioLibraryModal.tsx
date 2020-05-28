@@ -182,6 +182,28 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const rejectionToast = useRejectionToast();
 
+  const sortScenarios = (list: any) => {
+    if (Array.isArray(list)) {
+      const baseline: any = [];
+      const nonBaseline: any = [];
+      list.forEach((scenario: any) => {
+        if (scenario.baseline) baseline.push(scenario);
+        else nonBaseline.push(scenario);
+      });
+
+      baseline.sort((a: any, b: any) =>
+        a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1,
+      );
+      nonBaseline.sort((a: any, b: any) =>
+        a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1,
+      );
+
+      return [...baseline, ...nonBaseline];
+    } else {
+      return list;
+    }
+  };
+
   async function fetchScenarios() {
     const scenariosData = await getScenarios();
     if (scenariosData) {
@@ -271,28 +293,6 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
     }
 
     closeDeleteModal(event);
-  };
-
-  const sortScenarios = (list: any) => {
-    if (Array.isArray(list)) {
-      const baseline: any = [];
-      const nonBaseline: any = [];
-      list.forEach((scenario: any) => {
-        if (scenario.baseline) baseline.push(scenario);
-        else nonBaseline.push(scenario);
-      });
-
-      baseline.sort((a: any, b: any) =>
-        a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1,
-      );
-      nonBaseline.sort((a: any, b: any) =>
-        a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1,
-      );
-
-      return [...baseline, ...nonBaseline];
-    } else {
-      return list;
-    }
   };
 
   return (
