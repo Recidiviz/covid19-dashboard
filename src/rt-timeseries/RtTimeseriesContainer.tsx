@@ -5,7 +5,7 @@ import styled from "styled-components";
 import Colors from "../design-system/Colors";
 import HelpButtonWithTooltip from "../design-system/HelpButtonWithTooltip";
 import Loading from "../design-system/Loading";
-import { getRtStatus, RtData } from "../infection-model/rt";
+import { isRtData, isRtError, RtData } from "../infection-model/rt";
 import { updateFacilityRtData } from "../infection-model/rt";
 import AddCasesModal from "../page-multi-facility/AddCasesModal";
 import { FacilityContext } from "../page-multi-facility/FacilityContext";
@@ -56,17 +56,15 @@ const RtTimeseriesContainer: React.FC<Props> = ({ data }) => {
   );
   const [facility, updateFacility] = useState(initialFacility);
 
+  if (data === undefined) return <Loading />;
+
   const onModalSave = (newFacility: Facility) => {
     updateFacility(newFacility);
     updateFacilityRtData(newFacility, dispatchRtData);
   };
 
-  const rtStatus = getRtStatus(data);
-
   const notEnoughData =
-    rtStatus.error || (rtStatus.ready && (data as RtData).Rt.length < 2);
-
-  if (rtStatus.loading) return <Loading />;
+    isRtError(data) || (isRtData(data) && data.Rt.length < 2);
 
   return (
     <>
@@ -91,14 +89,14 @@ const RtTimeseriesContainer: React.FC<Props> = ({ data }) => {
                   <RtChartEmptyState>
                     Live rate of spread could not be calculated for this
                     facility. Click here to add at least 3 days of confirmed
-                    case data.
+                    case data. {isRtError(data) && `(${data.error})`}
                   </RtChartEmptyState>
                 }
                 onSave={onModalSave}
               />
             </AddCasesRow>
           )
-        : rtStatus.ready && <RtTimeseries data={data as RtData} />}
+        : isRtData(data) && <RtTimeseries data={data} />}
     </>
   );
 };

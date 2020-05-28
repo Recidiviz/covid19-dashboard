@@ -65,14 +65,6 @@ export function isRtError(data: any): data is RtError {
   return has(data, "error");
 }
 
-export function getRtStatus(data: RtData | RtError | undefined) {
-  return {
-    loading: data === undefined,
-    error: isRtError(data),
-    ready: isRtData(data),
-  };
-}
-
 const getFetchUrl = () => {
   let url = "https://us-central1-c19-backend.cloudfunctions.net/calculate_rt";
   if (process.env.NODE_ENV !== "production") {
