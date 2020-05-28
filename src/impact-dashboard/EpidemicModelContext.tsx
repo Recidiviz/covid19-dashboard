@@ -42,7 +42,7 @@ export interface ModelInputsPopulationBrackets {
 }
 interface ModelInputsPersistent extends ModelInputsPopulationBrackets {
   facilityDormitoryPct?: number;
-  facilityCapacity?: number;
+  facilityCapacity?: number | undefined;
   plannedReleases?: PlannedReleases;
   populationTurnover?: number;
   rateOfSpreadFactor?: RateOfSpread;
@@ -61,7 +61,7 @@ export interface EpidemicModelInputs extends ModelInputsUpdate {
   rateOfSpreadFactor: RateOfSpread;
   usePopulationSubsets: boolean;
   facilityDormitoryPct: number;
-  facilityCapacity: number;
+  facilityCapacity: number | undefined;
   populationTurnover: number;
 }
 
@@ -173,7 +173,7 @@ export function getLocaleDefaults(
     rateOfSpreadFactor: RateOfSpread.high,
     facilityCapacity:
       dataSource.get(stateCode)?.get(countyName)?.totalIncarceratedPopulation ||
-      0,
+      undefined,
     facilityDormitoryPct: 0.15,
     populationTurnover: 0,
   };
