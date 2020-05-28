@@ -36,7 +36,12 @@
     "@typescript-eslint/no-explicit-any": "off",
 
     // Allow unused variables that start with "_"
-    "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      {
+        "argsIgnorePattern": "^_"
+      }
+    ],
 
     // Ensure default exports have the same name as the file.
     "filenames/match-exported": "error",
@@ -65,7 +70,14 @@
     // Because we want imports sorted!
     // The built-in "sort-imports" doesn't seem to be sufficient, and the
     // "eslint-plugin-import" doesn't seem to work.
-    "simple-import-sort/sort": "warn"
+    "simple-import-sort/sort": "warn",
+
+    // Disable warning:
+    // "React Hook useEffect has a missing dependency: ... Either
+    // include it or remove the dependency array"
+    // However, this kind of warning seems to be useful when working with hooks (performance optimizations)
+    // https://reactjs.org/docs/hooks-faq.html#is-it-safe-to-omit-functions-from-the-list-of-dependencies
+    "react-hooks/exhaustive-deps": 0
   },
 
   "settings": {

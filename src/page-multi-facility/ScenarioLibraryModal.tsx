@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import {
+  currrentUserId,
   deleteScenario,
   duplicateScenario,
   getScenarios,
-  currrentUserId,
 } from "../database";
 import Colors from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
