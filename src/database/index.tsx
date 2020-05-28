@@ -1,3 +1,4 @@
+// @ts-nocheck
 // the core Firebase SDK must be imported before other Firebase modules
 // eslint-disable-next-line simple-import-sort/sort
 import * as firebase from "firebase/app";
@@ -836,5 +837,78 @@ export const deleteScenario = async (
       error,
       "You don't have permission to delete this scenario.",
     );
+  }
+};
+
+const scenarioMigrationCollectionId = "scenarios";
+
+export const getMigrationScenarios = async () => {
+  const db = await getDb();
+  return db.collection(scenarioMigrationCollectionId).get();
+};
+
+export const getMigrationFacilities = async (scenarioId) => {
+  const db = await getDb();
+  return db
+    .collection(scenarioMigrationCollectionId)
+    .doc(scenarioId)
+    .collection(facilitiesCollectionId)
+    .get();
+};
+
+export const getMigrationModelVersions = async (scenarioId, facilityId) => {
+  const db = await getDb();
+  return db
+    .collection(scenarioMigrationCollectionId)
+    .doc(scenarioId)
+    .collection(facilitiesCollectionId)
+    .doc(facilityId)
+    .collection(modelVersionCollectionId)
+    .get();
+};
+
+export const addFacilityCapacity = async ({
+  scenarioId,
+  facilityId,
+  modelVersionId,
+  facilityCapacity,
+  modelInputs,
+  write,
+}) => {
+  const newInputs = { ...modelInputs, facilityCapacity };
+  const timestamp = currrentTimestamp();
+  newInputs.updatedAt = timestamp;
+  delete newInputs.facilityOccupancyPct;
+
+  const db = await getDb();
+  let docToUpdate = db
+    .collection(scenarioMigrationCollectionId)
+    .doc(scenarioId)
+    .collection(facilitiesCollectionId)
+    .doc(facilityId);
+  let updateData = { modelInputs: newInputs, updatedAt: timestamp };
+  if (modelVersionId) {
+    docToUpdate = docToUpdate
+      .collection(modelVersionCollectionId)
+      .doc(modelVersionId);
+    updateData = {
+      ...newInputs,
+      facilityOccupancyPct: firebase.firestore.FieldValue.delete(),
+    };
+  }
+  try {
+    if (write) {
+      await docToUpdate.update(updateData);
+    } else {
+      // dry run
+      console.log(
+        `scenario ${scenarioId} facility ${facilityId} ${
+          modelVersionId ? `modelVersion ${modelVersionId}` : ""
+        }`,
+        updateData,
+      );
+    }
+  } catch (e) {
+    console.error("error adding facility capacity", e);
   }
 };
