@@ -582,7 +582,7 @@ export const removeScenarioUser = async (
 export const saveFacility = async (
   scenarioId: string,
   facility: any,
-): Promise<void> => {
+): Promise<Facility | void> => {
   try {
     const scenarioRef = await getScenarioRef(scenarioId);
 
@@ -656,8 +656,9 @@ export const saveFacility = async (
 
       batch.set(newModelVersionDoc, facility.modelInputs);
     }
-
     await batch.commit();
+    const savedFacilityDoc = await facilityDoc.get();
+    return buildFacility(scenarioId, savedFacilityDoc);
   } catch (error) {
     console.error("Encountered error while attempting to save a facility:");
     console.error(error);
@@ -665,6 +666,30 @@ export const saveFacility = async (
       error,
       "You don't have permission to edit this facility.",
     );
+  }
+};
+
+export const duplicateFacility = async (
+  scenarioId: string,
+  facility: Facility,
+): Promise<Facility | void> => {
+  const facilityId = facility.id;
+  try {
+    const timestamp = currrentTimestamp();
+    delete facility.id;
+    const duplicatedFacility = {
+      ...facility,
+      name: `Copy of ${facility.name}`,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    };
+    return saveFacility(scenarioId, duplicatedFacility);
+  } catch (error) {
+    console.error(
+      `Encountered error while attempting to duplicate facility: ${facilityId}`,
+    );
+    console.error(error);
+    return;
   }
 };
 
