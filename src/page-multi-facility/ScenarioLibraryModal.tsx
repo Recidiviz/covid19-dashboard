@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
-import { deleteScenario, duplicateScenario, getScenarios } from "../database";
+import {
+  deleteScenario,
+  duplicateScenario,
+  getScenarios,
+  currrentUserId,
+} from "../database";
 import Colors from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import iconSrcCheck from "../design-system/icons/ic_check.svg";
@@ -22,6 +27,14 @@ const ModalContents = styled.div`
   justify-content: flex-start;
   margin-top: 30px;
   height: 100%;
+
+  h3 {
+    border-bottom: 0.5px solid #c8d3d3;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 30px;
+    padding: 20px 0;
+  }
 `;
 
 const ScenarioLibrary = styled.div`
@@ -154,7 +167,11 @@ type Props = Pick<ModalProps, "trigger">;
 const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [currentScenario, dispatchScenarioUpdate] = useScenario();
-  const [scenarios, setScenarios] = useState({
+  const [ownedScenarios, setOwnedScenarios] = useState({
+    data: [] as Scenario[],
+    loading: true,
+  });
+  const [sharedScenarios, setSharedScenarios] = useState({
     data: [] as Scenario[],
     loading: true,
   });
@@ -168,8 +185,25 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
   async function fetchScenarios() {
     const scenariosData = await getScenarios();
     if (scenariosData) {
-      setScenarios({
-        data: scenariosData,
+      const oScenarios = [] as Scenario[];
+      const sScenarios = [] as Scenario[];
+      const userId = currrentUserId();
+
+      scenariosData.forEach((scenario) => {
+        if (userId && scenario.roles[userId] === "owner") {
+          oScenarios.push(scenario);
+        } else {
+          sScenarios.push(scenario);
+        }
+      });
+
+      setOwnedScenarios({
+        data: oScenarios,
+        loading: false,
+      });
+
+      setSharedScenarios({
+        data: sortScenarios(sScenarios),
         loading: false,
       });
 
@@ -196,7 +230,7 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
   };
 
   const copyScenario = (scenarioId: string) => {
-    setScenarios({
+    setOwnedScenarios({
       data: [],
       loading: true,
     });
@@ -216,7 +250,7 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
       rejectionToast(
         deleteScenario(scenarioIdPendingDeletion).then(() => {
           // refresh scenario data after delete
-          setScenarios({
+          setOwnedScenarios({
             data: [],
             loading: true,
           });
@@ -239,6 +273,28 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
     closeDeleteModal(event);
   };
 
+  const sortScenarios = (list: any) => {
+    if (Array.isArray(list)) {
+      const baseline: any = [];
+      const nonBaseline: any = [];
+      list.forEach((scenario: any) => {
+        if (scenario.baseline) baseline.push(scenario);
+        else nonBaseline.push(scenario);
+      });
+
+      baseline.sort((a: any, b: any) =>
+        a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1,
+      );
+      nonBaseline.sort((a: any, b: any) =>
+        a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1,
+      );
+
+      return [...baseline, ...nonBaseline];
+    } else {
+      return list;
+    }
+  };
+
   return (
     <Modal
       modalTitle="Library"
@@ -250,10 +306,10 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
     >
       <ModalContents>
         <ScenarioLibrary>
-          {scenarios.loading ? (
+          {ownedScenarios?.loading ? (
             <Loading />
           ) : (
-            scenarios?.data.map((scenario) => {
+            ownedScenarios?.data.map((scenario) => {
               const popupItems = [
                 { name: "Duplicate", onClick: () => copyScenario(scenario.id) },
               ];
@@ -315,6 +371,47 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
               </ModalButtons>
             </DeleteModalContents>
           </ModalDialog>
+        </ScenarioLibrary>
+
+        {sharedScenarios?.data?.length ? <h3>Shared Scenarios</h3> : null}
+        <ScenarioLibrary>
+          {sharedScenarios?.data.length && sharedScenarios?.loading ? (
+            <Loading />
+          ) : (
+            sharedScenarios?.data.map((scenario) => {
+              const popupItems = [
+                { name: "Duplicate", onClick: () => copyScenario(scenario.id) },
+              ];
+
+              return (
+                <ScenarioCard
+                  key={scenario.id}
+                  onClick={() => changeScenario(scenario)}
+                >
+                  <ScenarioHeader>
+                    <IconCheck
+                      alt="check"
+                      src={iconSrcCheck}
+                      baseline={scenario.baseline}
+                    />
+                    <ScenarioHeaderText>{scenario.name}</ScenarioHeaderText>
+                  </ScenarioHeader>
+                  <ScenarioDataViz>
+                    <IconRecidviz alt="Recidiviz" src={iconSrcRecidiviz} />
+                  </ScenarioDataViz>
+                  <ScenarioDescription>
+                    {scenario.description}
+                  </ScenarioDescription>
+                  <ScenarioFooter>
+                    <LastUpdatedLabel>
+                      Last Update: <DateMMMMdyyyy date={scenario.updatedAt} />
+                    </LastUpdatedLabel>
+                    <PopUpMenu items={popupItems} />
+                  </ScenarioFooter>
+                </ScenarioCard>
+              );
+            })
+          )}
         </ScenarioLibrary>
       </ModalContents>
     </Modal>

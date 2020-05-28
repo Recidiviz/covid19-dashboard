@@ -73,7 +73,7 @@ const authenticate = async () => {
   await firebase.auth().signInWithCustomToken(customToken);
 };
 
-const currrentUserId = () => {
+export const currrentUserId = () => {
   const userId = (firebase.auth().currentUser || {}).uid;
 
   if (!userId) {
