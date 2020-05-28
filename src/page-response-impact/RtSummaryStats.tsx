@@ -90,7 +90,7 @@ function rtDonutChartAnnotation(d: any) {
 }
 
 const RtSummaryStats: React.FC<Props> = ({ rtData }) => {
-  const rtDataValues: (RtData | null)[] = Object.values(rtData);
+  const rtDataValues = Object.values(rtData);
   const totalFacilitiesInScenario = rtDataValues.length;
 
   const facilitiesRtRecords: RtRecord[][] = rtDataValues
