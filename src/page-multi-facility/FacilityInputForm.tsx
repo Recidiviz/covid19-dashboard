@@ -2,7 +2,11 @@ import { navigate } from "gatsby";
 import React, { useContext, useState } from "react";
 import styled from "styled-components";
 
-import { deleteFacility, saveFacility } from "../database/index";
+import {
+  deleteFacility,
+  duplicateFacility,
+  saveFacility,
+} from "../database/index";
 import Colors from "../design-system/Colors";
 import iconDuplicatePath from "../design-system/icons/ic_duplicate.svg";
 import InputButton, { StyledButton } from "../design-system/InputButton";
@@ -178,7 +182,17 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   const closeDeleteModal = () => {
     updateShowDeleteModal(false);
   };
-  const popupItems = [{ name: "Delete", onClick: openDeleteModal }];
+  const onDuplicateFacility = async () => {
+    if (facility) {
+      await rejectionToast(
+        duplicateFacility(scenarioId, facility).then(() => navigate("/")),
+      );
+    }
+  };
+  const popupItems = [
+    { name: "Duplicate", onClick: onDuplicateFacility },
+    { name: "Delete", onClick: openDeleteModal },
+  ];
   const removeFacility = async () => {
     const facilityId = facility?.id;
     if (facilityId) {
