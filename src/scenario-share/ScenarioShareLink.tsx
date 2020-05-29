@@ -4,7 +4,7 @@ import styled from "styled-components";
 import Colors from "../design-system/Colors";
 import iconLinkPath from "../design-system/icons/ic_link.svg";
 
-const Button = styled.button`
+const LinkContainer = styled.div`
   color: ${Colors.forest};
   font-family: "Poppins", sans-serif;
   font-size: 13px;
@@ -19,13 +19,13 @@ const IconLink = styled.img`
   width: 10px;
 `;
 
-const ScenarioShareButton: React.FC = () => {
+const ScenarioShareLink: React.FC = () => {
   return (
-    <Button>
+    <LinkContainer>
       <IconLink src={iconLinkPath} />
       Share Scenario
-    </Button>
+    </LinkContainer>
   );
 };
 
-export default ScenarioShareButton;
+export default ScenarioShareLink;

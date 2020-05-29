@@ -19,7 +19,7 @@ import useRejectionToast from "../hooks/useRejectionToast";
 import { ScenarioUsers } from "../page-multi-facility/types";
 import useScenario from "../scenario-context/useScenario";
 import AvatarCluster from "./AvatarCluster";
-import ScenarioShareButton from "./ScenarioShareButton";
+import ScenarioShareLink from "./ScenarioShareLink";
 import UserAvatar from "./UserAvatar";
 
 const ShareForm = styled.form`
@@ -100,7 +100,7 @@ const UserList: React.FC<{
   );
 };
 
-const ShareButtonContainer = styled.button`
+const ShareButton = styled.button`
   align-items: center;
   display: flex;
   justify-content: space-between;
@@ -170,10 +170,10 @@ const ScenarioShareModal: React.FC = () => {
       open={modalOpen}
       setOpen={setModalOpen}
       trigger={
-        <ShareButtonContainer>
-          <ScenarioShareButton />
+        <ShareButton>
+          <ScenarioShareLink />
           <AvatarCluster users={users} />
-        </ShareButtonContainer>
+        </ShareButton>
       }
       width="450px"
     >
