@@ -42,7 +42,7 @@ export interface ModelInputsPopulationBrackets {
 }
 interface ModelInputsPersistent extends ModelInputsPopulationBrackets {
   facilityDormitoryPct?: number;
-  facilityOccupancyPct?: number;
+  facilityCapacity?: number;
   plannedReleases?: PlannedReleases;
   populationTurnover?: number;
   rateOfSpreadFactor?: RateOfSpread;
@@ -61,7 +61,6 @@ export interface EpidemicModelInputs extends ModelInputsUpdate {
   rateOfSpreadFactor: RateOfSpread;
   usePopulationSubsets: boolean;
   facilityDormitoryPct: number;
-  facilityOccupancyPct: number;
   populationTurnover: number;
 }
 
@@ -79,6 +78,7 @@ interface Metadata extends MetadataPersistent {
 
 export type EpidemicModelPersistent = ModelInputsPersistent &
   MetadataPersistent;
+
 // we have to type all them out here again
 // but at least we can validate that none are illegal
 // TODO: is there a smarter way to get these values?
@@ -109,7 +109,7 @@ export const persistedKeys: Array<keyof EpidemicModelPersistent> = [
   "countyName",
   "stateCode",
   "facilityDormitoryPct",
-  "facilityOccupancyPct",
+  "facilityCapacity",
   "plannedReleases",
   "populationTurnover",
   "rateOfSpreadFactor",
@@ -170,7 +170,6 @@ export function getLocaleDefaults(
       dataSource.get(stateCode)?.get(countyName)?.totalJailPopulation || 0,
     // user input defaults
     rateOfSpreadFactor: RateOfSpread.high,
-    facilityOccupancyPct: 1,
     facilityDormitoryPct: 0.15,
     populationTurnover: 0,
   };
@@ -326,4 +325,14 @@ export function totalPopulation(
 
 export function sumAgeGroupPopulations(facility: Facility): number {
   return totalIncarceratedPopulation(facility.modelInputs);
+}
+
+export function calculateFacilityOccupancyPct(
+  userInputs: EpidemicModelInputs,
+): number {
+  const { facilityCapacity } = userInputs;
+
+  return facilityCapacity
+    ? totalIncarceratedPopulation(userInputs) / facilityCapacity
+    : 1;
 }

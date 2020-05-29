@@ -207,13 +207,13 @@ const FacilityInformation: React.FC = () => {
           <FormRow
             inputs={[
               <InputTextNumeric
-                key="occupancy"
-                type="percent"
-                labelAbove="Occupancy rate"
-                labelHelp="Enter occupancy rate as a percent of capacity."
-                valueEntered={model.facilityOccupancyPct}
+                key="capacity"
+                type="number"
+                labelAbove="Capacity"
+                labelHelp="Enter capacity of the facility."
+                valueEntered={model.facilityCapacity}
                 onValueChange={(value) =>
-                  updateModel({ facilityOccupancyPct: value })
+                  updateModel({ facilityCapacity: value })
                 }
               />,
               <InputTextNumeric
