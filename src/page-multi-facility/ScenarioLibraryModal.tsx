@@ -197,7 +197,12 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
 
       setAllScenarios([oScenarios, sScenarios]);
 
-      setBaselineScenario(scenariosData.find((scenario) => scenario.baseline));
+      setBaselineScenario(
+        scenariosData.find(
+          (scenario) =>
+            scenario.baseline && scenario.roles[currentUserId] === "owner",
+        ),
+      );
     }
   }, [currentUserId]);
 
