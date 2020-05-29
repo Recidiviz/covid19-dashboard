@@ -2,7 +2,11 @@ import { navigate } from "gatsby";
 import React, { useContext, useState } from "react";
 import styled from "styled-components";
 
-import { deleteFacility, saveFacility } from "../database/index";
+import {
+  deleteFacility,
+  duplicateFacility,
+  saveFacility,
+} from "../database/index";
 import Colors from "../design-system/Colors";
 import iconDuplicatePath from "../design-system/icons/ic_duplicate.svg";
 import InputButton, { StyledButton } from "../design-system/InputButton";
@@ -12,6 +16,7 @@ import ModalDialog from "../design-system/ModalDialog";
 import { Column, PageContainer } from "../design-system/PageColumn";
 import PopUpMenu from "../design-system/PopUpMenu";
 import { Spacer } from "../design-system/Spacer";
+import { useToasts } from "../design-system/Toast";
 import Tooltip from "../design-system/Tooltip";
 import useRejectionToast from "../hooks/useRejectionToast";
 import useScreenWidth from "../hooks/useScreenWidth";
@@ -134,9 +139,13 @@ interface Props {
 }
 
 const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
-  const { facility: initialFacility, rtData, dispatchRtData } = useContext(
-    FacilityContext,
-  );
+  const { addToast } = useToasts();
+  const {
+    facility: initialFacility,
+    setFacility,
+    rtData,
+    dispatchRtData,
+  } = useContext(FacilityContext);
   const [facility, updateFacility] = useState(initialFacility);
   const [facilityName, setFacilityName] = useState(facility?.name || undefined);
   const [description, setDescription] = useState(
@@ -178,7 +187,26 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   const closeDeleteModal = () => {
     updateShowDeleteModal(false);
   };
-  const popupItems = [{ name: "Delete", onClick: openDeleteModal }];
+  const onDuplicateFacility = async () => {
+    if (facility) {
+      await rejectionToast(
+        duplicateFacility(scenarioId, facility)
+          .then((duplicatedFacility) => {
+            if (duplicatedFacility) {
+              setFacility(duplicatedFacility);
+              updateFacility(duplicatedFacility);
+              updateFacilityRtData(duplicatedFacility, dispatchRtData);
+              setFacilityName(duplicatedFacility.name);
+            }
+          })
+          .then(() => addToast("Facility successfully duplicated")),
+      );
+    }
+  };
+  const popupItems = [
+    { name: "Duplicate", onClick: onDuplicateFacility },
+    { name: "Delete", onClick: openDeleteModal },
+  ];
   const removeFacility = async () => {
     const facilityId = facility?.id;
     if (facilityId) {

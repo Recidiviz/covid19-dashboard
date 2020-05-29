@@ -544,6 +544,19 @@ export const removeScenarioUser = async (
   }
 };
 
+const batchSetFacilityModelVersions = (
+  modelVersions: ModelInputs[],
+  facilityDocRef: firebase.firestore.DocumentReference,
+  batch: firebase.firestore.WriteBatch,
+) => {
+  modelVersions.forEach((modelVersion: ModelInputs) => {
+    const modelVersionDoc = facilityDocRef
+      .collection(modelVersionCollectionId)
+      .doc();
+    batch.set(modelVersionDoc, modelVersion);
+  });
+};
+
 /**
  * Please note the following usage patterns and provide data to this method
  * accordingly when updating a facility:
@@ -586,7 +599,7 @@ export const removeScenarioUser = async (
 export const saveFacility = async (
   scenarioId: string,
   facility: any,
-): Promise<void> => {
+): Promise<Facility | void> => {
   try {
     const scenarioRef = await getScenarioRef(scenarioId);
 
@@ -660,10 +673,53 @@ export const saveFacility = async (
 
       batch.set(newModelVersionDoc, facility.modelInputs);
     }
-
     await batch.commit();
+    const savedFacilityDoc = await facilityDoc.get();
+    return buildFacility(scenarioId, savedFacilityDoc);
   } catch (error) {
     console.error("Encountered error while attempting to save a facility:");
+    console.error(error);
+    throwIfPermissionsError(
+      error,
+      "You don't have permission to edit this facility.",
+    );
+  }
+};
+
+export const duplicateFacility = async (
+  scenarioId: string,
+  facility: Facility,
+): Promise<Facility | void> => {
+  const facilityId = facility.id;
+  const facilityCopy = Object.assign({}, facility, {
+    name: `Copy of ${facility.name}`,
+  });
+  const db = await getDb();
+  const batch = db.batch();
+  const scenarioRef = await getScenarioRef(scenarioId);
+  if (!scenarioRef) return;
+  const facilityRef = scenarioRef.collection(facilitiesCollectionId).doc();
+
+  try {
+    const modelVersions = await getFacilityModelVersions({
+      scenarioId,
+      facilityId,
+    });
+    batchSetFacilityModelVersions(modelVersions, facilityRef, batch);
+
+    // Delete old facility id and set new createdAt timestamp on payload
+    delete facilityCopy.id;
+    const payload = buildCreatePayload(facilityCopy);
+
+    batch.set(facilityRef, payload);
+    await batch.commit();
+
+    const duplicatedFacility = await facilityRef.get();
+    return buildFacility(scenarioId, duplicatedFacility);
+  } catch (error) {
+    console.error(
+      `Encountered error while attempting to duplicate facility: ${facilityId}`,
+    );
     console.error(error);
     throwIfPermissionsError(
       error,
@@ -688,7 +744,7 @@ export const deleteFacility = async (
     //
     // * https://firebase.google.com/docs/firestore/manage-data/delete-data#web_2
     // ** https://github.com/Recidiviz/covid19-dashboard/issues/191
-    const facilityDocRef = await scenarioRef
+    const facilityDocRef = scenarioRef
       .collection(facilitiesCollectionId)
       .doc(facilityId);
 
@@ -771,17 +827,11 @@ export const duplicateScenario = async (
 
       // Duplicate and save all of the facility's modelVersions
       const modelVersions = await getFacilityModelVersions({
-        scenarioId: scenario.id,
+        scenarioId,
         facilityId: facility.id,
       });
 
-      modelVersions.forEach((modelVersion) => {
-        const modelVersionDoc = facilityDoc
-          .collection(modelVersionCollectionId)
-          .doc();
-
-        batch.set(modelVersionDoc, modelVersion);
-      });
+      batchSetFacilityModelVersions(modelVersions, facilityDoc, batch);
     }
 
     await batch.commit();

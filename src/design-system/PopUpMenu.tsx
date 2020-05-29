@@ -15,6 +15,7 @@ interface MenuProps {
 
 interface ItemProps {
   item: Item;
+  toggleMenu: (event: React.MouseEvent<Element>) => void;
 }
 
 const PopUpMenuDiv = styled.div`
@@ -46,13 +47,14 @@ const PopUpMenuContents = styled.div`
   box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
 `;
 
-const PopUpMenuItem: React.FC<ItemProps> = ({ item }) => {
+const PopUpMenuItem: React.FC<ItemProps> = ({ toggleMenu, item }) => {
   const clickItem = (event: React.MouseEvent<Element>) => {
     // If the PopUpMenuItem is embedded within an element that is
     // clickable (i.e. a Scenario Library Card) we need to prevent
     // that parent element's click action from firing so that we
     // allow the menu item's click action to execute uninterrupted.
     event.stopPropagation();
+    toggleMenu(event);
     item.onClick();
   };
   return <div onClick={clickItem}>{item.name}</div>;
@@ -79,7 +81,11 @@ const PopUpMenu: React.FC<MenuProps> = ({ items }) => {
       {isComponentVisible && (
         <PopUpMenuContents>
           {items.map((item) => (
-            <PopUpMenuItem item={item} key={`menu-${item.name}`} />
+            <PopUpMenuItem
+              toggleMenu={toggleMenu}
+              item={item}
+              key={`menu-${item.name}`}
+            />
           ))}
         </PopUpMenuContents>
       )}
