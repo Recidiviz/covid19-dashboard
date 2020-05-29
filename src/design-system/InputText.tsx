@@ -44,19 +44,6 @@ const WrappedInput = styled(CustomDebounceInput)`
   }
 `;
 
-const WrappedInput = styled(CustomDebounceInput)`
-  ${InputStyle}
-  margin: 0;
-  padding: 0;
-
-  /*
-    This is a little weird but we need a fixed number to override
-    default sizing. Element will still flex as needed.
-  */
-  width: 0;
-  color: ${Colors.green};
-`;
-
 interface Props extends InputBaseProps<string> {
   type: "text" | "number" | "email";
   headerStyle?: boolean;
