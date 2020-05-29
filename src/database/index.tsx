@@ -540,20 +540,18 @@ export const removeScenarioUser = async (
   }
 };
 
-const batchSetFacilityModelVersions = async (
+const batchSetFacilityModelVersions = (
   modelVersions: ModelInputs[],
   facilityDocRef: firebase.firestore.DocumentReference,
   batch: firebase.firestore.WriteBatch,
 ) => {
-  modelVersions.forEach((modelVersion: ModelInputs) => {
-    const modelVersionDoc = facilityDocRef
-      .collection(modelVersionCollectionId)
-      .doc();
+  const modelVersionDoc = facilityDocRef
+    .collection(modelVersionCollectionId)
+    .doc();
 
+  modelVersions.forEach((modelVersion: ModelInputs) => {
     batch.set(modelVersionDoc, modelVersion);
   });
-
-  return batch;
 };
 
 /**
@@ -704,7 +702,7 @@ export const duplicateFacility = async (
       scenarioId,
       facilityId,
     });
-    await batchSetFacilityModelVersions(modelVersions, facilityRef, batch);
+    batchSetFacilityModelVersions(modelVersions, facilityRef, batch);
 
     // Delete old facility id and set new createdAt timestamp on payload
     delete facilityCopy.id;
@@ -829,7 +827,8 @@ export const duplicateScenario = async (
         scenarioId,
         facilityId: facility.id,
       });
-      await batchSetFacilityModelVersions(modelVersions, facilityDoc, batch);
+
+      batchSetFacilityModelVersions(modelVersions, facilityDoc, batch);
     }
 
     await batch.commit();
