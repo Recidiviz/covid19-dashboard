@@ -358,10 +358,7 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
       width="45vw"
     >
       <ModalContents>
-        <ScenarioLibraryWrapper
-          scenarios={ownedScenarios}
-          ownedFlag={true}
-        ></ScenarioLibraryWrapper>
+        <ScenarioLibraryWrapper scenarios={ownedScenarios} ownedFlag={true} />
 
         {sharedScenarios?.data?.length !== 0 && (
           <div>
@@ -369,7 +366,7 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
             <ScenarioLibraryWrapper
               scenarios={sharedScenarios}
               ownedFlag={false}
-            ></ScenarioLibraryWrapper>
+            />
           </div>
         )}
       </ModalContents>
