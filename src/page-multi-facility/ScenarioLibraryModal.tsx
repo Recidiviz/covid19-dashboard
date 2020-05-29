@@ -346,8 +346,7 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
       </ScenarioLibrary>
     );
   };
-  console.log(sharedScenarios);
-  console.log(currentUserId);
+
   return (
     <Modal
       modalTitle="Library"
