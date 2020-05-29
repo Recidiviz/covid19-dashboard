@@ -221,7 +221,11 @@ export const getScenarios = async (): Promise<Scenario[]> => {
     // We're sorting in memory instead of in the query above due to a limitation
     // in the way our data is currently modeled. See this issue for more details:
     // https://github.com/Recidiviz/covid19-dashboard/issues/253
-    return orderBy(scenarios, ["baseline", "name"], ["desc", "asc"]);
+    return orderBy(
+      scenarios,
+      ["baseline", (scenario) => scenario.name.toLowerCase()],
+      ["desc", "asc"],
+    );
   } catch (error) {
     console.error(`Encountered error while attempting to retrieve scenarios:`);
     console.error(error);
