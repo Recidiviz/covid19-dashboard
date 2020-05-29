@@ -6,9 +6,10 @@ import { useAuth0 } from "../auth/react-auth0-spa";
 import Colors from "../design-system/Colors";
 import Logo from "./Logo";
 
-const Nav = styled.nav`
+const Nav = styled.nav<Props>`
   align-items: center;
-  border-bottom: 1px solid ${Colors.opacityGray};
+  border-bottom: ${(props) =>
+    props.styles?.borderBottom || `1px solid ${Colors.opacityGray}`};
   display: flex;
   flex-wrap: wrap;
   font-family: "Poppins", sans-serif;
@@ -18,13 +19,17 @@ const Nav = styled.nav`
   justify-content: space-between;
 `;
 
-const SiteHeader: React.FC = () => {
+interface Props {
+  styles?: React.CSSProperties;
+}
+
+const SiteHeader: React.FC<Props> = (props) => {
   const { isAuthenticated, loginWithRedirect, logout } = (useAuth0 as any)();
 
   const logoutWithRedirect = () => logout({ returnTo: window.location.origin });
 
   return (
-    <Nav>
+    <Nav styles={props.styles}>
       <Link to="/">
         <Logo />
       </Link>

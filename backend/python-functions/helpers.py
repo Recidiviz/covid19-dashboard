@@ -36,10 +36,12 @@ def cloudfunction(in_schema=None, out_schema=None):
             # If it's not a CORS OPTIONS request, still include the base header.
             headers = {'Access-Control-Allow-Origin': '*'}
 
+            request_id = request.headers.get("Function-Execution-Id")
+
             try:
                 if in_schema:
                     request_json = request.get_json()
-                    log.info("Request JSON: %s", request_json)
+                    log.info("Request JSON (ID %s): %s", request_id, request_json)
                     jsonschema.validate(request_json, in_schema)
                     function_output = f(request_json)
                 else:
@@ -49,11 +51,12 @@ def cloudfunction(in_schema=None, out_schema=None):
                     jsonschema.validate(function_output, out_schema)
 
                 response_json = json.dumps(function_output)
-                log.info("Response JSON: %s", response_json)
+                log.info("Response JSON (ID %s): %s", request_id, response_json)
                 return (response_json, 200, headers)
-            except:
-                response_json = json.dumps({'error': traceback.format_exc()})
-                log.error("Error response JSON: %s", response_json)
+            except Exception as e:
+                log.error("Error in cloud function (ID %s): %s", request_id, traceback.format_exc())
+                response_json = json.dumps({'error': str(e)})
+                log.info("Response JSON (ID %s): %s", request_id, response_json)
                 return (response_json, 500, headers)
 
         return wrapped

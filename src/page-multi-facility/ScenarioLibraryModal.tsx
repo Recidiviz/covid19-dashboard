@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 
 import { deleteScenario, duplicateScenario, getScenarios } from "../database";
@@ -11,6 +11,7 @@ import Loading from "../design-system/Loading";
 import Modal, { Props as ModalProps } from "../design-system/Modal";
 import ModalDialog from "../design-system/ModalDialog";
 import PopUpMenu from "../design-system/PopUpMenu";
+import useCurrentUserId from "../hooks/useCurrentUserId";
 import useRejectionToast from "../hooks/useRejectionToast";
 import useScenario from "../scenario-context/useScenario";
 import { Scenario } from "./types";
@@ -22,6 +23,14 @@ const ModalContents = styled.div`
   justify-content: flex-start;
   margin-top: 30px;
   height: 100%;
+
+  h3 {
+    border-bottom: 0.5px solid #c8d3d3;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 30px;
+    padding: 20px 0;
+  }
 `;
 
 const ScenarioLibrary = styled.div`
@@ -154,7 +163,11 @@ type Props = Pick<ModalProps, "trigger">;
 const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [currentScenario, dispatchScenarioUpdate] = useScenario();
-  const [scenarios, setScenarios] = useState({
+  const [ownedScenarios, setOwnedScenarios] = useState({
+    data: [] as Scenario[],
+    loading: true,
+  });
+  const [sharedScenarios, setSharedScenarios] = useState({
     data: [] as Scenario[],
     loading: true,
   });
@@ -164,22 +177,42 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
   >();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const rejectionToast = useRejectionToast();
+  const currentUserId = useCurrentUserId();
 
-  async function fetchScenarios() {
+  const fetchScenarios = useCallback(async () => {
     const scenariosData = await getScenarios();
     if (scenariosData) {
-      setScenarios({
-        data: scenariosData,
+      const oScenarios = [] as Scenario[];
+      const sScenarios = [] as Scenario[];
+      scenariosData.forEach((scenario) => {
+        if (currentUserId && scenario.roles[currentUserId] === "owner") {
+          oScenarios.push(scenario);
+        } else {
+          sScenarios.push(scenario);
+        }
+      });
+
+      setOwnedScenarios({
+        data: oScenarios,
+        loading: false,
+      });
+      setSharedScenarios({
+        data: sScenarios,
         loading: false,
       });
 
-      setBaselineScenario(scenariosData.find((scenario) => scenario.baseline));
+      setBaselineScenario(
+        scenariosData.find(
+          (scenario) =>
+            scenario.baseline && scenario.roles[currentUserId] === "owner",
+        ),
+      );
     }
-  }
+  }, [currentUserId]);
 
   useEffect(() => {
     fetchScenarios();
-  }, []);
+  }, [fetchScenarios]);
 
   const openDeleteModal = (scenarioId: string) => {
     setScenarioIdPendingDeletion(scenarioId);
@@ -196,7 +229,8 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
   };
 
   const copyScenario = (scenarioId: string) => {
-    setScenarios({
+    // refresh scenario data after copy
+    setOwnedScenarios({
       data: [],
       loading: true,
     });
@@ -216,10 +250,11 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
       rejectionToast(
         deleteScenario(scenarioIdPendingDeletion).then(() => {
           // refresh scenario data after delete
-          setScenarios({
+          setOwnedScenarios({
             data: [],
             loading: true,
           });
+
           fetchScenarios().then(() => {
             // If we delete the scenario that the user is currently viewing we reset the
             // currently viewed scenario to be the baseline. Unlike deleting a scenario
@@ -239,6 +274,79 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
     closeDeleteModal(event);
   };
 
+  const ScenarioLibraryWrapper = (props: any) => {
+    return (
+      <ScenarioLibrary>
+        {props.scenarios?.loading ? (
+          <Loading />
+        ) : (
+          props.scenarios?.data.map((scenario: any) => {
+            const popupItems = [
+              {
+                name: "Duplicate",
+                onClick: () => copyScenario(scenario.id),
+              },
+            ];
+
+            // Only show the Delete option for non-baseline & owned scenarios
+            if (!scenario.baseline && props.ownedFlag) {
+              popupItems.push({
+                name: "Delete",
+                onClick: () => openDeleteModal(scenario.id),
+              });
+            }
+            return (
+              <ScenarioCard
+                key={scenario.id}
+                onClick={() => changeScenario(scenario)}
+              >
+                <ScenarioHeader>
+                  <IconCheck
+                    alt="check"
+                    src={iconSrcCheck}
+                    baseline={scenario.baseline}
+                  />
+                  <ScenarioHeaderText>{scenario.name}</ScenarioHeaderText>
+                </ScenarioHeader>
+                <ScenarioDataViz>
+                  <IconRecidviz alt="Recidiviz" src={iconSrcRecidiviz} />
+                </ScenarioDataViz>
+                <ScenarioDescription>
+                  {scenario.description}
+                </ScenarioDescription>
+                <ScenarioFooter>
+                  <LastUpdatedLabel>
+                    Last Update: <DateMMMMdyyyy date={scenario.updatedAt} />
+                  </LastUpdatedLabel>
+                  <PopUpMenu items={popupItems} />
+                </ScenarioFooter>
+              </ScenarioCard>
+            );
+          })
+        )}
+        <ModalDialog
+          closeModal={closeDeleteModal}
+          open={showDeleteModal}
+          title="Are you sure?"
+          width="41vw"
+        >
+          <DeleteModalContents>
+            <ModalText>
+              This action can't be undone. When deleting the scenario currently
+              being viewed, users will be returned to their baseline scenario.
+            </ModalText>
+            <ModalButtons>
+              <DeleteButton label="Delete scenario" onClick={removeScenario}>
+                Delete scenario
+              </DeleteButton>
+              <CancelButton onClick={closeDeleteModal}>Cancel</CancelButton>
+            </ModalButtons>
+          </DeleteModalContents>
+        </ModalDialog>
+      </ScenarioLibrary>
+    );
+  };
+
   return (
     <Modal
       modalTitle="Library"
@@ -249,73 +357,17 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
       width="45vw"
     >
       <ModalContents>
-        <ScenarioLibrary>
-          {scenarios.loading ? (
-            <Loading />
-          ) : (
-            scenarios?.data.map((scenario) => {
-              const popupItems = [
-                { name: "Duplicate", onClick: () => copyScenario(scenario.id) },
-              ];
+        <ScenarioLibraryWrapper scenarios={ownedScenarios} ownedFlag={true} />
 
-              // Only show the Delete option for non-baseline scenarios
-              if (!scenario.baseline) {
-                popupItems.push({
-                  name: "Delete",
-                  onClick: () => openDeleteModal(scenario.id),
-                });
-              }
-
-              return (
-                <ScenarioCard
-                  key={scenario.id}
-                  onClick={() => changeScenario(scenario)}
-                >
-                  <ScenarioHeader>
-                    <IconCheck
-                      alt="check"
-                      src={iconSrcCheck}
-                      baseline={scenario.baseline}
-                    />
-                    <ScenarioHeaderText>{scenario.name}</ScenarioHeaderText>
-                  </ScenarioHeader>
-                  <ScenarioDataViz>
-                    <IconRecidviz alt="Recidiviz" src={iconSrcRecidiviz} />
-                  </ScenarioDataViz>
-                  <ScenarioDescription>
-                    {scenario.description}
-                  </ScenarioDescription>
-                  <ScenarioFooter>
-                    <LastUpdatedLabel>
-                      Last Update: <DateMMMMdyyyy date={scenario.updatedAt} />
-                    </LastUpdatedLabel>
-                    <PopUpMenu items={popupItems} />
-                  </ScenarioFooter>
-                </ScenarioCard>
-              );
-            })
-          )}
-          <ModalDialog
-            closeModal={closeDeleteModal}
-            open={showDeleteModal}
-            title="Are you sure?"
-            width="41vw"
-          >
-            <DeleteModalContents>
-              <ModalText>
-                This action can't be undone. When deleting the scenario
-                currently being viewed, users will be returned to their baseline
-                scenario.
-              </ModalText>
-              <ModalButtons>
-                <DeleteButton label="Delete scenario" onClick={removeScenario}>
-                  Delete scenario
-                </DeleteButton>
-                <CancelButton onClick={closeDeleteModal}>Cancel</CancelButton>
-              </ModalButtons>
-            </DeleteModalContents>
-          </ModalDialog>
-        </ScenarioLibrary>
+        {sharedScenarios?.data?.length !== 0 && (
+          <div>
+            <h3>Shared Scenarios</h3>
+            <ScenarioLibraryWrapper
+              scenarios={sharedScenarios}
+              ownedFlag={false}
+            />
+          </div>
+        )}
       </ModalContents>
     </Modal>
   );

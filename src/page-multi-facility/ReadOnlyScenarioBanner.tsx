@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 
-import { useAuth0 } from "../auth/react-auth0-spa";
 import { duplicateScenario } from "../database";
 import Colors from "../design-system/Colors";
 import iconEyeSrc from "../design-system/icons/ic_eye.svg";
 import iconRecidivizSrc from "../design-system/icons/ic_recidiviz_color.svg";
 import Loading from "../design-system/Loading";
 import ModalDialog from "../design-system/ModalDialog";
+import useReadOnlyMode from "../hooks/useReadOnlyMode";
 import { Scenario } from "./types";
 
 interface BannerProps {
@@ -54,15 +54,9 @@ interface Props {
 }
 
 const ReadOnlyScenarioBanner: React.FC<Props> = (props) => {
-  const { user } = (useAuth0 as any)();
   const { scenario, dispatchScenarioUpdate } = props;
-  const [readOnlyMode, setReadOnlyMode] = useState(false);
+  const readOnlyMode = useReadOnlyMode(scenario);
   const [modalOpen, setModalOpen] = useState(false);
-
-  useEffect(() => {
-    const userRole = (scenario.roles as any)[user.sub];
-    setReadOnlyMode(userRole != "owner");
-  }, [scenario, user.sub]);
 
   const duplicate = (scenarioId: string) => {
     setModalOpen(true);

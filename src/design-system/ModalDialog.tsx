@@ -7,7 +7,7 @@ import ModalTitle, { TitleProps } from "./ModalTitle";
 
 const BackgroundAside = styled.aside`
   align-items: center;
-  background-color: rgb(214, 215, 215, 0.8);
+  background-color: rgba(214, 215, 215, 0.8);
   display: flex;
   height: 100%;
   justify-content: center;

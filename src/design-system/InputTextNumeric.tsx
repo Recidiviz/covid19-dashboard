@@ -7,6 +7,7 @@ import InputText from "./InputText";
 interface Props extends InputBaseProps<number> {
   type: "number" | "percent";
   style?: React.CSSProperties;
+  inputRelativityError?: boolean;
 }
 
 const PctAddon = styled.div`
@@ -42,6 +43,7 @@ const InputTextNumeric: React.FC<Props> = (props) => {
       type="number"
       valueEntered={formatValue(props.valueEntered)}
       onValueChange={onValueChange}
+      inputRelativityError={props.inputRelativityError}
       labelPlaceholder={
         props.labelPlaceholder ??
         (props.type === "number" ? "Enter number" : "Enter a percentage")

@@ -36,7 +36,12 @@
     "@typescript-eslint/no-explicit-any": "off",
 
     // Allow unused variables that start with "_"
-    "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      {
+        "argsIgnorePattern": "^_"
+      }
+    ],
 
     // Ensure default exports have the same name as the file.
     "filenames/match-exported": "error",

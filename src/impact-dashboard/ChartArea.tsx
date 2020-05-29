@@ -22,11 +22,21 @@ const LegendAndActions = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
+  align-items: baseline;
   margin-bottom: 40px;
 `;
 
 const LegendContainer = styled.div`
   flex: 0 0 auto;
+`;
+
+const LegendTitle = styled.div`
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  margin: 0 1em;
+  font-weight: normal;
+  padding-bottom: 0.6em;
 `;
 
 const ChartArea: React.FC<{
@@ -48,6 +58,7 @@ const ChartArea: React.FC<{
   return (
     <Container>
       <LegendAndActions>
+        <LegendTitle>projection</LegendTitle>
         <LegendContainer>
           <CurveChartLegend
             markColors={markColors}

@@ -118,6 +118,14 @@ def compute_r_t(historical_case_counts):
     case_df = pd.Series(historical_case_counts['cases'], index=historical_case_counts['dates'])
     case_df.index = pd.to_datetime(case_df.index)
     case_df.index.name = 'date'
+    case_df.sort_index(inplace=True)
+
+    # counts must be cumulative; reject any that are obviously not
+    # (i.e. their values decrease over time)
+    if case_df.diff().min() < 0:
+        raise ValueError(
+            'Case counts must be cumulative and monotonically increasing')
+
     # we believe duplicates are mostly an artifact of little-to-no testing
     # and should be excluded from the model
     case_df = case_df.drop_duplicates(keep='first')
@@ -127,7 +135,8 @@ def compute_r_t(historical_case_counts):
     # Raise an error if there are not enough valid cases to use
     # we need at least two days to represent change over time
     if len(smoothed) < 2:
-        raise ValueError('Input has too few cases to compute R(t)')
+        raise ValueError('Not enough data to compute R(t);'
+            ' at least two days of non-repeating case counts are required')
 
     # Note that we're fixing sigma to a value just for the example
     posteriors, _ = get_posteriors(smoothed, sigma=.25)

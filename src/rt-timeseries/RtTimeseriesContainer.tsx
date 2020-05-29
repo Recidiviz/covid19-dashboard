@@ -5,11 +5,14 @@ import styled from "styled-components";
 import Colors from "../design-system/Colors";
 import HelpButtonWithTooltip from "../design-system/HelpButtonWithTooltip";
 import Loading from "../design-system/Loading";
-import { RtData } from "../infection-model/rt";
-import { updateFacilityRtData } from "../infection-model/rt";
+import {
+  isRtData,
+  isRtError,
+  updateFacilityRtData,
+} from "../infection-model/rt";
 import AddCasesModal from "../page-multi-facility/AddCasesModal";
 import { FacilityContext } from "../page-multi-facility/FacilityContext";
-import { Facility } from "../page-multi-facility/types";
+import { Facility, RtValue } from "../page-multi-facility/types";
 import RtTimeseries from "./RtTimeseries";
 
 const borderStyle = `1px solid ${Colors.paleGreen}`;
@@ -46,7 +49,7 @@ const RtChartEmptyState = styled.button`
 `;
 
 interface Props {
-  data?: RtData | null;
+  data?: RtValue;
   facility: Facility;
 }
 
@@ -56,21 +59,21 @@ const RtTimeseriesContainer: React.FC<Props> = ({ data }) => {
   );
   const [facility, updateFacility] = useState(initialFacility);
 
+  if (data === undefined) return <Loading />;
+
   const onModalSave = (newFacility: Facility) => {
     updateFacility(newFacility);
     updateFacilityRtData(newFacility, dispatchRtData);
   };
 
-  const isLoading = data === undefined;
-  const notEnoughData = data === null || (data && data.Rt.length < 2);
-
-  if (isLoading) return <Loading />;
+  const notEnoughData =
+    isRtError(data) || (isRtData(data) && data.Rt.length < 2);
 
   return (
     <>
       <ChartHeader>
         <ChartTitle>Rate of Spread</ChartTitle>
-        {data && (
+        {!notEnoughData && (
           <HelpButtonWithTooltip>
             This chart shows the rate of spread of Covid-19 over time. When the
             Rt value is above 1 (the red line), the virus is spreading. If the
@@ -89,14 +92,14 @@ const RtTimeseriesContainer: React.FC<Props> = ({ data }) => {
                   <RtChartEmptyState>
                     Live rate of spread could not be calculated for this
                     facility. Click here to add at least 3 days of confirmed
-                    case data.
+                    case data. {isRtError(data) && `(${data.error})`}
                   </RtChartEmptyState>
                 }
                 onSave={onModalSave}
               />
             </AddCasesRow>
           )
-        : data && <RtTimeseries data={data} />}
+        : isRtData(data) && <RtTimeseries data={data} />}
     </>
   );
 };
