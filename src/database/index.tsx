@@ -878,7 +878,6 @@ export const addFacilityCapacity = async ({
   const newInputs = { ...modelInputs, facilityCapacity };
   const timestamp = currrentTimestamp();
   newInputs.updatedAt = timestamp;
-  delete newInputs.facilityOccupancyPct;
 
   const db = await getDb();
   let docToUpdate = db
@@ -891,10 +890,7 @@ export const addFacilityCapacity = async ({
     docToUpdate = docToUpdate
       .collection(modelVersionCollectionId)
       .doc(modelVersionId);
-    updateData = {
-      ...newInputs,
-      facilityOccupancyPct: firebase.firestore.FieldValue.delete(),
-    };
+    updateData = newInputs;
   }
   try {
     if (write) {
