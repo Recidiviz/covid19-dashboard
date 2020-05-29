@@ -1,5 +1,7 @@
 import styled from "styled-components";
 
+import Colors from "./Colors";
+
 export const PageContainer = styled.div`
   display: flex;
   flex-direction: row;
@@ -8,9 +10,13 @@ export const PageContainer = styled.div`
     flex-direction: column;
   }
 `;
-export const Column = styled.div<{ width?: string }>`
-  margin: 20px;
+
+const borderStyle = `1px solid ${Colors.paleGreen}`;
+
+export const Column = styled.div<{ width?: string; borderTop?: boolean }>`
+  margin: 0 20px 20px;
   width: ${(props) => props.width || "50%"};
+  border-top: ${(props) => (props.borderTop ? borderStyle : "none")};
 
   @media (max-width: 700px) {
     width: inherit;

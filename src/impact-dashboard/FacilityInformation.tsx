@@ -172,6 +172,22 @@ interface AgeGroupRowProps {
 
 const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
   const { model, updateModel } = props;
+  const [inputRelativityError, setInputRelativityError] = useState(false);
+
+  function checkInputRelativity(
+    cases: number | undefined,
+    total: number | undefined,
+  ) {
+    if (cases === undefined) {
+      setInputRelativityError(false);
+    } else if (cases !== undefined && total === undefined) {
+      setInputRelativityError(true);
+    } else if (total !== undefined && cases > total) {
+      setInputRelativityError(true);
+    } else {
+      setInputRelativityError(false);
+    }
+  }
 
   return (
     <FormGridRow>
@@ -182,14 +198,21 @@ const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
         <InputTextNumeric
           type="number"
           valueEntered={model[props.leftKey] as number}
-          onValueChange={(value) => updateModel({ [props.leftKey]: value })}
+          inputRelativityError={inputRelativityError}
+          onValueChange={(value) => {
+            checkInputRelativity(value, model[props.rightKey] as number);
+            updateModel({ [props.leftKey]: value });
+          }}
         />
       </InputCell>
       <InputCell>
         <InputTextNumeric
           type="number"
           valueEntered={model[props.rightKey] as number}
-          onValueChange={(value) => updateModel({ [props.rightKey]: value })}
+          onValueChange={(value) => {
+            checkInputRelativity(model[props.leftKey] as number, value);
+            updateModel({ [props.rightKey]: value });
+          }}
         />
       </InputCell>
     </FormGridRow>
@@ -207,13 +230,13 @@ const FacilityInformation: React.FC = () => {
           <FormRow
             inputs={[
               <InputTextNumeric
-                key="occupancy"
-                type="percent"
-                labelAbove="Occupancy rate"
-                labelHelp="Enter occupancy rate as a percent of capacity."
-                valueEntered={model.facilityOccupancyPct}
+                key="capacity"
+                type="number"
+                labelAbove="Capacity"
+                labelHelp="Enter capacity of the facility."
+                valueEntered={model.facilityCapacity}
                 onValueChange={(value) =>
-                  updateModel({ facilityOccupancyPct: value })
+                  updateModel({ facilityCapacity: value })
                 }
               />,
               <InputTextNumeric

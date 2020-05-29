@@ -6,6 +6,7 @@ import EditInPlace, { Props as EditInPlaceProps } from "./EditInPlace";
 
 interface NameLabelDivProps {
   border?: boolean;
+  styles?: React.CSSProperties;
 }
 
 const borderStyle = `1px solid ${Colors.paleGreen}`;
@@ -14,7 +15,7 @@ const NameLabelDiv = styled.label<NameLabelDivProps>`
   cursor: pointer;
   display: flex;
   flex-direction: row;
-  padding-bottom: 15px;
+  padding-bottom: ${(props) => props.styles?.paddingBottom || "15px"};
   border-bottom: ${(props) => (props.border ? borderStyle : "none")};
   font-size: 24px;
   font-family: Libre Baskerville;
@@ -42,6 +43,7 @@ interface Props
   persistChanges?: (changes: { name: string | undefined }) => void;
   setName: (name?: string) => void;
   border?: boolean;
+  styles?: React.CSSProperties;
 }
 
 const InputName: React.FC<Props> = ({
@@ -49,10 +51,11 @@ const InputName: React.FC<Props> = ({
   persistChanges,
   setName,
   border,
+  styles,
   ...passThruProps
 }) => {
   return (
-    <NameLabelDiv border={border}>
+    <NameLabelDiv border={border} styles={styles}>
       <EditInPlace
         autoResizeVertically
         BaseComponent={Heading}

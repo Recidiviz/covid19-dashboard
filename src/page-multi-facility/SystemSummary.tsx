@@ -120,7 +120,7 @@ const SystemSummary: React.FC<Props> = ({ facilities, scenarioId, rtData }) => {
 
   useEffect(
     () => {
-      const rtDataValues: (RtData | null)[] = Object.values(rtData);
+      const rtDataValues = Object.values(rtData);
       const facilitiesRtRecords: RtRecord[][] = rtDataValues
         .filter(isRtData)
         .map((rtData: RtData) => rtData.Rt);

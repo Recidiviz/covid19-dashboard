@@ -6,7 +6,7 @@ import { RateOfSpreadType } from "../constants/EpidemicModel";
 import ChartTooltip from "../design-system/ChartTooltip";
 import { rtPillColors } from "../design-system/Colors";
 import PillCircle from "../design-system/PillCircle";
-import { rtSpreadType } from "../infection-model/rt";
+import { isRtError, RtError, rtSpreadType } from "../infection-model/rt";
 import {
   TooltipContents,
   TooltipLabel,
@@ -47,17 +47,17 @@ const PillTooltip = styled.div`
 `;
 
 interface Props {
-  latestRt: number | null | undefined;
+  latestRt: number | RtError | undefined;
 }
 
-const isValidRt = (rtValue: number | null | undefined) =>
-  rtValue !== null && rtValue !== undefined;
+const isValidRt = (rtValue: number | RtError | undefined): rtValue is number =>
+  typeof rtValue === "number";
 
-const rtDisplayValue = (latestRt: number | null | undefined) => {
+const rtDisplayValue = (latestRt: number | RtError | undefined) => {
   return isValidRt(latestRt) ? numeral(latestRt).format("0.0") : "?";
 };
 
-const hasDataTitle = (latestRt: number | null | undefined) =>
+const hasDataTitle = (latestRt: number | RtError | undefined) =>
   `Rate of spread (Rt): ${rtDisplayValue(latestRt)}`;
 const needsDataTitle = "Insufficient data to calculate rate of spread.";
 const hasDataBody =
@@ -66,7 +66,7 @@ const zeroRtDataTitle = "Covid-19 not active at this facility";
 const needsDataBody =
   "Click the number of cases to add case numbers for the last several days or weeks.";
 
-const tooltipTitle = (latestRt: number | null | undefined): string => {
+const tooltipTitle = (latestRt: number | RtError | undefined): string => {
   if (!isValidRt(latestRt)) {
     return needsDataTitle;
   } else if (latestRt === 0) {
@@ -76,9 +76,11 @@ const tooltipTitle = (latestRt: number | null | undefined): string => {
   }
 };
 
-const tooltipBody = (latestRt: number | null | undefined): string => {
+const tooltipBody = (latestRt: number | RtError | undefined): string => {
   if (!isValidRt(latestRt)) {
-    return needsDataBody;
+    return `${needsDataBody}${
+      isRtError(latestRt) ? ` (${latestRt.error})` : ""
+    }`;
   } else if (latestRt === 0) {
     return "";
   } else {
@@ -86,7 +88,7 @@ const tooltipBody = (latestRt: number | null | undefined): string => {
   }
 };
 
-const FacilityRowRtValuePill: React.FC<Props> = ({ latestRt: latestRt }) => {
+const FacilityRowRtValuePill: React.FC<Props> = ({ latestRt }) => {
   return (
     <>
       <RtValuePill spreadType={rtSpreadType(latestRt)}>

@@ -131,7 +131,7 @@ const CurveChart: React.FC<CurveChartProps> = ({
     responsiveWidth: true,
     size: [450, 450],
     yExtent: { extent: yAxisExtent, includeAnnotations: false },
-    margin: hideAxes ? null : { left: 60, bottom: 60, right: 10, top: 0 },
+    margin: hideAxes ? null : { left: 60, bottom: 60, right: 10, top: 10 },
     lineStyle: ({ key }) => ({
       stroke: markColors[key],
       strokeWidth: 1,
