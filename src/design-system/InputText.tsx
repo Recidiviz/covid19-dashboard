@@ -22,6 +22,10 @@ const InputWrapper = styled.div`
   align-items: center;
   display: flex;
   flex-direction: row;
+
+  &.relativeAmountError--active {
+    background-color: ${Colors.darkRed10};
+  }
 `;
 
 const WrappedInput = styled(CustomDebounceInput)`
@@ -35,6 +39,9 @@ const WrappedInput = styled(CustomDebounceInput)`
   */
   width: 0;
   color: ${Colors.green};
+  &.relativeAmountError--active {
+    background-color: transparent;
+  }
 `;
 
 interface Props extends InputBaseProps<string> {
@@ -46,6 +53,7 @@ interface Props extends InputBaseProps<string> {
   maxLength?: number;
   required?: boolean;
   style?: object;
+  inputRelativityError?: boolean;
 }
 
 const InputText: React.FC<Props> = (props) => {
@@ -60,7 +68,12 @@ const InputText: React.FC<Props> = (props) => {
   return (
     <TextInputContainer>
       <InputLabelAndHelp label={props.labelAbove} labelHelp={props.labelHelp} />
-      <InputWrapper style={props.style}>
+      <InputWrapper
+        style={props.style}
+        className={
+          props.inputRelativityError ? "relativeAmountError--active" : ""
+        }
+      >
         <WrappedInput
           type={props.type}
           inputRef={nameInput}
@@ -72,6 +85,9 @@ const InputText: React.FC<Props> = (props) => {
           onBlur={props.onBlur}
           onKeyDown={props.onKeyDown}
           debounceTimeout={InputTextTimeoutMs}
+          className={
+            props.inputRelativityError ? "relativeAmountError--active" : ""
+          }
         />
         {props.children}
       </InputWrapper>
