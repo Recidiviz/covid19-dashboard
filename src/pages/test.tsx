@@ -4,10 +4,10 @@ import React from "react";
 import AuthWall from "../auth/AuthWall";
 import {
   addFacilityCapacity,
+  doFirestoreCleanup,
   getMigrationFacilities,
   getMigrationModelVersions,
   getMigrationScenarios,
-  removeOccupancyPct,
 } from "../database";
 import { totalIncarceratedPopulation } from "../impact-dashboard/EpidemicModelContext";
 import PageInfo from "../site-metadata/PageInfo";
@@ -57,7 +57,7 @@ const setFacilityCapacity = async ({
   }
 };
 
-const removeDeprecatedFields = async ({
+const cleanupMigratedFields = async ({
   facilityDoc,
   scenarioId,
   modelVersionDoc,
@@ -70,7 +70,7 @@ const removeDeprecatedFields = async ({
     modelVersionId = modelVersionDoc.id;
   }
 
-  removeOccupancyPct({
+  doFirestoreCleanup({
     facilityId: facilityDoc.id,
     modelInputs,
     scenarioId,
@@ -105,13 +105,13 @@ export default () => {
       const scenarioId = scenarioDoc.id;
       const facilities = await getMigrationFacilities(scenarioId);
       facilities.forEach(async (facilityDoc) => {
-        removeDeprecatedFields({ facilityDoc, scenarioId: scenarioId });
+        cleanupMigratedFields({ facilityDoc, scenarioId: scenarioId });
         const modelVersions = await getMigrationModelVersions(
           scenarioId,
           facilityDoc.id,
         );
         modelVersions.forEach(async (modelVersionDoc) => {
-          removeDeprecatedFields({ facilityDoc, scenarioId, modelVersionDoc });
+          cleanupMigratedFields({ facilityDoc, scenarioId, modelVersionDoc });
         });
       });
     });

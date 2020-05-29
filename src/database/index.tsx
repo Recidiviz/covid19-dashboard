@@ -909,7 +909,7 @@ export const addFacilityCapacity = async ({
   }
 };
 
-export const removeOccupancyPct = async ({
+export const doFirestoreCleanup = async ({
   scenarioId,
   facilityId,
   modelVersionId,
@@ -920,6 +920,10 @@ export const removeOccupancyPct = async ({
   const timestamp = currrentTimestamp();
   newInputs.updatedAt = timestamp;
   delete newInputs.facilityOccupancyPct;
+  // round off any non-integer values that resulted from the pct calc
+  if (newInputs.facilityCapacity) {
+    newInputs.facilityCapacity = Math.round(newInputs.facilityCapacity);
+  }
 
   const db = await getDb();
   let docToUpdate = db
