@@ -61,7 +61,6 @@ export interface EpidemicModelInputs extends ModelInputsUpdate {
   rateOfSpreadFactor: RateOfSpread;
   usePopulationSubsets: boolean;
   facilityDormitoryPct: number;
-  facilityCapacity?: number;
   populationTurnover: number;
 }
 
