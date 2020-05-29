@@ -70,14 +70,7 @@
     // Because we want imports sorted!
     // The built-in "sort-imports" doesn't seem to be sufficient, and the
     // "eslint-plugin-import" doesn't seem to work.
-    "simple-import-sort/sort": "warn",
-
-    // Disable warning:
-    // "React Hook useEffect has a missing dependency: ... Either
-    // include it or remove the dependency array"
-    // However, this kind of warning seems to be useful when working with hooks (performance optimizations)
-    // https://reactjs.org/docs/hooks-faq.html#is-it-safe-to-omit-functions-from-the-list-of-dependencies
-    "react-hooks/exhaustive-deps": 0
+    "simple-import-sort/sort": "warn"
   },
 
   "settings": {
