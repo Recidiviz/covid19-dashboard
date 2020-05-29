@@ -545,11 +545,10 @@ const batchSetFacilityModelVersions = (
   facilityDocRef: firebase.firestore.DocumentReference,
   batch: firebase.firestore.WriteBatch,
 ) => {
-  const modelVersionDoc = facilityDocRef
-    .collection(modelVersionCollectionId)
-    .doc();
-
   modelVersions.forEach((modelVersion: ModelInputs) => {
+    const modelVersionDoc = facilityDocRef
+      .collection(modelVersionCollectionId)
+      .doc();
     batch.set(modelVersionDoc, modelVersion);
   });
 };
