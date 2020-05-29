@@ -908,3 +908,47 @@ export const addFacilityCapacity = async ({
     console.error("error adding facility capacity", e);
   }
 };
+
+export const removeOccupancyPct = async ({
+  scenarioId,
+  facilityId,
+  modelVersionId,
+  modelInputs,
+  write,
+}) => {
+  const newInputs = { ...modelInputs };
+  const timestamp = currrentTimestamp();
+  newInputs.updatedAt = timestamp;
+  delete newInputs.facilityOccupancyPct;
+
+  const db = await getDb();
+  let docToUpdate = db
+    .collection(scenarioMigrationCollectionId)
+    .doc(scenarioId)
+    .collection(facilitiesCollectionId)
+    .doc(facilityId);
+  let updateData = { modelInputs: newInputs, updatedAt: timestamp };
+  if (modelVersionId) {
+    docToUpdate = docToUpdate
+      .collection(modelVersionCollectionId)
+      .doc(modelVersionId);
+    updateData = newInputs;
+    updateData.facilityOccupancyPct = firebase.firestore.FieldValue.delete();
+  }
+
+  try {
+    if (write) {
+      await docToUpdate.update(updateData);
+    } else {
+      // dry run
+      console.log(
+        `scenario ${scenarioId} facility ${facilityId} ${
+          modelVersionId ? `modelVersion ${modelVersionId}` : ""
+        }`,
+        updateData,
+      );
+    }
+  } catch (e) {
+    console.error("error removing facility occupancy pct", e);
+  }
+};

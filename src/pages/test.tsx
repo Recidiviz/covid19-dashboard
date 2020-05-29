@@ -7,6 +7,7 @@ import {
   getMigrationFacilities,
   getMigrationModelVersions,
   getMigrationScenarios,
+  removeOccupancyPct,
 } from "../database";
 import { totalIncarceratedPopulation } from "../impact-dashboard/EpidemicModelContext";
 import PageInfo from "../site-metadata/PageInfo";
@@ -56,6 +57,28 @@ const setFacilityCapacity = async ({
   }
 };
 
+const removeDeprecatedFields = async ({
+  facilityDoc,
+  scenarioId,
+  modelVersionDoc,
+}) => {
+  let { modelInputs } = facilityDoc.data();
+  let modelVersionId;
+
+  if (modelVersionDoc) {
+    modelInputs = modelVersionDoc.data();
+    modelVersionId = modelVersionDoc.id;
+  }
+
+  removeOccupancyPct({
+    facilityId: facilityDoc.id,
+    modelInputs,
+    scenarioId,
+    write,
+    modelVersionId,
+  });
+};
+
 // eslint-disable-next-line react/display-name
 export default () => {
   const migrate = async () => {
@@ -76,12 +99,35 @@ export default () => {
     });
   };
 
+  const cleanupPostRelease = async () => {
+    const scenarios = await getMigrationScenarios();
+    scenarios.forEach(async (scenarioDoc) => {
+      const scenarioId = scenarioDoc.id;
+      const facilities = await getMigrationFacilities(scenarioId);
+      facilities.forEach(async (facilityDoc) => {
+        removeDeprecatedFields({ facilityDoc, scenarioId: scenarioId });
+        const modelVersions = await getMigrationModelVersions(
+          scenarioId,
+          facilityDoc.id,
+        );
+        modelVersions.forEach(async (modelVersionDoc) => {
+          removeDeprecatedFields({ facilityDoc, scenarioId, modelVersionDoc });
+        });
+      });
+    });
+  };
+
   return (
     <>
       <PageInfo title="test page for migration script" />
       <AuthWall>
         <div style={{ margin: 45 }}>
           <button onClick={migrate}>migrate facility capacity</button>
+        </div>
+        <div style={{ margin: 45 }}>
+          <button onClick={cleanupPostRelease}>
+            remove deprecated fields (after release)
+          </button>
         </div>
       </AuthWall>
     </>
