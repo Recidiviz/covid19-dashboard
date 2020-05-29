@@ -3,7 +3,12 @@ import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 
 import Loading from "../design-system/Loading";
-import { getDaysAgoRt, getFacilitiesRtDataById } from "../infection-model/rt";
+import {
+  getDaysAgoRt,
+  getFacilitiesRtDataById,
+  isRtData,
+  isRtError,
+} from "../infection-model/rt";
 import { FacilityContext } from "../page-multi-facility/FacilityContext";
 import { Facilities, RtDataMapping } from "../page-multi-facility/types";
 import RtComparisonChart, {
@@ -46,11 +51,13 @@ const RtComparisonChartContainer: React.FC<{
         );
         if (!facility) return;
         const values = {} as any;
-        if (rtData) {
+        if (isRtData(rtData)) {
           Object.entries(rtData).forEach(([metric, records]) => {
             const rtRecord = getDaysAgoRt(records, rtDaysOffset);
             values[metric] = rtRecord?.value;
           });
+        } else if (isRtError(rtData)) {
+          values.error = rtData.error;
         }
         return {
           name: facility.name,
