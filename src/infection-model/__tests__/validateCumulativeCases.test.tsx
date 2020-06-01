@@ -1,48 +1,56 @@
+import { ModelInputsPopulationBrackets } from "../../impact-dashboard/EpidemicModelContext";
 import { validateCumulativeCases } from "../validators";
 
 describe("useCumulativeCaseValidation hook", () => {
   it("should validate that new cases are not less than previous", () => {
-    const compareTo = { previous: { ageUnknownCases: 50 } };
+    const compareTo = { previous: { ageUnknownCases: 50, age45Cases: 20 } };
 
-    // cases only add up to 45
-    const invalidInput = {
-      ageUnknownCases: 25,
-      age45Cases: 20,
+    // the total is higher but a bracket is missing
+    const invalidInput: ModelInputsPopulationBrackets = {
+      age45Cases: 100,
     };
     expect(validateCumulativeCases(invalidInput, compareTo)).toBe(false);
 
-    // 55 cases
-    const validInput = {
-      ...invalidInput,
-      age65Cases: 10,
+    // the total is higher but a bracket has decreased
+    invalidInput.ageUnknownCases = 25;
+    expect(validateCumulativeCases(invalidInput, compareTo)).toBe(false);
+
+    // can be equal to previous, or higher
+    let validInput = {
+      age45Cases: 25,
+      ageUnknownCases: 50,
     };
     expect(validateCumulativeCases(validInput, compareTo)).toBe(true);
 
-    // can be equal to previous
-    validInput.age65Cases = 5;
+    validInput = { ageUnknownCases: 55, age45Cases: 20 };
     expect(validateCumulativeCases(validInput, compareTo)).toBe(true);
   });
 
   it("should validate that new cases are not more than next", () => {
-    const compareTo = { next: { ageUnknownCases: 50 } };
+    const compareTo = { next: { ageUnknownCases: 50, age45Cases: 20 } };
 
-    // cases only add up to 45
-    const validInput = {
-      age20Cases: 25,
-      age55Cases: 20,
-    };
-    expect(validateCumulativeCases(validInput, compareTo)).toBe(true);
-
-    // can be equal to next
-    validInput.age55Cases = 25;
-    expect(validateCumulativeCases(validInput, compareTo)).toBe(true);
-
-    // 55 cases
-    const invalidInput = {
-      ...validInput,
-      age75Cases: 10,
+    // the total is lower but a bracket is missing
+    const invalidInput: ModelInputsPopulationBrackets = {
+      age45Cases: 10,
     };
     expect(validateCumulativeCases(invalidInput, compareTo)).toBe(false);
+
+    // the total is lower but a bracket has increased
+    invalidInput.ageUnknownCases = 55;
+    expect(validateCumulativeCases(invalidInput, compareTo)).toBe(false);
+
+    // can be equal to next, or lower
+    let validInput = {
+      age45Cases: 10,
+      ageUnknownCases: 50,
+    };
+    expect(validateCumulativeCases(validInput, compareTo)).toBe(true);
+
+    validInput = {
+      age45Cases: 20,
+      ageUnknownCases: 30,
+    };
+    expect(validateCumulativeCases(validInput, compareTo)).toBe(true);
   });
 
   it("should validate that new cases are between previous and next", () => {
@@ -50,13 +58,16 @@ describe("useCumulativeCaseValidation hook", () => {
       previous: { ageUnknownCases: 40 },
       next: { ageUnknownCases: 50 },
     };
-    const invalidInput = {
+    let invalidInput: ModelInputsPopulationBrackets = {
       ageUnknownCases: 30,
-      ageUnknownPopulation: 500,
     };
     expect(validateCumulativeCases(invalidInput, compareTo)).toBe(false);
 
     invalidInput.ageUnknownCases = 60;
+    expect(validateCumulativeCases(invalidInput, compareTo)).toBe(false);
+
+    // validation is per bracket so a missing one should also be invalid
+    invalidInput = { age20Cases: 45 };
     expect(validateCumulativeCases(invalidInput, compareTo)).toBe(false);
 
     const validInput = { ageUnknownCases: 45 };
