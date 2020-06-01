@@ -4,8 +4,13 @@ import * as firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
 
-import { format, startOfDay, startOfToday } from "date-fns";
-import { pick, orderBy, uniqBy, findKey } from "lodash";
+import {
+  format,
+  startOfDay,
+  startOfToday,
+  differenceInCalendarDays,
+} from "date-fns";
+import { pick, orderBy, uniqBy, findKey, maxBy, minBy } from "lodash";
 import { Optional } from "utility-types";
 
 import { MMMMdyyyy } from "../constants";
@@ -25,6 +30,7 @@ import {
 } from "./type-transforms";
 import AppAuth0ClientPromise from "../auth/AppAuth0ClientPromise";
 import { ascending } from "d3-array";
+import { validateCumulativeCases } from "../infection-model/validators";
 
 // As long as there is just one Auth0 config, this endpoint will work with any environment (local, prod, etc.).
 const tokenExchangeEndpoint =
@@ -624,8 +630,46 @@ export const saveFacility = async (
       // Handle facility updates in a context where we are also updating
       // modelInputs (i.e. Facility Details Page, Add Cases Shortcut)
       if (facility.modelInputs) {
-        // Only update the facility if the incoming observedAt date is > than the current observedAt date in the existing facility
         const incomingObservedAt = facility.modelInputs.observedAt;
+
+        // validate against existing versions to ensure case counts are increasing monotonically
+        const modelInputVersions = (
+          await facilityDoc.collection(modelVersionCollectionId).get()
+        ).docs.map((doc) => buildModelInputs(doc.data()));
+
+        if (modelInputVersions.length) {
+          const previous = maxBy(
+            modelInputVersions.filter(
+              (version) =>
+                differenceInCalendarDays(
+                  incomingObservedAt,
+                  version.observedAt,
+                ) >= 1,
+            ),
+            (version) => version.observedAt,
+          );
+
+          const next = minBy(
+            modelInputVersions.filter(
+              (version) =>
+                differenceInCalendarDays(
+                  version.observedAt,
+                  incomingObservedAt,
+                ) >= 1,
+            ),
+            (version) => version.observedAt,
+          );
+
+          if (
+            !validateCumulativeCases(facility.modelInputs, { previous, next })
+          ) {
+            throw new Error(
+              "Failed to save. Case and death counts are cumulative, and can only increase over time.",
+            );
+          }
+        }
+
+        // Only update the facility if the incoming observedAt date is > than the current observedAt date in the existing facility
         const currentFacilityData = await facilityDoc.get();
         const currentFacility = buildFacility(scenarioId, currentFacilityData);
         if (
