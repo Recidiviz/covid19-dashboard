@@ -7,8 +7,8 @@ on:
   pull_request:
 
 jobs:
-  lint-all-check:
-    name: yarn lint-all-check
+  test:
+    name: test
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v1
