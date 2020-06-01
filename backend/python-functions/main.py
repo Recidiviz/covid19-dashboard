@@ -1,5 +1,4 @@
 from collections import defaultdict
-from flask import json
 
 from helpers import cloudfunction
 from schemas import rt_input, rt_output
