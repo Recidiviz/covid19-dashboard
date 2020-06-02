@@ -79,4 +79,18 @@ describe("useCumulativeCaseValidation hook", () => {
     validInput.ageUnknownCases = 50;
     expect(validateCumulativeCases(validInput, compareTo)).toBe(true);
   });
+
+  it("should not be affected by the presence of irrelevant keys", () => {
+    const compareTo = {
+      previous: { ageUnknownCases: 40, ageUnknownPopulation: 1000 },
+      next: { ageUnknownCases: 50, ageUnknownPopulation: 950 },
+    };
+    const validInput: ModelInputsPopulationBrackets = {
+      ageUnknownCases: 45,
+      // this property violates monotonic increasing (as do previous and next) and we should not care
+      ageUnknownPopulation: 975,
+    };
+
+    expect(validateCumulativeCases(validInput, compareTo)).toBe(true);
+  });
 });
