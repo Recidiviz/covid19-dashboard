@@ -26,6 +26,7 @@ const ToastDiv = styled.div<{ appearance: AppearanceTypes }>(
   justify-content: space-between;
   padding: 13px 15px 13px 15px;
   align-items: center;
+  max-width: 400px;
 `;
   },
 );

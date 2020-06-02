@@ -50,6 +50,28 @@ interface ModelInputsPersistent extends ModelInputsPopulationBrackets {
   updatedAt?: Date;
 }
 
+export const caseBracketKeys: Array<keyof ModelInputsPopulationBrackets> = [
+  "age0Cases",
+  "age20Cases",
+  "age45Cases",
+  "age55Cases",
+  "age65Cases",
+  "age75Cases",
+  "age85Cases",
+  "ageUnknownCases",
+  "staffCases",
+];
+
+interface ModelInputsPersistent extends ModelInputsPopulationBrackets {
+  facilityDormitoryPct?: number;
+  facilityCapacity?: number;
+  plannedReleases?: PlannedReleases;
+  populationTurnover?: number;
+  rateOfSpreadFactor?: RateOfSpread;
+  observedAt?: Date;
+  updatedAt?: Date;
+}
+
 interface ModelInputsUpdate extends ModelInputsPersistent {
   // these don't persist because they are auto-populated from external data
   confirmedCases?: number;
