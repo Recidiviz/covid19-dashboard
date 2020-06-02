@@ -7,8 +7,9 @@ import "firebase/firestore";
 import {
   format,
   startOfDay,
-  startOfToday,
   differenceInCalendarDays,
+  isSameDay,
+  isEqual,
 } from "date-fns";
 import { pick, orderBy, uniqBy, findKey, maxBy, minBy } from "lodash";
 import { Optional } from "utility-types";
@@ -349,13 +350,34 @@ export const getFacilityModelVersions = async ({
     let modelVersions = historyResults.docs.map((doc) =>
       buildModelInputs(doc.data()),
     );
-    return distinctByObservedAt
-      ? uniqBy(
+    if (distinctByObservedAt) {
+      // if observedAt has not been normalized,
+      // we have to re-sort in memory to properly group by observedAt
+      let normalized = !modelVersions.some((version, index) => {
+        if (!index) return;
+
+        const { observedAt } = version;
+        const { observedAt: prevObservedAt } = modelVersions[index - 1];
+        return (
+          isSameDay(observedAt, prevObservedAt) &&
+          !isEqual(observedAt, prevObservedAt)
+        );
+      });
+      if (!normalized) {
+        modelVersions = orderBy(
           modelVersions,
-          // make sure time doesn't enter into the uniqueness
-          (record) => record.observedAt.toDateString(),
-        )
-      : modelVersions;
+          [(version) => version.observedAt.toDateString(), "updatedAt"],
+          ["asc", "desc"],
+        );
+      }
+      return uniqBy(
+        modelVersions,
+        // make sure time doesn't enter into the uniqueness
+        (record) => record.observedAt.toDateString(),
+      );
+    } else {
+      return modelVersions;
+    }
   } catch (error) {
     console.error(
       "Encountered error while attempting to retrieve facility model versions:",
@@ -612,21 +634,20 @@ export const saveFacility = async (
     if (!scenarioRef) return;
 
     if (facility.modelInputs) {
-      // Ensures we don't store any attributres that our model does not know
+      // Ensures we don't store any attributes that our model does not know
       // about. This also makes a copy of modelInputs, since we shouldn't mutate
       // the original.
       facility.modelInputs = pick(facility.modelInputs, persistedKeys);
 
       facility.modelInputs.updatedAt = currrentTimestamp();
 
-      // Use observedAt if available. If it is not provided default to today. For dates
-      // observed in the past we'll have to assume the time portion of the
-      // timestamp is startOfDay** since we won't otherwise have any time
-      // information.
-      //
-      // ** https://date-fns.org/v1.29.0/docs/startOfDay
+      // Use observedAt if available. If it is not provided default to today.
       facility.modelInputs.observedAt =
-        facility.modelInputs.observedAt || startOfToday();
+        facility.modelInputs.observedAt || new Date();
+      // Normalize to the start of day in either case.
+      facility.modelInputs.observedAt = startOfDay(
+        facility.modelInputs.observedAt,
+      );
     }
 
     const db = await getDb();
