@@ -4,8 +4,14 @@ import * as firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
 
-import { format, startOfDay, startOfToday } from "date-fns";
-import { pick, orderBy, uniqBy, findKey } from "lodash";
+import {
+  format,
+  startOfDay,
+  differenceInCalendarDays,
+  isSameDay,
+  isEqual,
+} from "date-fns";
+import { pick, orderBy, uniqBy, findKey, maxBy, minBy } from "lodash";
 import { Optional } from "utility-types";
 
 import { MMMMdyyyy } from "../constants";
@@ -25,6 +31,7 @@ import {
 } from "./type-transforms";
 import AppAuth0ClientPromise from "../auth/AppAuth0ClientPromise";
 import { ascending } from "d3-array";
+import { validateCumulativeCases } from "../infection-model/validators";
 
 // As long as there is just one Auth0 config, this endpoint will work with any environment (local, prod, etc.).
 const tokenExchangeEndpoint =
@@ -343,13 +350,34 @@ export const getFacilityModelVersions = async ({
     let modelVersions = historyResults.docs.map((doc) =>
       buildModelInputs(doc.data()),
     );
-    return distinctByObservedAt
-      ? uniqBy(
+    if (distinctByObservedAt) {
+      // if observedAt has not been normalized,
+      // we have to re-sort in memory to properly group by observedAt
+      let normalized = !modelVersions.some((version, index) => {
+        if (!index) return;
+
+        const { observedAt } = version;
+        const { observedAt: prevObservedAt } = modelVersions[index - 1];
+        return (
+          isSameDay(observedAt, prevObservedAt) &&
+          !isEqual(observedAt, prevObservedAt)
+        );
+      });
+      if (!normalized) {
+        modelVersions = orderBy(
           modelVersions,
-          // make sure time doesn't enter into the uniqueness
-          (record) => record.observedAt.toDateString(),
-        )
-      : modelVersions;
+          [(version) => version.observedAt.toDateString(), "updatedAt"],
+          ["asc", "desc"],
+        );
+      }
+      return uniqBy(
+        modelVersions,
+        // make sure time doesn't enter into the uniqueness
+        (record) => record.observedAt.toDateString(),
+      );
+    } else {
+      return modelVersions;
+    }
   } catch (error) {
     console.error(
       "Encountered error while attempting to retrieve facility model versions:",
@@ -544,6 +572,19 @@ export const removeScenarioUser = async (
   }
 };
 
+const batchSetFacilityModelVersions = (
+  modelVersions: ModelInputs[],
+  facilityDocRef: firebase.firestore.DocumentReference,
+  batch: firebase.firestore.WriteBatch,
+) => {
+  modelVersions.forEach((modelVersion: ModelInputs) => {
+    const modelVersionDoc = facilityDocRef
+      .collection(modelVersionCollectionId)
+      .doc();
+    batch.set(modelVersionDoc, modelVersion);
+  });
+};
+
 /**
  * Please note the following usage patterns and provide data to this method
  * accordingly when updating a facility:
@@ -586,28 +627,27 @@ export const removeScenarioUser = async (
 export const saveFacility = async (
   scenarioId: string,
   facility: any,
-): Promise<void> => {
+): Promise<Facility | void> => {
   try {
     const scenarioRef = await getScenarioRef(scenarioId);
 
     if (!scenarioRef) return;
 
     if (facility.modelInputs) {
-      // Ensures we don't store any attributres that our model does not know
+      // Ensures we don't store any attributes that our model does not know
       // about. This also makes a copy of modelInputs, since we shouldn't mutate
       // the original.
       facility.modelInputs = pick(facility.modelInputs, persistedKeys);
 
       facility.modelInputs.updatedAt = currrentTimestamp();
 
-      // Use observedAt if available. If it is not provided default to today. For dates
-      // observed in the past we'll have to assume the time portion of the
-      // timestamp is startOfDay** since we won't otherwise have any time
-      // information.
-      //
-      // ** https://date-fns.org/v1.29.0/docs/startOfDay
+      // Use observedAt if available. If it is not provided default to today.
       facility.modelInputs.observedAt =
-        facility.modelInputs.observedAt || startOfToday();
+        facility.modelInputs.observedAt || new Date();
+      // Normalize to the start of day in either case.
+      facility.modelInputs.observedAt = startOfDay(
+        facility.modelInputs.observedAt,
+      );
     }
 
     const db = await getDb();
@@ -628,8 +668,46 @@ export const saveFacility = async (
       // Handle facility updates in a context where we are also updating
       // modelInputs (i.e. Facility Details Page, Add Cases Shortcut)
       if (facility.modelInputs) {
-        // Only update the facility if the incoming observedAt date is > than the current observedAt date in the existing facility
         const incomingObservedAt = facility.modelInputs.observedAt;
+
+        // validate against existing versions to ensure case counts are increasing monotonically
+        const modelInputVersions = (
+          await facilityDoc.collection(modelVersionCollectionId).get()
+        ).docs.map((doc) => buildModelInputs(doc.data()));
+
+        if (modelInputVersions.length) {
+          const previous = maxBy(
+            modelInputVersions.filter(
+              (version) =>
+                differenceInCalendarDays(
+                  incomingObservedAt,
+                  version.observedAt,
+                ) >= 1,
+            ),
+            (version) => version.observedAt,
+          );
+
+          const next = minBy(
+            modelInputVersions.filter(
+              (version) =>
+                differenceInCalendarDays(
+                  version.observedAt,
+                  incomingObservedAt,
+                ) >= 1,
+            ),
+            (version) => version.observedAt,
+          );
+
+          if (
+            !validateCumulativeCases(facility.modelInputs, { previous, next })
+          ) {
+            throw new Error(
+              "Failed to save. Case and death counts are cumulative, and can only increase over time.",
+            );
+          }
+        }
+
+        // Only update the facility if the incoming observedAt date is > than the current observedAt date in the existing facility
         const currentFacilityData = await facilityDoc.get();
         const currentFacility = buildFacility(scenarioId, currentFacilityData);
         if (
@@ -660,10 +738,53 @@ export const saveFacility = async (
 
       batch.set(newModelVersionDoc, facility.modelInputs);
     }
-
     await batch.commit();
+    const savedFacilityDoc = await facilityDoc.get();
+    return buildFacility(scenarioId, savedFacilityDoc);
   } catch (error) {
     console.error("Encountered error while attempting to save a facility:");
+    console.error(error);
+    throwIfPermissionsError(
+      error,
+      "You don't have permission to edit this facility.",
+    );
+  }
+};
+
+export const duplicateFacility = async (
+  scenarioId: string,
+  facility: Facility,
+): Promise<Facility | void> => {
+  const facilityId = facility.id;
+  const facilityCopy = Object.assign({}, facility, {
+    name: `Copy of ${facility.name}`,
+  });
+  const db = await getDb();
+  const batch = db.batch();
+  const scenarioRef = await getScenarioRef(scenarioId);
+  if (!scenarioRef) return;
+  const facilityRef = scenarioRef.collection(facilitiesCollectionId).doc();
+
+  try {
+    const modelVersions = await getFacilityModelVersions({
+      scenarioId,
+      facilityId,
+    });
+    batchSetFacilityModelVersions(modelVersions, facilityRef, batch);
+
+    // Delete old facility id and set new createdAt timestamp on payload
+    delete facilityCopy.id;
+    const payload = buildCreatePayload(facilityCopy);
+
+    batch.set(facilityRef, payload);
+    await batch.commit();
+
+    const duplicatedFacility = await facilityRef.get();
+    return buildFacility(scenarioId, duplicatedFacility);
+  } catch (error) {
+    console.error(
+      `Encountered error while attempting to duplicate facility: ${facilityId}`,
+    );
     console.error(error);
     throwIfPermissionsError(
       error,
@@ -688,7 +809,7 @@ export const deleteFacility = async (
     //
     // * https://firebase.google.com/docs/firestore/manage-data/delete-data#web_2
     // ** https://github.com/Recidiviz/covid19-dashboard/issues/191
-    const facilityDocRef = await scenarioRef
+    const facilityDocRef = scenarioRef
       .collection(facilitiesCollectionId)
       .doc(facilityId);
 
@@ -771,17 +892,11 @@ export const duplicateScenario = async (
 
       // Duplicate and save all of the facility's modelVersions
       const modelVersions = await getFacilityModelVersions({
-        scenarioId: scenario.id,
+        scenarioId,
         facilityId: facility.id,
       });
 
-      modelVersions.forEach((modelVersion) => {
-        const modelVersionDoc = facilityDoc
-          .collection(modelVersionCollectionId)
-          .doc();
-
-        batch.set(modelVersionDoc, modelVersion);
-      });
+      batchSetFacilityModelVersions(modelVersions, facilityDoc, batch);
     }
 
     await batch.commit();

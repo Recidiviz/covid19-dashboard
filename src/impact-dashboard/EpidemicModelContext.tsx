@@ -40,6 +40,19 @@ export interface ModelInputsPopulationBrackets {
   staffCases?: number;
   staffPopulation?: number;
 }
+
+export const caseBracketKeys: Array<keyof ModelInputsPopulationBrackets> = [
+  "age0Cases",
+  "age20Cases",
+  "age45Cases",
+  "age55Cases",
+  "age65Cases",
+  "age75Cases",
+  "age85Cases",
+  "ageUnknownCases",
+  "staffCases",
+];
+
 interface ModelInputsPersistent extends ModelInputsPopulationBrackets {
   facilityDormitoryPct?: number;
   facilityCapacity?: number;
