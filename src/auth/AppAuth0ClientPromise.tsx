@@ -31,7 +31,7 @@ const finalAuthConfig = {
  */
 const AppAuth0ClientPromise: Promise<Auth0Client> =
   // Note: The window variable is not defined static rendering.
-  typeof window === "undefined"
+  typeof window.crypto === "undefined"
     ? new Promise(() => undefined)
     : createAuth0Client(finalAuthConfig);
 
