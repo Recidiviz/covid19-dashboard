@@ -57,6 +57,8 @@ export const seirIndexList = Object.keys(seirIndex)
   // these should all be numbers anyway but this extra cast makes typescript happy
   .map((k) => parseInt(seirIndex[k as any]));
 
+// though obscure, this has the effect of filtering out the reverse-mapping keys
+// for the seirIndex enum, leaving us with a union of all the SEIR compartment names
 export type SeirCompartmentKeys = Exclude<
   ReadonlyKeys<typeof seirIndex>,
   "__length"

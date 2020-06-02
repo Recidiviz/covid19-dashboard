@@ -48,8 +48,7 @@ const CurveChartLegend: React.FC<Props> = ({
     <LegendWrapper>
       {(sortBy(Object.keys(groupStatus), [
         (key: SeirCompartmentKeys) => {
-          const i = seirIndex[key];
-          return typeof i === "number" ? i : undefined;
+          return seirIndex[key];
         },
       ]) as SeirCompartmentKeys[]).map((key) => (
         <LegendItem
