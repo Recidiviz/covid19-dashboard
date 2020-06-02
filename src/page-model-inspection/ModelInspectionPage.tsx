@@ -1,12 +1,17 @@
+import { schemeCategory10 } from "d3";
 import React from "react";
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
+import ChartArea from "../impact-dashboard/ChartArea";
+import { useEpidemicModelState } from "../impact-dashboard/EpidemicModelContext";
 import FacilityInformation from "../impact-dashboard/FacilityInformation";
 import LocaleInformation from "../impact-dashboard/LocaleInformation";
 import MitigationInformation from "../impact-dashboard/MitigationInformation";
+import { seirIndex, seirIndexList } from "../infection-model/seir";
+import { buildInitialCurveToggles } from "../page-multi-facility/curveToggles";
+import { useProjectionData } from "../page-multi-facility/projectionCurveHooks";
 import ModelInspectionTable from "./ModelInspectionTableContainer";
-import ModelOutputChartArea from "./ModelOutputChartArea";
 
 const borderStyle = `1px solid ${Colors.paleGreen}`;
 
@@ -57,6 +62,14 @@ const HorizontalDivider = styled.hr`
   margin: 40px 0;
 `;
 
+const initialToggleStatus = buildInitialCurveToggles(seirIndexList);
+const markColors = seirIndexList.reduce((colors, currentIndex) => {
+  return {
+    ...colors,
+    [seirIndex[currentIndex]]: schemeCategory10[currentIndex],
+  };
+}, {});
+
 const ModelInspectionPage: React.FC = () => {
   return (
     <div>
@@ -72,7 +85,11 @@ const ModelInspectionPage: React.FC = () => {
           <MitigationInformation />
         </FormColumn>
         <ChartsContainer>
-          <ModelOutputChartArea />
+          <ChartArea
+            projectionData={useProjectionData(useEpidemicModelState())}
+            initialCurveToggles={initialToggleStatus}
+            markColors={markColors}
+          />
         </ChartsContainer>
       </ImpactDashboardVDiv>
       <ModelInspectionTable />

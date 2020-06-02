@@ -1,6 +1,7 @@
 import { range, sum, zip } from "d3-array";
 import differenceInCalendarDays from "date-fns/differenceInCalendarDays";
 import ndarray from "ndarray";
+import { ReadonlyKeys } from "utility-types";
 
 import { PlannedReleases } from "../impact-dashboard/EpidemicModelContext";
 import {
@@ -55,6 +56,11 @@ export const seirIndexList = Object.keys(seirIndex)
   .filter((k) => typeof seirIndex[k as any] === "number" && k !== "__length")
   // these should all be numbers anyway but this extra cast makes typescript happy
   .map((k) => parseInt(seirIndex[k as any]));
+
+export type SeirCompartmentKeys = Exclude<
+  ReadonlyKeys<typeof seirIndex>,
+  "__length"
+>;
 
 export enum ageGroupIndex {
   ageUnknown,
