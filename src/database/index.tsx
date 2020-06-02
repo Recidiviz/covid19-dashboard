@@ -4,12 +4,7 @@ import * as firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
 
-import {
-  format,
-  startOfDay,
-  startOfToday,
-  differenceInCalendarDays,
-} from "date-fns";
+import { format, startOfDay, differenceInCalendarDays } from "date-fns";
 import { pick, orderBy, uniqBy, findKey, maxBy, minBy } from "lodash";
 import { Optional } from "utility-types";
 
@@ -612,21 +607,20 @@ export const saveFacility = async (
     if (!scenarioRef) return;
 
     if (facility.modelInputs) {
-      // Ensures we don't store any attributres that our model does not know
+      // Ensures we don't store any attributes that our model does not know
       // about. This also makes a copy of modelInputs, since we shouldn't mutate
       // the original.
       facility.modelInputs = pick(facility.modelInputs, persistedKeys);
 
       facility.modelInputs.updatedAt = currrentTimestamp();
 
-      // Use observedAt if available. If it is not provided default to today. For dates
-      // observed in the past we'll have to assume the time portion of the
-      // timestamp is startOfDay** since we won't otherwise have any time
-      // information.
-      //
-      // ** https://date-fns.org/v1.29.0/docs/startOfDay
+      // Use observedAt if available. If it is not provided default to today.
       facility.modelInputs.observedAt =
-        facility.modelInputs.observedAt || startOfToday();
+        facility.modelInputs.observedAt || new Date();
+      // Normalize to the start of day in either case.
+      facility.modelInputs.observedAt = startOfDay(
+        facility.modelInputs.observedAt,
+      );
     }
 
     const db = await getDb();
