@@ -4,7 +4,13 @@ import * as firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
 
-import { format, startOfDay, differenceInCalendarDays } from "date-fns";
+import {
+  format,
+  startOfDay,
+  differenceInCalendarDays,
+  isSameDay,
+  isEqual,
+} from "date-fns";
 import { pick, orderBy, uniqBy, findKey, maxBy, minBy } from "lodash";
 import { Optional } from "utility-types";
 
@@ -344,13 +350,34 @@ export const getFacilityModelVersions = async ({
     let modelVersions = historyResults.docs.map((doc) =>
       buildModelInputs(doc.data()),
     );
-    return distinctByObservedAt
-      ? uniqBy(
+    if (distinctByObservedAt) {
+      // if observedAt has not been normalized,
+      // we have to re-sort in memory to properly group by observedAt
+      let normalized = !modelVersions.some((version, index) => {
+        if (!index) return;
+
+        const { observedAt } = version;
+        const { observedAt: prevObservedAt } = modelVersions[index - 1];
+        return (
+          isSameDay(observedAt, prevObservedAt) &&
+          !isEqual(observedAt, prevObservedAt)
+        );
+      });
+      if (!normalized) {
+        modelVersions = orderBy(
           modelVersions,
-          // make sure time doesn't enter into the uniqueness
-          (record) => record.observedAt.toDateString(),
-        )
-      : modelVersions;
+          [(version) => version.observedAt.toDateString(), "updatedAt"],
+          ["asc", "desc"],
+        );
+      }
+      return uniqBy(
+        modelVersions,
+        // make sure time doesn't enter into the uniqueness
+        (record) => record.observedAt.toDateString(),
+      );
+    } else {
+      return modelVersions;
+    }
   } catch (error) {
     console.error(
       "Encountered error while attempting to retrieve facility model versions:",
