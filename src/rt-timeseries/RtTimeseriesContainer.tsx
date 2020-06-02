@@ -95,8 +95,8 @@ const RtTimeseriesContainer: React.FC<Props> = ({ data }) => {
                 trigger={
                   <RtChartEmptyState>
                     Live rate of spread could not be calculated for this
-                    facility. Click here to add at least 3 days of confirmed
-                    case data. {isRtError(data) && `(${data.error})`}
+                    facility. Click here to update case data.{" "}
+                    {isRtError(data) && `(${data.error})`}
                   </RtChartEmptyState>
                 }
                 onSave={onModalSave}
