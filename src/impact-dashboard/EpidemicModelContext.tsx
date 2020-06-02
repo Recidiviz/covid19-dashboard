@@ -40,15 +40,6 @@ export interface ModelInputsPopulationBrackets {
   staffCases?: number;
   staffPopulation?: number;
 }
-interface ModelInputsPersistent extends ModelInputsPopulationBrackets {
-  facilityDormitoryPct?: number;
-  facilityCapacity?: number;
-  plannedReleases?: PlannedReleases;
-  populationTurnover?: number;
-  rateOfSpreadFactor?: RateOfSpread;
-  observedAt?: Date;
-  updatedAt?: Date;
-}
 
 export const caseBracketKeys: Array<keyof ModelInputsPopulationBrackets> = [
   "age0Cases",
