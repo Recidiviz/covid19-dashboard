@@ -122,13 +122,31 @@ def compute_r_t(historical_case_counts):
 
     # counts must be cumulative; reject any that are obviously not
     # (i.e. their values decrease over time)
-    if case_df.diff().min() < 0:
+    if not case_df.is_monotonic_increasing:
         raise ValueError(
             'Case counts must be cumulative and monotonically increasing')
 
     # we believe duplicates are mostly an artifact of little-to-no testing
-    # and should be excluded from the model
-    case_df = case_df.drop_duplicates(keep='first')
+    # and should be excluded from the model.
+    # however, for the last week of data, we handle duplicates a bit differently,
+    # to allow for detecting a possible end of disease spread (i.e. trailing dupes
+    # over a certain threshold will be retained)
+    cases_unique = case_df.drop_duplicates(keep='first')
+    min_tail_size = 3
+
+    # detect the integer indices of boundaries between consecutive blocks of duplicates
+    # (because we care about the number of members, not the date index)
+    splits = np.append(np.where(case_df.diff() != 0)[0], case_df.size)
+    # if the size of the last one meets our threshold, preserve its values
+    last_block_size = case_df.size - splits[-2] # splits includes 0 and the end
+    if (last_block_size >= min_tail_size):
+        tail = case_df.iloc[splits[-2]:]
+        cases_unique = cases_unique.append(tail)
+        # delete the overlapping index resulting from the append
+        cases_unique = cases_unique.loc[~cases_unique.index.duplicated(keep='first')]
+
+    print(cases_unique)
+    case_df = cases_unique
 
     _, smoothed = prepare_cases(case_df)
 
