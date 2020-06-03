@@ -1,5 +1,5 @@
 import { navigate } from "gatsby";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 
 import { saveScenario, SCENARIO_DEFAULTS } from "../database";
@@ -8,7 +8,7 @@ import iconAddSquare from "../design-system/icons/ic_add_square.svg";
 import InputButton from "../design-system/InputButton";
 import InputText from "../design-system/InputText";
 import InputTextArea from "../design-system/InputTextArea";
-import Modal, { Props as ModalProps } from "../design-system/Modal";
+import Modal from "../design-system/Modal";
 import useScenario from "../scenario-context/useScenario";
 
 const AddScenarioCard = styled.div`
@@ -57,9 +57,7 @@ const buttonStyles: React.CSSProperties = {
   width: "78px",
 };
 
-type Props = Pick<ModalProps, "trigger">;
-
-const CreateNewScenarioModal: React.FC<Props> = ({ trigger }) => {
+const CreateNewScenarioModal: React.FC = () => {
   const [showCreateScenarioModal, setShowCreateScenarioModal] = useState(false);
   const [name, setName] = useState<string | undefined>();
   const [description, setDescription] = useState<string | undefined>();

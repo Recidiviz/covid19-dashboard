@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 
-import Colors from "./Colors";
 import { InputStyle } from "./Input";
 import TextLabel from "./TextLabel";
 
