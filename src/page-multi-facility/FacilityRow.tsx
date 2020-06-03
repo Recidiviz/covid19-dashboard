@@ -97,7 +97,6 @@ const FacilityRow: React.FC<Props> = ({ facility, onSave }) => {
 
   const chartData = useChartDataFromProjectionData(
     useProjectionData(model, true, facilityRtData),
-    // curvesToShow,
   );
 
   // UI hover states are a little complicated;
