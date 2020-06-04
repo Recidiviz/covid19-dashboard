@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import { navigate } from "gatsby";
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 
 import Colors, { MarkColors as markColors } from "../design-system/Colors";
@@ -17,7 +17,6 @@ import {
 import useModel from "../impact-dashboard/useModel";
 import { getNewestRt, isRtData, RtData, RtError } from "../infection-model/rt";
 import AddCasesModal from "./AddCasesModal";
-import { FacilityContext } from "./FacilityContext";
 import FacilityRowRtValuePill from "./FacilityRowRtValuePill";
 import {
   useChartDataFromProjectionData,

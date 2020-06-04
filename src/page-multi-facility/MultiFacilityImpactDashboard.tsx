@@ -6,6 +6,7 @@ import Colors from "../design-system/Colors";
 import iconAddSrc from "../design-system/icons/ic_add.svg";
 import Loading from "../design-system/Loading";
 import TextLabel from "../design-system/TextLabel";
+import { useFacilities } from "../facilities-context";
 import { useFlag } from "../feature-flags";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
 import { getFacilitiesRtDataById } from "../infection-model/rt";
@@ -18,7 +19,6 @@ import RateOfSpreadPanel from "./RateOfSpreadPanel";
 import ScenarioSidebar from "./ScenarioSidebar";
 import SystemSummary from "./SystemSummary";
 import { Facility } from "./types";
-import { useFacilities } from "../facilities-context";
 
 const MultiFacilityImpactDashboardContainer = styled.main.attrs({
   className: `
@@ -77,12 +77,15 @@ const MultiFacilityImpactDashboard: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
   const [scenario] = useScenario();
   const scenarioId = scenario?.data?.id;
-  const { state: facilitiesState, asyncActions: { updateFacility } } = useFacilities();
+  const {
+    state: facilitiesState,
+    asyncActions: { updateFacility },
+  } = useFacilities();
   const facilities = Object.values(facilitiesState.facilities);
   const rtData = getFacilitiesRtDataById(facilitiesState.rtData, facilities);
 
   const handleFacilitySave = async (facility: Facility) => {
-    await updateFacility(scenarioId, facility)
+    await updateFacility(scenarioId, facility);
   };
 
   const openAddFacilityPage = () => {
@@ -155,7 +158,9 @@ const MultiFacilityImpactDashboard: React.FC = () => {
           </ScenarioTabs>
         </div>
         {selectedTab === 0 && projectionsPanel}
-        {selectedTab === 1 && <RateOfSpreadPanel facilities={facilitiesState} />}
+        {selectedTab === 1 && (
+          <RateOfSpreadPanel facilities={facilitiesState} />
+        )}
       </div>
     </MultiFacilityImpactDashboardContainer>
   );

@@ -5,9 +5,9 @@ import { ToastProvider } from "react-toast-notifications";
 import AppAuth0ClientPromise from "../auth/AppAuth0ClientPromise";
 import { Auth0Provider } from "../auth/react-auth0-spa";
 import Toast from "../design-system/Toast";
+import { FacilitiesProvider } from "../facilities-context";
 import { FeatureFlagsProvider } from "../feature-flags";
 import { LocaleDataProvider } from "../locale-data-context";
-import { FacilitiesProvider } from "../facilities-context";
 import { ScenarioProvider } from "../scenario-context";
 
 // A function that routes the user to the right place after login
@@ -33,9 +33,7 @@ const SiteProvider: React.FC = (props) => {
         >
           <LocaleDataProvider>
             <ScenarioProvider>
-              <FacilitiesProvider>
-                {props.children}
-              </FacilitiesProvider>
+              <FacilitiesProvider>{props.children}</FacilitiesProvider>
             </ScenarioProvider>
           </LocaleDataProvider>
         </Auth0Provider>

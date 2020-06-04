@@ -2,8 +2,8 @@ import classNames from "classnames";
 import React, { useState } from "react";
 import styled from "styled-components";
 
-import { FacilitiesState } from "../facilities-context/index";
 import Loading from "../design-system/Loading";
+import { FacilitiesState } from "../facilities-context/index";
 import RtComparisonChart from "../rt-comparison-chart";
 import PanelHeader, { PanelHeaderText } from "./PanelHeader";
 

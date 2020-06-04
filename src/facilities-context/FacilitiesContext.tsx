@@ -1,21 +1,19 @@
 import React, { useEffect } from "react";
 
+import useError from "../hooks/useError";
 import { Facility, RtDataMapping } from "../page-multi-facility/types";
 import useScenario from "../scenario-context/useScenario";
+import * as actions from "./actions";
 import { facilitiesReducer } from "./reducer";
 
-import useError from "../hooks/useError";
-
-import * as actions from "./actions";
-
-export type FacilityMapping = { [key in Facility["id"]]: Facility }
+export type FacilityMapping = { [key in Facility["id"]]: Facility };
 
 export interface FacilitiesState {
   loading: boolean;
   failed: boolean;
   facilities: FacilityMapping;
   selectedFacility: Facility | null;
-  rtData: RtDataMapping
+  rtData: RtDataMapping;
 }
 
 export type FacilitiesDispatch = (action: actions.FacilitiesActions) => void;
@@ -23,7 +21,7 @@ export type FacilitiesDispatch = (action: actions.FacilitiesActions) => void;
 export type ExportedAsyncActions = {
   updateFacility: (...props: any) => Promise<void>;
   removeFacility: (...props: any) => Promise<void>;
-}
+};
 
 export interface FacilitiesContext {
   state: FacilitiesState;
@@ -31,9 +29,9 @@ export interface FacilitiesContext {
   asyncActions: ExportedAsyncActions;
 }
 
-export const FacilitiesContext = React.createContext<FacilitiesContext | undefined>(
-  undefined,
-);
+export const FacilitiesContext = React.createContext<
+  FacilitiesContext | undefined
+>(undefined);
 
 export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -43,15 +41,15 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
     failed: false,
     facilities: {},
     selectedFacility: null,
-    rtData: {}
+    rtData: {},
   });
   const rethrowSync = useError();
   const [scenario] = useScenario();
-  const scenarioId = scenario?.data?.id
+  const scenarioId = scenario?.data?.id;
   const asyncActions = {
     updateFacility: actions.updateFacility(dispatch),
-    removeFacility: actions.removeFacility(dispatch)
-  }
+    removeFacility: actions.removeFacility(dispatch),
+  };
 
   useEffect(() => {
     if (scenarioId) {
@@ -71,7 +69,7 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
         rethrowSync(e);
       }
     }
-  }, [scenarioId, state.facilities])
+  }, [scenarioId, state.facilities]);
 
   return (
     <FacilitiesContext.Provider value={{ state, dispatch, asyncActions }}>
@@ -84,10 +82,8 @@ export function useFacilities() {
   const context = React.useContext(FacilitiesContext);
 
   if (context === undefined) {
-    throw new Error(
-      "useFacilities must be used within a FacilitiesProvider",
-    );
+    throw new Error("useFacilities must be used within a FacilitiesProvider");
   }
 
-  return context
+  return context;
 }

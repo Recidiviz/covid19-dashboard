@@ -1,6 +1,3 @@
 export * from "./FacilitiesContext";
 
-export {
-  removeFacility,
-  updateFacility
-} from "./actions";
+export { removeFacility, updateFacility } from "./actions";
