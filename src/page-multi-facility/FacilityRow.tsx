@@ -15,7 +15,7 @@ import {
   totalIncarceratedPopulation,
 } from "../impact-dashboard/EpidemicModelContext";
 import useModel from "../impact-dashboard/useModel";
-import { getNewestRt, isRtData } from "../infection-model/rt";
+import { getNewestRt, isRtData, RtData, RtError } from "../infection-model/rt";
 import AddCasesModal from "./AddCasesModal";
 import { FacilityContext } from "./FacilityContext";
 import FacilityRowRtValuePill from "./FacilityRowRtValuePill";
@@ -87,15 +87,12 @@ const IconEdit = styled.img`
 
 interface Props {
   facility: Facility;
+  facilityRtData: RtData | RtError | undefined;
   onSave: (f: Facility) => void;
 }
 
-const FacilityRow: React.FC<Props> = ({ facility, onSave }) => {
+const FacilityRow: React.FC<Props> = ({ facility, facilityRtData, onSave }) => {
   const [model] = useModel();
-
-  const { rtData, setFacility } = useContext(FacilityContext);
-
-  const facilityRtData = rtData ? rtData[facility.id] : undefined;
 
   const latestRt = isRtData(facilityRtData)
     ? getNewestRt(facilityRtData.Rt)?.value
@@ -118,7 +115,6 @@ const FacilityRow: React.FC<Props> = ({ facility, onSave }) => {
   const population = totalIncarceratedPopulation(model);
 
   const openFacilityPage = () => {
-    setFacility(facility);
     navigate("/facility");
   };
 

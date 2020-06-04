@@ -1,21 +1,14 @@
 import { navigate } from "gatsby";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 
-import { FetchedFacilities } from "../constants";
-import { getFacilities } from "../database";
 import Colors from "../design-system/Colors";
 import iconAddSrc from "../design-system/icons/ic_add.svg";
 import Loading from "../design-system/Loading";
 import TextLabel from "../design-system/TextLabel";
 import { useFlag } from "../feature-flags";
-import useError from "../hooks/useError";
-import useFacilitiesRtData from "../hooks/useFacilitiesRtData";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
-import {
-  getFacilitiesRtDataById,
-  updateFacilityRtData,
-} from "../infection-model/rt";
+import { getFacilitiesRtDataById } from "../infection-model/rt";
 import { useLocaleDataState } from "../locale-data-context";
 import useScenario from "../scenario-context/useScenario";
 import FacilityRow from "./FacilityRow";
@@ -24,8 +17,8 @@ import ProjectionsHeader from "./ProjectionsHeader";
 import RateOfSpreadPanel from "./RateOfSpreadPanel";
 import ScenarioSidebar from "./ScenarioSidebar";
 import SystemSummary from "./SystemSummary";
-import { Facilities, Facility } from "./types";
-import { useFacilities, FacilitiesState } from "../facilities-context";
+import { Facility } from "./types";
+import { useFacilities } from "../facilities-context";
 
 const MultiFacilityImpactDashboardContainer = styled.main.attrs({
   className: `
@@ -80,54 +73,17 @@ const ScenarioTab = styled.li<{ active?: boolean }>`
 `;
 
 const MultiFacilityImpactDashboard: React.FC = () => {
+  const showRateOfSpreadTab = useFlag(["showRateOfSpreadTab"]);
   const { data: localeDataSource } = useLocaleDataState();
   const [scenario] = useScenario();
-  // const { state: facilitiesState } = useFacilities();
+  const scenarioId = scenario?.data?.id;
+  const { state: facilitiesState, asyncActions: { updateFacility } } = useFacilities();
   const facilities = Object.values(facilitiesState.facilities);
-  const showRateOfSpreadTab = useFlag(["showRateOfSpreadTab"]);
+  const rtData = getFacilitiesRtDataById(facilitiesState.rtData, facilities);
 
-  const { setFacility, rtData, dispatchRtData } = useContext(FacilityContext);
-
-  const [facilities, setFacilities] = useState<FetchedFacilities>({
-    data: [] as Facilities,
-    loading: true,
-  });
-
-  const rethrowSync = useError();
-
-  async function fetchFacilities() {
-    if (!scenario?.data?.id) return;
-
-    try {
-      const facilitiesData = await getFacilities(scenario.data.id);
-      if (facilitiesData) {
-        setFacilities({
-          data: facilitiesData,
-          loading: false,
-        });
-      }
-    } catch (e) {
-      rethrowSync(e);
-    }
-  }
-
-  useEffect(() => {
-    fetchFacilities();
-  }, [scenario.data?.id]);
-
-  const handleFacilitySave = (newFacility: Facility) => {
-    setFacilities({
-      data: facilities.data.map((f) => {
-        if (f.id === newFacility.id) return { ...newFacility };
-        return { ...f };
-      }),
-      loading: facilities.loading,
-    });
-    updateFacilityRtData(newFacility, dispatchRtData);
+  const handleFacilitySave = async (facility: Facility) => {
+    await updateFacility(scenarioId, facility)
   };
-
-  useFacilitiesRtData(facilities.data);
-  const facilitiesRtData = getFacilitiesRtDataById(rtData, facilities.data);
 
   const openAddFacilityPage = () => {
     navigate("/facility");
@@ -141,13 +97,17 @@ const MultiFacilityImpactDashboard: React.FC = () => {
       {facilitiesState.loading ? (
         <Loading />
       ) : (
-        facilities?.data.map((facility) => (
+        facilities.map((facility) => (
           <FacilityRowPlaceholder key={facility.id}>
             <EpidemicModelProvider
               facilityModel={facility.modelInputs}
               localeDataSource={localeDataSource}
             >
-              <FacilityRow facility={facility} onSave={handleFacilitySave} />
+              <FacilityRow
+                facility={facility}
+                facilityRtData={rtData && rtData[facility.id]}
+                onSave={handleFacilitySave}
+              />
             </EpidemicModelProvider>
           </FacilityRowPlaceholder>
         ))
@@ -160,14 +120,14 @@ const MultiFacilityImpactDashboard: React.FC = () => {
       {scenario.loading ? (
         <Loading />
       ) : (
-        <ScenarioSidebar numFacilities={facilities?.length} />
+        <ScenarioSidebar numFacilities={facilities.length} />
       )}
       <div className="flex flex-col flex-1 pb-6 pl-8 justify-start">
-        {facilitiesRtData && (
+        {rtData && (
           <SystemSummary
-            facilities={facilities.data}
+            facilities={facilities}
             scenarioId={scenario?.data?.id}
-            rtData={facilitiesRtData}
+            rtData={rtData}
           />
         )}
         <div className="flex flex-row flex-none justify-between items-start">

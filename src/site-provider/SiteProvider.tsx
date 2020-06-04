@@ -1,5 +1,5 @@
 import { navigate } from "gatsby";
-import React, { useReducer, useState } from "react";
+import React from "react";
 import { ToastProvider } from "react-toast-notifications";
 
 import AppAuth0ClientPromise from "../auth/AppAuth0ClientPromise";
@@ -7,12 +7,7 @@ import { Auth0Provider } from "../auth/react-auth0-spa";
 import Toast from "../design-system/Toast";
 import { FeatureFlagsProvider } from "../feature-flags";
 import { LocaleDataProvider } from "../locale-data-context";
-import { FacilitiesProvider } from "../facilities-context/FacilitiesContext";
-import {
-  FacilityContext,
-  rtDataReducer,
-} from "../page-multi-facility/FacilityContext";
-import { Facility } from "../page-multi-facility/types";
+import { FacilitiesProvider } from "../facilities-context";
 import { ScenarioProvider } from "../scenario-context";
 
 // A function that routes the user to the right place after login
@@ -25,9 +20,6 @@ const onRedirectCallback = (appState: any) => {
 };
 
 const SiteProvider: React.FC = (props) => {
-  const [facility, setFacility] = useState<Facility | undefined>();
-  const [rtData, dispatchRtData] = useReducer(rtDataReducer, {});
-
   return (
     <FeatureFlagsProvider>
       <ToastProvider
@@ -42,11 +34,7 @@ const SiteProvider: React.FC = (props) => {
           <LocaleDataProvider>
             <ScenarioProvider>
               <FacilitiesProvider>
-                <FacilityContext.Provider
-                  value={{ facility, setFacility, rtData, dispatchRtData }}
-                >
-                  {props.children}
-                </FacilityContext.Provider>
+                {props.children}
               </FacilitiesProvider>
             </ScenarioProvider>
           </LocaleDataProvider>
