@@ -58,6 +58,15 @@ const HorizRule = styled.div`
   width: 100%;
 `;
 
+const Description = styled.p`
+  font-family: Poppins;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 14px;
+  line-height: 16px;
+  margin: 0 0 20px 0;
+`;
+
 const CalendarTileTooltipAnchor = styled.div`
   position: absolute;
   top: 0;
@@ -167,6 +176,10 @@ const AddCasesModalContent: React.FC<Props> = ({
 
   return (
     <ModalContents>
+      <Description>
+        Enter the cumulative number of cases detected and the total population
+        as of this date.
+      </Description>
       <InputDate
         labelAbove={"Date observed"}
         onValueChange={onValueChange}
