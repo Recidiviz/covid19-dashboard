@@ -18,19 +18,23 @@ export function facilitiesReducer(state: FacilitiesState, action: actions.Facili
         facilities: {}
       });
     case actions.UPDATE_FACILITY: {
-      if (!action.payload?.id) return state
+      const facility = action.payload as Facility
+      if (!facility?.id) return state
       let facilities = { ...state.facilities }
-      facilities[action.payload.id] = action.payload as Facility
+      facilities[facility.id] = facility
       return Object.assign({}, state, { facilities });
     }
     case actions.REMOVE_FACILITY: {
-      if (!action.payload?.id || !Object.keys(state.facilities).length) return state
+      const facility = action.payload as Facility;
+      if (!facility?.id || !Object.keys(state.facilities).length) return state
       let facilities = { ...state.facilities }
-      delete facilities[action.payload.id]
+      delete facilities[facility.id]
       return Object.assign({}, state, { facilities })
     }
     case actions.RECEIVE_RT_DATA:
-      return Object.assign({}, state, action.payload);
+      return Object.assign({}, state, {
+        rtData: { ...state.rtData, ...action.payload }
+      });
     default:
       return state
   }

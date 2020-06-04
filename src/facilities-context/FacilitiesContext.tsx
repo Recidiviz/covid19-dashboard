@@ -1,8 +1,11 @@
 import React, { useEffect } from "react";
 
-import { Facility } from "../page-multi-facility/types";
+import { Facility, RtDataMapping } from "../page-multi-facility/types";
 import useScenario from "../scenario-context/useScenario";
 import { facilitiesReducer } from "./reducer";
+
+import useError from "../hooks/useError";
+
 import * as actions from "./actions";
 
 export type FacilityMapping = { [key in Facility["id"]]: Facility }
@@ -11,6 +14,8 @@ export interface FacilitiesState {
   loading: boolean;
   failed: boolean;
   facilities: FacilityMapping;
+  selectedFacility: Facility | null;
+  rtData: RtDataMapping
 }
 
 export type FacilitiesDispatch = (action: actions.FacilitiesActions) => void;
@@ -18,7 +23,6 @@ export type FacilitiesDispatch = (action: actions.FacilitiesActions) => void;
 export type ExportedAsyncActions = {
   updateFacility: (...props: any) => Promise<void>;
   removeFacility: (...props: any) => Promise<void>;
-  // fetchRtData: ExportedAsyncFunction;
 }
 
 export interface FacilitiesContext {
@@ -38,21 +42,36 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
     loading: true,
     failed: false,
     facilities: {},
+    selectedFacility: null,
+    rtData: {}
   });
-
+  const rethrowSync = useError();
   const [scenario] = useScenario();
   const scenarioId = scenario?.data?.id
-
-  useEffect(() => {
-    if (scenarioId) {
-      actions.fetchFacilities(scenarioId, dispatch);
-    }
-  }, [scenarioId]);
-
   const asyncActions = {
     updateFacility: actions.updateFacility(dispatch),
     removeFacility: actions.removeFacility(dispatch)
   }
+
+  useEffect(() => {
+    if (scenarioId) {
+      try {
+        actions.fetchFacilities(scenarioId, dispatch);
+      } catch (e) {
+        rethrowSync(e);
+      }
+    }
+  }, [scenarioId]);
+
+  useEffect(() => {
+    if (Object.values(state.facilities).length) {
+      try {
+        actions.fetchRtData(state, dispatch);
+      } catch (e) {
+        rethrowSync(e);
+      }
+    }
+  }, [scenarioId, state.facilities])
 
   return (
     <FacilitiesContext.Provider value={{ state, dispatch, asyncActions }}>
