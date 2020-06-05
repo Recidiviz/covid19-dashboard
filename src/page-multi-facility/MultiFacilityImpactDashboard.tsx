@@ -91,7 +91,7 @@ const MultiFacilityImpactDashboard: React.FC = () => {
   };
 
   const openAddFacilityPage = () => {
-    deselectFacility()
+    deselectFacility();
     navigate("/facility");
   };
 

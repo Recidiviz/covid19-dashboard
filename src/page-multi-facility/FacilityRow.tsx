@@ -9,6 +9,7 @@ import FontSizes from "../design-system/FontSizes";
 import iconEditSrc from "../design-system/icons/ic_edit.svg";
 import { Spacer } from "../design-system/Spacer";
 import Tooltip from "../design-system/Tooltip";
+import { useFacilities } from "../facilities-context";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
 import {
   totalConfirmedCases,
@@ -91,6 +92,9 @@ interface Props {
 }
 
 const FacilityRow: React.FC<Props> = ({ facility, facilityRtData, onSave }) => {
+  const {
+    actions: { selectFacility },
+  } = useFacilities();
   const [model] = useModel();
 
   const latestRt = isRtData(facilityRtData)
@@ -114,6 +118,7 @@ const FacilityRow: React.FC<Props> = ({ facility, facilityRtData, onSave }) => {
   const population = totalIncarceratedPopulation(model);
 
   const openFacilityPage = () => {
+    selectFacility(facility.id);
     navigate("/facility");
   };
 

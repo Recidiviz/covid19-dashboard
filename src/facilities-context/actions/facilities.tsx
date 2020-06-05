@@ -1,14 +1,11 @@
 import {
-  saveFacility,
   deleteFacility,
-  getFacilities,
   duplicateFacility as duplicate,
+  getFacilities,
+  saveFacility,
 } from "../../database";
-import {
-  FacilitiesDispatch,
-  FacilityMapping,
-} from "../FacilitiesContext";
 import { Facilities, Facility } from "../../page-multi-facility/types";
+import { FacilitiesDispatch, FacilityMapping } from "../FacilitiesContext";
 
 export const REQUEST_FACILITIES = "REQUEST_FACILITIES";
 export const RECEIVE_FACILITIES = "RECEIVE_FACILITIES";
@@ -22,9 +19,18 @@ export const CREATE_OR_UPDATE_FACILITY = "CREATE_OR_UPDATE_FACILITY";
 export function deselectFacility(dispatch: FacilitiesDispatch) {
   return () => {
     dispatch({
-      type: DESELECT_FACILITY
-    })
-  }
+      type: DESELECT_FACILITY,
+    });
+  };
+}
+
+export function selectFacility(dispatch: FacilitiesDispatch) {
+  return (facilityId: Facility["id"]) => {
+    dispatch({
+      type: SELECT_FACILITY,
+      payload: { id: facilityId },
+    });
+  };
 }
 
 export async function fetchFacilities(
@@ -60,7 +66,6 @@ export function createOrUpdateFacility(dispatch: FacilitiesDispatch) {
     if (scenarioId) {
       try {
         const updatedFacility = await saveFacility(scenarioId, facility);
-        console.log('create or update facility: ', updatedFacility)
         dispatch({
           type: CREATE_OR_UPDATE_FACILITY,
           payload: { ...updatedFacility },
@@ -94,16 +99,12 @@ export function duplicateFacility(dispatch: FacilitiesDispatch) {
       try {
         const duplicatedFacility = await duplicate(scenarioId, facility);
         if (duplicatedFacility && duplicatedFacility.id) {
-          console.log('facility duplicated: ', duplicatedFacility)
           dispatch({
             type: CREATE_OR_UPDATE_FACILITY,
             payload: { ...duplicatedFacility },
           });
-          dispatch({
-            type: SELECT_FACILITY,
-            payload: { id: duplicatedFacility.id }
-          })
         }
+        return duplicatedFacility;
       } catch (error) {
         // handle duplicating facility errors
       }

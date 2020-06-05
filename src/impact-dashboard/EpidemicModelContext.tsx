@@ -59,8 +59,8 @@ interface ModelInputsPersistent extends ModelInputsPopulationBrackets {
   plannedReleases?: PlannedReleases;
   populationTurnover?: number;
   rateOfSpreadFactor?: RateOfSpread;
-  observedAt?: Date;
-  updatedAt?: Date;
+  observedAt: Date;
+  updatedAt: Date;
 }
 
 interface ModelInputsUpdate extends ModelInputsPersistent {

@@ -1,10 +1,14 @@
 import React, { useEffect } from "react";
 
 import useError from "../hooks/useError";
-import { Scenario, Facility, RtDataMapping } from "../page-multi-facility/types";
+import {
+  Facility,
+  RtDataMapping,
+  Scenario,
+} from "../page-multi-facility/types";
 import useScenario from "../scenario-context/useScenario";
-import { facilitiesReducer } from "./reducer";
 import * as facilitiesActions from "./actions";
+import { facilitiesReducer } from "./reducer";
 
 export type FacilityMapping = { [key in Facility["id"]]: Facility };
 
@@ -16,13 +20,25 @@ export interface FacilitiesState {
   rtData: RtDataMapping;
 }
 
-export type FacilitiesDispatch = (action: facilitiesActions.FacilitiesActions) => void;
+export type FacilitiesDispatch = (
+  action: facilitiesActions.FacilitiesActions,
+) => void;
 
 export type Exportedactions = {
-  createOrUpdateFacility: (scenarioId: Scenario["id"], facility: Partial<Facility>) => Promise<void>;
-  removeFacility: (scenarioId: Scenario["id"], facilityId: Facility["id"]) => Promise<void>;
-  duplicateFacility: (scenarioId: Scenario["id"], facility: Facility) => Promise<void>;
+  createOrUpdateFacility: (
+    scenarioId: Scenario["id"],
+    facility: Partial<Facility>,
+  ) => Promise<void>;
+  removeFacility: (
+    scenarioId: Scenario["id"],
+    facilityId: Facility["id"],
+  ) => Promise<void>;
+  duplicateFacility: (
+    scenarioId: Scenario["id"],
+    facility: Facility,
+  ) => Promise<Facility | void>;
   deselectFacility: () => void;
+  selectFacility: (faclityId: Facility["id"]) => void;
 };
 
 export interface FacilitiesContext {
@@ -34,7 +50,6 @@ export interface FacilitiesContext {
 export const FacilitiesContext = React.createContext<
   FacilitiesContext | undefined
 >(undefined);
-
 
 export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -54,6 +69,7 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
     removeFacility: facilitiesActions.removeFacility(dispatch),
     duplicateFacility: facilitiesActions.duplicateFacility(dispatch),
     deselectFacility: facilitiesActions.deselectFacility(dispatch),
+    selectFacility: facilitiesActions.selectFacility(dispatch),
   };
 
   useEffect(() => {

@@ -35,11 +35,15 @@ export function facilitiesReducer(
       const facility = action.payload as Facility;
       if (!facility?.id || !Object.keys(state.facilities).length) return state;
       let facilities = { ...state.facilities };
-      let rtData = { ...state.rtData }
+      let rtData = { ...state.rtData };
       // remove facility from facilities & rtData
       delete facilities[facility.id];
-      delete rtData[facility.id]
-      return Object.assign({}, state, { facilities, rtData, selectedFacility: null });
+      delete rtData[facility.id];
+      return Object.assign({}, state, {
+        facilities,
+        rtData,
+        selectedFacility: null,
+      });
     }
 
     case actions.RECEIVE_RT_DATA:
@@ -49,10 +53,10 @@ export function facilitiesReducer(
 
     case actions.SELECT_FACILITY:
       const { id } = action.payload as Partial<Facility>;
-      return Object.assign({}, state, { selectedFacilityId: id })
+      return Object.assign({}, state, { selectedFacilityId: id });
 
     case actions.DESELECT_FACILITY:
-      return Object.assign({}, state, { selectedFacilityId: null })
+      return Object.assign({}, state, { selectedFacilityId: null });
 
     default:
       return state;

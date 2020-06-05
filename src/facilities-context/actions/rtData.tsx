@@ -1,9 +1,6 @@
 import { getRtDataForFacility } from "../../infection-model/rt";
-import {
-  FacilitiesState,
-  FacilitiesDispatch,
-} from "../FacilitiesContext";
 import { RtDataMapping } from "../../page-multi-facility/types";
+import { FacilitiesDispatch, FacilitiesState } from "../FacilitiesContext";
 
 export const REQUEST_RT_DATA = "REQUEST_RT_DATA";
 export const RECEIVE_RT_DATA = "RECEIVE_RT_DATA";

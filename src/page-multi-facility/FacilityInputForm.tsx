@@ -1,12 +1,7 @@
 import { navigate } from "gatsby";
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 
-import {
-  deleteFacility,
-  duplicateFacility,
-  saveFacility,
-} from "../database/index";
 import Colors from "../design-system/Colors";
 import iconDuplicatePath from "../design-system/icons/ic_duplicate.svg";
 import InputButton, { StyledButton } from "../design-system/InputButton";
@@ -18,15 +13,15 @@ import PopUpMenu from "../design-system/PopUpMenu";
 import { Spacer } from "../design-system/Spacer";
 import { useToasts } from "../design-system/Toast";
 import Tooltip from "../design-system/Tooltip";
+import { useFacilities } from "../facilities-context";
 import useRejectionToast from "../hooks/useRejectionToast";
 import useScreenWidth from "../hooks/useScreenWidth";
 import FacilityInformation from "../impact-dashboard/FacilityInformation";
 import MitigationInformation from "../impact-dashboard/MitigationInformation";
 import useModel from "../impact-dashboard/useModel";
-import { updateFacilityRtData } from "../infection-model/rt";
+// import { updateFacilityRtData } from "../infection-model/rt";
 import RtTimeseries from "../rt-timeseries";
 import AddCasesModal from "./AddCasesModal";
-import { FacilityContext } from "./FacilityContext";
 import FacilityProjections from "./FacilityProjections";
 import HistoricalCasesChart from "./HistoricalCasesChart";
 import LocaleInformationSection from "./LocaleInformationSection";
@@ -136,21 +131,24 @@ const PageHeaderContainer = styled.div`
 
 interface Props {
   scenarioId: string;
+  facility: Facility | undefined;
 }
 
-const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
+const FacilityInputForm: React.FC<Props> = ({ facility, scenarioId }) => {
   const { addToast } = useToasts();
   const {
-    facility: initialFacility,
-    setFacility,
-    rtData,
-    dispatchRtData,
-  } = useContext(FacilityContext);
-  const [facility, updateFacility] = useState(initialFacility);
+    state,
+    actions: {
+      createOrUpdateFacility,
+      removeFacility: deleteFacility,
+      duplicateFacility,
+      deselectFacility,
+      selectFacility,
+    },
+  } = useFacilities();
+  const { rtData } = state;
   const [facilityName, setFacilityName] = useState(facility?.name || undefined);
-  const [description, setDescription] = useState(
-    facility?.description || undefined,
-  );
+  const [description, setDescription] = useState(facility?.description);
   const [systemType, setSystemType] = useState(
     facility?.systemType || undefined,
   );
@@ -159,23 +157,40 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   const rejectionToast = useRejectionToast();
 
   const screenWidth = useScreenWidth();
-  const save = () => {
-    if (facilityName) {
-      // Set observedAt to right now when updating a facility from this input form
-      const modelUpdate = Object.assign({}, model[0]);
-      modelUpdate.observedAt = new Date();
 
+  const onSave = () => {
+    // Set observedAt to right now when updating a facility from this input form
+    const modelUpdate = Object.assign({}, model[0]);
+    modelUpdate.observedAt = new Date();
+
+    if (facilityName) {
       rejectionToast(
-        saveFacility(scenarioId, {
+        createOrUpdateFacility(scenarioId, {
           id: facility?.id,
-          name: facilityName || null,
+          name: facilityName,
           description: description || null,
           systemType: systemType || null,
           modelInputs: modelUpdate,
-        }).then(() => navigate("/")),
+        }).then(() => {
+          deselectFacility();
+          navigate("/");
+        }),
       );
     } else {
       window.scroll({ top: 0, left: 0, behavior: "smooth" });
+    }
+  };
+
+  const onDuplicateFacility = async () => {
+    if (facility) {
+      await rejectionToast(
+        duplicateFacility(scenarioId, facility).then((duplicatedFacility) => {
+          if (duplicatedFacility) {
+            selectFacility(duplicatedFacility.id);
+            addToast("Facility successfully duplicated");
+          }
+        }),
+      );
     }
   };
 
@@ -187,22 +202,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   const closeDeleteModal = () => {
     updateShowDeleteModal(false);
   };
-  const onDuplicateFacility = async () => {
-    if (facility) {
-      await rejectionToast(
-        duplicateFacility(scenarioId, facility)
-          .then((duplicatedFacility) => {
-            if (duplicatedFacility) {
-              setFacility(duplicatedFacility);
-              updateFacility(duplicatedFacility);
-              updateFacilityRtData(duplicatedFacility, dispatchRtData);
-              setFacilityName(duplicatedFacility.name);
-            }
-          })
-          .then(() => addToast("Facility successfully duplicated")),
-      );
-    }
-  };
+
   const popupItems = [
     { name: "Duplicate", onClick: onDuplicateFacility },
     { name: "Delete", onClick: openDeleteModal },
@@ -217,8 +217,8 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   };
 
   const onModalSave = (newFacility: Facility) => {
-    updateFacility(newFacility);
-    updateFacilityRtData(newFacility, dispatchRtData);
+    createOrUpdateFacility(scenarioId, newFacility);
+    // updateFacilityRtData(newFacility, dispatchRtData);
   };
 
   return (
@@ -226,7 +226,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
       <PageHeaderContainer>
         <div className="mx-5">
           <InputName
-            name={facilityName}
+            name={facility?.name || facilityName}
             setName={setFacilityName}
             placeholderValue="Unnamed Facility"
             placeholderText="Facility name is required"
@@ -261,7 +261,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
           <Spacer y={14} />
           <DescRow>
             <InputDescription
-              description={description}
+              description={facility?.description || undefined}
               setDescription={setDescription}
               placeholderValue="Enter a description (optional)"
             />
@@ -290,7 +290,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
           <SectionHeader>Rate of Spread</SectionHeader>
           <MitigationInformation />
           <ButtonSection className="pl-8" screenWidth={screenWidth}>
-            <InputButton label="Save" onClick={save} />
+            <InputButton label="Save" onClick={onSave} />
           </ButtonSection>
           <div className="mt-8" />
         </Column>
