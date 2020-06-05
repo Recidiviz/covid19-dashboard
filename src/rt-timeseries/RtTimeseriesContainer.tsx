@@ -51,24 +51,11 @@ const RtChartEmptyState = styled.button`
 interface Props {
   data?: RtValue;
   facility: Facility;
+  onModalSave: (facility: Facility) => void;
 }
 
-const RtTimeseriesContainer: React.FC<Props> = ({ data }) => {
-  const { facility: initialFacility, dispatchRtData } = useContext(
-    FacilityContext,
-  );
-  const [facility, updateFacility] = useState(initialFacility);
-
-  useEffect(() => {
-    updateFacility(initialFacility);
-  }, [initialFacility]);
-
+const RtTimeseriesContainer: React.FC<Props> = ({ data, facility, onModalSave }) => {
   if (data === undefined) return <Loading />;
-
-  const onModalSave = (newFacility: Facility) => {
-    updateFacility(newFacility);
-    updateFacilityRtData(newFacility, dispatchRtData);
-  };
 
   const notEnoughData =
     isRtError(data) || (isRtData(data) && data.Rt.length < 2);

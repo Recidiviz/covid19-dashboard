@@ -25,6 +25,7 @@ export type FacilitiesDispatch = (
 ) => void;
 
 export type Exportedactions = {
+  updateRtData: (facility: Facility) => Promise<void>;
   createOrUpdateFacility: (
     scenarioId: Scenario["id"],
     facility: Partial<Facility>,

@@ -19,7 +19,6 @@ import useScreenWidth from "../hooks/useScreenWidth";
 import FacilityInformation from "../impact-dashboard/FacilityInformation";
 import MitigationInformation from "../impact-dashboard/MitigationInformation";
 import useModel from "../impact-dashboard/useModel";
-// import { updateFacilityRtData } from "../infection-model/rt";
 import RtTimeseries from "../rt-timeseries";
 import AddCasesModal from "./AddCasesModal";
 import FacilityProjections from "./FacilityProjections";
@@ -282,6 +281,7 @@ const FacilityInputForm: React.FC<Props> = ({
             <RtChartContainer>
               <RtTimeseries
                 facility={facility}
+                onModalSave={onModalSave}
                 data={rtData ? rtData[facility.id] : undefined}
               />
             </RtChartContainer>
