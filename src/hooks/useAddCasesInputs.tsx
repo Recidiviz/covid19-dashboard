@@ -54,6 +54,10 @@ const useAddCasesInputs = (
   );
 
   useEffect(() => {
+    updateInputs(facility.modelInputs)
+  }, [facility.modelInputs])
+
+  useEffect(() => {
     if (observedAt) {
       const observedAtVersion = findMatchingDay({ date: observedAt });
       setObservationDate(observedAt);
