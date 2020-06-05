@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
 
 import useError from "../hooks/useError";
-import { Facility, RtDataMapping } from "../page-multi-facility/types";
+import { Scenario, Facility, RtDataMapping } from "../page-multi-facility/types";
 import useScenario from "../scenario-context/useScenario";
-import * as actions from "./actions";
 import { facilitiesReducer } from "./reducer";
+import * as facilitiesActions from "./actions";
 
 export type FacilityMapping = { [key in Facility["id"]]: Facility };
 
@@ -12,26 +12,29 @@ export interface FacilitiesState {
   loading: boolean;
   failed: boolean;
   facilities: FacilityMapping;
-  selectedFacility: Facility | null;
+  selectedFacilityId: Facility["id"] | null;
   rtData: RtDataMapping;
 }
 
-export type FacilitiesDispatch = (action: actions.FacilitiesActions) => void;
+export type FacilitiesDispatch = (action: facilitiesActions.FacilitiesActions) => void;
 
-export type ExportedAsyncActions = {
-  updateFacility: (...props: any) => Promise<void>;
-  removeFacility: (...props: any) => Promise<void>;
+export type Exportedactions = {
+  createOrUpdateFacility: (scenarioId: Scenario["id"], facility: Partial<Facility>) => Promise<void>;
+  removeFacility: (scenarioId: Scenario["id"], facilityId: Facility["id"]) => Promise<void>;
+  duplicateFacility: (scenarioId: Scenario["id"], facility: Facility) => Promise<void>;
+  deselectFacility: () => void;
 };
 
 export interface FacilitiesContext {
   state: FacilitiesState;
   dispatch: FacilitiesDispatch | undefined;
-  asyncActions: ExportedAsyncActions;
+  actions: Exportedactions;
 }
 
 export const FacilitiesContext = React.createContext<
   FacilitiesContext | undefined
 >(undefined);
+
 
 export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -40,21 +43,23 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
     loading: true,
     failed: false,
     facilities: {},
-    selectedFacility: null,
+    selectedFacilityId: null,
     rtData: {},
   });
   const rethrowSync = useError();
   const [scenario] = useScenario();
   const scenarioId = scenario?.data?.id;
-  const asyncActions = {
-    updateFacility: actions.updateFacility(dispatch),
-    removeFacility: actions.removeFacility(dispatch),
+  const actions = {
+    createOrUpdateFacility: facilitiesActions.createOrUpdateFacility(dispatch),
+    removeFacility: facilitiesActions.removeFacility(dispatch),
+    duplicateFacility: facilitiesActions.duplicateFacility(dispatch),
+    deselectFacility: facilitiesActions.deselectFacility(dispatch),
   };
 
   useEffect(() => {
     if (scenarioId) {
       try {
-        actions.fetchFacilities(scenarioId, dispatch);
+        facilitiesActions.fetchFacilities(scenarioId, dispatch);
       } catch (e) {
         rethrowSync(e);
       }
@@ -64,7 +69,7 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     if (Object.values(state.facilities).length) {
       try {
-        actions.fetchRtData(state, dispatch);
+        facilitiesActions.fetchRtData(state, dispatch);
       } catch (e) {
         rethrowSync(e);
       }
@@ -72,7 +77,7 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [scenarioId, state.facilities]);
 
   return (
-    <FacilitiesContext.Provider value={{ state, dispatch, asyncActions }}>
+    <FacilitiesContext.Provider value={{ state, dispatch, actions }}>
       {children}
     </FacilitiesContext.Provider>
   );

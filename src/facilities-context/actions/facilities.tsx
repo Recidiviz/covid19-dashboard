@@ -15,9 +15,17 @@ export const RECEIVE_FACILITIES = "RECEIVE_FACILITIES";
 export const RECEIVE_FACILITIES_ERROR = "RECEIVE_FACILITIES_ERROR";
 
 export const SELECT_FACILITY = "SELECT_FACILITY";
-export const UNSELECT_FACILITY = "UNSELECT_FACILITY";
+export const DESELECT_FACILITY = "DESELECT_FACILITY";
 export const REMOVE_FACILITY = "REMOVE_FACILITY";
 export const CREATE_OR_UPDATE_FACILITY = "CREATE_OR_UPDATE_FACILITY";
+
+export function deselectFacility(dispatch: FacilitiesDispatch) {
+  return () => {
+    dispatch({
+      type: DESELECT_FACILITY
+    })
+  }
+}
 
 export async function fetchFacilities(
   scenarioId: string,

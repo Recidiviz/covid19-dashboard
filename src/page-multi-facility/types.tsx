@@ -10,8 +10,8 @@ export type Facility = {
   id: string;
   scenarioId: string;
   name: string;
-  description?: string;
-  systemType?: string;
+  description?: string | null;
+  systemType?: string | null;
   modelInputs: ModelInputs;
   createdAt: Date;
   updatedAt: Date;

@@ -9,35 +9,51 @@ export function facilitiesReducer(
   switch (action.type) {
     case actions.REQUEST_FACILITIES:
       return Object.assign({}, state, { loading: true });
+
     case actions.RECEIVE_FACILITIES:
       return Object.assign({}, state, {
         loading: false,
         facilities: action.payload,
       });
+
     case actions.RECEIVE_FACILITIES_ERROR:
       return Object.assign({}, state, {
         loading: false,
         failed: true,
         facilities: {},
       });
-    case actions.UPDATE_FACILITY: {
+
+    case actions.CREATE_OR_UPDATE_FACILITY: {
       const facility = action.payload as Facility;
       if (!facility?.id) return state;
       let facilities = { ...state.facilities };
       facilities[facility.id] = facility;
       return Object.assign({}, state, { facilities });
     }
+
     case actions.REMOVE_FACILITY: {
       const facility = action.payload as Facility;
       if (!facility?.id || !Object.keys(state.facilities).length) return state;
       let facilities = { ...state.facilities };
+      let rtData = { ...state.rtData }
+      // remove facility from facilities & rtData
       delete facilities[facility.id];
-      return Object.assign({}, state, { facilities });
+      delete rtData[facility.id]
+      return Object.assign({}, state, { facilities, rtData, selectedFacility: null });
     }
+
     case actions.RECEIVE_RT_DATA:
       return Object.assign({}, state, {
         rtData: { ...state.rtData, ...action.payload },
       });
+
+    case actions.SELECT_FACILITY:
+      const { id } = action.payload as Partial<Facility>;
+      return Object.assign({}, state, { selectedFacilityId: id })
+
+    case actions.DESELECT_FACILITY:
+      return Object.assign({}, state, { selectedFacilityId: null })
+
     default:
       return state;
   }

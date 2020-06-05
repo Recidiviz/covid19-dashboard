@@ -79,16 +79,19 @@ const MultiFacilityImpactDashboard: React.FC = () => {
   const scenarioId = scenario?.data?.id;
   const {
     state: facilitiesState,
-    asyncActions: { updateFacility },
+    actions: { createOrUpdateFacility, deselectFacility },
   } = useFacilities();
   const facilities = Object.values(facilitiesState.facilities);
   const rtData = getFacilitiesRtDataById(facilitiesState.rtData, facilities);
 
   const handleFacilitySave = async (facility: Facility) => {
-    await updateFacility(scenarioId, facility);
+    if (scenarioId) {
+      await createOrUpdateFacility(scenarioId, facility);
+    }
   };
 
   const openAddFacilityPage = () => {
+    deselectFacility()
     navigate("/facility");
   };
 

@@ -14,7 +14,7 @@ export type FacilitiesActions = {
 export type FacilitiesActionTypes =
   | "CREATE_OR_UPDATE_FACILITY"
   | "SELECT_FACILITY"
-  | "UNSELECT_FACILITY"
+  | "DESELECT_FACILITY"
   | "UPDATE_FACILITY"
   | "REMOVE_FACILITY"
   | "REQUEST_RT_DATA"
