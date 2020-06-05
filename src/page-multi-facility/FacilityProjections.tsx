@@ -1,13 +1,20 @@
-import React, { useContext } from "react";
+import React from "react";
 
+import { useFacilities } from "../facilities-context";
 import ChartArea from "../impact-dashboard/ChartArea";
 import { useEpidemicModelState } from "../impact-dashboard/EpidemicModelContext";
 import ImpactProjectionTableContainer from "../impact-dashboard/ImpactProjectionTableContainer";
-import { FacilityContext } from "./FacilityContext";
 import { useProjectionData } from "./projectionCurveHooks";
+import { Facility } from "./types";
 
-const FacilityProjections: React.FC = () => {
-  const { facility, rtData } = useContext(FacilityContext);
+interface Props {
+  facility: Facility | undefined;
+}
+
+const FacilityProjections: React.FC<Props> = ({ facility }) => {
+  const {
+    state: { rtData },
+  } = useFacilities();
   let useRt, facilityRtData;
   // when creating a new facility, we won't have Rt yet,
   // so fall back to using the rate of spread from user input

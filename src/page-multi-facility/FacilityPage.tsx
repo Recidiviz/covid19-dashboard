@@ -16,7 +16,7 @@ const FacilityPageDiv = styled.div``;
 const FacilityPage: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
   const {
-    state: { facilities, selectedFacilityId },
+    state: { facilities, selectedFacilityId, rtData },
   } = useFacilities();
   const facility = Object.values(facilities).find(
     (f) => f.id === selectedFacilityId,
@@ -43,7 +43,9 @@ const FacilityPage: React.FC = () => {
               <div className="max-w-screen-xl px-4 mx-auto">
                 <SiteHeader styles={{ borderBottom: "none" }} />
                 <FacilityInputForm
+                  key={facility?.id}
                   facility={facility}
+                  rtData={rtData}
                   scenarioId={scenario.data.id}
                 />
               </div>

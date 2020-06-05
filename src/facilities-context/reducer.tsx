@@ -51,6 +51,11 @@ export function facilitiesReducer(
         rtData: { ...state.rtData, ...action.payload },
       });
 
+    case actions.UPDATE_FACILITY_RT_DATA:
+      return Object.assign({}, state, {
+        rtData: { ...state.rtData, ...action.payload },
+      });
+
     case actions.SELECT_FACILITY:
       const { id } = action.payload as Partial<Facility>;
       return Object.assign({}, state, { selectedFacilityId: id });

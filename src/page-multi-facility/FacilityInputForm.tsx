@@ -25,7 +25,7 @@ import AddCasesModal from "./AddCasesModal";
 import FacilityProjections from "./FacilityProjections";
 import HistoricalCasesChart from "./HistoricalCasesChart";
 import LocaleInformationSection from "./LocaleInformationSection";
-import { Facility } from "./types";
+import { Facility, RtDataMapping } from "./types";
 
 interface ButtonSectionProps {
   screenWidth: number;
@@ -132,22 +132,26 @@ const PageHeaderContainer = styled.div`
 interface Props {
   scenarioId: string;
   facility: Facility | undefined;
+  rtData: RtDataMapping;
 }
 
-const FacilityInputForm: React.FC<Props> = ({ facility, scenarioId }) => {
+const FacilityInputForm: React.FC<Props> = ({
+  rtData,
+  facility,
+  scenarioId,
+}) => {
   const { addToast } = useToasts();
   const {
-    state,
     actions: {
       createOrUpdateFacility,
       removeFacility: deleteFacility,
       duplicateFacility,
       deselectFacility,
       selectFacility,
+      updateRtData,
     },
   } = useFacilities();
-  const { rtData } = state;
-  const [facilityName, setFacilityName] = useState(facility?.name || undefined);
+  const [facilityName, setFacilityName] = useState(facility?.name);
   const [description, setDescription] = useState(facility?.description);
   const [systemType, setSystemType] = useState(
     facility?.systemType || undefined,
@@ -211,6 +215,7 @@ const FacilityInputForm: React.FC<Props> = ({ facility, scenarioId }) => {
     const facilityId = facility?.id;
     if (facilityId) {
       await rejectionToast(deleteFacility(scenarioId, facilityId));
+      deselectFacility();
       window.history.back();
     }
     updateShowDeleteModal(false);
@@ -218,7 +223,7 @@ const FacilityInputForm: React.FC<Props> = ({ facility, scenarioId }) => {
 
   const onModalSave = (newFacility: Facility) => {
     createOrUpdateFacility(scenarioId, newFacility);
-    // updateFacilityRtData(newFacility, dispatchRtData);
+    updateRtData(newFacility);
   };
 
   return (
@@ -296,7 +301,7 @@ const FacilityInputForm: React.FC<Props> = ({ facility, scenarioId }) => {
         </Column>
         <Column width={"55%"} borderTop>
           <Spacer y={14} />
-          <FacilityProjections />
+          <FacilityProjections facility={facility} />
         </Column>
 
         {/* MODAL */}
@@ -308,10 +313,7 @@ const FacilityInputForm: React.FC<Props> = ({ facility, scenarioId }) => {
           <ModalContents>
             <ModalText>This action cannot be undone.</ModalText>
             <ModalButtons>
-              <DeleteButton
-                label="Delete facility"
-                onClick={removeFacility} // replace with actual delete function (pass ID)
-              >
+              <DeleteButton label="Delete facility" onClick={removeFacility}>
                 Delete facility
               </DeleteButton>
               <CancelButton onClick={closeDeleteModal}>Cancel</CancelButton>

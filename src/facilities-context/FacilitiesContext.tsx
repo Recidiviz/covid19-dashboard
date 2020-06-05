@@ -66,6 +66,7 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
   const scenarioId = scenario?.data?.id;
   const actions = {
     createOrUpdateFacility: facilitiesActions.createOrUpdateFacility(dispatch),
+    updateRtData: facilitiesActions.updateRtData(dispatch),
     removeFacility: facilitiesActions.removeFacility(dispatch),
     duplicateFacility: facilitiesActions.duplicateFacility(dispatch),
     deselectFacility: facilitiesActions.deselectFacility(dispatch),
