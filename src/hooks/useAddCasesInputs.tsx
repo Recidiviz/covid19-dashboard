@@ -53,9 +53,13 @@ const useAddCasesInputs = (
     [facilityModelVersions],
   );
 
+  const updateInputs = (update: ModelInputsPopulationBrackets) => {
+    setInputs({ ...inputs, ...update });
+  };
+
   useEffect(() => {
-    updateInputs(facility.modelInputs)
-  }, [facility.modelInputs])
+    updateInputs(facility.modelInputs);
+  }, [facility.modelInputs]);
 
   useEffect(() => {
     if (observedAt) {
@@ -71,10 +75,6 @@ const useAddCasesInputs = (
       }
     }
   }, [observedAt, findMatchingDay]);
-
-  const updateInputs = (update: ModelInputsPopulationBrackets) => {
-    setInputs({ ...inputs, ...update });
-  };
 
   const resetModalData = () => {
     setInputs(defaultInputs);

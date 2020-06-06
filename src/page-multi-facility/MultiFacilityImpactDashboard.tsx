@@ -162,7 +162,10 @@ const MultiFacilityImpactDashboard: React.FC = () => {
         </div>
         {selectedTab === 0 && projectionsPanel}
         {selectedTab === 1 && (
-          <RateOfSpreadPanel facilities={facilitiesState} />
+          <RateOfSpreadPanel
+            facilities={facilities}
+            loading={facilitiesState.loading}
+          />
         )}
       </div>
     </MultiFacilityImpactDashboardContainer>

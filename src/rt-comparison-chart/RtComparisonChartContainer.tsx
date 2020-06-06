@@ -3,13 +3,13 @@ import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 
 import Loading from "../design-system/Loading";
+import { useFacilities } from "../facilities-context";
 import {
   getDaysAgoRt,
   getFacilitiesRtDataById,
   isRtData,
   isRtError,
 } from "../infection-model/rt";
-import { FacilityContext } from "../page-multi-facility/FacilityContext";
 import { Facilities, RtDataMapping } from "../page-multi-facility/types";
 import RtComparisonChart, {
   isRtComparisonData,
@@ -33,7 +33,9 @@ const RtComparisonChartContainer: React.FC<{
   facilities: Facilities;
   rtDaysOffset: number;
 }> = ({ facilities, rtDaysOffset }) => {
-  const { rtData: rtDataMapping } = useContext(FacilityContext);
+  const {
+    state: { rtData: rtDataMapping },
+  } = useFacilities();
   const [chartData, setChartData] = useState([] as RtComparisonData[]);
   const [loading, updateLoading] = useState(true);
 

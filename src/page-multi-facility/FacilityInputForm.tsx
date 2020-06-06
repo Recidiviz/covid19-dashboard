@@ -24,7 +24,7 @@ import AddCasesModal from "./AddCasesModal";
 import FacilityProjections from "./FacilityProjections";
 import HistoricalCasesChart from "./HistoricalCasesChart";
 import LocaleInformationSection from "./LocaleInformationSection";
-import { Facility, RtDataMapping } from "./types";
+import { Facility, ModelInputs, RtDataMapping } from "./types";
 
 interface ButtonSectionProps {
   screenWidth: number;
@@ -163,7 +163,7 @@ const FacilityInputForm: React.FC<Props> = ({
 
   const onSave = () => {
     // Set observedAt to right now when updating a facility from this input form
-    const modelUpdate = Object.assign({}, model[0]);
+    const modelUpdate = Object.assign({}, model[0]) as ModelInputs;
     modelUpdate.observedAt = new Date();
 
     if (facilityName) {
