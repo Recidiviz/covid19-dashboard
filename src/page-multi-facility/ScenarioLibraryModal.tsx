@@ -23,7 +23,7 @@ const ModalContents = styled.div`
   font-weight: normal;
   justify-content: flex-start;
   margin-top: 30px;
-  height: 100%;
+  height: auto;
 
   h3 {
     border-bottom: 0.5px solid #c8d3d3;
