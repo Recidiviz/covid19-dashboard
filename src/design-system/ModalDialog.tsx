@@ -31,7 +31,6 @@ const ModalContainer = styled.div<ModalContainerProps>`
   height: ${(props) => props.height || "auto"};
   width: ${(props) => props.width || "65vw"};
   padding: 35px;
-  position: fixed;
   max-height: 90%;
   overflow-y: auto;
 `;
