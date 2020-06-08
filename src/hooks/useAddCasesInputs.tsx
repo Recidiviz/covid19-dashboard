@@ -2,8 +2,8 @@ import { startOfDay } from "date-fns";
 import { pick } from "lodash";
 import { useCallback, useEffect, useState } from "react";
 
-import { saveFacility } from "../database";
 import { useToasts } from "../design-system/Toast";
+import { useFacilities } from "../facilities-context";
 import {
   ModelInputsPopulationBrackets,
   populationBracketKeys,
@@ -22,6 +22,7 @@ const useAddCasesInputs = (
   onSave: (f: Facility) => void,
   observedAt?: Date | undefined,
 ) => {
+  const { actions } = useFacilities();
   const { addToast } = useToasts();
   const [facilityModelVersions, updateModelVersions] = useFacilityModelVersions(
     facility,
@@ -53,13 +54,13 @@ const useAddCasesInputs = (
     [facilityModelVersions],
   );
 
-  const updateInputs = (update: ModelInputsPopulationBrackets) => {
-    setInputs({ ...inputs, ...update });
-  };
+  const updateInputs = useCallback((update: ModelInputsPopulationBrackets) => {
+    setInputs((inputs) => ({ ...inputs, ...update }));
+  }, []);
 
   useEffect(() => {
     updateInputs(facility.modelInputs);
-  }, [facility.modelInputs]);
+  }, [facility.modelInputs, updateInputs]);
 
   useEffect(() => {
     if (observedAt) {
@@ -114,28 +115,30 @@ const useAddCasesInputs = (
     // if they are not most recent the save function will handle it,
     // unlike the local state handlers
     rejectionToast(
-      saveFacility(facility.scenarioId, {
-        id: facility.id,
-        modelInputs: newInputs,
-      }).then(() => {
-        // don't update the UI unless save succeeds; there may have been a permission rejection
-        if (
-          defaultObservationDate &&
-          observationDate &&
-          startOfDay(observationDate) >= startOfDay(defaultObservationDate)
-        ) {
-          // sending the full input object into the model context may trigger side effects
-          // such as a full reset, so just send the inputs that are editable
-          // in this dialog
-          updateModel({ ...inputs, observedAt: observationDate });
-          // new inputs should be the new "current" model inputs
-          latestFacilityData.modelInputs = newInputs;
-        }
+      actions
+        .createOrUpdateFacility(facility.scenarioId, {
+          id: facility.id,
+          modelInputs: newInputs,
+        })
+        .then(() => {
+          // don't update the UI unless save succeeds; there may have been a permission rejection
+          if (
+            defaultObservationDate &&
+            observationDate &&
+            startOfDay(observationDate) >= startOfDay(defaultObservationDate)
+          ) {
+            // sending the full input object into the model context may trigger side effects
+            // such as a full reset, so just send the inputs that are editable
+            // in this dialog
+            updateModel({ ...inputs, observedAt: observationDate });
+            // new inputs should be the new "current" model inputs
+            latestFacilityData.modelInputs = newInputs;
+          }
 
-        onSave(latestFacilityData);
-        updateModelVersions();
-        addToast("Data successfully saved!");
-      }),
+          onSave(latestFacilityData);
+          updateModelVersions();
+          addToast("Data successfully saved!");
+        }),
     );
   };
 

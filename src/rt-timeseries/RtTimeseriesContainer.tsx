@@ -1,5 +1,5 @@
 import hexAlpha from "hex-alpha";
-import React, { useContext, useEffect, useState } from "react";
+import React from "react";
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";

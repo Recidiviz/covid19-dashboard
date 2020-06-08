@@ -82,17 +82,21 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
         rethrowSync(e);
       }
     }
-  }, [scenarioId]);
+  }, [scenarioId, rethrowSync]);
 
   useEffect(() => {
     if (Object.values(state.facilities).length) {
       try {
-        facilitiesActions.fetchRtData(state, dispatch);
+        facilitiesActions.fetchRtData(state.facilities, state.rtData, dispatch);
       } catch (e) {
         rethrowSync(e);
       }
     }
-  }, [scenarioId, state.facilities]);
+    // We don't want to run this everytime rtData changes
+    // another option might be to separate out checking which facilities already
+    // have rtData fetched outside of the fetching function.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scenarioId, state.facilities, rethrowSync]);
 
   return (
     <FacilitiesContext.Provider value={{ state, dispatch, actions }}>

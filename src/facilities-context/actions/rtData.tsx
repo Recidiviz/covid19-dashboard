@@ -8,13 +8,13 @@ export const RECEIVE_RT_DATA_ERROR = "RECEIVE_RT_DATA_ERROR";
 export const UPDATE_FACILITY_RT_DATA = "UPDATE_FACILITY_RT_DATA";
 
 export async function fetchRtData(
-  state: FacilitiesState,
+  facilities: FacilitiesState["facilities"],
+  rtData: FacilitiesState["rtData"],
   dispatch: FacilitiesDispatch,
 ) {
   dispatch({ type: REQUEST_RT_DATA });
 
   try {
-    const { facilities, rtData } = state;
     const rtDataForFacilities: RtDataMapping = {};
 
     await Promise.all(
