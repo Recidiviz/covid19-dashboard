@@ -18,19 +18,13 @@ import {
 import useModel from "../impact-dashboard/useModel";
 import { getNewestRt, isRtData, RtData, RtError } from "../infection-model/rt";
 import AddCasesModal from "./AddCasesModal";
+import { initialPublicCurveToggles } from "./curveToggles";
 import FacilityRowRtValuePill from "./FacilityRowRtValuePill";
 import {
   useChartDataFromProjectionData,
   useProjectionData,
 } from "./projectionCurveHooks";
 import { Facility } from "./types";
-
-const groupStatus = {
-  exposed: true,
-  fatalities: true,
-  hospitalized: true,
-  infectious: true,
-};
 
 const LastUpdatedLabel = styled.div`
   color: ${Colors.forest50};
@@ -206,7 +200,7 @@ const FacilityRow: React.FC<Props> = ({ facility, facilityRtData, onSave }) => {
             curveData={chartData}
             chartHeight={144}
             hideAxes={true}
-            groupStatus={groupStatus}
+            groupStatus={initialPublicCurveToggles}
             markColors={markColors}
             addAnnotations={false}
           />

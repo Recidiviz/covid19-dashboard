@@ -31,7 +31,10 @@ const InputTextNumeric: React.FC<Props> = (props) => {
     if (value == null) return undefined;
 
     if (props.type === "percent") {
-      return `${value * 100}`;
+      const valueIsNumber = (value * 100).toFixed(0);
+      const valueIsString = `${valueIsNumber}`;
+
+      return valueIsString;
     } else {
       return `${value}`;
     }

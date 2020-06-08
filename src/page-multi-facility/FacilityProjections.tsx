@@ -1,9 +1,11 @@
 import React from "react";
 
+import { MarkColors } from "../design-system/Colors";
 import { useFacilities } from "../facilities-context";
 import ChartArea from "../impact-dashboard/ChartArea";
 import { useEpidemicModelState } from "../impact-dashboard/EpidemicModelContext";
 import ImpactProjectionTableContainer from "../impact-dashboard/ImpactProjectionTableContainer";
+import { initialPublicCurveToggles } from "../page-multi-facility/curveToggles";
 import { useProjectionData } from "./projectionCurveHooks";
 import { Facility } from "./types";
 
@@ -29,7 +31,11 @@ const FacilityProjections: React.FC<Props> = ({ facility }) => {
   );
   return (
     <>
-      <ChartArea projectionData={projectionData} />
+      <ChartArea
+        projectionData={projectionData}
+        initialCurveToggles={initialPublicCurveToggles}
+        markColors={MarkColors}
+      />
       <ImpactProjectionTableContainer projectionData={projectionData} />
     </>
   );

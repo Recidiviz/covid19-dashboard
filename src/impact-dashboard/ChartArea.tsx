@@ -2,19 +2,12 @@ import React from "react";
 import { useState } from "react";
 import styled from "styled-components";
 
-import { MarkColors as markColors } from "../design-system/Colors";
+import { ProjectionColors } from "../design-system/Colors";
 import { CurveData } from "../infection-model";
+import { CurveToggles } from "../page-multi-facility/curveToggles";
 import { useChartDataFromProjectionData } from "../page-multi-facility/projectionCurveHooks";
 import CurveChart from "./CurveChartContainer";
 import CurveChartLegend from "./CurveChartLegend";
-
-export type MarkColors = {
-  exposed: string;
-  infectious: string;
-  fatalities: string;
-  hospitalized: string;
-  hospitalBeds: string;
-};
 
 const Container = styled.div``;
 
@@ -41,13 +34,10 @@ const LegendTitle = styled.div`
 
 const ChartArea: React.FC<{
   projectionData?: CurveData;
-}> = ({ projectionData }) => {
-  const [groupStatus, setGroupStatus] = useState({
-    exposed: true,
-    fatalities: true,
-    hospitalized: true,
-    infectious: true,
-  });
+  initialCurveToggles: CurveToggles;
+  markColors: ProjectionColors;
+}> = ({ projectionData, initialCurveToggles, markColors }) => {
+  const [groupStatus, setGroupStatus] = useState(initialCurveToggles);
 
   const toggleGroup = (groupName: keyof typeof groupStatus) => {
     setGroupStatus({ ...groupStatus, [groupName]: !groupStatus[groupName] });
