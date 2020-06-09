@@ -13,7 +13,7 @@ import PopUpMenu from "../design-system/PopUpMenu";
 import { Spacer } from "../design-system/Spacer";
 import { useToasts } from "../design-system/Toast";
 import Tooltip from "../design-system/Tooltip";
-import { useFacilities } from "../facilities-context";
+import { getFacilityById, useFacilities } from "../facilities-context";
 import useRejectionToast from "../hooks/useRejectionToast";
 import useScreenWidth from "../hooks/useScreenWidth";
 import FacilityInformation from "../impact-dashboard/FacilityInformation";
@@ -24,7 +24,7 @@ import AddCasesModal from "./AddCasesModal";
 import FacilityProjections from "./FacilityProjections";
 import HistoricalCasesChart from "./HistoricalCasesChart";
 import LocaleInformationSection from "./LocaleInformationSection";
-import { Facility, RtDataMapping } from "./types";
+import { Facility } from "./types";
 
 interface ButtonSectionProps {
   screenWidth: number;
@@ -130,17 +130,12 @@ const PageHeaderContainer = styled.div`
 
 interface Props {
   scenarioId: string;
-  facility: Facility | undefined;
-  rtData: RtDataMapping;
 }
 
-const FacilityInputForm: React.FC<Props> = ({
-  rtData,
-  facility,
-  scenarioId,
-}) => {
+const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   const { addToast } = useToasts();
   const {
+    state: { rtData, facilities, selectedFacilityId },
     actions: {
       createOrUpdateFacility,
       removeFacility: deleteFacility,
@@ -150,6 +145,7 @@ const FacilityInputForm: React.FC<Props> = ({
       fetchFacilityRtData,
     },
   } = useFacilities();
+  const facility = getFacilityById(facilities, selectedFacilityId);
   const [facilityName, setFacilityName] = useState(facility?.name);
   const [description, setDescription] = useState(
     facility?.description || undefined,

@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 
 import Loading from "../design-system/Loading";
-import { useFacilities } from "../facilities-context";
+import { getFacilityById, useFacilities } from "../facilities-context";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
 import { useLocaleDataState } from "../locale-data-context";
 import useScenario from "../scenario-context/useScenario";
@@ -16,11 +16,9 @@ const FacilityPageDiv = styled.div``;
 const FacilityPage: React.FC = () => {
   const { data: localeDataSource } = useLocaleDataState();
   const {
-    state: { facilities, selectedFacilityId, rtData },
+    state: { facilities, selectedFacilityId },
   } = useFacilities();
-  const facility = Object.values(facilities).find(
-    (f) => f.id === selectedFacilityId,
-  );
+  const facility = getFacilityById(facilities, selectedFacilityId);
   const [scenario, dispatchScenarioUpdate] = useScenario();
 
   return (
@@ -43,9 +41,7 @@ const FacilityPage: React.FC = () => {
               <div className="max-w-screen-xl px-4 mx-auto">
                 <SiteHeader styles={{ borderBottom: "none" }} />
                 <FacilityInputForm
-                  key={facility?.id}
-                  facility={facility}
-                  rtData={rtData}
+                  key={selectedFacilityId || undefined}
                   scenarioId={scenario.data.id}
                 />
               </div>
