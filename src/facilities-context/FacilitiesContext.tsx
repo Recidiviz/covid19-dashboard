@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 
-import useError from "../hooks/useError";
 import {
   Facility,
   RtDataMapping,
@@ -24,7 +23,7 @@ export type FacilitiesDispatch = (
   action: facilitiesActions.FacilitiesActions,
 ) => void;
 
-export type Exportedactions = {
+export type ExportedActions = {
   updateRtData: (facility: Facility) => Promise<void>;
   createOrUpdateFacility: (
     scenarioId: Scenario["id"],
@@ -42,15 +41,15 @@ export type Exportedactions = {
   selectFacility: (faclityId: Facility["id"]) => void;
 };
 
-export interface FacilitiesContext {
+interface FacilitiesContext {
   state: FacilitiesState;
   dispatch: FacilitiesDispatch | undefined;
-  actions: Exportedactions;
+  actions: ExportedActions;
 }
 
-export const FacilitiesContext = React.createContext<
-  FacilitiesContext | undefined
->(undefined);
+const FacilitiesContext = React.createContext<FacilitiesContext | undefined>(
+  undefined,
+);
 
 export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -62,7 +61,6 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
     selectedFacilityId: null,
     rtData: {},
   });
-  const rethrowSync = useError();
   const [scenario] = useScenario();
   const scenarioId = scenario?.data?.id;
   const actions = {
@@ -76,27 +74,19 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     if (scenarioId) {
-      try {
-        facilitiesActions.fetchFacilities(scenarioId, dispatch);
-      } catch (e) {
-        rethrowSync(e);
-      }
+      facilitiesActions.fetchFacilities(scenarioId, dispatch);
     }
-  }, [scenarioId, rethrowSync]);
+  }, [scenarioId]);
 
   useEffect(() => {
     if (Object.values(state.facilities).length) {
-      try {
-        facilitiesActions.fetchRtData(state.facilities, state.rtData, dispatch);
-      } catch (e) {
-        rethrowSync(e);
-      }
+      facilitiesActions.fetchRtData(state.facilities, state.rtData, dispatch);
     }
     // We don't want to run this everytime rtData changes
     // another option might be to separate out checking which facilities already
     // have rtData fetched outside of the fetching function.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scenarioId, state.facilities, rethrowSync]);
+  }, [scenarioId, state.facilities]);
 
   return (
     <FacilitiesContext.Provider value={{ state, dispatch, actions }}>

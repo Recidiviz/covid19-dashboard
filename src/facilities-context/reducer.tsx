@@ -13,6 +13,7 @@ export function facilitiesReducer(
     case actions.RECEIVE_FACILITIES:
       return Object.assign({}, state, {
         loading: false,
+        failed: false,
         facilities: action.payload,
       });
 
