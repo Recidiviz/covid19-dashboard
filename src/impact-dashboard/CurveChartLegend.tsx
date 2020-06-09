@@ -1,8 +1,10 @@
 import classNames from "classnames";
+import sortBy from "lodash/sortBy";
 import React from "react";
 import styled from "styled-components";
 
-import { MarkColors } from "./ChartArea";
+import { ProjectionColors } from "../design-system/Colors";
+import { SeirCompartmentKeys, seirIndex } from "../infection-model/seir";
 
 const LegendWrapper = styled.div`
   display: flex;
@@ -26,10 +28,10 @@ const LegendItem = styled.button`
 `;
 
 interface Props {
-  markColors: MarkColors;
+  markColors: ProjectionColors;
   toggleGroup: Function;
   groupStatus: {
-    [propName: string]: boolean;
+    [propName in SeirCompartmentKeys]?: boolean;
   };
 }
 
@@ -38,40 +40,26 @@ const CurveChartLegend: React.FC<Props> = ({
   toggleGroup,
   groupStatus,
 }) => {
-  const toggledOffClass = (key: string) => ({
+  const toggledOffClass = (key: SeirCompartmentKeys) => ({
     "toggled-off": !groupStatus[key],
   });
 
   return (
     <LegendWrapper>
-      <LegendItem
-        className={classNames(toggledOffClass("exposed"))}
-        onClick={() => toggleGroup("exposed")}
-        color={markColors.exposed}
-      >
-        exposed
-      </LegendItem>
-      <LegendItem
-        className={classNames(toggledOffClass("infectious"))}
-        onClick={() => toggleGroup("infectious")}
-        color={markColors.infectious}
-      >
-        infectious
-      </LegendItem>
-      <LegendItem
-        className={classNames(toggledOffClass("hospitalized"))}
-        onClick={() => toggleGroup("hospitalized")}
-        color={markColors.hospitalized}
-      >
-        hospitalized
-      </LegendItem>
-      <LegendItem
-        className={classNames(toggledOffClass("fatalities"))}
-        onClick={() => toggleGroup("fatalities")}
-        color={markColors.fatalities}
-      >
-        fatalities
-      </LegendItem>
+      {(sortBy(Object.keys(groupStatus), [
+        (key: SeirCompartmentKeys) => {
+          return seirIndex[key];
+        },
+      ]) as SeirCompartmentKeys[]).map((key) => (
+        <LegendItem
+          key={key}
+          className={classNames(toggledOffClass(key))}
+          onClick={() => toggleGroup(key)}
+          color={markColors[key]}
+        >
+          {key}
+        </LegendItem>
+      ))}
     </LegendWrapper>
   );
 };

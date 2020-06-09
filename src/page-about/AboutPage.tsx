@@ -127,6 +127,15 @@ const AboutPage: React.FC = () => (
                   Generate Impact Report
                 </a>
               </li>
+              <li className="my-2">
+                <a
+                  href="https://docs.google.com/document/d/1IYiO_eIBcKzuyDP2tAOPuX84l848BHcYPT-a0IVWKLg/edit"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Scenario Sharing & Multi-Scenario Creation
+                </a>
+              </li>
             </ul>
             <h1 className="text-2xl sm:text-3xl text-left font-display mt-10">
               FAQ
