@@ -54,7 +54,7 @@ const isValidRt = (rtValue: number | RtError | undefined): rtValue is number =>
   typeof rtValue === "number";
 
 const rtDisplayValue = (latestRt: number | RtError | undefined) => {
-  return isValidRt(latestRt) ? numeral(latestRt).format("0.0") : "?";
+  return isValidRt(latestRt) ? numeral(latestRt).format("0.0[0]") : "?";
 };
 
 const hasDataTitle = (latestRt: number | RtError | undefined) =>
