@@ -24,7 +24,7 @@ export type FacilitiesDispatch = (
 ) => void;
 
 export type ExportedActions = {
-  updateRtData: (facility: Facility) => Promise<void>;
+  fetchFacilityRtData: (facility: Facility) => Promise<void>;
   createOrUpdateFacility: (
     scenarioId: Scenario["id"],
     facility: Partial<Facility>,
@@ -65,7 +65,7 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
   const scenarioId = scenario?.data?.id;
   const actions = {
     createOrUpdateFacility: facilitiesActions.createOrUpdateFacility(dispatch),
-    updateRtData: facilitiesActions.updateRtData(dispatch),
+    fetchFacilityRtData: facilitiesActions.fetchFacilityRtData(dispatch),
     removeFacility: facilitiesActions.removeFacility(dispatch),
     duplicateFacility: facilitiesActions.duplicateFacility(dispatch),
     deselectFacility: facilitiesActions.deselectFacility(dispatch),
@@ -79,14 +79,15 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [scenarioId]);
 
   useEffect(() => {
-    if (Object.values(state.facilities).length) {
-      facilitiesActions.fetchRtData(state.facilities, state.rtData, dispatch);
+    const facilities = Object.values({ ...state.facilities });
+    if (facilities.length) {
+      facilities.forEach((facility) => {
+        if (!state.rtData.hasOwnProperty(facility.id)) {
+          facilitiesActions.fetchFacilityRtData(dispatch)(facility);
+        }
+      });
     }
-    // We don't want to run this everytime rtData changes
-    // another option might be to separate out checking which facilities already
-    // have rtData fetched outside of the fetching function.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scenarioId, state.facilities]);
+  }, [scenarioId, state.facilities, state.rtData]);
 
   return (
     <FacilitiesContext.Provider value={{ state, dispatch, actions }}>

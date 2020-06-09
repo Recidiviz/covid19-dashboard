@@ -10,7 +10,6 @@ import {
   SELECT_FACILITY,
 } from "./facilities";
 import {
-  RECEIVE_RT_DATA,
   RECEIVE_RT_DATA_ERROR,
   REQUEST_RT_DATA,
   UPDATE_FACILITY_RT_DATA,
@@ -38,7 +37,7 @@ export type RECEIVE_FACILITIES_ACTION = {
 };
 
 export type RT_DATA_ACTION = {
-  type: typeof RECEIVE_RT_DATA | typeof UPDATE_FACILITY_RT_DATA;
+  type: typeof UPDATE_FACILITY_RT_DATA;
   payload: RtDataMapping;
 };
 

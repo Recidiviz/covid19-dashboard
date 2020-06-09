@@ -44,7 +44,6 @@ export function facilitiesReducer(
       });
     }
 
-    case actions.RECEIVE_RT_DATA:
     case actions.UPDATE_FACILITY_RT_DATA:
       return Object.assign({}, state, {
         rtData: { ...state.rtData, ...action.payload },

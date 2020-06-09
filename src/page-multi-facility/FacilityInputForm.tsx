@@ -147,7 +147,7 @@ const FacilityInputForm: React.FC<Props> = ({
       duplicateFacility,
       deselectFacility,
       selectFacility,
-      updateRtData,
+      fetchFacilityRtData,
     },
   } = useFacilities();
   const [facilityName, setFacilityName] = useState(facility?.name);
@@ -222,7 +222,7 @@ const FacilityInputForm: React.FC<Props> = ({
 
   const onModalSave = (newFacility: Facility) => {
     createOrUpdateFacility(scenarioId, newFacility);
-    updateRtData(newFacility);
+    fetchFacilityRtData(newFacility);
   };
 
   return (
