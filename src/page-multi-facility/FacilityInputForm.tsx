@@ -1,4 +1,5 @@
 import { navigate } from "gatsby";
+import { pick } from "lodash";
 import React, { useState } from "react";
 import styled from "styled-components";
 
@@ -16,6 +17,7 @@ import Tooltip from "../design-system/Tooltip";
 import { getFacilityById, useFacilities } from "../facilities-context";
 import useRejectionToast from "../hooks/useRejectionToast";
 import useScreenWidth from "../hooks/useScreenWidth";
+import { persistedKeys } from "../impact-dashboard/EpidemicModelContext";
 import FacilityInformation from "../impact-dashboard/FacilityInformation";
 import MitigationInformation from "../impact-dashboard/MitigationInformation";
 import useModel from "../impact-dashboard/useModel";
@@ -161,8 +163,14 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
 
   const onSave = () => {
     // Set observedAt to right now when updating a facility from this input form
-    const modelUpdate: any = Object.assign({}, model[0]);
-    modelUpdate.observedAt = new Date();
+    const modelUpdate = Object.assign(
+      {},
+      facility?.modelInputs,
+      pick(model[0], persistedKeys),
+      {
+        observedAt: new Date(),
+      },
+    );
 
     if (facilityName) {
       rejectionToast(
