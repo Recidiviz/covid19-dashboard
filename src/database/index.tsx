@@ -29,6 +29,7 @@ import {
   buildScenario,
   buildUser,
 } from "./type-transforms";
+import useCurrentUserEmail from "../hooks/useCurrentUserEmail";
 import AppAuth0ClientPromise from "../auth/AppAuth0ClientPromise";
 import { ascending } from "d3-array";
 import { validateCumulativeCases } from "../infection-model/validators";
@@ -141,6 +142,14 @@ function throwIfPermissionsError(
   }
   throw error;
 }
+
+export const SCENARIO_DEFAULTS = {
+  baseline: false,
+  dailyReports: false,
+  dataSharing: false,
+  promoStatuses: {},
+  baselinePopulations: [],
+};
 
 const getBaselineScenarioRef = async (): Promise<firebase.firestore.DocumentReference | void> => {
   const db = await getDb();
@@ -497,8 +506,13 @@ export const saveUser = async (userData: UserToSave): Promise<void> => {
 export const addScenarioUser = async (
   scenarioId: string,
   email: string,
+  currentUserEmail: string,
 ): Promise<User> => {
   try {
+    if (email === currentUserEmail) {
+      throw new Error(`Please submit a different user's email`);
+    }
+
     const userDocument = await getUserDocument({ email });
     const auth0Id = userDocument.data().auth0Id;
     const scenario = await getScenario(scenarioId);
@@ -862,15 +876,11 @@ export const duplicateScenario = async (
       ? [...scenario.baselinePopulations]
       : [];
 
-    batch.set(scenarioDoc, {
+    const scenarioData = Object.assign({}, SCENARIO_DEFAULTS, {
       name: `Copy of ${scenario.name}`,
       description: `This is a copy of the '${
         scenario.name
       }' scenario, made on ${format(new Date(), MMMMdyyyy)}`,
-      baseline: false,
-      dailyReports: false,
-      dataSharing: false,
-      promoStatuses: {},
       baselinePopulations: [...baselinePopulationsCopy],
       roles: {
         [userId]: "owner",
@@ -878,6 +888,8 @@ export const duplicateScenario = async (
       createdAt: timestamp,
       updatedAt: timestamp,
     });
+
+    batch.set(scenarioDoc, scenarioData);
 
     // Duplicate and save all of the Facilities
     const facilities = await getFacilities(scenarioId);

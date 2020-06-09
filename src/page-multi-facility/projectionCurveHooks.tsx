@@ -10,7 +10,11 @@ import {
 } from "../infection-model";
 import { getAllValues, getColView } from "../infection-model/matrixUtils";
 import { isRtData, isRtError } from "../infection-model/rt";
-import { seirIndex } from "../infection-model/seir";
+import {
+  SeirCompartmentKeys,
+  seirIndex,
+  seirIndexList,
+} from "../infection-model/seir";
 import { RtValue } from "./types";
 
 function getCurves(
@@ -56,21 +60,29 @@ function combinePopulations(data: CurveData, columnIndex: number) {
   ).map(([incarcerated, staff]) => incarcerated + staff);
 }
 
-function buildCurves(projectionData?: CurveData) {
+type CurveDataMapping = {
+  [key in SeirCompartmentKeys]: number[];
+};
+
+function buildCurves(projectionData?: CurveData): CurveDataMapping | undefined {
   if (!projectionData) return undefined;
 
-  // merge and filter the curve data to only what we need for the chart
-  return {
-    exposed: combinePopulations(projectionData, seirIndex.exposed),
-    fatalities: combinePopulations(projectionData, seirIndex.fatalities),
-    hospitalized: combinePopulations(projectionData, seirIndex.hospitalized),
-    infectious: combinePopulations(projectionData, seirIndex.infectious),
-  };
+  const curvesToShow = seirIndexList;
+
+  // each SEIR compartment will have a corresponding curve data array
+  return curvesToShow.reduce((curves, currentIndex) => {
+    return {
+      ...curves,
+      [seirIndex[currentIndex]]: combinePopulations(
+        projectionData,
+        currentIndex,
+      ),
+    };
+  }, {} as CurveDataMapping);
 }
 
 export const useChartDataFromProjectionData = (projectionData?: CurveData) => {
   const [curveData, updateCurveData] = useState(buildCurves(projectionData));
-
   useEffect(() => {
     updateCurveData(buildCurves(projectionData));
   }, [projectionData]);

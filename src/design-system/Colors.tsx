@@ -2,6 +2,7 @@ import { lab } from "d3";
 import hexAlpha from "hex-alpha";
 
 import { RateOfSpreadType } from "../constants/EpidemicModel";
+import { SeirCompartmentKeys } from "../infection-model/seir";
 
 export function darken(color: string, amount: number) {
   // good to use Lab color because it's perceptually uniform
@@ -50,7 +51,11 @@ const Colors = {
 };
 
 // Shared colors for the Projection charts
-export const MarkColors = {
+export type ProjectionColors = {
+  [key in SeirCompartmentKeys | "hospitalBeds"]?: string;
+};
+
+export const MarkColors: ProjectionColors = {
   exposed: Colors.green,
   fatalities: Colors.black,
   hospitalized: Colors.lightBlue,
