@@ -1,3 +1,4 @@
+import { navigate } from "gatsby";
 import React, { useState } from "react";
 import styled from "styled-components";
 
@@ -66,10 +67,12 @@ const ReadOnlyScenarioBanner: React.FC<Props> = (props) => {
 
   const duplicate = (scenarioId: string) => {
     setModalOpen(true);
-    duplicateScenario(scenarioId).then((scenario) => {
-      setModalOpen(false);
-      dispatchScenarioUpdate(scenario);
-    });
+    duplicateScenario(scenarioId)
+      .then((scenario) => {
+        setModalOpen(false);
+        dispatchScenarioUpdate(scenario);
+      })
+      .then(() => navigate("/"));
   };
 
   return (
