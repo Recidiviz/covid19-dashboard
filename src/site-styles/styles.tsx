@@ -11,7 +11,7 @@ export const GlobalStyles = createGlobalStyle`
   }
 
   body {
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Rubik', sans-serif;
     font-style: normal;
     font-weight: 600;
     font-size: 14px;

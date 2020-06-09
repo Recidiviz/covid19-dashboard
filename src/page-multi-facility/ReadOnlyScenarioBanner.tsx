@@ -48,6 +48,12 @@ const Logo = styled.img`
   margin-right: 10px;
 `;
 
+const Anchor = styled.a`
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
 interface Props {
   scenario: Scenario;
   dispatchScenarioUpdate: Function;
@@ -73,9 +79,9 @@ const ReadOnlyScenarioBanner: React.FC<Props> = (props) => {
         <IconEye alt="folder" src={iconEyeSrc} />
         View Only Mode. No edits can be made to this scenario.
       </BannerMessage>
-      <a href="#" onClick={() => duplicate(scenario.id)}>
+      <Anchor href="#" onClick={() => duplicate(scenario.id)}>
         Duplicate
-      </a>
+      </Anchor>
       <ModalDialog
         title={`Duplicating ${scenario.name}`}
         open={modalOpen}
