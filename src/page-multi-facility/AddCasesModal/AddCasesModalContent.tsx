@@ -25,6 +25,7 @@ const ModalContents = styled.div`
   flex-direction: column;
   font-weight: normal;
   justify-content: flex-start;
+  margin-top: 30px;
   padding-bottom: 35px;
 
   .react-calendar__tile {
