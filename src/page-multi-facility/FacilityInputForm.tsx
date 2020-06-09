@@ -191,7 +191,6 @@ const FacilityInputForm: React.FC<Props> = ({
       await rejectionToast(
         duplicateFacility(scenarioId, facility).then((duplicatedFacility) => {
           if (duplicatedFacility) {
-            console.log({ duplicatedFacility });
             selectFacility(duplicatedFacility.id);
             addToast("Facility successfully duplicated");
           }
@@ -227,8 +226,6 @@ const FacilityInputForm: React.FC<Props> = ({
     createOrUpdateFacility(scenarioId, newFacility);
     fetchFacilityRtData(newFacility);
   };
-
-  console.log({ facility });
 
   return (
     <>
