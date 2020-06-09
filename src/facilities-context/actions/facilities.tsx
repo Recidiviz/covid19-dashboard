@@ -28,7 +28,7 @@ export function selectFacility(dispatch: FacilitiesDispatch) {
   return (facilityId: Facility["id"]) => {
     dispatch({
       type: SELECT_FACILITY,
-      payload: { id: facilityId },
+      payload: facilityId,
     });
   };
 }
@@ -53,8 +53,7 @@ export async function fetchFacilities(
       });
     }
   } catch (error) {
-    // note: should save error message in the state.
-    // currently getFacilities returns null if there is an error
+    console.error(`Error fetching facilities for scenario: ${scenarioId}`);
     dispatch({
       type: RECEIVE_FACILITIES_ERROR,
     });
@@ -66,12 +65,16 @@ export function createOrUpdateFacility(dispatch: FacilitiesDispatch) {
     if (scenarioId) {
       try {
         const updatedFacility = await saveFacility(scenarioId, facility);
-        dispatch({
-          type: CREATE_OR_UPDATE_FACILITY,
-          payload: { ...updatedFacility },
-        });
+        if (updatedFacility && updatedFacility.id) {
+          dispatch({
+            type: CREATE_OR_UPDATE_FACILITY,
+            payload: { ...updatedFacility },
+          });
+        }
       } catch (error) {
-        // handle updating facility errors
+        console.error(
+          `Error creating or updating facility for scenario: ${scenarioId}`,
+        );
       }
     }
   };
@@ -84,10 +87,10 @@ export function removeFacility(dispatch: FacilitiesDispatch) {
         await deleteFacility(scenarioId, facilityId);
         dispatch({
           type: REMOVE_FACILITY,
-          payload: { id: facilityId },
+          payload: facilityId,
         });
       } catch (error) {
-        // handle deleting facility errors
+        console.error(`Error deleting facility: ${facilityId}`);
       }
     }
   };
@@ -106,7 +109,7 @@ export function duplicateFacility(dispatch: FacilitiesDispatch) {
         }
         return duplicatedFacility;
       } catch (error) {
-        // handle duplicating facility errors
+        console.error(`Error duplicating facility: ${facility.id}`);
       }
     }
   };

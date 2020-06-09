@@ -1,4 +1,3 @@
-import { Facility } from "../page-multi-facility/types";
 import * as actions from "./actions";
 import { FacilitiesState } from "./FacilitiesContext";
 
@@ -25,21 +24,19 @@ export function facilitiesReducer(
       });
 
     case actions.CREATE_OR_UPDATE_FACILITY: {
-      const facility = action.payload as Facility;
-      if (!facility?.id) return state;
+      const facility = action.payload;
       let facilities = { ...state.facilities };
       facilities[facility.id] = facility;
       return Object.assign({}, state, { facilities });
     }
 
     case actions.REMOVE_FACILITY: {
-      const facility = action.payload as Facility;
-      if (!facility?.id || !Object.keys(state.facilities).length) return state;
+      const facilityId = action.payload;
       let facilities = { ...state.facilities };
       let rtData = { ...state.rtData };
       // remove facility from facilities & rtData
-      delete facilities[facility.id];
-      delete rtData[facility.id];
+      delete facilities[facilityId];
+      delete rtData[facilityId];
       return Object.assign({}, state, {
         facilities,
         rtData,
@@ -48,18 +45,14 @@ export function facilitiesReducer(
     }
 
     case actions.RECEIVE_RT_DATA:
-      return Object.assign({}, state, {
-        rtData: { ...state.rtData, ...action.payload },
-      });
-
     case actions.UPDATE_FACILITY_RT_DATA:
       return Object.assign({}, state, {
         rtData: { ...state.rtData, ...action.payload },
       });
 
     case actions.SELECT_FACILITY:
-      const { id } = action.payload as Partial<Facility>;
-      return Object.assign({}, state, { selectedFacilityId: id });
+      const selectedFacilityId = action.payload;
+      return Object.assign({}, state, { selectedFacilityId });
 
     case actions.DESELECT_FACILITY:
       return Object.assign({}, state, { selectedFacilityId: null });

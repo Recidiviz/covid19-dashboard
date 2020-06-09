@@ -33,7 +33,6 @@ export async function fetchRtData(
   } catch (error) {
     dispatch({
       type: RECEIVE_RT_DATA_ERROR,
-      payload: { error },
     });
   }
 }
