@@ -72,7 +72,6 @@ const DonutChartSubtitle = styled.text`
   font-size: 12px;
   font-weight: normal;
   line-height: 16px;
-  transform: translate(0px, 20px);
 `;
 
 function rtDonutChartAnnotation(d: any) {
@@ -84,7 +83,7 @@ function rtDonutChartAnnotation(d: any) {
        ${d.adjustedSize[0] / 2})`}
     >
       <DonutChartTitle>{d.d.title}</DonutChartTitle>
-      <DonutChartSubtitle>{d.d.subtitle}</DonutChartSubtitle>
+      <DonutChartSubtitle transform={'translate(0 20)'}>{d.d.subtitle}</DonutChartSubtitle>
     </g>
   );
 }
