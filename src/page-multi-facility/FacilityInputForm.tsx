@@ -24,7 +24,7 @@ import AddCasesModal from "./AddCasesModal";
 import FacilityProjections from "./FacilityProjections";
 import HistoricalCasesChart from "./HistoricalCasesChart";
 import LocaleInformationSection from "./LocaleInformationSection";
-import { Facility, ModelInputs, RtDataMapping } from "./types";
+import { Facility, RtDataMapping } from "./types";
 
 interface ButtonSectionProps {
   screenWidth: number;
@@ -151,7 +151,9 @@ const FacilityInputForm: React.FC<Props> = ({
     },
   } = useFacilities();
   const [facilityName, setFacilityName] = useState(facility?.name);
-  const [description, setDescription] = useState(facility?.description);
+  const [description, setDescription] = useState(
+    facility?.description || undefined,
+  );
   const [systemType, setSystemType] = useState(
     facility?.systemType || undefined,
   );
@@ -163,7 +165,7 @@ const FacilityInputForm: React.FC<Props> = ({
 
   const onSave = () => {
     // Set observedAt to right now when updating a facility from this input form
-    const modelUpdate = Object.assign({}, model[0]) as ModelInputs;
+    const modelUpdate: any = Object.assign({}, model[0]);
     modelUpdate.observedAt = new Date();
 
     if (facilityName) {
@@ -189,6 +191,7 @@ const FacilityInputForm: React.FC<Props> = ({
       await rejectionToast(
         duplicateFacility(scenarioId, facility).then((duplicatedFacility) => {
           if (duplicatedFacility) {
+            console.log({ duplicatedFacility });
             selectFacility(duplicatedFacility.id);
             addToast("Facility successfully duplicated");
           }
@@ -225,12 +228,14 @@ const FacilityInputForm: React.FC<Props> = ({
     fetchFacilityRtData(newFacility);
   };
 
+  console.log({ facility });
+
   return (
     <>
       <PageHeaderContainer>
         <div className="mx-5">
           <InputName
-            name={facility?.name || facilityName}
+            name={facilityName}
             setName={setFacilityName}
             placeholderValue="Unnamed Facility"
             placeholderText="Facility name is required"
@@ -265,7 +270,7 @@ const FacilityInputForm: React.FC<Props> = ({
           <Spacer y={14} />
           <DescRow>
             <InputDescription
-              description={facility?.description || undefined}
+              description={description}
               setDescription={setDescription}
               placeholderValue="Enter a description (optional)"
             />
