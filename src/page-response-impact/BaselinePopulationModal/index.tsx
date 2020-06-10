@@ -32,7 +32,8 @@ const ModalFooter = styled.div`
 const ModalContent = styled.div`
   display: flex;
   flex-direction: column;
-  flex: 1 1;
+  flex: 1 1 auto;
+  min-height: 150px;
 `;
 
 export interface Props {
