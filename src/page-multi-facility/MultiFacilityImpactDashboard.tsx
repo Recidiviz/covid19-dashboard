@@ -3,15 +3,23 @@ import React, { useState } from "react";
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
+import { MarkColors } from "../design-system/Colors";
 import iconAddSrc from "../design-system/icons/ic_add.svg";
 import Loading from "../design-system/Loading";
 import TextLabel from "../design-system/TextLabel";
 import { useFacilities } from "../facilities-context";
 import { useFlag } from "../feature-flags";
 import useRejectionToast from "../hooks/useRejectionToast";
+import ChartArea from "../impact-dashboard/ChartArea";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
 import { getFacilitiesRtDataById } from "../infection-model/rt";
 import { useLocaleDataState } from "../locale-data-context";
+import { publicCurvesAndCaseToggles } from "../page-multi-facility/curveToggles";
+import {
+  useCurrentCurveData,
+  useEpidemicModelState,
+} from "../page-response-impact/hooks";
+import { getCurveChartData } from "../page-response-impact/responseChartData";
 import useScenario from "../scenario-context/useScenario";
 import FacilityRow from "./FacilityRow";
 import FacilityRowPlaceholder from "./FacilityRowPlaceholder";
@@ -85,6 +93,9 @@ const MultiFacilityImpactDashboard: React.FC = () => {
   } = useFacilities();
   const facilities = Object.values(facilitiesState.facilities);
   const rtData = getFacilitiesRtDataById(facilitiesState.rtData, facilities);
+  const epidemicModelStates = useEpidemicModelState(facilities, localeDataSource);
+  const curveChartInputs = useCurrentCurveData(epidemicModelStates, localeDataSource);
+  const curvedChartData = getCurveChartData(curveChartInputs);
 
   const handleFacilitySave = async (facility: Facility) => {
     if (scenarioId) {
@@ -138,6 +149,12 @@ const MultiFacilityImpactDashboard: React.FC = () => {
             rtData={rtData}
           />
         )}
+        <ChartArea
+          chartData={curvedChartData}
+          addAnnotations={false}
+          markColors={MarkColors}
+          initialCurveToggles={publicCurvesAndCaseToggles}
+        />
         <div className="flex flex-row flex-none justify-between items-start">
           <AddFacilityButton onClick={openAddFacilityPage}>
             <IconAdd alt="add facility" src={iconAddSrc} />

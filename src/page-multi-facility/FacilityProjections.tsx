@@ -6,7 +6,10 @@ import ChartArea from "../impact-dashboard/ChartArea";
 import { useEpidemicModelState } from "../impact-dashboard/EpidemicModelContext";
 import ImpactProjectionTableContainer from "../impact-dashboard/ImpactProjectionTableContainer";
 import { initialPublicCurveToggles } from "../page-multi-facility/curveToggles";
-import { useProjectionData } from "./projectionCurveHooks";
+import {
+  useChartDataFromProjectionData,
+  useProjectionData,
+} from "./projectionCurveHooks";
 import { Facility } from "./types";
 
 interface Props {
@@ -24,17 +27,25 @@ const FacilityProjections: React.FC<Props> = ({ facility }) => {
     useRt = true;
     facilityRtData = rtData ? rtData[facility.id] : undefined;
   }
+
+  const { hospitalBeds } = useEpidemicModelState();
+
   const projectionData = useProjectionData(
     useEpidemicModelState(),
     useRt,
     facilityRtData,
   );
+
+  const chartData = useChartDataFromProjectionData(projectionData);
+
   return (
     <>
       <ChartArea
-        projectionData={projectionData}
         initialCurveToggles={initialPublicCurveToggles}
         markColors={MarkColors}
+        addAnnotations={true}
+        hospitalBeds={hospitalBeds}
+        chartData={chartData}
       />
       <ImpactProjectionTableContainer projectionData={projectionData} />
     </>

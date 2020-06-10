@@ -54,7 +54,7 @@ const Colors = {
 
 // Shared colors for the Projection charts
 export type ProjectionColors = {
-  [key in SeirCompartmentKeys | "hospitalBeds"]?: string;
+  [key in SeirCompartmentKeys | "hospitalBeds" | "cases"]?: string;
 };
 
 export const MarkColors: ProjectionColors = {
@@ -63,6 +63,7 @@ export const MarkColors: ProjectionColors = {
   hospitalized: Colors.lightBlue,
   hospitalBeds: darken(Colors.lightBlue, 20),
   infectious: Colors.red,
+  cases: Colors.darkGray,
 };
 
 export default Colors;

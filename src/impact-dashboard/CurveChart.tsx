@@ -80,7 +80,7 @@ export interface ChartData {
 interface CurveChartProps {
   curveData: ChartData;
   chartHeight?: number;
-  hospitalBeds: number;
+  hospitalBeds?: number;
   markColors: MarkColors;
   hideAxes?: boolean;
   yAxisExtent?: number[];

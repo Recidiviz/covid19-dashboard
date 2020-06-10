@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { ProjectionColors } from "../design-system/Colors";
 import Loading from "../design-system/Loading";
 import CurveChart, { ChartData } from "./CurveChart";
-import { useEpidemicModelState } from "./EpidemicModelContext";
 
 interface Props {
   chartHeight?: number;
@@ -13,6 +12,7 @@ interface Props {
   hideAxes?: boolean;
   markColors: ProjectionColors;
   curveData?: ChartData;
+  hospitalBeds?: number;
   addAnnotations?: boolean;
 }
 
@@ -22,9 +22,9 @@ const CurveChartContainer: React.FC<Props> = ({
   chartHeight,
   hideAxes,
   curveData,
+  hospitalBeds,
   addAnnotations = true,
 }) => {
-  const { hospitalBeds } = useEpidemicModelState();
   const [curveDataFiltered, setCurveDataFiltered] = useState(curveData);
 
   useEffect(() => {

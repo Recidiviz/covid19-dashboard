@@ -10,7 +10,10 @@ import LocaleInformation from "../impact-dashboard/LocaleInformation";
 import MitigationInformation from "../impact-dashboard/MitigationInformation";
 import { seirIndex, seirIndexList } from "../infection-model/seir";
 import { buildInitialCurveToggles } from "../page-multi-facility/curveToggles";
-import { useProjectionData } from "../page-multi-facility/projectionCurveHooks";
+import {
+  useChartDataFromProjectionData,
+  useProjectionData,
+} from "../page-multi-facility/projectionCurveHooks";
 import ModelInspectionTable from "./ModelInspectionTableContainer";
 
 const borderStyle = `1px solid ${Colors.paleGreen}`;
@@ -71,6 +74,9 @@ const markColors = seirIndexList.reduce((colors, currentIndex) => {
 }, {});
 
 const ModelInspectionPage: React.FC = () => {
+  const projectionData = useProjectionData(useEpidemicModelState());
+
+  const chartData = useChartDataFromProjectionData(projectionData);
   return (
     <div>
       <SectionHeader>Locale Information</SectionHeader>
@@ -86,7 +92,7 @@ const ModelInspectionPage: React.FC = () => {
         </FormColumn>
         <ChartsContainer>
           <ChartArea
-            projectionData={useProjectionData(useEpidemicModelState())}
+            chartData={chartData}
             initialCurveToggles={initialToggleStatus}
             markColors={markColors}
           />

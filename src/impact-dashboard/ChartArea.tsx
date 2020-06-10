@@ -3,10 +3,9 @@ import { useState } from "react";
 import styled from "styled-components";
 
 import { ProjectionColors } from "../design-system/Colors";
-import { CurveData } from "../infection-model";
 import { CurveToggles } from "../page-multi-facility/curveToggles";
-import { useChartDataFromProjectionData } from "../page-multi-facility/projectionCurveHooks";
-import CurveChart from "./CurveChartContainer";
+import { ChartData } from "./CurveChart";
+import CurveChartContainer from "./CurveChartContainer";
 import CurveChartLegend from "./CurveChartLegend";
 
 const Container = styled.div``;
@@ -33,17 +32,23 @@ const LegendTitle = styled.div`
 `;
 
 const ChartArea: React.FC<{
-  projectionData?: CurveData;
   initialCurveToggles: CurveToggles;
   markColors: ProjectionColors;
-}> = ({ projectionData, initialCurveToggles, markColors }) => {
+  chartData?: ChartData;
+  addAnnotations?: boolean;
+  hospitalBeds?: number;
+}> = ({
+  initialCurveToggles,
+  markColors,
+  chartData,
+  addAnnotations,
+  hospitalBeds,
+}) => {
   const [groupStatus, setGroupStatus] = useState(initialCurveToggles);
 
   const toggleGroup = (groupName: keyof typeof groupStatus) => {
     setGroupStatus({ ...groupStatus, [groupName]: !groupStatus[groupName] });
   };
-
-  const chartData = useChartDataFromProjectionData(projectionData);
 
   return (
     <Container>
@@ -57,10 +62,12 @@ const ChartArea: React.FC<{
           />
         </LegendContainer>
       </LegendAndActions>
-      <CurveChart
+      <CurveChartContainer
         curveData={chartData}
         groupStatus={groupStatus}
         markColors={markColors}
+        hospitalBeds={hospitalBeds}
+        addAnnotations={addAnnotations}
       />
     </Container>
   );

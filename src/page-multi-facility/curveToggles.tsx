@@ -9,7 +9,7 @@ const publicCurves = [
 ];
 
 export type CurveToggles = {
-  [key in SeirCompartmentKeys]?: boolean;
+  [key in SeirCompartmentKeys | "cases"]?: boolean;
 };
 
 export function buildInitialCurveToggles(
@@ -20,4 +20,14 @@ export function buildInitialCurveToggles(
   }, {});
 }
 
+function buildPublicCurvesAndCaseToggles(
+  curveIndices: seirIndex[],
+): CurveToggles {
+  const curveToggles = buildInitialCurveToggles(curveIndices);
+  return { cases: true, ...curveToggles };
+}
+
 export const initialPublicCurveToggles = buildInitialCurveToggles(publicCurves);
+export const publicCurvesAndCaseToggles = buildPublicCurvesAndCaseToggles(
+  publicCurves,
+);

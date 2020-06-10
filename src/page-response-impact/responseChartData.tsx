@@ -6,6 +6,7 @@ import {
   getLocaleDefaults,
 } from "../impact-dashboard/EpidemicModelContext";
 import { RateOfSpread } from "../impact-dashboard/EpidemicModelContext";
+import { countCasesForDay } from "../impact-dashboard/ImpactProjectionTableContainer";
 import {
   calculateCurves,
   CurveData,
@@ -124,7 +125,7 @@ export function calculateCurveData(facilitiesInputs: CurveFunctionInputs[]) {
   });
 }
 
-function combineFacilitiesProjectionData(
+export function combineFacilitiesProjectionData(
   facilitiesProjectionData: CurveData[],
 ) {
   if (!facilitiesProjectionData.length) return ndarray([], []);
@@ -141,6 +142,15 @@ function combineFacilitiesProjectionData(
   return ndarray(summedData, [NUM_DAYS, seirIndex.__length]);
 }
 
+function getCaseCount(combinedData: ndarray<number>) {
+  const cases = [];
+  for (let day = 0; day < combinedData.shape[0]; ++day) {
+    const caseCountForDay = countCasesForDay(combinedData, day);
+    cases.push(caseCountForDay);
+  }
+  return cases;
+}
+
 export function getCurveChartData(facilitiesInputs: CurveFunctionInputs[]) {
   if (!facilitiesInputs.length)
     return {
@@ -150,6 +160,7 @@ export function getCurveChartData(facilitiesInputs: CurveFunctionInputs[]) {
       fatalities: [],
       hospitalized: [],
       infectious: [],
+      cases: [],
     };
   const facilitiesProjectionData = calculateCurveData(facilitiesInputs);
   const combinedData: ndarray = combineFacilitiesProjectionData(
@@ -162,5 +173,6 @@ export function getCurveChartData(facilitiesInputs: CurveFunctionInputs[]) {
       getColView(combinedData, seirIndex.hospitalized),
     ),
     infectious: getAllValues(getColView(combinedData, seirIndex.infectious)),
+    cases: getCaseCount(combinedData),
   };
 }
