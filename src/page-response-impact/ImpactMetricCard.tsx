@@ -54,6 +54,10 @@ const Icon = styled.img`
   @media (max-width: 900px) {
     display: none;
   }
+  @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+    height: 60px;
+    width: auto;
+  }
 `;
 
 interface Props {
