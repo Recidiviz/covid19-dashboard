@@ -1,6 +1,6 @@
 import { startOfDay } from "date-fns";
 import { pick } from "lodash";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { saveFacility } from "../database";
 import { useToasts } from "../design-system/Toast";
@@ -31,8 +31,9 @@ const useAddCasesInputs = (
   >();
   // the current state of the facility is the default when we need to reset
   // If observedAt is provided and a version exists then use the version's inputs
-  const defaultInputs = getModelInputs(
-    observedAtVersion || facility.modelInputs,
+  const defaultInputs = useMemo(
+    () => getModelInputs(observedAtVersion || facility.modelInputs),
+    [facility.modelInputs, observedAtVersion],
   );
   // If observedAt is provided then set it as the default date
   const defaultObservationDate = observedAt || facility.modelInputs.observedAt;
@@ -55,18 +56,18 @@ const useAddCasesInputs = (
 
   useEffect(() => {
     if (observedAt) {
-      const observedAtVersion = findMatchingDay({ date: observedAt });
+      const newObservedAtVersion = findMatchingDay({ date: observedAt });
       setObservationDate(observedAt);
 
-      if (observedAtVersion) {
-        setInputs(getModelInputs(observedAtVersion));
-        setObservedAtVersion(observedAtVersion);
+      if (newObservedAtVersion) {
+        setInputs(getModelInputs(newObservedAtVersion));
+        setObservedAtVersion(newObservedAtVersion);
       } else {
-        setInputs({});
+        setInputs(defaultInputs);
         setObservedAtVersion(undefined);
       }
     }
-  }, [observedAt, findMatchingDay]);
+  }, [observedAt, findMatchingDay, defaultInputs]);
 
   const updateInputs = (update: ModelInputsPopulationBrackets) => {
     setInputs({ ...inputs, ...update });
