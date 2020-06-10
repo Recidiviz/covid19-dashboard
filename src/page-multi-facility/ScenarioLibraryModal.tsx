@@ -338,8 +338,8 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
       open={modalOpen}
       setOpen={setModalOpen}
       trigger={trigger}
-      height="90vh"
-      width="45vw"
+      height="90vmin"
+      width="756px"
     >
       <ModalContents>
         <ScenarioLibraryWrapper scenarios={ownedScenarios} ownedFlag={true} />
