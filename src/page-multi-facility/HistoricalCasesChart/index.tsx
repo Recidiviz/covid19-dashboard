@@ -189,6 +189,7 @@ const HistoricalCasesChart: React.FC<Props> = ({ facility, onModalSave }) => {
         setOpen={setModalOpen}
         facility={facility}
         observedAt={observedAt}
+        setObservedAt={(date) => date && setObservedAt(date)}
         onModalSave={onModalSave}
       />
     </ChartWrapper>
