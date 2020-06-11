@@ -60,8 +60,8 @@ function combinePopulations(data: CurveData, columnIndex: number) {
   ).map(([incarcerated, staff]) => {
     return {
       total: incarcerated + staff,
-      inmates: incarcerated,
-      staff: staff,
+      incarcerated,
+      staff,
     };
   });
 }
