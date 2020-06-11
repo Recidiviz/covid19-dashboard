@@ -38,7 +38,7 @@ const ScenarioLibrary = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  height: 100%;
+  height: auto;
 `;
 
 const ScenarioCard = styled.div`
@@ -277,11 +277,11 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
 
   const ScenarioLibraryWrapper = (props: any) => {
     return (
-      <ScenarioLibrary>
+      <>
         {props.scenarios?.loading ? (
           <Loading />
         ) : (
-          <>
+          <ScenarioLibrary>
             {props.ownedFlag && <CreateNewScenarioModal />}
             {props.scenarios?.data.map((scenario: any) => {
               const popupItems = [
@@ -326,9 +326,9 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
                 </ScenarioCard>
               );
             })}
-          </>
+          </ScenarioLibrary>
         )}
-      </ScenarioLibrary>
+      </>
     );
   };
 
@@ -338,8 +338,8 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
       open={modalOpen}
       setOpen={setModalOpen}
       trigger={trigger}
-      height="90vh"
-      width="45vw"
+      height="90vmin"
+      width="756px"
     >
       <ModalContents>
         <ScenarioLibraryWrapper scenarios={ownedScenarios} ownedFlag={true} />

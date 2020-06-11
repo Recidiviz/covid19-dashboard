@@ -1,6 +1,6 @@
 import { startOfDay } from "date-fns";
 import { pick } from "lodash";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useToasts } from "../design-system/Toast";
 import { useFacilities } from "../facilities-context";
@@ -13,9 +13,20 @@ import { Facility, ModelInputs } from "../page-multi-facility/types";
 import useFacilityModelVersions from "./useFacilityModelVersions";
 import useRejectionToast from "./useRejectionToast";
 
-export const getModelInputs = (modelInputs: ModelInputs) => {
+export const getBracketData = (modelInputs: ModelInputs) => {
   return pick(modelInputs, populationBracketKeys);
 };
+
+const findMatchingDay = ({
+  date,
+  facilityModelVersions,
+}: {
+  date: Date;
+  facilityModelVersions: ModelInputs[] | undefined;
+}) =>
+  facilityModelVersions?.find(
+    ({ observedAt }) => date.toDateString() === observedAt.toDateString(),
+  );
 
 const useAddCasesInputs = (
   facility: Facility,
@@ -24,79 +35,60 @@ const useAddCasesInputs = (
 ) => {
   const { actions } = useFacilities();
   const { addToast } = useToasts();
+
+  // use date from args but provide a fallback when it's missing
+  const defaultObservationDate = facility.modelInputs.observedAt;
+  const [observationDate, setObservationDate] = useState(
+    observedAt || defaultObservationDate,
+  );
+  useEffect(() => {
+    setObservationDate(observedAt || defaultObservationDate);
+  }, [defaultObservationDate, observedAt]);
+
   const [facilityModelVersions, updateModelVersions] = useFacilityModelVersions(
     facility,
   );
+
+  // use the current state of the facility as default values
+  const defaultInputs = facility.modelInputs;
+
   const [observedAtVersion, setObservedAtVersion] = useState<
     ModelInputs | undefined
   >();
-  // the current state of the facility is the default when we need to reset
-  // If observedAt is provided and a version exists then use the version's inputs
-  const defaultInputs = getModelInputs(
-    observedAtVersion || facility.modelInputs,
-  );
-  // If observedAt is provided then set it as the default date
-  const defaultObservationDate = observedAt || facility.modelInputs.observedAt;
+  // whenever observation date changes we should look for a new model version
+  useEffect(() => {
+    const newObservedAtVersion = findMatchingDay({
+      date: observationDate,
+      facilityModelVersions,
+    });
+
+    if (newObservedAtVersion) {
+      setObservedAtVersion(newObservedAtVersion);
+    } else {
+      setObservedAtVersion(defaultInputs);
+    }
+  }, [facilityModelVersions, defaultInputs, observationDate]);
 
   const [inputs, setInputs] = useState<ModelInputsPopulationBrackets>(
-    defaultInputs,
+    getBracketData(observedAtVersion || defaultInputs),
   );
 
-  const [observationDate, setObservationDate] = useState(
-    defaultObservationDate,
-  );
-
-  const findMatchingDay = useCallback(
-    ({ date }: { date: Date }) =>
-      facilityModelVersions?.find(
-        ({ observedAt }) => date.toDateString() === observedAt.toDateString(),
-      ),
-    [facilityModelVersions],
-  );
-
-  const updateInputs = useCallback((update: ModelInputsPopulationBrackets) => {
-    setInputs((inputs) => ({ ...inputs, ...update }));
-  }, []);
-
+  // when we find an observedAtVersion, that takes precedence over the default
   useEffect(() => {
-    updateInputs(facility.modelInputs);
-  }, [facility.modelInputs, updateInputs]);
+    setInputs(getBracketData(observedAtVersion || defaultInputs));
+  }, [defaultInputs, observedAtVersion]);
 
-  useEffect(() => {
-    if (observedAt) {
-      const observedAtVersion = findMatchingDay({ date: observedAt });
-      setObservationDate(observedAt);
-
-      if (observedAtVersion) {
-        setInputs(getModelInputs(observedAtVersion));
-        setObservedAtVersion(observedAtVersion);
-      } else {
-        setInputs({});
-        setObservedAtVersion(undefined);
-      }
-    }
-  }, [observedAt, findMatchingDay]);
+  const updateInputs = (update: ModelInputsPopulationBrackets) => {
+    setInputs({ ...inputs, ...update });
+  };
 
   const resetModalData = () => {
-    setInputs(defaultInputs);
+    // any state that is date-dependent should be watching this value,
+    // so we don't have to update all of it imperatively
     setObservationDate(defaultObservationDate);
   };
 
   const [, updateModel] = useModel();
-
-  const onDateChange = (date: Date | undefined) => {
-    if (date) {
-      setObservationDate(date);
-      const inputsForDate = findMatchingDay({
-        date,
-      });
-      if (inputsForDate) {
-        setInputs(pick(inputsForDate, populationBracketKeys));
-      } else {
-        setInputs({ ...defaultInputs });
-      }
-    }
-  };
 
   const rejectionToast = useRejectionToast();
 
@@ -145,7 +137,6 @@ const useAddCasesInputs = (
   return {
     inputs,
     observationDate,
-    onDateChange,
     facilityModelVersions,
     updateInputs,
     resetModalData,

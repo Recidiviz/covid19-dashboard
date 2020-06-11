@@ -13,6 +13,7 @@ import InputText from "../design-system/InputText";
 import Loading from "../design-system/Loading";
 import Modal from "../design-system/Modal";
 import { Spacer } from "../design-system/Spacer";
+import useCurrentUserEmail from "../hooks/useCurrentUserEmail";
 import useCurrentUserId from "../hooks/useCurrentUserId";
 import useReadOnlyMode from "../hooks/useReadOnlyMode";
 import useRejectionToast from "../hooks/useRejectionToast";
@@ -113,23 +114,26 @@ const ScenarioShareModal: React.FC = () => {
   const [emailAddress, setEmailAddress] = useState<string | undefined>();
   const [users, setUsers] = useState<ScenarioUsers | null>(null);
   const currentUserId = useCurrentUserId();
+  const currentUserEmail = useCurrentUserEmail();
   const rejectionToast = useRejectionToast();
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (scenario.data && emailAddress) {
       rejectionToast(
-        addScenarioUser(scenario.data.id, emailAddress).then((addedUser) => {
-          if (users) {
-            setUsers({
-              owner: users.owner,
-              viewers: [...users.viewers, addedUser].sort((a, b) =>
-                ascending(a.name, b.name),
-              ),
-            });
-            setEmailAddress(undefined);
-          }
-        }),
+        addScenarioUser(scenario.data.id, emailAddress, currentUserEmail).then(
+          (addedUser) => {
+            if (users) {
+              setUsers({
+                owner: users.owner,
+                viewers: [...users.viewers, addedUser].sort((a, b) =>
+                  ascending(a.name, b.name),
+                ),
+              });
+              setEmailAddress(undefined);
+            }
+          },
+        ),
       );
     }
   };

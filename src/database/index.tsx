@@ -29,6 +29,7 @@ import {
   buildScenario,
   buildUser,
 } from "./type-transforms";
+import useCurrentUserEmail from "../hooks/useCurrentUserEmail";
 import AppAuth0ClientPromise from "../auth/AppAuth0ClientPromise";
 import { ascending } from "d3-array";
 import { validateCumulativeCases } from "../infection-model/validators";
@@ -505,8 +506,13 @@ export const saveUser = async (userData: UserToSave): Promise<void> => {
 export const addScenarioUser = async (
   scenarioId: string,
   email: string,
+  currentUserEmail: string,
 ): Promise<User> => {
   try {
+    if (email === currentUserEmail) {
+      throw new Error(`Please submit a different user's email`);
+    }
+
     const userDocument = await getUserDocument({ email });
     const auth0Id = userDocument.data().auth0Id;
     const scenario = await getScenario(scenarioId);

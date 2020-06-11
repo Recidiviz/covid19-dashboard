@@ -18,17 +18,21 @@ interface ItemProps {
   toggleMenu: (event: React.MouseEvent<Element>) => void;
 }
 
+// Note: `margin` is present to offset extra click room in PopUpMenuIcon
 const PopUpMenuDiv = styled.div`
   position: relative;
   cursor: pointer;
   height: min-content;
+  margin: 0 -14px -14px 0;
 `;
 
+// Note: `padding` is present to allow for extra click room, see PopUpMenuDiv margin to offset
 const PopUpMenuIcon = styled.div`
   font-family: "Rubik", sans-serif;
   font-size: 16px;
   font-weight: 600;
   color: ${Colors.forest};
+  padding: 0 14px 14px 0;
 `;
 
 const PopUpMenuContents = styled.div`

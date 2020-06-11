@@ -24,7 +24,7 @@ const ModalTitleContainer = styled.div`
   font-size: 16px;
   font-family: "Poppins", sans-serif;
   padding-bottom: 20px;
-  width: 100%;
+  width: auto;
 `;
 
 const ModalTitle: React.FC<TitleProps> = (props) => {
