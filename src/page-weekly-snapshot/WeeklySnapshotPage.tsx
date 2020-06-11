@@ -6,6 +6,7 @@ import styled from "styled-components";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import InputSelect from "../design-system/InputSelect";
 import Loading from "../design-system/Loading";
+import { Column } from "../design-system/PageColumn";
 import {
   LocaleDataProvider,
   LocaleRecord,
@@ -112,6 +113,7 @@ export default function WeeklySnapshotPage() {
 
   const dayOne = getDay(selectedState?.state || [], 1);
   const daySeven = getDay(selectedState?.state || [], 7);
+
   useEffect(() => {
     if (dayOne?.state && daySeven?.state && selectedState) {
       const stateLocaleData = localeData?.get(dayOne.state);
@@ -131,11 +133,9 @@ export default function WeeklySnapshotPage() {
         ["desc"],
       ).slice(0, 4);
       const countiesToWatch = highestFourCounties.map((county) => {
-        const starred =
-          stateLocaleData && stateLocaleData.has(county.name) ? "***" : "";
-        return `${county.name}${starred}, ${numeral(
-          county.perCapitaIncrease,
-        ).format("0.000 %")};`;
+        return `${county.name}, ${numeral(county.perCapitaIncrease).format(
+          "0.000 %",
+        )};`;
       });
       setCountiesToWatch(countiesToWatch);
       setTotalBeds(totalBeds);
@@ -148,7 +148,7 @@ export default function WeeklySnapshotPage() {
       {loading || nytLoading ? (
         <Loading />
       ) : (
-        <>
+        <Column>
           <InputSelect
             label="State"
             placeholder="Select a state"
@@ -188,7 +188,7 @@ export default function WeeklySnapshotPage() {
               </LocaleStatsList>
             </LocaleStats>
           )}
-        </>
+        </Column>
       )}
     </LocaleDataProvider>
   );
