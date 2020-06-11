@@ -61,5 +61,9 @@ service cloud.firestore {
       allow update: if userIsSelf(resource) && userIsSelf(request.resource);
       allow create: if userIsSelf(request.resource);
     }
+
+    match /reference_facilities_test/{document=**} {
+  		allow read: if userIsAuthenticated();
+  	}
   }
 }
