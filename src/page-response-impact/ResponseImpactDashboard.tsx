@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { Link } from "gatsby";
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 
 import { saveScenario } from "../database";
@@ -8,18 +8,16 @@ import iconBackSrc from "../design-system/icons/ic_back.svg";
 import Loading from "../design-system/Loading";
 import { Column, PageContainer } from "../design-system/PageColumn";
 import { Spacer } from "../design-system/Spacer";
-import useFacilitiesRtData from "../hooks/useFacilitiesRtData";
 import useRejectionToast from "../hooks/useRejectionToast";
 import { sumAgeGroupPopulations } from "../impact-dashboard/EpidemicModelContext";
 import { getFacilitiesRtDataById } from "../infection-model/rt";
 import { useLocaleDataState } from "../locale-data-context";
-import { FacilityContext } from "../page-multi-facility/FacilityContext";
 import { BaselinePopulations, Scenario } from "../page-multi-facility/types";
+import { Facilities, RtDataMapping } from "../page-multi-facility/types";
 import BaselinePopulationModal from "./BaselinePopulationModal";
 import {
   useCurrentCurveData,
-  useFacilities,
-  useModelInputs,
+  useEpidemicModelState,
   useOriginalCurveData,
   usePopulationImpactData,
   useSystemWideData,
@@ -50,27 +48,37 @@ import ValidDataWrapper from "./ValidDataWrapper";
 const PageHeaderContainer = styled.div``;
 
 interface Props {
+  loading: boolean;
+  rtData: RtDataMapping;
+  facilities: Facilities;
   scenario: Scenario;
   dispatchScenarioUpdate: (scenario: Scenario) => void;
 }
 
 const ResponseImpactDashboard: React.FC<Props> = ({
+  loading,
+  facilities,
+  rtData,
   scenario,
   dispatchScenarioUpdate,
 }) => {
   const { data: localeDataSource } = useLocaleDataState();
-  const { rtData } = useContext(FacilityContext);
-  const facilities = useFacilities(scenario.id, localeDataSource);
-  const modelInputs = useModelInputs(facilities, localeDataSource);
-  const currentCurveInputs = useCurrentCurveData(modelInputs, localeDataSource);
+  const epidemicModelState = useEpidemicModelState(
+    facilities,
+    localeDataSource,
+  );
+  const currentCurveInputs = useCurrentCurveData(
+    epidemicModelState,
+    localeDataSource,
+  );
   const systemWideData = useSystemWideData(
     scenario.baselinePopulations,
     facilities,
-    modelInputs,
+    epidemicModelState,
     localeDataSource,
   );
   const originalCurveInputs = useOriginalCurveData(
-    modelInputs,
+    epidemicModelState,
     systemWideData,
     localeDataSource,
   );
@@ -80,11 +88,9 @@ const ResponseImpactDashboard: React.FC<Props> = ({
   );
   const [populationFormSubmitted, setPopulationFormSubmitted] = useState(false);
 
-  useFacilitiesRtData(facilities.data);
-
   const rejectionToast = useRejectionToast();
 
-  const facilitiesRtData = getFacilitiesRtDataById(rtData, facilities.data);
+  const facilitiesRtData = getFacilitiesRtDataById(rtData, facilities);
 
   async function saveBaselinePopulations(populations: BaselinePopulations) {
     const initialPopulations = scenario?.baselinePopulations || [];
@@ -99,23 +105,20 @@ const ResponseImpactDashboard: React.FC<Props> = ({
   }
 
   // current incarcerated population
-  const currentIncarceratedPop = facilities?.data?.reduce(
-    (accumulator, facility) => {
-      const facilityPop = sumAgeGroupPopulations(facility);
-      return accumulator + facilityPop;
-    },
-    0,
-  );
+  const currentIncarceratedPop = facilities.reduce((accumulator, facility) => {
+    const facilityPop = sumAgeGroupPopulations(facility);
+    return accumulator + facilityPop;
+  }, 0);
 
   return (
     <ResponseImpactDashboardContainer>
-      {facilities.loading ? (
+      {loading ? (
         <Loading />
       ) : (
         <>
           <BaselinePopulationModal
             open={!populationFormSubmitted}
-            numFacilities={facilities.data.length}
+            numFacilities={facilities.length}
             defaultDate={systemWideData.baselinePopulationDate}
             defaultStaffPopulation={systemWideData.staffPopulation}
             defaultIncarceratedPopulation={
@@ -124,7 +127,7 @@ const ResponseImpactDashboard: React.FC<Props> = ({
             saveBaselinePopulations={saveBaselinePopulations}
           />
           {populationFormSubmitted && (
-            <ValidDataWrapper facilities={facilities.data}>
+            <ValidDataWrapper facilities={facilities}>
               <>
                 <PageHeaderContainer className="m-5">
                   <Link to="/">
@@ -134,10 +137,10 @@ const ResponseImpactDashboard: React.FC<Props> = ({
                     </BackDiv>
                   </Link>
                   <PageHeader>
-                    {facilities.data[0].systemType === "County Jail" &&
-                    modelInputs[0].countyName !== "Total"
-                      ? modelInputs[0].countyName
-                      : modelInputs[0].stateCode}{" "}
+                    {facilities[0].systemType === "County Jail" &&
+                    epidemicModelState[0].countyName !== "Total"
+                      ? epidemicModelState[0].countyName
+                      : epidemicModelState[0].stateCode}{" "}
                     COVID-19 Response Impact
                   </PageHeader>
                   <ReportDateDiv>

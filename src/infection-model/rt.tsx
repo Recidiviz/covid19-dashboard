@@ -7,7 +7,6 @@ import {
 } from "date-fns";
 import { has, mapValues, maxBy, minBy, pick } from "lodash";
 
-import { FacilityEvents } from "../constants/dispatchEvents";
 import { RateOfSpreadType } from "../constants/EpidemicModel";
 import { getFacilityModelVersions } from "../database";
 import { totalConfirmedCases } from "../impact-dashboard/EpidemicModelContext";
@@ -141,21 +140,6 @@ export const getRtDataForFacility = async (
     return { error };
   }
 };
-
-export async function updateFacilityRtData(
-  facility: Facility,
-  dispatchRtData: Function,
-) {
-  const facilityRtData = await getRtDataForFacility(facility);
-
-  dispatchRtData({
-    type: FacilityEvents.UPDATE,
-    payload: {
-      id: facility.id,
-      data: facilityRtData,
-    },
-  });
-}
 
 export const getOldestRt = (rtRecords: RtRecord[]) => {
   return minBy(rtRecords, (rtRecord) => rtRecord.date);

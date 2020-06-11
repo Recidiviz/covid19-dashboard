@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import { navigate } from "gatsby";
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 
 import Colors, { MarkColors as markColors } from "../design-system/Colors";
@@ -9,16 +9,16 @@ import FontSizes from "../design-system/FontSizes";
 import iconEditSrc from "../design-system/icons/ic_edit.svg";
 import { Spacer } from "../design-system/Spacer";
 import Tooltip from "../design-system/Tooltip";
+import { useFacilities } from "../facilities-context";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
 import {
   totalConfirmedCases,
   totalIncarceratedPopulation,
 } from "../impact-dashboard/EpidemicModelContext";
 import useModel from "../impact-dashboard/useModel";
-import { getNewestRt, isRtData } from "../infection-model/rt";
+import { getNewestRt, isRtData, RtData, RtError } from "../infection-model/rt";
 import AddCasesModal from "./AddCasesModal";
 import { initialPublicCurveToggles } from "./curveToggles";
-import { FacilityContext } from "./FacilityContext";
 import FacilityRowRtValuePill from "./FacilityRowRtValuePill";
 import {
   useChartDataFromProjectionData,
@@ -81,15 +81,15 @@ const IconEdit = styled.img`
 
 interface Props {
   facility: Facility;
+  facilityRtData: RtData | RtError | undefined;
   onSave: (f: Facility) => void;
 }
 
-const FacilityRow: React.FC<Props> = ({ facility, onSave }) => {
+const FacilityRow: React.FC<Props> = ({ facility, facilityRtData, onSave }) => {
+  const {
+    actions: { selectFacility },
+  } = useFacilities();
   const [model] = useModel();
-
-  const { rtData, setFacility } = useContext(FacilityContext);
-
-  const facilityRtData = rtData ? rtData[facility.id] : undefined;
 
   const latestRt = isRtData(facilityRtData)
     ? getNewestRt(facilityRtData.Rt)?.value
@@ -112,7 +112,7 @@ const FacilityRow: React.FC<Props> = ({ facility, onSave }) => {
   const population = totalIncarceratedPopulation(model);
 
   const openFacilityPage = () => {
-    setFacility(facility);
+    selectFacility(facility.id);
     navigate("/facility");
   };
 

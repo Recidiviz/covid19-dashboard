@@ -330,7 +330,7 @@ export const getFacilities = async (
       "You don't have permission to access these facilities.",
     );
 
-    return null;
+    throw error;
   }
 };
 
@@ -762,6 +762,7 @@ export const saveFacility = async (
       error,
       "You don't have permission to edit this facility.",
     );
+    throw error;
   }
 };
 
@@ -804,6 +805,7 @@ export const duplicateFacility = async (
       error,
       "You don't have permission to edit this facility.",
     );
+    throw error;
   }
 };
 
@@ -850,6 +852,7 @@ export const deleteFacility = async (
       error,
       "You don't have permission to delete this facility.",
     );
+    throw error;
   }
 };
 
