@@ -94,13 +94,13 @@ async function fetchNYTData() {
     fetchHistoricalNYTStatesData(),
   ]);
 
-  const dayOne = latestStateData[0].date;
-  const daySeven = subWeeks(dayOne, 1);
+  const daySeven = latestStateData[0].date;
+  const dayOne = subWeeks(daySeven, 1);
   const filteredCountyData = historicalCountyData.filter((d) =>
-    isSameDay(d.date, daySeven),
+    isSameDay(d.date, dayOne),
   );
   const filteredStateData = historicalStateData.filter((d) =>
-    isSameDay(d.date, daySeven),
+    isSameDay(d.date, dayOne),
   );
   let data: { [key: string]: any } = {};
   for (const stateData of latestStateData) {
