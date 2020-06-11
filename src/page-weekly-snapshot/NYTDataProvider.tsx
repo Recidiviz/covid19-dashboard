@@ -1,5 +1,5 @@
 import { csvParse, DSVRowString } from "d3";
-import { addDays, isSameDay, startOfToday, subWeeks } from "date-fns";
+import { isSameDay, parse, startOfToday, subWeeks } from "date-fns";
 import numeral from "numeral";
 import React, { useEffect, useState } from "react";
 
@@ -41,7 +41,7 @@ function transformRow(row: DSVRowString): NYTCountyRecord | NYTStateRecord {
   return {
     state: row.state,
     county: row.county,
-    date: row.date ? addDays(new Date(row.date), 1) : startOfToday(),
+    date: row.date ? parse(row.date, "yyyy-MM-dd", new Date()) : startOfToday(),
     cases: numeral(row["cases"]).value() || 0,
     confirmedCases: numeral(row["confirmed_cases"]).value() || 0,
     confirmedDeaths: numeral(row["confirmed_deaths"]).value() || 0,
