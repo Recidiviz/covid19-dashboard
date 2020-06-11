@@ -81,6 +81,45 @@ async function fetchHistoricalNYTStatesData() {
   return fetchCSVData(historicalStatesDataURL);
 }
 
+async function fetchNYTData() {
+  const [
+    latestCountyData,
+    historicalCountyData,
+    latestStateData,
+    historicalStateData,
+  ] = await Promise.all([
+    fetchLatestNYTCountyData(),
+    fetchHistoricalNYTCountyData(),
+    fetchLatestNYTStatesData(),
+    fetchHistoricalNYTStatesData(),
+  ]);
+
+  const dayOne = latestStateData[0].date;
+  const daySeven = subWeeks(dayOne, 1);
+  const filteredCountyData = historicalCountyData.filter((d) =>
+    isSameDay(d.date, daySeven),
+  );
+  const filteredStateData = historicalStateData.filter((d) =>
+    isSameDay(d.date, daySeven),
+  );
+  let data: { [key: string]: any } = {};
+  for (const stateData of latestStateData) {
+    if (stateData.state) {
+      data[stateData.state] = {
+        state: [
+          stateData,
+          ...filteredStateData.filter((d) => d.state === stateData.state),
+        ],
+        counties: [
+          ...latestCountyData.filter((d) => d.state === stateData.state),
+          ...filteredCountyData.filter((d) => d.state === stateData.state),
+        ],
+      };
+    }
+  }
+  return data;
+}
+
 export const NYTDataProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
@@ -89,45 +128,6 @@ export const NYTDataProvider: React.FC<{ children: React.ReactNode }> = ({
     error: null,
     data: {},
   });
-
-  async function fetchNYTData() {
-    const [
-      latestCountyData,
-      historicalCountyData,
-      latestStateData,
-      historicalStateData,
-    ] = await Promise.all([
-      fetchLatestNYTCountyData(),
-      fetchHistoricalNYTCountyData(),
-      fetchLatestNYTStatesData(),
-      fetchHistoricalNYTStatesData(),
-    ]);
-
-    const dayOne = latestStateData[0].date;
-    const daySeven = subWeeks(dayOne, 1);
-    const filteredCountyData = historicalCountyData.filter((d) =>
-      isSameDay(d.date, daySeven),
-    );
-    const filteredStateData = historicalStateData.filter((d) =>
-      isSameDay(d.date, daySeven),
-    );
-    let data: { [key: string]: any } = {};
-    for (const stateData of latestStateData) {
-      if (stateData.state) {
-        data[stateData.state] = {
-          state: [
-            stateData,
-            ...filteredStateData.filter((d) => d.state === stateData.state),
-          ],
-          counties: [
-            ...latestCountyData.filter((d) => d.state === stateData.state),
-            ...filteredCountyData.filter((d) => d.state === stateData.state),
-          ],
-        };
-      }
-    }
-    return data;
-  }
 
   useEffect(() => {
     let mounted = true;
