@@ -227,7 +227,6 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   };
 
   const onModalSave = (newFacility: Facility) => {
-    createOrUpdateFacility(scenarioId, newFacility);
     fetchFacilityRtData(newFacility);
   };
 

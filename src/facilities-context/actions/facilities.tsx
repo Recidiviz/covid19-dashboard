@@ -75,6 +75,7 @@ export function createOrUpdateFacility(dispatch: FacilitiesDispatch) {
         console.error(
           `Error creating or updating facility for scenario: ${scenarioId}`,
         );
+        throw error;
       }
     }
   };
@@ -91,6 +92,7 @@ export function removeFacility(dispatch: FacilitiesDispatch) {
         });
       } catch (error) {
         console.error(`Error deleting facility: ${facilityId}`);
+        throw error;
       }
     }
   };
@@ -110,6 +112,7 @@ export function duplicateFacility(dispatch: FacilitiesDispatch) {
         return duplicatedFacility;
       } catch (error) {
         console.error(`Error duplicating facility: ${facility.id}`);
+        throw error;
       }
     }
   };

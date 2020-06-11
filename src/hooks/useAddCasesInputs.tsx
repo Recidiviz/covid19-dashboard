@@ -106,7 +106,7 @@ const useAddCasesInputs = (
     // Save to DB with model changes;
     // if they are not most recent the save function will handle it,
     // unlike the local state handlers
-    rejectionToast(
+    await rejectionToast(
       actions
         .createOrUpdateFacility(facility.scenarioId, {
           id: facility.id,

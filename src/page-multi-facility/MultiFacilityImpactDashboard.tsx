@@ -8,6 +8,7 @@ import Loading from "../design-system/Loading";
 import TextLabel from "../design-system/TextLabel";
 import { useFacilities } from "../facilities-context";
 import { useFlag } from "../feature-flags";
+import useRejectionToast from "../hooks/useRejectionToast";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
 import { getFacilitiesRtDataById } from "../infection-model/rt";
 import { useLocaleDataState } from "../locale-data-context";
@@ -73,6 +74,7 @@ const ScenarioTab = styled.li<{ active?: boolean }>`
 `;
 
 const MultiFacilityImpactDashboard: React.FC = () => {
+  const rejectionToast = useRejectionToast();
   const showRateOfSpreadTab = useFlag(["showRateOfSpreadTab"]);
   const { data: localeDataSource } = useLocaleDataState();
   const [scenario] = useScenario();
@@ -86,7 +88,7 @@ const MultiFacilityImpactDashboard: React.FC = () => {
 
   const handleFacilitySave = async (facility: Facility) => {
     if (scenarioId) {
-      await createOrUpdateFacility(scenarioId, facility);
+      await rejectionToast(createOrUpdateFacility(scenarioId, facility));
     }
   };
 
