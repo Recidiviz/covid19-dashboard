@@ -126,27 +126,34 @@ export const NYTDataProvider: React.FC<{ children: React.ReactNode }> = ({
         };
       }
     }
-    console.log("feetch sdata: ", data);
     return data;
   }
 
   useEffect(() => {
+    let mounted = true;
     setState({ ...state, loading: true });
     fetchNYTData()
       .then((data) => {
-        setState({
-          ...state,
-          data,
-          loading: false,
-        });
+        if (mounted) {
+          setState({
+            ...state,
+            data,
+            loading: false,
+          });
+        }
       })
       .catch((error) => {
-        setState({
-          ...state,
-          loading: false,
-          error,
-        });
+        if (mounted) {
+          setState({
+            ...state,
+            loading: false,
+            error,
+          });
+        }
       });
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   return (
