@@ -30,7 +30,7 @@ const LocaleStatsList = styled.ul``;
 
 type PerCapitaCountyCase = {
   name: string;
-  perCapitaIncrease: number | undefined;
+  casesIncreasePerCapita: number | undefined;
 };
 
 function getDay(nytData: NYTCountyRecord[] | NYTStateRecord[], day: number) {
@@ -69,27 +69,27 @@ function calculatePerCapitaIncrease(
   return (daySevenCases - dayOneCases) / countyPopulation;
 }
 
-function getPerCapitaCountyCases(
+function getCountyIncreasePerCapita(
   counties: NYTCountyRecord[],
   stateLocaleData: Map<string, LocaleRecord> | undefined,
 ) {
   const dataByCounty = getCountyDataByName(counties);
-  const perCapitaCountyCases: PerCapitaCountyCase[] = [];
+  const countyCasesIncreasePerCapita: PerCapitaCountyCase[] = [];
 
   for (const countyName in dataByCounty) {
     const dayOne = getDay(dataByCounty[countyName], 1);
     const daySeven = getDay(dataByCounty[countyName], 7);
     const countyPopulation = stateLocaleData?.get(countyName)?.totalPopulation;
-    perCapitaCountyCases.push({
+    countyCasesIncreasePerCapita.push({
       name: countyName,
-      perCapitaIncrease: calculatePerCapitaIncrease(
+      casesIncreasePerCapita: calculatePerCapitaIncrease(
         daySeven?.cases,
         dayOne?.cases,
         countyPopulation,
       ),
     });
   }
-  return perCapitaCountyCases;
+  return countyCasesIncreasePerCapita;
 }
 
 export default function WeeklySnapshotPage() {
@@ -123,17 +123,17 @@ export default function WeeklySnapshotPage() {
         totalLocaleData &&
         totalLocaleData.icuBeds + totalLocaleData.hospitalBeds;
 
-      const perCapitaCountyCases = getPerCapitaCountyCases(
+      const perCapitaCountyCases = getCountyIncreasePerCapita(
         selectedState.counties,
         stateLocaleData,
       );
       const highestFourCounties = orderBy(
-        perCapitaCountyCases.filter((c) => !!c.perCapitaIncrease),
-        ["perCapitaIncrease"],
+        perCapitaCountyCases.filter((c) => !!c.casesIncreasePerCapita),
+        ["casesIncreasePerCapita"],
         ["desc"],
       ).slice(0, 4);
       const countiesToWatch = highestFourCounties.map((county) => {
-        return `${county.name}, ${numeral(county.perCapitaIncrease).format(
+        return `${county.name}, ${numeral(county.casesIncreasePerCapita).format(
           "0.000 %",
         )};`;
       });
