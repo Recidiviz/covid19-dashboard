@@ -1,24 +1,13 @@
-import { csvParse, DSVRowAny, DSVRowString } from "d3";
-import { subWeeks } from "date-fns";
+import { maxBy, minBy } from "lodash";
 import numeral from "numeral";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 
+import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import InputSelect from "../design-system/InputSelect";
 import Loading from "../design-system/Loading";
 import { LocaleDataProvider, useLocaleDataState } from "../locale-data-context";
-
-function transformRow(row: DSVRowString) {
-  return {
-    ...row,
-    cases: numeral(row["cases"]).value() || 0,
-    confirmedCases: numeral(row["confirmed_cases"]).value() || 0,
-    confirmedDeaths: numeral(row["confirmed_deaths"]).value() || 0,
-    deaths: numeral(row["deaths"]).value() || 0,
-    probableCases: numeral(row["probable_cases"]).value() || 0,
-    probableDeaths: numeral(row["probable_deaths"]).value() || 0,
-  };
-}
+import { NYTData, NYTStateRecord, useNYTData } from "./NYTDataProvider";
 
 const stateNamesFilter = (key: string) =>
   !["US Total", "US Federal Prisons"].includes(key);
@@ -30,98 +19,34 @@ const LocaleStats = styled.div`
 const LocaleStatsList = styled.ul``;
 
 export default function WeeklySnapshotPage() {
-  const [latestStatesData, setLatestStatesData] = useState<DSVRowAny[]>([]);
-  const [latestCountyData, setLatestCountyData] = useState<DSVRowAny[]>([]);
-  const [historicalStatesData, setHistoricalStatesData] = useState<DSVRowAny[]>(
-    [],
-  );
-  const [historicalCountyData, setHistoricalCountyData] = useState<DSVRowAny[]>(
-    [],
-  );
-  const [stateData, setStateData] = useState<DSVRowAny>({});
+  const { data, loading: nytLoading } = useNYTData();
+  console.log({ data });
+  const [selectedState, setSelectedState] = useState<NYTData | undefined>();
   const { data: localeData, loading } = useLocaleDataState();
   const stateNames = Array.from(localeData.keys()).filter(stateNamesFilter);
 
-  useEffect(() => {
-    async function fetchLatestNYTStatesData() {
-      const latestStatesDataURL =
-        "https://raw.githubusercontent.com/nytimes/covid-19-data/master/live/us-states.csv";
-      const response = await fetch(latestStatesDataURL);
-      const rawCSV = await response.text();
-      const data = csvParse(rawCSV, transformRow);
-      setLatestStatesData(data);
-    }
-
-    async function fetchLatestNYTCountyData() {
-      const latestCountyDataURL =
-        "https://raw.githubusercontent.com/nytimes/covid-19-data/master/live/us-counties.csv";
-      const response = await fetch(latestCountyDataURL);
-      const rawCSV = await response.text();
-      const data = csvParse(rawCSV, transformRow);
-      setLatestCountyData(data);
-    }
-
-    async function fetchHistoricalNYTStatesData() {
-      const historicalStatesDataURL =
-        "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv";
-
-      const response = await fetch(historicalStatesDataURL);
-      const rawCSV = await response.text();
-      const data = csvParse(rawCSV, transformRow);
-      setHistoricalStatesData(data);
-    }
-
-    async function fetchHistoricalNYTCountyData() {
-      const historicalCountyDataURL =
-        "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv";
-
-      const response = await fetch(historicalCountyDataURL);
-      const rawCSV = await response.text();
-      const data = csvParse(rawCSV, transformRow);
-      setHistoricalCountyData(data);
-    }
-
-    fetchLatestNYTStatesData();
-    fetchLatestNYTCountyData();
-    fetchHistoricalNYTStatesData();
-    fetchHistoricalNYTCountyData();
-  }, [setStateData]);
-
-  console.log("state data: ", {
-    stateData,
-    latestStatesData,
-    localeData,
-    stateNames,
-    historicalStatesData,
-    historicalCountyData,
-    latestCountyData,
-  });
-  console.log(new Date(stateData.date), subWeeks(new Date(stateData.date), 1));
-
   const handleOnChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const stateName = event.target.value;
-    if (latestStatesData.length) {
-      const stateData = latestStatesData.find(
-        (state) => state.state === stateName,
-      );
-      stateData && setStateData(stateData);
+    if (!nytLoading) {
+      setSelectedState(data[stateName]);
     }
   };
 
-  // PSEUDOCODE STEPS
-  // getSevenDayDiff
-  // getDates
-  // get dayOne - latestStatesData date - 7 days
-  // get daySeven - latestStatesData date
-  // getCasesDiff - daySeven cases - dayOne cases
-  //
-  // number of ICU/hospital beds in state (localeData)
-  // add *** if county has a facility (cross reference with LocaleData)
-  // counties to watch - fetch county data
+  const dayOne =
+    selectedState &&
+    minBy(selectedState.state, (state: NYTStateRecord) => state.date);
+  const daySeven =
+    selectedState &&
+    maxBy(selectedState.state, (state: NYTStateRecord) => state.date);
+  const sevenDayDiffInCases =
+    daySeven && dayOne && daySeven.cases - dayOne.cases;
+  const total =
+    dayOne && dayOne.state && localeData?.get(dayOne.state)?.get("Total");
+  const totalBeds = total && total.icuBeds + total.hospitalBeds;
 
   return (
     <LocaleDataProvider>
-      {loading || !latestStatesData.length ? (
+      {loading || nytLoading ? (
         <Loading />
       ) : (
         <>
@@ -137,17 +62,27 @@ export default function WeeklySnapshotPage() {
               </option>
             ))}
           </InputSelect>
-          {stateData.state && (
+          {selectedState && (
             <LocaleStats>
               <LocaleStatsList>
                 <li>
-                  Number of cases in the state: {formatNumber(stateData.cases)}
+                  Latest Date:{" "}
+                  {daySeven && <DateMMMMdyyyy date={daySeven.date} />}
+                </li>
+                <li>
+                  Number of cases in the state:{" "}
+                  {daySeven ? formatNumber(daySeven.cases) : "?"}
                 </li>
                 <li>
                   Change in state cases since last week:{" "}
-                  {formatNumber(stateData.cases)}
+                  {sevenDayDiffInCases || sevenDayDiffInCases === 0
+                    ? formatNumber(sevenDayDiffInCases)
+                    : "?"}
                 </li>
-                <li>Number of ICU and hospital beds in state: </li>
+                <li>
+                  Number of ICU and hospital beds in state:{" "}
+                  {totalBeds || totalBeds === 0 ? formatNumber(totalBeds) : "?"}
+                </li>
                 <li>Counties to watch: </li>
               </LocaleStatsList>
             </LocaleStats>
