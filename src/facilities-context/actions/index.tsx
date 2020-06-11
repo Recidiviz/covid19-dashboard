@@ -1,5 +1,5 @@
 import { Facility, RtDataMapping } from "../../page-multi-facility/types";
-import { FacilityMapping } from "../FacilitiesContext";
+import { FacilityMapping, ShadowFacilityMapping } from "../FacilitiesContext";
 import {
   CREATE_OR_UPDATE_FACILITY,
   DESELECT_FACILITY,
@@ -14,8 +14,10 @@ import {
   REQUEST_RT_DATA,
   UPDATE_FACILITY_RT_DATA,
 } from "./rtData";
+import { RECEIVE_SHADOW_FACILITIES } from "./shadowData";
 export * from "./rtData";
 export * from "./facilities";
+export * from "./shadowData";
 
 export type FacilitiesActions =
   | FACILITY_ACTION
@@ -24,6 +26,7 @@ export type FacilitiesActions =
   | RT_DATA_ACTION
   | REQUEST_ACTIONS
   | ERROR_ACTIONS
+  | RECEIVE_SHADOW_FACILITIES_ACTION
   | DESELECT_FACILITY_ACTION;
 
 export type FACILITY_ACTION = {
@@ -56,4 +59,9 @@ export type REQUEST_ACTIONS = {
 
 export type DESELECT_FACILITY_ACTION = {
   type: typeof DESELECT_FACILITY;
+};
+
+export type RECEIVE_SHADOW_FACILITIES_ACTION = {
+  type: typeof RECEIVE_SHADOW_FACILITIES;
+  payload: ShadowFacilityMapping;
 };

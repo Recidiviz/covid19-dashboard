@@ -1,9 +1,11 @@
 import React, { useEffect } from "react";
 
+import useShadowDataEligible from "../hooks/useShadowDataEligible";
 import {
   Facility,
   RtDataMapping,
   Scenario,
+  ShadowFacility,
 } from "../page-multi-facility/types";
 import useScenario from "../scenario-context/useScenario";
 import * as facilitiesActions from "./actions";
@@ -11,10 +13,15 @@ import { facilitiesReducer } from "./reducer";
 
 export type FacilityMapping = { [key in Facility["id"]]: Facility };
 
+export type ShadowFacilityMapping = {
+  [key in ShadowFacility["id"]]: ShadowFacility;
+};
+
 export interface FacilitiesState {
   loading: boolean;
   failed: boolean;
   facilities: FacilityMapping;
+  shadowFacilities: ShadowFacilityMapping;
   selectedFacilityId: Facility["id"] | null;
   rtData: RtDataMapping;
 }
@@ -58,6 +65,7 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
     loading: true,
     failed: false,
     facilities: {},
+    shadowFacilities: {},
     selectedFacilityId: null,
     rtData: {},
   });
@@ -88,6 +96,28 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
       });
     }
   }, [scenarioId, state.facilities, state.rtData]);
+
+  // fetch shadow facilities based on user facilities
+  const shouldFetchShadow = useShadowDataEligible();
+  useEffect(() => {
+    // TODO: is this the right condition?
+    if (!shouldFetchShadow) return;
+    const facilities = Object.values({ ...state.facilities });
+    if (facilities.length) {
+      // first facility is the reference; assume they're all the same
+      const {
+        modelInputs: { stateCode },
+        systemType,
+      } = facilities[0];
+      if (stateCode && systemType) {
+        facilitiesActions.fetchShadowFacilities(
+          stateCode,
+          systemType,
+          dispatch,
+        );
+      }
+    }
+  }, [shouldFetchShadow, state.facilities]);
 
   return (
     <FacilitiesContext.Provider value={{ state, dispatch, actions }}>

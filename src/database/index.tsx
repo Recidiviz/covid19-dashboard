@@ -28,10 +28,11 @@ import {
   buildModelInputs,
   buildScenario,
   buildUser,
+  buildShadowFacility,
 } from "./type-transforms";
 import useCurrentUserEmail from "../hooks/useCurrentUserEmail";
 import AppAuth0ClientPromise from "../auth/AppAuth0ClientPromise";
-import { ascending } from "d3-array";
+import { ascending, zip } from "d3-array";
 import { validateCumulativeCases } from "../infection-model/validators";
 
 // As long as there is just one Auth0 config, this endpoint will work with any environment (local, prod, etc.).
@@ -41,6 +42,9 @@ const scenariosCollectionId = "scenarios";
 const facilitiesCollectionId = "facilities";
 const modelVersionCollectionId = "modelVersions";
 const usersCollectionId = "users";
+// TODO: when the datasource stabilizes, change this to the real collection
+const shadowDataCollectionId = "reference_facilities_test";
+const shadowDataCovidCasesCollectionId = "covidCases";
 
 // Note: None of these are secrets.
 let firebaseConfig = {
@@ -971,4 +975,35 @@ export const deleteScenario = async (
       "You don't have permission to delete this scenario.",
     );
   }
+};
+
+export const getShadowFacilities = async ({
+  state,
+  systemType,
+}: {
+  state: string;
+  systemType: string;
+}) => {
+  const db = await getDb();
+
+  const facilities = await db
+    .collection(shadowDataCollectionId)
+    .where("state", "==", state)
+    .where("facilityType", "==", systemType)
+    .get();
+
+  const facilitiesCovidCases = await Promise.all(
+    facilities.docs.map(async (facilityDoc) => {
+      return (
+        await facilityDoc.ref.collection(shadowDataCovidCasesCollectionId).get()
+      ).docs;
+    }),
+  );
+
+  // please excuse the typescript bypass, the d3.zip typedef is busted
+  const shadowData = zip(facilities.docs as any[], facilitiesCovidCases);
+
+  return shadowData.map(([facility, covidCases]) =>
+    buildShadowFacility(facility, covidCases),
+  );
 };

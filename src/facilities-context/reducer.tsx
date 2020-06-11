@@ -56,6 +56,9 @@ export function facilitiesReducer(
     case actions.DESELECT_FACILITY:
       return Object.assign({}, state, { selectedFacilityId: null });
 
+    case actions.RECEIVE_SHADOW_FACILITIES:
+      return { ...state, shadowFacilities: action.payload };
+
     default:
       return state;
   }
