@@ -51,6 +51,36 @@ function transformRow(row: DSVRowString): NYTCountyRecord | NYTStateRecord {
   };
 }
 
+async function fetchCSVData(url: string) {
+  const response = await fetch(url);
+  const rawCSV = await response.text();
+  return csvParse(rawCSV, transformRow);
+}
+
+async function fetchLatestNYTCountyData() {
+  const latestCountyDataURL =
+    "https://raw.githubusercontent.com/nytimes/covid-19-data/master/live/us-counties.csv";
+  return fetchCSVData(latestCountyDataURL);
+}
+
+async function fetchHistoricalNYTCountyData() {
+  const historicalCountyDataURL =
+    "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv";
+  return fetchCSVData(historicalCountyDataURL);
+}
+
+async function fetchLatestNYTStatesData() {
+  const latestStatesDataURL =
+    "https://raw.githubusercontent.com/nytimes/covid-19-data/master/live/us-states.csv";
+  return fetchCSVData(latestStatesDataURL);
+}
+
+async function fetchHistoricalNYTStatesData() {
+  const historicalStatesDataURL =
+    "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv";
+  return fetchCSVData(historicalStatesDataURL);
+}
+
 export const NYTDataProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
@@ -61,36 +91,6 @@ export const NYTDataProvider: React.FC<{ children: React.ReactNode }> = ({
   });
 
   async function fetchNYTData() {
-    async function fetchCSVData(url: string) {
-      const response = await fetch(url);
-      const rawCSV = await response.text();
-      return csvParse(rawCSV, transformRow);
-    }
-
-    async function fetchLatestNYTCountyData() {
-      const latestCountyDataURL =
-        "https://raw.githubusercontent.com/nytimes/covid-19-data/master/live/us-counties.csv";
-      return fetchCSVData(latestCountyDataURL);
-    }
-
-    async function fetchHistoricalNYTCountyData() {
-      const historicalCountyDataURL =
-        "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv";
-      return fetchCSVData(historicalCountyDataURL);
-    }
-
-    async function fetchLatestNYTStatesData() {
-      const latestStatesDataURL =
-        "https://raw.githubusercontent.com/nytimes/covid-19-data/master/live/us-states.csv";
-      return fetchCSVData(latestStatesDataURL);
-    }
-
-    async function fetchHistoricalNYTStatesData() {
-      const historicalStatesDataURL =
-        "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv";
-      return fetchCSVData(historicalStatesDataURL);
-    }
-
     const [
       latestCountyData,
       historicalCountyData,
