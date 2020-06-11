@@ -131,12 +131,12 @@ export const NYTDataProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     let mounted = true;
-    setState({ ...state, loading: true });
+    setState({ data: {}, error: null, loading: true });
     fetchNYTData()
       .then((data) => {
         if (mounted) {
           setState({
-            ...state,
+            error: null,
             data,
             loading: false,
           });
@@ -145,7 +145,7 @@ export const NYTDataProvider: React.FC<{ children: React.ReactNode }> = ({
       .catch((error) => {
         if (mounted) {
           setState({
-            ...state,
+            data: {},
             loading: false,
             error,
           });

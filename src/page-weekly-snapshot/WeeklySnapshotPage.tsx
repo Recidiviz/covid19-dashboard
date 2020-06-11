@@ -141,7 +141,7 @@ export default function WeeklySnapshotPage() {
       setTotalBeds(totalBeds);
       setSevenDayDiffInCases(sevenDayDiffInCases);
     }
-  }, [selectedState, localeData]);
+  }, [selectedState, localeData, dayOne, daySeven]);
 
   return (
     <LocaleDataProvider>
