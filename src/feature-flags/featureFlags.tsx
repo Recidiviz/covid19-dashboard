@@ -5,7 +5,7 @@ export type FeatureFlags = {
   // TODO: Delete this flag once #202 is done
   showRateOfSpreadTab: boolean;
   showImpactButton: boolean;
-  // TODO: can remove after successful launch
+  // TODO (#567): can remove after successful launch
   enableShadowData: boolean;
 };
 

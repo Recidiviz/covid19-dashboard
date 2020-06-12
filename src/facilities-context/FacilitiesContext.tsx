@@ -83,6 +83,8 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     if (scenarioId) {
       facilitiesActions.fetchFacilities(scenarioId, dispatch);
+      // clean up any existing shadow facility data
+      facilitiesActions.clearShadowFacilities(dispatch);
     }
   }, [scenarioId]);
 
@@ -100,9 +102,6 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
   // fetch shadow facilities based on user facilities
   const shouldFetchShadow = useShadowDataEligible();
   useEffect(() => {
-    // clean up any existing shadow facility data
-    facilitiesActions.clearShadowFacilities(dispatch);
-
     if (!shouldFetchShadow) return;
 
     const facilities = Object.values({ ...state.facilities });

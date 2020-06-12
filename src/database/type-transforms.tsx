@@ -112,12 +112,17 @@ export const buildUser = (document: firebase.firestore.DocumentData): User => {
   return { ...pick(data, ["name", "email"]), id: document.id };
 };
 
+const parseStartOfDay = (dateStr: string) => {
+  // returns specified Date in the local TZ at time 00:00:00
+  return parse(dateStr, "yyyy-MM-dd", startOfToday());
+};
+
 const buildCovidCase = (
   doc: firebase.firestore.DocumentData,
 ): ShadowCovidCase => {
   const data = doc.data();
 
-  const observedAt = parse(doc.id, "yyyy-MM-dd", startOfToday());
+  const observedAt = parseStartOfDay(doc.id);
 
   return {
     observedAt,

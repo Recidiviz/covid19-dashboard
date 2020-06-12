@@ -63,7 +63,7 @@ service cloud.firestore {
     }
 
     match /reference_facilities_test/{document=**} {
-  		allow read: if userIsAuthenticated();
-  	}
+      allow read: if userIsAuthenticated();
+    }
   }
 }

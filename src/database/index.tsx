@@ -42,7 +42,7 @@ const scenariosCollectionId = "scenarios";
 const facilitiesCollectionId = "facilities";
 const modelVersionCollectionId = "modelVersions";
 const usersCollectionId = "users";
-// TODO: when the datasource stabilizes, change this to the real collection
+// TODO (#521): when the datasource stabilizes, change this to the real collection
 const shadowDataCollectionId = "reference_facilities_test";
 const shadowDataCovidCasesCollectionId = "covidCases";
 
