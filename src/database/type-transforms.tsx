@@ -6,9 +6,9 @@ import { PlannedRelease } from "../impact-dashboard/EpidemicModelContext";
 import {
   Facility,
   ModelInputs,
+  ReferenceFacility,
+  ReferenceFacilityCovidCase,
   Scenario,
-  ShadowCovidCase,
-  ShadowFacility,
   User,
 } from "../page-multi-facility/types";
 
@@ -119,7 +119,7 @@ const parseStartOfDay = (dateStr: string) => {
 
 const buildCovidCase = (
   doc: firebase.firestore.DocumentData,
-): ShadowCovidCase => {
+): ReferenceFacilityCovidCase => {
   const data = doc.data();
 
   const observedAt = parseStartOfDay(doc.id);
@@ -130,10 +130,10 @@ const buildCovidCase = (
   };
 };
 
-export const buildShadowFacility = (
+export const buildReferenceFacility = (
   facilityDocument: firebase.firestore.DocumentData,
   facilityCovidCaseDocuments: firebase.firestore.DocumentData[],
-): ShadowFacility => {
+): ReferenceFacility => {
   const data = facilityDocument.data();
 
   // convert all known timestamps to dates

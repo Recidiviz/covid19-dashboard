@@ -28,9 +28,8 @@ import {
   buildModelInputs,
   buildScenario,
   buildUser,
-  buildShadowFacility,
+  buildReferenceFacility,
 } from "./type-transforms";
-import useCurrentUserEmail from "../hooks/useCurrentUserEmail";
 import AppAuth0ClientPromise from "../auth/AppAuth0ClientPromise";
 import { ascending, zip } from "d3-array";
 import { validateCumulativeCases } from "../infection-model/validators";
@@ -43,8 +42,8 @@ const facilitiesCollectionId = "facilities";
 const modelVersionCollectionId = "modelVersions";
 const usersCollectionId = "users";
 // TODO (#521): when the datasource stabilizes, change this to the real collection
-const shadowDataCollectionId = "reference_facilities_test";
-const shadowDataCovidCasesCollectionId = "covidCases";
+const referenceFacilitiesCollectionId = "reference_facilities_test";
+const referenceFacilitiesCovidCasesCollectionId = "covidCases";
 
 // Note: None of these are secrets.
 let firebaseConfig = {
@@ -977,7 +976,7 @@ export const deleteScenario = async (
   }
 };
 
-export const getShadowFacilities = async ({
+export const getReferenceFacilities = async ({
   state,
   systemType,
 }: {
@@ -987,7 +986,7 @@ export const getShadowFacilities = async ({
   const db = await getDb();
 
   const facilities = await db
-    .collection(shadowDataCollectionId)
+    .collection(referenceFacilitiesCollectionId)
     .where("state", "==", state)
     .where("facilityType", "==", systemType)
     .get();
@@ -995,15 +994,20 @@ export const getShadowFacilities = async ({
   const facilitiesCovidCases = await Promise.all(
     facilities.docs.map(async (facilityDoc) => {
       return (
-        await facilityDoc.ref.collection(shadowDataCovidCasesCollectionId).get()
+        await facilityDoc.ref
+          .collection(referenceFacilitiesCovidCasesCollectionId)
+          .get()
       ).docs;
     }),
   );
 
   // please excuse the typescript bypass, the d3.zip typedef is busted
-  const shadowData = zip(facilities.docs as any[], facilitiesCovidCases);
+  const referenceFacilities = zip(
+    facilities.docs as any[],
+    facilitiesCovidCases,
+  );
 
-  return shadowData.map(([facility, covidCases]) =>
-    buildShadowFacility(facility, covidCases),
+  return referenceFacilities.map(([facility, covidCases]) =>
+    buildReferenceFacility(facility, covidCases),
   );
 };

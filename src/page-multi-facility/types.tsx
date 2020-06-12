@@ -70,7 +70,7 @@ type SimpleTimeseries = {
   value: number;
 };
 
-export type ShadowCovidCase = {
+export type ReferenceFacilityCovidCase = {
   observedAt: Date;
   popTested?: number;
   popTestedPositive?: number;
@@ -82,14 +82,14 @@ export type ShadowCovidCase = {
   staffDeaths?: number;
 };
 
-export type ShadowFacility = {
+export type ReferenceFacility = {
   id: string;
   state: string;
   canonicalName: string;
   facilityType: string;
   capacity: SimpleTimeseries[];
   population: SimpleTimeseries[];
-  covidCases: ShadowCovidCase[];
+  covidCases: ReferenceFacilityCovidCase[];
   // various other metadata that we don't explicitly care about may also be present
   [key: string]: unknown;
 };

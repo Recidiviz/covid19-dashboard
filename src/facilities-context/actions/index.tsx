@@ -1,5 +1,8 @@
 import { Facility, RtDataMapping } from "../../page-multi-facility/types";
-import { FacilityMapping, ShadowFacilityMapping } from "../FacilitiesContext";
+import {
+  FacilityMapping,
+  ReferenceFacilityMapping,
+} from "../FacilitiesContext";
 import {
   CREATE_OR_UPDATE_FACILITY,
   DESELECT_FACILITY,
@@ -10,17 +13,17 @@ import {
   SELECT_FACILITY,
 } from "./facilities";
 import {
+  CLEAR_REFERENCE_FACILITIES,
+  RECEIVE_REFERENCE_FACILITIES,
+} from "./referenceFacilities";
+import {
   RECEIVE_RT_DATA_ERROR,
   REQUEST_RT_DATA,
   UPDATE_FACILITY_RT_DATA,
 } from "./rtData";
-import {
-  CLEAR_SHADOW_FACILITIES,
-  RECEIVE_SHADOW_FACILITIES,
-} from "./shadowData";
 export * from "./rtData";
 export * from "./facilities";
-export * from "./shadowData";
+export * from "./referenceFacilities";
 
 export type FacilitiesActions =
   | FACILITY_ACTION
@@ -29,8 +32,8 @@ export type FacilitiesActions =
   | RT_DATA_ACTION
   | REQUEST_ACTIONS
   | ERROR_ACTIONS
-  | RECEIVE_SHADOW_FACILITIES_ACTION
-  | CLEAR_SHADOW_FACILITIES_ACTION
+  | RECEIVE_REFERENCE_FACILITIES_ACTION
+  | CLEAR_REFERENCE_FACILITIES_ACTION
   | DESELECT_FACILITY_ACTION;
 
 export type FACILITY_ACTION = {
@@ -65,11 +68,11 @@ export type DESELECT_FACILITY_ACTION = {
   type: typeof DESELECT_FACILITY;
 };
 
-export type RECEIVE_SHADOW_FACILITIES_ACTION = {
-  type: typeof RECEIVE_SHADOW_FACILITIES;
-  payload: ShadowFacilityMapping;
+export type RECEIVE_REFERENCE_FACILITIES_ACTION = {
+  type: typeof RECEIVE_REFERENCE_FACILITIES;
+  payload: ReferenceFacilityMapping;
 };
 
-export type CLEAR_SHADOW_FACILITIES_ACTION = {
-  type: typeof CLEAR_SHADOW_FACILITIES;
+export type CLEAR_REFERENCE_FACILITIES_ACTION = {
+  type: typeof CLEAR_REFERENCE_FACILITIES;
 };

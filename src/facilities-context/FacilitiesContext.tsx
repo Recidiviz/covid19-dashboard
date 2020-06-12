@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
 
-import useShadowDataEligible from "../hooks/useShadowDataEligible";
+import useReferenceFacilitiesEligible from "../hooks/useReferenceFacilitiesEligible";
 import {
   Facility,
+  ReferenceFacility,
   RtDataMapping,
   Scenario,
-  ShadowFacility,
 } from "../page-multi-facility/types";
 import useScenario from "../scenario-context/useScenario";
 import * as facilitiesActions from "./actions";
@@ -13,15 +13,15 @@ import { facilitiesReducer } from "./reducer";
 
 export type FacilityMapping = { [key in Facility["id"]]: Facility };
 
-export type ShadowFacilityMapping = {
-  [key in ShadowFacility["id"]]: ShadowFacility;
+export type ReferenceFacilityMapping = {
+  [key in ReferenceFacility["id"]]: ReferenceFacility;
 };
 
 export interface FacilitiesState {
   loading: boolean;
   failed: boolean;
   facilities: FacilityMapping;
-  shadowFacilities: ShadowFacilityMapping;
+  referenceFacilities: ReferenceFacilityMapping;
   selectedFacilityId: Facility["id"] | null;
   rtData: RtDataMapping;
 }
@@ -65,7 +65,7 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
     loading: true,
     failed: false,
     facilities: {},
-    shadowFacilities: {},
+    referenceFacilities: {},
     selectedFacilityId: null,
     rtData: {},
   });
@@ -83,8 +83,8 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     if (scenarioId) {
       facilitiesActions.fetchFacilities(scenarioId, dispatch);
-      // clean up any existing shadow facility data
-      facilitiesActions.clearShadowFacilities(dispatch);
+      // clean up any existing reference facility data
+      facilitiesActions.clearReferenceFacilities(dispatch);
     }
   }, [scenarioId]);
 
@@ -99,10 +99,10 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [scenarioId, state.facilities, state.rtData]);
 
-  // fetch shadow facilities based on user facilities
-  const shouldFetchShadow = useShadowDataEligible();
+  // fetch reference facilities based on user facilities
+  const shouldFetchReferenceFacilities = useReferenceFacilitiesEligible();
   useEffect(() => {
-    if (!shouldFetchShadow) return;
+    if (!shouldFetchReferenceFacilities) return;
 
     const facilities = Object.values({ ...state.facilities });
     if (facilities.length) {
@@ -112,14 +112,14 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
         systemType,
       } = facilities[0];
       if (stateCode && systemType) {
-        facilitiesActions.fetchShadowFacilities(
+        facilitiesActions.fetchReferenceFacilities(
           stateCode,
           systemType,
           dispatch,
         );
       }
     }
-  }, [shouldFetchShadow, state.facilities]);
+  }, [shouldFetchReferenceFacilities, state.facilities]);
 
   return (
     <FacilitiesContext.Provider value={{ state, dispatch, actions }}>
