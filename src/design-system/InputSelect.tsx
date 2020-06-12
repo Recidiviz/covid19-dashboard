@@ -59,6 +59,7 @@ const InputSelect: React.FC<Props> = (props) => {
           onChange={props.onChange}
           value={props.value}
           name={props.label}
+          {...props}
         >
           {props.children}
         </StyledSelect>

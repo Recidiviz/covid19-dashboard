@@ -6,14 +6,13 @@ import {
   getLocaleDefaults,
 } from "../../impact-dashboard/EpidemicModelContext";
 import { LocaleData } from "../../locale-data-context";
-import { Scenario } from "../../page-multi-facility/types";
+import { Facilities, Scenario } from "../../page-multi-facility/types";
 import { getSystemWideSums, SystemWideData } from "../responseChartData";
-import { FacilitiesState } from "./useFacilities";
 
 export function useSystemWideData(
   baselinePopulations: Scenario["baselinePopulations"],
-  facilities: FacilitiesState,
-  modelInputs: EpidemicModelState[],
+  facilities: Facilities,
+  epidemicModelState: EpidemicModelState[],
   localeDataSource: LocaleData,
 ) {
   const [systemWideData, setSystemWideData] = useState<SystemWideData>({
@@ -22,7 +21,7 @@ export function useSystemWideData(
   } as SystemWideData);
 
   useEffect(() => {
-    if (modelInputs.length === 0 || facilities.data.length === 0) return;
+    if (epidemicModelState.length === 0 || facilities.length === 0) return;
 
     // Reverse the populations array to get the most recently modelled populations
     const populationsCopy = baselinePopulations
@@ -41,23 +40,23 @@ export function useSystemWideData(
         populationsCopy[0].incarceratedPopulation;
     }
 
-    const systemType = facilities.data[0].systemType;
+    const systemType = facilities[0].systemType;
 
     if (systemType === "State Prison") {
       localeDefaultIncarceratedPopulation = getLocaleDefaults(
         localeDataSource,
-        modelInputs[0].stateCode,
+        epidemicModelState[0].stateCode,
       ).totalPrisonPopulation;
     } else {
       localeDefaultIncarceratedPopulation = getLocaleDefaults(
         localeDataSource,
-        modelInputs[0].stateCode,
-        modelInputs[0].countyName,
+        epidemicModelState[0].stateCode,
+        epidemicModelState[0].countyName,
       ).totalJailPopulation;
     }
 
     const { staffPopulation: currentStaffPopulation } = getSystemWideSums(
-      modelInputs,
+      epidemicModelState,
     );
 
     // defaultDate outputs to 12/31/2019 in the UI, as the month is 0-indexed
@@ -65,7 +64,7 @@ export function useSystemWideData(
     const defaultDate = new Date(2019, 11, 31);
 
     setSystemWideData({
-      ...getSystemWideSums(modelInputs),
+      ...getSystemWideSums(epidemicModelState),
       baselinePopulationDate: userInputDate || defaultDate,
       staffPopulation: userInputStaffPopulation || currentStaffPopulation,
       incarceratedPopulation:
@@ -73,7 +72,7 @@ export function useSystemWideData(
         localeDefaultIncarceratedPopulation ||
         0,
     });
-  }, [modelInputs, localeDataSource, baselinePopulations, facilities]);
+  }, [epidemicModelState, localeDataSource, baselinePopulations, facilities]);
 
   return systemWideData;
 }

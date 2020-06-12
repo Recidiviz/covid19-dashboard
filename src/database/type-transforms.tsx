@@ -1,4 +1,4 @@
-import { parseISO } from "date-fns";
+import { parse, parseISO, startOfToday } from "date-fns";
 import * as firebase from "firebase/app";
 import { pick } from "lodash";
 
@@ -6,6 +6,8 @@ import { PlannedRelease } from "../impact-dashboard/EpidemicModelContext";
 import {
   Facility,
   ModelInputs,
+  ReferenceFacility,
+  ReferenceFacilityCovidCase,
   Scenario,
   User,
 } from "../page-multi-facility/types";
@@ -108,4 +110,73 @@ export const buildUser = (document: firebase.firestore.DocumentData): User => {
   const data = document.data();
 
   return { ...pick(data, ["name", "email"]), id: document.id };
+};
+
+const parseStartOfDay = (dateStr: string) => {
+  // returns specified Date in the local TZ at time 00:00:00
+  return parse(dateStr, "yyyy-MM-dd", startOfToday());
+};
+
+const buildCovidCase = (
+  doc: firebase.firestore.DocumentData,
+): ReferenceFacilityCovidCase => {
+  const data = doc.data();
+
+  const observedAt = parseStartOfDay(doc.id);
+
+  return {
+    observedAt,
+    ...data,
+  };
+};
+
+export const buildReferenceFacility = (
+  facilityDocument: firebase.firestore.DocumentData,
+  facilityCovidCaseDocuments: firebase.firestore.DocumentData[],
+): ReferenceFacility => {
+  const data = facilityDocument.data();
+
+  // convert all known timestamps to dates
+  const toSimpleTimeseries = (record: {
+    date: firebase.firestore.Timestamp;
+    value: number;
+  }) => ({
+    date: timestampToDate(record.date),
+    value: record.value,
+  });
+
+  let {
+    state,
+    canonicalName,
+    facilityType,
+    capacity,
+    population,
+    ...other
+  } = data;
+
+  // cast known types
+  state = String(state);
+  canonicalName = String(canonicalName);
+  facilityType = String(facilityType);
+  // if these are not arrays then unfortunately they are garbage
+  if (!Array.isArray(capacity)) {
+    capacity = [];
+  }
+  if (!Array.isArray(population)) {
+    population = [];
+  }
+
+  capacity = capacity.map(toSimpleTimeseries);
+  population = population.map(toSimpleTimeseries);
+
+  return {
+    id: facilityDocument.id,
+    state,
+    canonicalName,
+    facilityType,
+    capacity,
+    population,
+    covidCases: facilityCovidCaseDocuments.map(buildCovidCase),
+    ...other,
+  };
 };
