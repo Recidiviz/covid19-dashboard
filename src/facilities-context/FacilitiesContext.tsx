@@ -100,11 +100,10 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
   // fetch shadow facilities based on user facilities
   const shouldFetchShadow = useShadowDataEligible();
   useEffect(() => {
-    if (!shouldFetchShadow) {
-      // clean up any existing shadow facility data
-      facilitiesActions.clearShadowFacilities(dispatch);
-      return;
-    }
+    // clean up any existing shadow facility data
+    facilitiesActions.clearShadowFacilities(dispatch);
+
+    if (!shouldFetchShadow) return;
 
     const facilities = Object.values({ ...state.facilities });
     if (facilities.length) {
