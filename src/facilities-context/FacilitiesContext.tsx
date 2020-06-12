@@ -1,7 +1,9 @@
 import React, { useEffect } from "react";
 
+import useReferenceFacilitiesEligible from "../hooks/useReferenceFacilitiesEligible";
 import {
   Facility,
+  ReferenceFacility,
   RtDataMapping,
   Scenario,
 } from "../page-multi-facility/types";
@@ -11,10 +13,15 @@ import { facilitiesReducer } from "./reducer";
 
 export type FacilityMapping = { [key in Facility["id"]]: Facility };
 
+export type ReferenceFacilityMapping = {
+  [key in ReferenceFacility["id"]]: ReferenceFacility;
+};
+
 export interface FacilitiesState {
   loading: boolean;
   failed: boolean;
   facilities: FacilityMapping;
+  referenceFacilities: ReferenceFacilityMapping;
   selectedFacilityId: Facility["id"] | null;
   rtData: RtDataMapping;
 }
@@ -58,6 +65,7 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
     loading: true,
     failed: false,
     facilities: {},
+    referenceFacilities: {},
     selectedFacilityId: null,
     rtData: {},
   });
@@ -75,6 +83,8 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     if (scenarioId) {
       facilitiesActions.fetchFacilities(scenarioId, dispatch);
+      // clean up any existing reference facility data
+      facilitiesActions.clearReferenceFacilities(dispatch);
     }
   }, [scenarioId]);
 
@@ -88,6 +98,28 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
       });
     }
   }, [scenarioId, state.facilities, state.rtData]);
+
+  // fetch reference facilities based on user facilities
+  const shouldFetchReferenceFacilities = useReferenceFacilitiesEligible();
+  useEffect(() => {
+    if (!shouldFetchReferenceFacilities) return;
+
+    const facilities = Object.values({ ...state.facilities });
+    if (facilities.length) {
+      // first facility is the reference; assume they're all the same
+      const {
+        modelInputs: { stateCode },
+        systemType,
+      } = facilities[0];
+      if (stateCode && systemType) {
+        facilitiesActions.fetchReferenceFacilities(
+          stateCode,
+          systemType,
+          dispatch,
+        );
+      }
+    }
+  }, [shouldFetchReferenceFacilities, state.facilities]);
 
   return (
     <FacilitiesContext.Provider value={{ state, dispatch, actions }}>

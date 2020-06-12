@@ -64,3 +64,32 @@ export type ScenarioUsers = {
   owner: User | null | undefined;
   viewers: User[];
 };
+
+type SimpleTimeseries = {
+  date: Date;
+  value: number;
+};
+
+export type ReferenceFacilityCovidCase = {
+  observedAt: Date;
+  popTested?: number;
+  popTestedPositive?: number;
+  popTestedNegative?: number;
+  popDeaths?: number;
+  staffTested?: number;
+  staffTestedPositive?: number;
+  staffTestedNegative?: number;
+  staffDeaths?: number;
+};
+
+export type ReferenceFacility = {
+  id: string;
+  state: string;
+  canonicalName: string;
+  facilityType: string;
+  capacity: SimpleTimeseries[];
+  population: SimpleTimeseries[];
+  covidCases: ReferenceFacilityCovidCase[];
+  // various other metadata that we don't explicitly care about may also be present
+  [key: string]: unknown;
+};
