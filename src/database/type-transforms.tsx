@@ -1,4 +1,4 @@
-import { parse, parseISO } from "date-fns";
+import { parse, parseISO, startOfToday } from "date-fns";
 import * as firebase from "firebase/app";
 import { pick } from "lodash";
 
@@ -117,7 +117,7 @@ const buildCovidCase = (
 ): ShadowCovidCase => {
   const data = doc.data();
 
-  const observedAt = parse(doc.id, "yyyy-MM-dd", new Date());
+  const observedAt = parse(doc.id, "yyyy-MM-dd", startOfToday());
 
   return {
     observedAt,
