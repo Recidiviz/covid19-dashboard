@@ -100,8 +100,12 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
   // fetch shadow facilities based on user facilities
   const shouldFetchShadow = useShadowDataEligible();
   useEffect(() => {
-    // TODO: is this the right condition?
-    if (!shouldFetchShadow) return;
+    if (!shouldFetchShadow) {
+      // clean up any existing shadow facility data
+      facilitiesActions.clearShadowFacilities(dispatch);
+      return;
+    }
+
     const facilities = Object.values({ ...state.facilities });
     if (facilities.length) {
       // first facility is the reference; assume they're all the same

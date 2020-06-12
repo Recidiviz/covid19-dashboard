@@ -14,7 +14,10 @@ import {
   REQUEST_RT_DATA,
   UPDATE_FACILITY_RT_DATA,
 } from "./rtData";
-import { RECEIVE_SHADOW_FACILITIES } from "./shadowData";
+import {
+  CLEAR_SHADOW_FACILITIES,
+  RECEIVE_SHADOW_FACILITIES,
+} from "./shadowData";
 export * from "./rtData";
 export * from "./facilities";
 export * from "./shadowData";
@@ -27,6 +30,7 @@ export type FacilitiesActions =
   | REQUEST_ACTIONS
   | ERROR_ACTIONS
   | RECEIVE_SHADOW_FACILITIES_ACTION
+  | CLEAR_SHADOW_FACILITIES_ACTION
   | DESELECT_FACILITY_ACTION;
 
 export type FACILITY_ACTION = {
@@ -64,4 +68,8 @@ export type DESELECT_FACILITY_ACTION = {
 export type RECEIVE_SHADOW_FACILITIES_ACTION = {
   type: typeof RECEIVE_SHADOW_FACILITIES;
   payload: ShadowFacilityMapping;
+};
+
+export type CLEAR_SHADOW_FACILITIES_ACTION = {
+  type: typeof CLEAR_SHADOW_FACILITIES;
 };

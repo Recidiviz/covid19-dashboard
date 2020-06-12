@@ -5,6 +5,7 @@ import {
 } from "../FacilitiesContext";
 
 export const RECEIVE_SHADOW_FACILITIES = "RECEIVE_SHADOW_FACILITIES";
+export const CLEAR_SHADOW_FACILITIES = "CLEAR_SHADOW_FACILITIES";
 
 export async function fetchShadowFacilities(
   state: string,
@@ -17,4 +18,8 @@ export async function fetchShadowFacilities(
     payload[f.id] = f;
   });
   dispatch({ type: RECEIVE_SHADOW_FACILITIES, payload });
+}
+
+export async function clearShadowFacilities(dispatch: FacilitiesDispatch) {
+  dispatch({ type: CLEAR_SHADOW_FACILITIES });
 }

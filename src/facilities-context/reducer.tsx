@@ -59,6 +59,9 @@ export function facilitiesReducer(
     case actions.RECEIVE_SHADOW_FACILITIES:
       return { ...state, shadowFacilities: action.payload };
 
+    case actions.CLEAR_SHADOW_FACILITIES:
+      return { ...state, shadowFacilities: {} };
+
     default:
       return state;
   }
