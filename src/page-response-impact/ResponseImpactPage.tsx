@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 
 import Loading from "../design-system/Loading";
+import { useFacilities } from "../facilities-context";
 import { useLocaleDataState } from "../locale-data-context";
 import useScenario from "../scenario-context/useScenario";
 import SiteHeader from "../site-header/SiteHeader";
@@ -12,6 +13,10 @@ const ResponseImpactPageDiv = styled.div``;
 const ResponseImpactPage: React.FC = () => {
   const localeState = useLocaleDataState();
   const [scenario, dispatchScenarioUpdate] = useScenario();
+  const {
+    state: { loading, facilities: facilitiesState, rtData },
+  } = useFacilities();
+  const facilities = Object.values(facilitiesState);
 
   return (
     <ResponseImpactPageDiv>
@@ -29,6 +34,9 @@ const ResponseImpactPage: React.FC = () => {
           ) : (
             scenario.data && (
               <ResponseImpactDashboard
+                loading={loading}
+                facilities={facilities}
+                rtData={rtData}
                 scenario={scenario.data}
                 dispatchScenarioUpdate={dispatchScenarioUpdate}
               />

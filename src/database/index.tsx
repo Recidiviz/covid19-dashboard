@@ -28,10 +28,10 @@ import {
   buildModelInputs,
   buildScenario,
   buildUser,
+  buildReferenceFacility,
 } from "./type-transforms";
-import useCurrentUserEmail from "../hooks/useCurrentUserEmail";
 import AppAuth0ClientPromise from "../auth/AppAuth0ClientPromise";
-import { ascending } from "d3-array";
+import { ascending, zip } from "d3-array";
 import { validateCumulativeCases } from "../infection-model/validators";
 
 // As long as there is just one Auth0 config, this endpoint will work with any environment (local, prod, etc.).
@@ -41,6 +41,9 @@ const scenariosCollectionId = "scenarios";
 const facilitiesCollectionId = "facilities";
 const modelVersionCollectionId = "modelVersions";
 const usersCollectionId = "users";
+// TODO (#521): when the datasource stabilizes, change this to the real collection
+const referenceFacilitiesCollectionId = "reference_facilities_test";
+const referenceFacilitiesCovidCasesCollectionId = "covidCases";
 
 // Note: None of these are secrets.
 let firebaseConfig = {
@@ -330,7 +333,7 @@ export const getFacilities = async (
       "You don't have permission to access these facilities.",
     );
 
-    return null;
+    throw error;
   }
 };
 
@@ -762,6 +765,7 @@ export const saveFacility = async (
       error,
       "You don't have permission to edit this facility.",
     );
+    throw error;
   }
 };
 
@@ -804,6 +808,7 @@ export const duplicateFacility = async (
       error,
       "You don't have permission to edit this facility.",
     );
+    throw error;
   }
 };
 
@@ -850,6 +855,7 @@ export const deleteFacility = async (
       error,
       "You don't have permission to delete this facility.",
     );
+    throw error;
   }
 };
 
@@ -968,4 +974,40 @@ export const deleteScenario = async (
       "You don't have permission to delete this scenario.",
     );
   }
+};
+
+export const getReferenceFacilities = async ({
+  state,
+  systemType,
+}: {
+  state: string;
+  systemType: string;
+}) => {
+  const db = await getDb();
+
+  const facilities = await db
+    .collection(referenceFacilitiesCollectionId)
+    .where("state", "==", state)
+    .where("facilityType", "==", systemType)
+    .get();
+
+  const facilitiesCovidCases = await Promise.all(
+    facilities.docs.map(async (facilityDoc) => {
+      return (
+        await facilityDoc.ref
+          .collection(referenceFacilitiesCovidCasesCollectionId)
+          .get()
+      ).docs;
+    }),
+  );
+
+  // please excuse the typescript bypass, the d3.zip typedef is busted
+  const referenceFacilities = zip(
+    facilities.docs as any[],
+    facilitiesCovidCases,
+  );
+
+  return referenceFacilities.map(([facility, covidCases]) =>
+    buildReferenceFacility(facility, covidCases),
+  );
 };

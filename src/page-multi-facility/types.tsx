@@ -10,8 +10,8 @@ export type Facility = {
   id: string;
   scenarioId: string;
   name: string;
-  description?: string;
-  systemType?: string;
+  description?: string | null;
+  systemType?: string | null;
   modelInputs: ModelInputs;
   createdAt: Date;
   updatedAt: Date;
@@ -63,4 +63,33 @@ export type User = {
 export type ScenarioUsers = {
   owner: User | null | undefined;
   viewers: User[];
+};
+
+type SimpleTimeseries = {
+  date: Date;
+  value: number;
+};
+
+export type ReferenceFacilityCovidCase = {
+  observedAt: Date;
+  popTested?: number;
+  popTestedPositive?: number;
+  popTestedNegative?: number;
+  popDeaths?: number;
+  staffTested?: number;
+  staffTestedPositive?: number;
+  staffTestedNegative?: number;
+  staffDeaths?: number;
+};
+
+export type ReferenceFacility = {
+  id: string;
+  state: string;
+  canonicalName: string;
+  facilityType: string;
+  capacity: SimpleTimeseries[];
+  population: SimpleTimeseries[];
+  covidCases: ReferenceFacilityCovidCase[];
+  // various other metadata that we don't explicitly care about may also be present
+  [key: string]: unknown;
 };

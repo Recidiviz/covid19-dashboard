@@ -1,12 +1,8 @@
 import { navigate } from "gatsby";
-import React, { useContext, useState } from "react";
+import { pick } from "lodash";
+import React, { useState } from "react";
 import styled from "styled-components";
 
-import {
-  deleteFacility,
-  duplicateFacility,
-  saveFacility,
-} from "../database/index";
 import Colors from "../design-system/Colors";
 import iconDuplicatePath from "../design-system/icons/ic_duplicate.svg";
 import InputButton, { StyledButton } from "../design-system/InputButton";
@@ -18,15 +14,15 @@ import PopUpMenu from "../design-system/PopUpMenu";
 import { Spacer } from "../design-system/Spacer";
 import { useToasts } from "../design-system/Toast";
 import Tooltip from "../design-system/Tooltip";
+import { getFacilityById, useFacilities } from "../facilities-context";
 import useRejectionToast from "../hooks/useRejectionToast";
 import useScreenWidth from "../hooks/useScreenWidth";
+import { persistedKeys } from "../impact-dashboard/EpidemicModelContext";
 import FacilityInformation from "../impact-dashboard/FacilityInformation";
 import MitigationInformation from "../impact-dashboard/MitigationInformation";
 import useModel from "../impact-dashboard/useModel";
-import { updateFacilityRtData } from "../infection-model/rt";
 import RtTimeseries from "../rt-timeseries";
 import AddCasesModal from "./AddCasesModal";
-import { FacilityContext } from "./FacilityContext";
 import FacilityProjections from "./FacilityProjections";
 import HistoricalCasesChart from "./HistoricalCasesChart";
 import LocaleInformationSection from "./LocaleInformationSection";
@@ -141,13 +137,18 @@ interface Props {
 const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   const { addToast } = useToasts();
   const {
-    facility: initialFacility,
-    setFacility,
-    rtData,
-    dispatchRtData,
-  } = useContext(FacilityContext);
-  const [facility, updateFacility] = useState(initialFacility);
-  const [facilityName, setFacilityName] = useState(facility?.name || undefined);
+    state: { rtData, facilities, selectedFacilityId },
+    actions: {
+      createOrUpdateFacility,
+      removeFacility: deleteFacility,
+      duplicateFacility,
+      deselectFacility,
+      selectFacility,
+      fetchFacilityRtData,
+    },
+  } = useFacilities();
+  const facility = getFacilityById(facilities, selectedFacilityId);
+  const [facilityName, setFacilityName] = useState(facility?.name);
   const [description, setDescription] = useState(
     facility?.description || undefined,
   );
@@ -159,23 +160,46 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   const rejectionToast = useRejectionToast();
 
   const screenWidth = useScreenWidth();
-  const save = () => {
-    if (facilityName) {
-      // Set observedAt to right now when updating a facility from this input form
-      const modelUpdate = Object.assign({}, model[0]);
-      modelUpdate.observedAt = new Date();
 
+  const onSave = () => {
+    // Set observedAt to right now when updating a facility from this input form
+    const modelUpdate = Object.assign(
+      {},
+      facility?.modelInputs,
+      pick(model[0], persistedKeys),
+      {
+        observedAt: new Date(),
+      },
+    );
+
+    if (facilityName) {
       rejectionToast(
-        saveFacility(scenarioId, {
+        createOrUpdateFacility(scenarioId, {
           id: facility?.id,
-          name: facilityName || null,
+          name: facilityName,
           description: description || null,
           systemType: systemType || null,
           modelInputs: modelUpdate,
-        }).then(() => navigate("/")),
+        }).then(() => {
+          deselectFacility();
+          navigate("/");
+        }),
       );
     } else {
       window.scroll({ top: 0, left: 0, behavior: "smooth" });
+    }
+  };
+
+  const onDuplicateFacility = async () => {
+    if (facility) {
+      await rejectionToast(
+        duplicateFacility(scenarioId, facility).then((duplicatedFacility) => {
+          if (duplicatedFacility) {
+            selectFacility(duplicatedFacility.id);
+            addToast("Facility successfully duplicated");
+          }
+        }),
+      );
     }
   };
 
@@ -187,22 +211,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   const closeDeleteModal = () => {
     updateShowDeleteModal(false);
   };
-  const onDuplicateFacility = async () => {
-    if (facility) {
-      await rejectionToast(
-        duplicateFacility(scenarioId, facility)
-          .then((duplicatedFacility) => {
-            if (duplicatedFacility) {
-              setFacility(duplicatedFacility);
-              updateFacility(duplicatedFacility);
-              updateFacilityRtData(duplicatedFacility, dispatchRtData);
-              setFacilityName(duplicatedFacility.name);
-            }
-          })
-          .then(() => addToast("Facility successfully duplicated")),
-      );
-    }
-  };
+
   const popupItems = [
     { name: "Duplicate", onClick: onDuplicateFacility },
     { name: "Delete", onClick: openDeleteModal },
@@ -211,14 +220,14 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
     const facilityId = facility?.id;
     if (facilityId) {
       await rejectionToast(deleteFacility(scenarioId, facilityId));
+      deselectFacility();
       window.history.back();
     }
     updateShowDeleteModal(false);
   };
 
   const onModalSave = (newFacility: Facility) => {
-    updateFacility(newFacility);
-    updateFacilityRtData(newFacility, dispatchRtData);
+    fetchFacilityRtData(newFacility);
   };
 
   return (
@@ -277,6 +286,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
             <RtChartContainer>
               <RtTimeseries
                 facility={facility}
+                onModalSave={onModalSave}
                 data={rtData ? rtData[facility.id] : undefined}
               />
             </RtChartContainer>
@@ -290,13 +300,13 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
           <SectionHeader>Rate of Spread</SectionHeader>
           <MitigationInformation />
           <ButtonSection className="pl-8" screenWidth={screenWidth}>
-            <InputButton label="Save" onClick={save} />
+            <InputButton label="Save" onClick={onSave} />
           </ButtonSection>
           <div className="mt-8" />
         </Column>
         <Column width={"55%"} borderTop>
           <Spacer y={14} />
-          <FacilityProjections />
+          <FacilityProjections facility={facility} />
         </Column>
 
         {/* MODAL */}
@@ -308,10 +318,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
           <ModalContents>
             <ModalText>This action cannot be undone.</ModalText>
             <ModalButtons>
-              <DeleteButton
-                label="Delete facility"
-                onClick={removeFacility} // replace with actual delete function (pass ID)
-              >
+              <DeleteButton label="Delete facility" onClick={removeFacility}>
                 Delete facility
               </DeleteButton>
               <CancelButton onClick={closeDeleteModal}>Cancel</CancelButton>

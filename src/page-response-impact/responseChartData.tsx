@@ -35,7 +35,7 @@ export type SystemWideData = {
   incarceratedPopulation: number;
 };
 
-export function getModelInputs(
+export function getEpidemicModelState(
   facilities: Facilities,
   localeDataSource: LocaleData,
 ) {
