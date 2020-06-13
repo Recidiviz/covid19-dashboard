@@ -1,8 +1,11 @@
 import csv
 from google.cloud import firestore
 from google.cloud import storage
+import logging
 
 REFERENCE_FACILITIES_COLLECTION_ID = 'reference_facilities'
+
+log = logging.getLogger("cloudLogger")
 
 def build_covid_case_counts(row):
     covid_case_counts = {
@@ -84,11 +87,13 @@ def reshape_facilities_data(file_location):
             state = row["State"].strip()
             canonical_facility_name = row["Canonical Facility Name"].strip()
             facility_type = row['Facility Type'].strip()
+            date = row['Date'].strip()
+
             key = f'{state}::{canonical_facility_name}'
             
-            if(key in facilities):
+            if (key in facilities):
                 # If the facility already exists, append the case counts for a given day.
-                facilities[key]['covidCases'][row['Date']] = build_covid_case_counts(row)
+                facilities[key]['covidCases'][date] = build_covid_case_counts(row)
             else:
                 # If the facility does not already exist, save its metadata along with
                 # the case counts for a given day.
@@ -97,7 +102,7 @@ def reshape_facilities_data(file_location):
                     'facilityType': facility_type,
                     'state': state,
                     'covidCases': {
-                        f'{row["Date"]}': build_covid_case_counts(row)
+                        f'{date}': build_covid_case_counts(row)
                     }
                 }
 
@@ -108,7 +113,7 @@ def persist(facilities):
 
     facilities_collection = db.collection(REFERENCE_FACILITIES_COLLECTION_ID)
                 
-    for key, facility in facilities.items():
+    for _key, facility in facilities.items():
         facilitiesQueryResult = facilities_collection \
             .where('state', '==', f'{facility["state"]}') \
             .where('canonicalName', '==', f'{facility["canonicalName"]}') \
@@ -116,7 +121,7 @@ def persist(facilities):
 
         facilityDocuments = list(facilitiesQueryResult)       
 
-        if len(facilityDocuments) == 0 or len(facilityDocuments) == 1:
+        if len(facilityDocuments) <= 1:
             # Accesses an existing reference facility document or creates a new one if
             # one does not exist.
             facility_id = facilityDocuments[0].id if len(facilityDocuments) == 1 else None
@@ -136,7 +141,7 @@ def persist(facilities):
             
             batch.commit()
         else:
-            print(f'Multiple Documents were returned for ' \
+            log.error(f'Multiple Documents were returned for ' \
                 f'{facility["canonicalName"]} in {facility["state"]}')
 
 def ingest_daily_covid_case_data(bucket_name, file_name):
