@@ -114,7 +114,7 @@ export const AgeGroupGrid: React.FC<AgeGroupGridProps> = ({
 
   useEffect(() => {
     setCollapsed(collapseAgeInputs(props.model));
-  }, []);
+  }, [props.model]);
 
   const ageSpecificCaseCounts = (
     <>
