@@ -89,6 +89,20 @@ const ScenarioDescription = styled.div`
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+
+  @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+    max-height: 40px;
+
+    &::after {
+      content: '...';
+      text-align: right;
+      bottom: 0;
+      right: 0;
+      display: block;
+      position: absolute;
+      background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1) 75%);
+    }
+  }
 `;
 
 const ScenarioFooter = styled.div`
