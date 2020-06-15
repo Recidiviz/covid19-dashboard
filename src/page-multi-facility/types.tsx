@@ -84,7 +84,7 @@ export type ScenarioUsers = {
   viewers: User[];
 };
 
-type SimpleTimeseries = {
+export type SimpleTimeseries = {
   date: Date;
   value: number;
 };
