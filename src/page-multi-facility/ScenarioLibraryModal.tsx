@@ -39,6 +39,7 @@ const ScenarioLibrary = styled.div`
   flex-wrap: wrap;
   justify-content: space-between;
   height: auto;
+  flex: 1 0 auto;
 `;
 
 const ScenarioCard = styled.div`
