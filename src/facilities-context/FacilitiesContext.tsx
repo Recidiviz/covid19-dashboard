@@ -108,12 +108,12 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
     if (facilities.length) {
       // first facility is the reference; assume they're all the same
       const {
-        modelInputs: { stateCode },
+        modelInputs: { stateName },
         systemType,
       } = facilities[0];
-      if (stateCode && systemType) {
+      if (stateName && systemType) {
         facilitiesActions.fetchReferenceFacilities(
-          stateCode,
+          stateName,
           systemType,
           dispatch,
         );
