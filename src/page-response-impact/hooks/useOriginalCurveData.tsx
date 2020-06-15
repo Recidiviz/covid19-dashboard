@@ -5,13 +5,13 @@ import { CurveFunctionInputs } from "../../infection-model";
 import { LocaleData } from "../../locale-data-context";
 import {
   getCurveInputs,
-  getModelInputs,
+  getEpidemicModelState,
   originalProjection,
   SystemWideData,
 } from "../responseChartData";
 
 export function useOriginalCurveData(
-  modelInputs: EpidemicModelState[],
+  epidemicModelState: EpidemicModelState[],
   systemWideData: SystemWideData,
   localeDataSource: LocaleData,
 ) {
@@ -20,9 +20,8 @@ export function useOriginalCurveData(
   );
 
   useEffect(() => {
-    if (modelInputs.length === 0) return;
-
-    const originalInputs = getModelInputs(
+    if (epidemicModelState.length === 0) return;
+    const originalInputs = getEpidemicModelState(
       originalProjection(systemWideData),
       localeDataSource,
     );
@@ -30,7 +29,7 @@ export function useOriginalCurveData(
     const originalCurveInputs = getCurveInputs(originalInputs);
 
     setOriginalCurveInputs(originalCurveInputs);
-  }, [modelInputs, systemWideData, localeDataSource]);
+  }, [epidemicModelState, systemWideData, localeDataSource]);
 
   return originalCurveInputs;
 }

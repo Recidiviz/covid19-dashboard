@@ -6,7 +6,7 @@ import { LocaleData } from "../../locale-data-context";
 import { getCurveInputs } from "../responseChartData";
 
 export function useCurrentCurveData(
-  modelInputs: EpidemicModelState[],
+  epidemicModelState: EpidemicModelState[],
   localeDataSource: LocaleData,
 ) {
   const [currentCurveInputs, setCurrentCurveInputs] = useState(
@@ -14,11 +14,11 @@ export function useCurrentCurveData(
   );
 
   useEffect(() => {
-    if (modelInputs.length === 0) return;
+    if (epidemicModelState.length === 0) return;
 
-    const currentCurveInputs = getCurveInputs(modelInputs);
+    const currentCurveInputs = getCurveInputs(epidemicModelState);
     setCurrentCurveInputs(currentCurveInputs);
-  }, [modelInputs, localeDataSource]);
+  }, [epidemicModelState, localeDataSource]);
 
   return currentCurveInputs;
 }

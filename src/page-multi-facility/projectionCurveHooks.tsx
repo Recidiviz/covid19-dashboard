@@ -57,7 +57,13 @@ function combinePopulations(data: CurveData, columnIndex: number) {
   return zip(
     getAllValues(getColView(data.incarcerated, columnIndex)),
     getAllValues(getColView(data.staff, columnIndex)),
-  ).map(([incarcerated, staff]) => incarcerated + staff);
+  ).map(([incarcerated, staff]) => {
+    return {
+      total: incarcerated + staff,
+      incarcerated,
+      staff,
+    };
+  });
 }
 
 type CurveDataMapping = {

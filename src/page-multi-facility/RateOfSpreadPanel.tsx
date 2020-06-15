@@ -2,10 +2,10 @@ import classNames from "classnames";
 import React, { useState } from "react";
 import styled from "styled-components";
 
-import { FetchedFacilities } from "../constants";
 import Loading from "../design-system/Loading";
 import RtComparisonChart from "../rt-comparison-chart";
 import PanelHeader, { PanelHeaderText } from "./PanelHeader";
+import { Facilities } from "./types";
 
 const SpreadContent = styled.div`
   display: flex;
@@ -28,9 +28,10 @@ const DataButton = styled(PanelHeaderText)`
   }
 `;
 
-const RateOfSpreadPanel: React.FC<{ facilities: FetchedFacilities }> = ({
-  facilities,
-}) => {
+const RateOfSpreadPanel: React.FC<{
+  loading: boolean;
+  facilities: Facilities;
+}> = ({ facilities, loading }) => {
   const [rtDaysOffset, updateRtDaysOffset] = useState<0 | 1 | 7>(0);
 
   return (
@@ -69,11 +70,11 @@ const RateOfSpreadPanel: React.FC<{ facilities: FetchedFacilities }> = ({
           </DataButtons>
         </SpreadContent>
       </PanelHeader>
-      {facilities.loading ? (
+      {loading ? (
         <Loading />
       ) : (
         <RtComparisonChart
-          facilities={facilities.data}
+          facilities={facilities}
           rtDaysOffset={rtDaysOffset}
         />
       )}
