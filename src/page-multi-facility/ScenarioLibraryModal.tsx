@@ -95,13 +95,17 @@ const ScenarioDescription = styled.div`
     max-height: 40px;
 
     &::after {
-      content: '...';
+      content: "...";
       text-align: right;
       bottom: 0;
       right: 0;
       display: block;
       position: absolute;
-      background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1) 75%);
+      background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0),
+        rgba(255, 255, 255, 1) 75%
+      );
     }
   }
 `;
