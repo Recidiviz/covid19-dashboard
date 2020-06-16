@@ -2,7 +2,7 @@ import { navigate } from "gatsby";
 import React, { useState } from "react";
 import styled from "styled-components";
 
-import { saveScenario } from "../database/index";
+import { referenceFacilitiesProp, saveScenario } from "../database/index";
 import Colors from "../design-system/Colors";
 import dataSyncSelectedIcon from "../design-system/icons/ic_data_sync_selected.svg";
 import dataSyncIcon from "../design-system/icons/ic_data_sync.svg";
@@ -135,9 +135,9 @@ const SyncReferenceFacilityModal: React.FC<Props> = ({
       await rejectionToast(
         saveScenario({
           ...scenario,
-          testReferenceFacilityMapping: Object.assign(
+          [referenceFacilitiesProp]: Object.assign(
             {},
-            scenario?.testReferenceFacilityMapping,
+            scenario?.[referenceFacilitiesProp],
             {
               [facility.id]: selectedRefFacilityId,
             },

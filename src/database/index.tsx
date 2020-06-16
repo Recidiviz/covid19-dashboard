@@ -44,6 +44,8 @@ const usersCollectionId = "users";
 // TODO (#521): when the datasource stabilizes, change this to the real collection
 const referenceFacilitiesCollectionId = "reference_facilities_test";
 const referenceFacilitiesCovidCasesCollectionId = "covidCases";
+// TODO (#559): when we switch to using the real data update this property for the scenario
+export const referenceFacilitiesProp = "testReferenceFacilities";
 
 // Note: None of these are secrets.
 let firebaseConfig = {
@@ -152,6 +154,7 @@ export const SCENARIO_DEFAULTS = {
   dataSharing: false,
   promoStatuses: {},
   baselinePopulations: [],
+  [referenceFacilitiesProp]: {},
 };
 
 const getBaselineScenarioRef = async (): Promise<firebase.firestore.DocumentReference | void> => {
@@ -882,12 +885,17 @@ export const duplicateScenario = async (
       ? [...scenario.baselinePopulations]
       : [];
 
+    const referenceFacilitiesCopy = scenario[referenceFacilitiesProp]
+      ? { ...scenario[referenceFacilitiesProp] }
+      : {};
+
     const scenarioData = Object.assign({}, SCENARIO_DEFAULTS, {
       name: `Copy of ${scenario.name}`,
       description: `This is a copy of the '${
         scenario.name
       }' scenario, made on ${format(new Date(), MMMMdyyyy)}`,
       baselinePopulations: [...baselinePopulationsCopy],
+      [referenceFacilitiesProp]: referenceFacilitiesCopy,
       roles: {
         [userId]: "owner",
       },
