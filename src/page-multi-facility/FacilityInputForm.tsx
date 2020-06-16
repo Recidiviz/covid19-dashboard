@@ -1,4 +1,4 @@
-import { navigate } from "gatsby";
+// import { navigate } from "gatsby";
 import { pick } from "lodash";
 import React, { useState } from "react";
 import styled from "styled-components";
@@ -26,6 +26,7 @@ import AddCasesModal from "./AddCasesModal";
 import FacilityProjections from "./FacilityProjections";
 import HistoricalCasesChart from "./HistoricalCasesChart";
 import LocaleInformationSection from "./LocaleInformationSection";
+import SyncReferenceFacilityModal from "./SyncReferenceFacilityModal";
 import { Facility } from "./types";
 
 interface ButtonSectionProps {
@@ -135,6 +136,7 @@ interface Props {
 }
 
 const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
+  const [showSyncDataModal, setShowSyncDataModal] = useState(false);
   const { addToast } = useToasts();
   const {
     state: { rtData, facilities, selectedFacilityId },
@@ -181,8 +183,10 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
           systemType: systemType || null,
           modelInputs: modelUpdate,
         }).then(() => {
-          deselectFacility();
-          navigate("/");
+          // deselectFacility();
+          // navigate("/");
+          console.log("facility saved");
+          setShowSyncDataModal(true);
         }),
       );
     } else {
@@ -310,6 +314,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
         </Column>
 
         {/* MODAL */}
+        <SyncReferenceFacilityModal open={showSyncDataModal} />
         <ModalDialog
           closeModal={closeDeleteModal}
           open={showDeleteModal}
