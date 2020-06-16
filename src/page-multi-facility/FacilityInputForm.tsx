@@ -167,6 +167,11 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
 
   const screenWidth = useScreenWidth();
 
+  const navigateHome = () => {
+    deselectFacility();
+    navigate("/");
+  };
+
   const onSave = async () => {
     // Set observedAt to right now when updating a facility from this input form
     const modelUpdate = Object.assign(
@@ -187,13 +192,10 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
           systemType: systemType || null,
           modelInputs: modelUpdate,
         }).then((updatedFacility) => {
-          if (facility?.id) {
-            deselectFacility();
-            navigate("/");
+          if (!facility?.id && useReferenceFacilities && updatedFacility) {
+            setSyncDataModalFacility(updatedFacility.id);
           } else {
-            if (updatedFacility && useReferenceFacilities) {
-              setSyncDataModalFacility(updatedFacility.id);
-            }
+            navigateHome();
           }
         }),
       );
@@ -319,7 +321,10 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
         </Column>
 
         {/* MODAL */}
-        <SyncReferenceFacilityModal facilityId={syncDataModalFacility} />
+        <SyncReferenceFacilityModal
+          facilityId={syncDataModalFacility}
+          onClose={navigateHome}
+        />
         <ModalDialog
           closeModal={closeDeleteModal}
           open={showDeleteModal}

@@ -78,6 +78,7 @@ const SyncDataTitle = (
 
 interface Props {
   facilityId: string | null;
+  onClose: () => void;
 }
 
 interface ReferenceFacilityProps {
@@ -102,7 +103,10 @@ const ReferenceFacilityRow: React.FC<ReferenceFacilityProps> = ({
   );
 };
 
-const SyncReferenceFacilityModal: React.FC<Props> = ({ facilityId }) => {
+const SyncReferenceFacilityModal: React.FC<Props> = ({
+  facilityId,
+  onClose,
+}) => {
   const {
     state: { facilities, referenceFacilities },
     actions: { deselectFacility },
@@ -122,11 +126,10 @@ const SyncReferenceFacilityModal: React.FC<Props> = ({ facilityId }) => {
 
   function handleSave() {
     if (selectedRefFacility) {
-      deselectFacility();
       // save a synced composite facility?
       console.log({ facility, selectedRefFacility });
-      navigate("/");
     }
+    onClose();
   }
 
   return (
