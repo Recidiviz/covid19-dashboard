@@ -2,12 +2,15 @@ import { navigate } from "gatsby";
 import React, { useState } from "react";
 import styled from "styled-components";
 
+import { saveScenario } from "../database/index";
 import Colors from "../design-system/Colors";
 import dataSyncSelectedIcon from "../design-system/icons/ic_data_sync_selected.svg";
 import dataSyncIcon from "../design-system/icons/ic_data_sync.svg";
 import { StyledButton } from "../design-system/InputButton";
 import ModalDialog from "../design-system/ModalDialog";
 import { getFacilityById, useFacilities } from "../facilities-context";
+import useRejectionToast from "../hooks/useRejectionToast";
+import useScenario from "../scenario-context/useScenario";
 import { ReferenceFacility } from "./types";
 
 const ModalContent = styled.div`
@@ -107,27 +110,42 @@ const SyncReferenceFacilityModal: React.FC<Props> = ({
   facilityId,
   onClose,
 }) => {
+  const rejectionToast = useRejectionToast();
+  const [scenarioState, dispatchScenarioUpdate] = useScenario();
+  const scenario = scenarioState.data;
   const {
     state: { facilities, referenceFacilities },
     actions: { deselectFacility },
   } = useFacilities();
-  const [selectedRefFacility, setSelectedRefFacility] = useState<string | null>(
-    null,
-  );
+  const [selectedRefFacilityId, setSelectedRefFacilityId] = useState<
+    string | null
+  >(null);
   const facility = getFacilityById(facilities, facilityId);
 
   function handleClick(refFacility: ReferenceFacility) {
-    if (selectedRefFacility !== refFacility.id) {
-      setSelectedRefFacility(refFacility.id);
+    if (selectedRefFacilityId !== refFacility.id) {
+      setSelectedRefFacilityId(refFacility.id);
     } else {
-      setSelectedRefFacility(null);
+      setSelectedRefFacilityId(null);
     }
   }
 
-  function handleSave() {
-    if (selectedRefFacility) {
-      // save a synced composite facility?
-      console.log({ facility, selectedRefFacility });
+  async function handleSave() {
+    if (selectedRefFacilityId && facility?.id) {
+      await rejectionToast(
+        saveScenario({
+          ...scenario,
+          testReferenceFacilityMapping: Object.assign(
+            {},
+            scenario?.testReferenceFacilityMapping,
+            {
+              [facility.id]: selectedRefFacilityId,
+            },
+          ),
+        }).then((savedScenario) => {
+          if (savedScenario) dispatchScenarioUpdate(savedScenario);
+        }),
+      );
     }
     onClose();
   }
@@ -138,7 +156,7 @@ const SyncReferenceFacilityModal: React.FC<Props> = ({
         {Object.values(referenceFacilities).map((refFacility) => (
           <ReferenceFacilityRow
             key={refFacility.id}
-            selected={selectedRefFacility === refFacility.id}
+            selected={selectedRefFacilityId === refFacility.id}
             referenceFacility={refFacility}
             onClick={() => handleClick(refFacility)}
           />
@@ -153,7 +171,7 @@ const SyncReferenceFacilityModal: React.FC<Props> = ({
         >
           Don't sync this facility
         </CancelButton>
-        <SaveButton disabled={!selectedRefFacility} onClick={handleSave}>
+        <SaveButton disabled={!selectedRefFacilityId} onClick={handleSave}>
           Save
         </SaveButton>
       </ModalFooter>

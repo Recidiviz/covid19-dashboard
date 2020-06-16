@@ -6,6 +6,10 @@ export interface ModelInputs extends EpidemicModelPersistent {
   updatedAt: Date;
 }
 
+export type FacilityReferenceMapping = {
+  [key in Facility["id"]]: ReferenceFacility["id"];
+};
+
 export type Facility = {
   id: string;
   scenarioId: string;
@@ -27,6 +31,7 @@ export type Scenario = {
   dailyReports: boolean;
   promoStatuses: PromoStatuses;
   baselinePopulations: BaselinePopulations[];
+  testReferenceFacilityMapping: FacilityReferenceMapping;
   description: string;
   roles: {
     [key: string]: "owner" | "viewer";
