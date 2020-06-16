@@ -45,7 +45,7 @@ export function getEpidemicModelState(
       ...modelInputs,
       ...getLocaleDefaults(
         localeDataSource,
-        modelInputs.stateCode,
+        modelInputs.stateName,
         modelInputs.countyName,
       ),
     };

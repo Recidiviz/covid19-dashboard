@@ -80,13 +80,13 @@ export interface EpidemicModelInputs extends ModelInputsUpdate {
 interface MetadataPersistent {
   // fields that we want to store
   countyName?: string;
-  stateCode?: string;
+  stateName?: string;
 }
 
 // some fields are required to display a sensible UI, define them here
 interface Metadata extends MetadataPersistent {
   hospitalBeds: number;
-  stateCode: string;
+  stateName: string;
 }
 
 export type EpidemicModelPersistent = ModelInputsPersistent &
@@ -120,7 +120,7 @@ export const populationBracketKeys: Array<
 export const persistedKeys: Array<keyof EpidemicModelPersistent> = [
   ...populationBracketKeys,
   "countyName",
-  "stateCode",
+  "stateName",
   "facilityDormitoryPct",
   "facilityCapacity",
   "plannedReleases",
@@ -153,34 +153,34 @@ const EpidemicModelDispatchContext = React.createContext<Dispatch | undefined>(
 
 interface ResetPayload {
   dataSource?: LocaleData;
-  stateCode?: string;
+  stateName?: string;
   countyName?: string;
 }
 
 export function getLocaleDefaults(
   dataSource: LocaleData,
-  stateCode = "US Total",
+  stateName = "US Total",
   countyName = "Total",
 ) {
   return {
     // metadata
     countyName,
-    stateCode,
+    stateName,
     localeDataSource: dataSource,
     // in the current UI we are always using age brackets
     // TODO: maybe this field is no longer needed?
     usePopulationSubsets: true,
     // read-only locale data
     confirmedCases:
-      dataSource.get(stateCode)?.get(countyName)?.reportedCases || 0,
-    hospitalBeds: dataSource.get(stateCode)?.get(countyName)?.hospitalBeds || 0,
+      dataSource.get(stateName)?.get(countyName)?.reportedCases || 0,
+    hospitalBeds: dataSource.get(stateName)?.get(countyName)?.hospitalBeds || 0,
     totalIncarcerated:
-      dataSource.get(stateCode)?.get(countyName)?.totalIncarceratedPopulation ||
+      dataSource.get(stateName)?.get(countyName)?.totalIncarceratedPopulation ||
       0,
     totalPrisonPopulation:
-      dataSource.get(stateCode)?.get(countyName)?.totalPrisonPopulation || 0,
+      dataSource.get(stateName)?.get(countyName)?.totalPrisonPopulation || 0,
     totalJailPopulation:
-      dataSource.get(stateCode)?.get(countyName)?.totalJailPopulation || 0,
+      dataSource.get(stateName)?.get(countyName)?.totalJailPopulation || 0,
     // user input defaults
     rateOfSpreadFactor: RateOfSpread.high,
     facilityDormitoryPct: 0.15,
@@ -200,16 +200,16 @@ function epidemicModelReducer(
       // it's not very granular but it doesn't need to be at the moment
 
       let updates = { ...action.payload };
-      let { stateCode, countyName } = updates;
+      let { stateName, countyName } = updates;
 
       // change in state or county triggers a bigger reset
-      if (stateCode) {
+      if (stateName) {
         countyName = countyName || "Total";
       } else if (countyName) {
-        stateCode = state.stateCode;
+        stateName = state.stateName;
       }
-      if (stateCode && countyName) {
-        return getLocaleDefaults(state.localeDataSource, stateCode, countyName);
+      if (stateName && countyName) {
+        return getLocaleDefaults(state.localeDataSource, stateName, countyName);
       }
 
       return Object.assign({}, state, updates);
@@ -224,7 +224,7 @@ export function EpidemicModelProvider({
   const initialState = {
     ...getLocaleDefaults(
       localeDataSource,
-      facilityModel?.stateCode,
+      facilityModel?.stateName,
       facilityModel?.countyName,
     ),
     ...(facilityModel || {}),

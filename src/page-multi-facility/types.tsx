@@ -84,7 +84,7 @@ export type ReferenceFacilityCovidCase = {
 
 export type ReferenceFacility = {
   id: string;
-  state: string;
+  stateName: string;
   canonicalName: string;
   facilityType: string;
   capacity: SimpleTimeseries[];
