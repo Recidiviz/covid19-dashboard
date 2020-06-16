@@ -52,7 +52,10 @@ const isMonotonicIncrease = (
   const currentObservedAt = modelInputs.observedAt;
   const previous = getPrecedingVersion(currentObservedAt, modelInputVersions);
 
-  return validateCumulativeCases(modelInputs, { previous });
+  return validateCumulativeCases(modelInputs, {
+    previous,
+    compareSums: modelInputs.isReference || previous?.isReference,
+  });
 };
 
 const ensureCasesIncreaseMonotonically: HistoryValidator = (modelVersions) => {

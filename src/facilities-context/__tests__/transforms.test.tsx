@@ -1,5 +1,5 @@
 import { differenceInCalendarDays, isSameDay } from "date-fns";
-import { last, pick } from "lodash";
+import { last, omit, pick } from "lodash";
 
 import {
   Facility,
@@ -74,13 +74,6 @@ describe("merged facility", () => {
           popTested: 55,
         },
         {
-          observedAt: new Date(2020, 5, 2),
-          popDeaths: 0,
-          popTestedPositive: 9,
-          popTested: 55,
-          staffTestedPositive: 0,
-        },
-        {
           observedAt: new Date(2020, 5, 3),
           popDeaths: 0,
           popTestedPositive: 14,
@@ -136,15 +129,22 @@ describe("merged facility", () => {
     // extra metadata properties we expect to carry over
     const { canonicalName, yearOpened, securityStatus } = referenceFacility;
 
+    const userFacilityMetadata = omit(userFacility, ["modelInputs"]);
+
     expect(merged.facility).toEqual({
-      ...userFacility,
+      ...userFacilityMetadata,
       canonicalName,
       yearOpened,
       securityStatus,
+      modelInputs: last(merged.modelVersions),
     });
 
     const referencePop = referenceFacility.population[0].value;
     const referenceCapacity = referenceFacility.capacity[0].value;
+
+    expect(merged.modelVersions.length).toBe(
+      referenceFacility.covidCases.length,
+    );
 
     merged.modelVersions.forEach((mergedCase) => {
       const referenceCase = referenceFacility.covidCases.find(
@@ -171,15 +171,20 @@ describe("merged facility", () => {
     // extra metadata properties we expect to carry over
     const { canonicalName, yearOpened, securityStatus } = referenceFacility;
 
+    const userFacilityMetadata = omit(userFacility, ["modelInputs"]);
+
     expect(merged.facility).toEqual({
-      ...userFacility,
+      ...userFacilityMetadata,
       canonicalName,
       yearOpened,
       securityStatus,
+      modelInputs: last(merged.modelVersions),
     });
 
     const referencePop = referenceFacility.population[0].value;
     const referenceCapacity = referenceFacility.capacity[0].value;
+
+    expect(merged.modelVersions.length).toBe(7);
 
     merged.modelVersions.forEach((mergedCase) => {
       const hasMatchingDate = getFindByDay(mergedCase.observedAt);
@@ -287,11 +292,40 @@ describe("merged facility", () => {
     });
   });
 
-  it.todo("should impute missing capacity from user data");
+  it("should impute missing reference capacity from user data", () => {
+    referenceFacility.capacity = [];
+    userHistory[0].facilityCapacity = 345;
+    userHistory[1].facilityCapacity = 275;
 
-  it.todo(
-    "should use reference data as facility.modelInputs when it is most recent",
-  );
+    const merged = mergeFacilityObjects({
+      userData: { facility: userFacility, modelVersions: userHistory },
+      referenceData: referenceFacility,
+    });
+
+    merged.modelVersions.forEach((version) => {
+      if (version.isReference) {
+        if (version.observedAt < userHistory[1].observedAt) {
+          expect(version.facilityCapacity).toBe(
+            userHistory[0].facilityCapacity,
+          );
+        } else {
+          expect(version.facilityCapacity).toBe(
+            userHistory[1].facilityCapacity,
+          );
+        }
+      }
+    });
+  });
+
+  it("should use reference data as facility.modelInputs when it is most recent", () => {
+    const merged = mergeFacilityObjects({
+      userData: { facility: userFacility, modelVersions: userHistory },
+      referenceData: referenceFacility,
+    });
+
+    expect(merged.facility.modelInputs).toBe(last(merged.modelVersions));
+    expect(merged.facility.modelInputs.isReference).toBe(true);
+  });
 
   describe("validation", () => {
     it("should reject reference days with nonsensical case values", () => {
@@ -336,7 +370,14 @@ describe("merged facility", () => {
 
     it("should reject reference case counts that do not increase monotonically compared to user data", () => {
       // this is the day after the first piece of user data, which has a higher count than this does
-      const testDay = referenceFacility.covidCases[3];
+      const testDay = {
+        observedAt: new Date(2020, 5, 2),
+        popDeaths: 0,
+        popTestedPositive: 9,
+        popTested: 55,
+        staffTestedPositive: 0,
+      };
+      referenceFacility.covidCases.push(testDay);
 
       const merged = mergeFacilityObjects({
         userData: { facility: userFacility, modelVersions: userHistory },
@@ -352,7 +393,7 @@ describe("merged facility", () => {
       const testDay = userHistory[1];
       const unaffectedReferenceDay = referenceFacility.covidCases[1];
       const unaffectedUserDay = userHistory[0];
-      const affectedReferenceDays = referenceFacility.covidCases.slice(3, 6);
+      const affectedReferenceDays = referenceFacility.covidCases.slice(3, 5);
 
       testDay.ageUnknownCases = 5;
 

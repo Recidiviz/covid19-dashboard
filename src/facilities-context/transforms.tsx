@@ -1,6 +1,6 @@
 import { scaleThreshold } from "d3";
 import { getTime, isSameDay } from "date-fns";
-import { omit, orderBy } from "lodash";
+import { last, omit, orderBy } from "lodash";
 import { Optional } from "utility-types";
 
 import {
@@ -24,8 +24,9 @@ type MergeProps = {
   referenceData?: ReferenceFacility;
 };
 
-type MergedFacility = Facility & {
+type MergedFacility = Omit<Facility, "modelInputs"> & {
   canonicalName?: string;
+  modelInputs: MergedModelInputs;
   [key: string]: unknown;
 };
 
@@ -189,7 +190,7 @@ export const mergeFacilityObjects = ({
   facility: MergedFacility;
   modelVersions: MergedModelInputs[];
 } => {
-  const mergedFacility = { ...facility };
+  const mergedFacility: MergedFacility = { ...facility };
   const mergedModelVersions = mergeModelVersions({
     userVersions: modelVersions,
     referenceFacility: referenceData,
@@ -206,6 +207,11 @@ export const mergeFacilityObjects = ({
       "covidCases",
     ]);
     Object.assign(mergedFacility, additionalMetadata);
+  }
+
+  const mostRecentVersion = last(mergedModelVersions);
+  if (mostRecentVersion) {
+    mergedFacility.modelInputs = mostRecentVersion;
   }
 
   return { facility: mergedFacility, modelVersions: mergedModelVersions };
