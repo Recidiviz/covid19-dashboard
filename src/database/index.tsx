@@ -977,17 +977,17 @@ export const deleteScenario = async (
 };
 
 export const getReferenceFacilities = async ({
-  state,
+  stateName,
   systemType,
 }: {
-  state: string;
+  stateName: string;
   systemType: string;
 }) => {
   const db = await getDb();
 
   const facilities = await db
     .collection(referenceFacilitiesCollectionId)
-    .where("state", "==", state)
+    .where("state", "==", stateName)
     .where("facilityType", "==", systemType)
     .get();
 

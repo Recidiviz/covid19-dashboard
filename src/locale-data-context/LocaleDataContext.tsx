@@ -9,7 +9,7 @@ export type LocaleRecord = {
   estimatedIncarceratedCases: number;
   hospitalBeds: number;
   reportedCases: number;
-  state: string;
+  stateName: string;
   totalIncarceratedPopulation: number;
   icuBeds: number;
   totalPrisonPopulation?: number;
@@ -104,7 +104,7 @@ export const LocaleDataProvider: React.FC<{ children: React.ReactNode }> = ({
 
             return {
               county: row.County,
-              state: row.State,
+              stateName: row.State,
               totalPopulation: totalPopulation,
               hospitalBeds: numeral(row["Hospital Beds"]).value() || 0,
               totalIncarceratedPopulation,
