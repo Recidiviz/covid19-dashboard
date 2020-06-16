@@ -8,6 +8,11 @@ import {
 } from "../../page-multi-facility/types";
 import { mergeFacilityObjects } from "../transforms";
 
+function getFindByDay(targetDate: Date) {
+  return ({ observedAt }: { observedAt: Date }) =>
+    isSameDay(observedAt, targetDate);
+}
+
 describe("merged facility", () => {
   let userFacility: Facility;
   let userHistory: ModelInputs[];
@@ -143,7 +148,7 @@ describe("merged facility", () => {
 
     merged.modelVersions.forEach((mergedCase) => {
       const referenceCase = referenceFacility.covidCases.find(
-        ({ observedAt }) => observedAt === mergedCase.observedAt,
+        getFindByDay(mergedCase.observedAt),
       );
       expect(mergedCase).toEqual({
         observedAt: referenceCase?.observedAt,
@@ -177,8 +182,7 @@ describe("merged facility", () => {
     const referenceCapacity = referenceFacility.capacity[0].value;
 
     merged.modelVersions.forEach((mergedCase) => {
-      const hasMatchingDate = ({ observedAt }: typeof mergedCase) =>
-        isSameDay(observedAt, mergedCase.observedAt);
+      const hasMatchingDate = getFindByDay(mergedCase.observedAt);
       const referenceCase = referenceFacility.covidCases.find(hasMatchingDate);
       const userCase = userHistory.find(hasMatchingDate);
       if (userCase) {
@@ -217,7 +221,7 @@ describe("merged facility", () => {
     });
   });
 
-  it("sorts model versions chronologically", () => {
+  it("should sort model versions chronologically", () => {
     userHistory.reverse();
     referenceFacility.covidCases.reverse();
 
@@ -233,7 +237,7 @@ describe("merged facility", () => {
     expect(isChron).toBe(true);
   });
 
-  it("imputes missing reference staff population from user data", () => {
+  it("should impute missing reference staff population from user data", () => {
     const testStaffPop = 45;
     const testDay = new Date(2020, 5, 6);
 
@@ -259,7 +263,7 @@ describe("merged facility", () => {
     });
   });
 
-  it("imputes missing reference incarcerated population from user data", () => {
+  it("should impute missing reference incarcerated population from user data", () => {
     referenceFacility.population = [];
     userHistory[1].ageUnknownPopulation = 290;
 
@@ -280,6 +284,109 @@ describe("merged facility", () => {
           );
         }
       }
+    });
+  });
+
+  it.todo("should impute missing capacity from user data");
+
+  it.todo(
+    "should use reference data as facility.modelInputs when it is most recent",
+  );
+
+  describe("validation", () => {
+    it("should reject reference days with nonsensical case values", () => {
+      const testRecord = referenceFacility.covidCases[0];
+      testRecord.popTestedPositive = -5;
+
+      let merged = mergeFacilityObjects({
+        userData: { facility: userFacility, modelVersions: userHistory },
+        referenceData: referenceFacility,
+      });
+
+      expect(
+        merged.modelVersions.find(getFindByDay(testRecord.observedAt)),
+      ).toBeUndefined();
+
+      testRecord.popTestedPositive = referenceFacility.population[0].value + 20;
+
+      merged = mergeFacilityObjects({
+        userData: { facility: userFacility, modelVersions: userHistory },
+        referenceData: referenceFacility,
+      });
+
+      expect(
+        merged.modelVersions.find(getFindByDay(testRecord.observedAt)),
+      ).toBeUndefined();
+    });
+
+    it("should reject reference case counts that do not increase monotonically", () => {
+      // this should be before the earliest piece of user data
+      const testDay = referenceFacility.covidCases[1];
+      testDay.popTestedPositive = 2;
+
+      const merged = mergeFacilityObjects({
+        userData: { facility: userFacility, modelVersions: userHistory },
+        referenceData: referenceFacility,
+      });
+
+      expect(
+        merged.modelVersions.find(getFindByDay(testDay.observedAt)),
+      ).toBeUndefined();
+    });
+
+    it("should reject reference case counts that do not increase monotonically compared to user data", () => {
+      // this is the day after the first piece of user data, which has a higher count than this does
+      const testDay = referenceFacility.covidCases[3];
+
+      const merged = mergeFacilityObjects({
+        userData: { facility: userFacility, modelVersions: userHistory },
+        referenceData: referenceFacility,
+      });
+
+      expect(
+        merged.modelVersions.find(getFindByDay(testDay.observedAt)),
+      ).toBeUndefined();
+    });
+
+    it("should not reject user case counts that do not increase monotonically", () => {
+      const testDay = userHistory[1];
+      const unaffectedReferenceDay = referenceFacility.covidCases[1];
+      const unaffectedUserDay = userHistory[0];
+      const affectedReferenceDays = referenceFacility.covidCases.slice(3, 6);
+
+      testDay.ageUnknownCases = 5;
+
+      const merged = mergeFacilityObjects({
+        userData: { facility: userFacility, modelVersions: userHistory },
+        referenceData: referenceFacility,
+      });
+
+      expect(
+        merged.modelVersions.find(getFindByDay(testDay.observedAt)),
+      ).toEqual(testDay);
+
+      // even though these two user records violate monotonicity,
+      // they should be allowed to stand
+      expect(
+        merged.modelVersions.find(getFindByDay(unaffectedUserDay.observedAt)),
+      ).toEqual(unaffectedUserDay);
+
+      // but all of the reference days between the two user days should be gone
+      for (const affectedReferenceDay of affectedReferenceDays) {
+        expect(
+          merged.modelVersions.find(
+            getFindByDay(affectedReferenceDay.observedAt),
+          ),
+        ).toBeUndefined();
+      }
+
+      // the reference day that precedes the earlier user day should still be there,
+      // even though its case count is larger than the test day's
+      expect(
+        merged.modelVersions.find(
+          getFindByDay(unaffectedReferenceDay.observedAt),
+        ),
+      ).toBeDefined();
     });
   });
 });

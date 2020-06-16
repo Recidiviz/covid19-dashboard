@@ -14,6 +14,7 @@ import {
   ReferenceFacility,
   SimpleTimeseries,
 } from "../page-multi-facility/types";
+import { validateMergedModelVersions } from "./validators";
 
 type MergeProps = {
   userData: {
@@ -28,7 +29,7 @@ type MergedFacility = Facility & {
   [key: string]: unknown;
 };
 
-type MergedModelInputs = Optional<ModelInputs, "updatedAt"> & {
+export type MergedModelInputs = Optional<ModelInputs, "updatedAt"> & {
   isReference?: boolean;
 };
 
@@ -174,7 +175,11 @@ function mergeModelVersions({
     );
   }
 
-  return orderBy(combinedVersions, ["observedAt"], ["asc"]);
+  return orderBy(
+    validateMergedModelVersions(combinedVersions),
+    ["observedAt"],
+    ["asc"],
+  );
 }
 
 export const mergeFacilityObjects = ({
