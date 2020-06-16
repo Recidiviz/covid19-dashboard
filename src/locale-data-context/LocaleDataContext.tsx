@@ -125,7 +125,7 @@ export const LocaleDataProvider: React.FC<{ children: React.ReactNode }> = ({
             parsedArray,
             // there will only ever be one row object per county
             (v: object[]) => v[0],
-            (d: DSVRowAny) => d.state as string,
+            (d: DSVRowAny) => d.stateName as string,
             (d: DSVRowAny) => d.county as string,
             // some wrong/outdated typedefs for d3 are making typescript sad
             // but this should check out
