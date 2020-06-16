@@ -86,17 +86,17 @@ const authenticate = async () => {
   await firebase.auth().signInWithCustomToken(customToken);
 };
 
-const currrentUserId = () => {
+const currentUserId = () => {
   const userId = (firebase.auth().currentUser || {}).uid;
 
   if (!userId) {
-    throw new Error("currrentUserId() always expects a user to be returned");
+    throw new Error("currentUserId() always expects a user to be returned");
   }
 
   return userId;
 };
 
-const currrentTimestamp = () => {
+const currentTimestamp = () => {
   return firebase.firestore.FieldValue.serverTimestamp();
 };
 
@@ -115,7 +115,7 @@ const buildCreatePayload = (entity: any) => {
   // or else Firestore won't permit the addition.
   delete entity.id;
 
-  const timestamp = currrentTimestamp();
+  const timestamp = currentTimestamp();
   return Object.assign({}, entity, {
     createdAt: timestamp,
     updatedAt: timestamp,
@@ -123,7 +123,7 @@ const buildCreatePayload = (entity: any) => {
 };
 
 const buildUpdatePayload = (entity: any) => {
-  const timestamp = currrentTimestamp();
+  const timestamp = currentTimestamp();
   const payload = Object.assign({}, entity, {
     updatedAt: timestamp,
   });
@@ -164,7 +164,7 @@ const getBaselineScenarioRef = async (): Promise<firebase.firestore.DocumentRefe
   //       See https://firebase.google.com/docs/firestore/security/rules-conditions#rules_are_not_filters.
   const query = db
     .collection(scenariosCollectionId)
-    .where(`roles.${currrentUserId()}`, "in", ["owner"])
+    .where(`roles.${currentUserId()}`, "in", ["owner"])
     .where("baseline", "==", true);
 
   const results = await query.get();
@@ -233,7 +233,7 @@ export const getScenarios = async (): Promise<Scenario[]> => {
 
     const scenarioResults = await db
       .collection(scenariosCollectionId)
-      .where(`roles.${currrentUserId()}`, "in", ["owner", "viewer"])
+      .where(`roles.${currentUserId()}`, "in", ["owner", "viewer"])
       .get();
 
     const scenarios = scenarioResults.docs.map((doc) => {
@@ -273,7 +273,7 @@ export const saveScenario = async (scenario: any): Promise<Scenario | null> => {
 
       scenarioId = scenario.id;
     } else {
-      const userId = currrentUserId();
+      const userId = currentUserId();
       const payload = buildCreatePayload(
         Object.assign({}, scenario, {
           roles: {
@@ -659,7 +659,7 @@ export const saveFacility = async (
       // the original.
       facility.modelInputs = pick(facility.modelInputs, persistedKeys);
 
-      facility.modelInputs.updatedAt = currrentTimestamp();
+      facility.modelInputs.updatedAt = currentTimestamp();
 
       // Use observedAt if available. If it is not provided default to today.
       facility.modelInputs.observedAt =
@@ -873,8 +873,8 @@ export const duplicateScenario = async (
       return;
     }
 
-    const userId = currrentUserId();
-    const timestamp = currrentTimestamp();
+    const userId = currentUserId();
+    const timestamp = currentTimestamp();
     const db = await getDb();
     const batch = db.batch();
 
