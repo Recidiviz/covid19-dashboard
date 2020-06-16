@@ -65,6 +65,41 @@ const FormHeaderRow: React.FC<FormHeaderRowProps> = (props) => (
   </LabelRow>
 );
 
+const passedAgesKnown = (model: Record<string, any> | undefined) => {
+  if (model !== undefined) {
+    let keys = Object.keys(model);
+    return keys.some(function (key) {
+      return RegExp(/age\d+/).test(key);
+    });
+  } else {
+    return true;
+  }
+};
+
+const passedAgesUnknown = (model: Record<string, any> | undefined) => {
+  if (model !== undefined) {
+    let keys = Object.keys(model);
+    return keys.some(function (key) {
+      return RegExp(/ageUnknown\w+/).test(key);
+    });
+  } else {
+    return true;
+  }
+};
+
+const collapseAgeInputs = (model: Record<string, any> | undefined) => {
+  if (passedAgesKnown(model)) {
+    return false;
+  } else if (
+    passedAgesKnown(model) === false &&
+    passedAgesUnknown(model) === true
+  ) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
 interface AgeGroupGridProps {
   model: Partial<EpidemicModelState>;
   updateModel: (update: EpidemicModelUpdate) => void;
@@ -76,41 +111,6 @@ export const AgeGroupGrid: React.FC<AgeGroupGridProps> = ({
   ...props
 }) => {
   const [collapsed, setCollapsed] = useState(collapsible);
-
-  const passedAgesKnown = (model: Record<string, any> | undefined) => {
-    if (model !== undefined) {
-      let keys = Object.keys(model);
-      return keys.some(function (key) {
-        return RegExp(/age\d+/).test(key);
-      });
-    } else {
-      return true;
-    }
-  };
-
-  const passedAgesUnknown = (model: Record<string, any> | undefined) => {
-    if (model !== undefined) {
-      let keys = Object.keys(model);
-      return keys.some(function (key) {
-        return RegExp(/ageUnknown\w+/).test(key);
-      });
-    } else {
-      return true;
-    }
-  };
-
-  const collapseAgeInputs = (model: Record<string, any> | undefined) => {
-    if (passedAgesKnown(model)) {
-      return false;
-    } else if (
-      passedAgesKnown(model) === false &&
-      passedAgesUnknown(model) === true
-    ) {
-      return true;
-    } else {
-      return false;
-    }
-  };
 
   useEffect(() => {
     setCollapsed(collapseAgeInputs(props.model));
