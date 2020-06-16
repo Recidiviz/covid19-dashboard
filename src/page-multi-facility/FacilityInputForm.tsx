@@ -15,7 +15,7 @@ import { Spacer } from "../design-system/Spacer";
 import { useToasts } from "../design-system/Toast";
 import Tooltip from "../design-system/Tooltip";
 import { getFacilityById, useFacilities } from "../facilities-context";
-import { useFlag } from "../feature-flags";
+import useReferenceFacilitiesEligible from "../hooks/useReferenceFacilitiesEligible";
 import useRejectionToast from "../hooks/useRejectionToast";
 import useScreenWidth from "../hooks/useScreenWidth";
 import { persistedKeys } from "../impact-dashboard/EpidemicModelContext";
@@ -133,15 +133,14 @@ const PageHeaderContainer = styled.div`
 `;
 
 interface Props {
-  scenario: Scenario;
+  scenarioId: Scenario["id"];
 }
 
-const FacilityInputForm: React.FC<Props> = ({ scenario }) => {
-  const scenarioId = scenario.id;
+const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   const [syncDataModalFacility, setSyncDataModalFacility] = useState<
     string | null
   >(null);
-  const useReferenceFacilities = useFlag(["enableShadowData"]);
+  const useReferenceFacilities = useReferenceFacilitiesEligible();
   const { addToast } = useToasts();
   const {
     state: { rtData, facilities, selectedFacilityId },
@@ -192,11 +191,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenario }) => {
             deselectFacility();
             navigate("/");
           } else {
-            if (
-              updatedFacility &&
-              useReferenceFacilities &&
-              !!scenario.baseline
-            ) {
+            if (updatedFacility && useReferenceFacilities) {
               setSyncDataModalFacility(updatedFacility.id);
             }
           }

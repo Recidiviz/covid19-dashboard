@@ -42,7 +42,7 @@ const FacilityPage: React.FC = () => {
                 <SiteHeader styles={{ borderBottom: "none" }} />
                 <FacilityInputForm
                   key={selectedFacilityId || undefined}
-                  scenario={scenario.data}
+                  scenarioId={scenario.data.id}
                 />
               </div>
             </div>
