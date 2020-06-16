@@ -77,28 +77,22 @@ const SyncDataTitle = (
 );
 
 interface Props {
-  open: boolean;
+  facilityId: string | null;
 }
 
 interface ReferenceFacilityProps {
   referenceFacility: ReferenceFacility;
   onClick: () => void;
+  selected: boolean;
 }
 
 const ReferenceFacilityRow: React.FC<ReferenceFacilityProps> = ({
   referenceFacility,
   onClick,
+  selected,
 }) => {
-  const [selected, setSelected] = useState(false);
-
-  function handleOnClick() {
-    console.log("onClick", { referenceFacility });
-    onClick();
-    setSelected(true);
-  }
-
   return (
-    <Row selected={selected} onClick={handleOnClick}>
+    <Row selected={selected} onClick={onClick}>
       <RowIcon
         src={selected ? dataSyncSelectedIcon : dataSyncIcon}
         alt="data sync icon"
@@ -108,40 +102,55 @@ const ReferenceFacilityRow: React.FC<ReferenceFacilityProps> = ({
   );
 };
 
-const SyncReferenceFacilityModal: React.FC<Props> = ({ open }) => {
+const SyncReferenceFacilityModal: React.FC<Props> = ({ facilityId }) => {
   const {
-    state: { selectedFacilityId, facilities, referenceFacilities },
+    state: { facilities, referenceFacilities },
+    actions: { deselectFacility },
   } = useFacilities();
+  const [selectedRefFacility, setSelectedRefFacility] = useState<string | null>(
+    null,
+  );
+  const facility = getFacilityById(facilities, facilityId);
 
-  const facility = getFacilityById(facilities, selectedFacilityId);
-  console.log({ facility, referenceFacilities });
+  function handleClick(refFacility: ReferenceFacility) {
+    if (selectedRefFacility !== refFacility.id) {
+      setSelectedRefFacility(refFacility.id);
+    } else {
+      setSelectedRefFacility(null);
+    }
+  }
+
+  function handleSave() {
+    if (selectedRefFacility) {
+      deselectFacility();
+      // save a synced composite facility?
+      console.log({ facility, selectedRefFacility });
+      navigate("/");
+    }
+  }
 
   return (
-    <ModalDialog open={open} title={SyncDataTitle}>
+    <ModalDialog open={!!facilityId} title={SyncDataTitle}>
       <ModalContent>
         {Object.values(referenceFacilities).map((refFacility) => (
           <ReferenceFacilityRow
             key={refFacility.id}
+            selected={selectedRefFacility === refFacility.id}
             referenceFacility={refFacility}
-            onClick={() => {
-              console.log("reference facility selected: ", refFacility);
-            }}
+            onClick={() => handleClick(refFacility)}
           />
         ))}
       </ModalContent>
       <ModalFooter>
         <CancelButton
           onClick={() => {
+            deselectFacility();
             navigate("/");
           }}
         >
           Don't sync this facility
         </CancelButton>
-        <SaveButton
-          onClick={() => {
-            navigate("/");
-          }}
-        >
+        <SaveButton disabled={!selectedRefFacility} onClick={handleSave}>
           Save
         </SaveButton>
       </ModalFooter>

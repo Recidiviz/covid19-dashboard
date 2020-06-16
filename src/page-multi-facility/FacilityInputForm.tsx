@@ -1,4 +1,4 @@
-// import { navigate } from "gatsby";
+import { navigate } from "gatsby";
 import { pick } from "lodash";
 import React, { useState } from "react";
 import styled from "styled-components";
@@ -15,6 +15,7 @@ import { Spacer } from "../design-system/Spacer";
 import { useToasts } from "../design-system/Toast";
 import Tooltip from "../design-system/Tooltip";
 import { getFacilityById, useFacilities } from "../facilities-context";
+import { useFlag } from "../feature-flags";
 import useRejectionToast from "../hooks/useRejectionToast";
 import useScreenWidth from "../hooks/useScreenWidth";
 import { persistedKeys } from "../impact-dashboard/EpidemicModelContext";
@@ -27,7 +28,7 @@ import FacilityProjections from "./FacilityProjections";
 import HistoricalCasesChart from "./HistoricalCasesChart";
 import LocaleInformationSection from "./LocaleInformationSection";
 import SyncReferenceFacilityModal from "./SyncReferenceFacilityModal";
-import { Facility } from "./types";
+import { Facility, Scenario } from "./types";
 
 interface ButtonSectionProps {
   screenWidth: number;
@@ -132,11 +133,15 @@ const PageHeaderContainer = styled.div`
 `;
 
 interface Props {
-  scenarioId: string;
+  scenario: Scenario;
 }
 
-const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
-  const [showSyncDataModal, setShowSyncDataModal] = useState(false);
+const FacilityInputForm: React.FC<Props> = ({ scenario }) => {
+  const scenarioId = scenario.id;
+  const [syncDataModalFacility, setSyncDataModalFacility] = useState<
+    string | null
+  >(null);
+  const useReferenceFacilities = useFlag(["enableShadowData"]);
   const { addToast } = useToasts();
   const {
     state: { rtData, facilities, selectedFacilityId },
@@ -163,7 +168,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
 
   const screenWidth = useScreenWidth();
 
-  const onSave = () => {
+  const onSave = async () => {
     // Set observedAt to right now when updating a facility from this input form
     const modelUpdate = Object.assign(
       {},
@@ -175,18 +180,26 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
     );
 
     if (facilityName) {
-      rejectionToast(
+      await rejectionToast(
         createOrUpdateFacility(scenarioId, {
           id: facility?.id,
           name: facilityName,
           description: description || null,
           systemType: systemType || null,
           modelInputs: modelUpdate,
-        }).then(() => {
-          // deselectFacility();
-          // navigate("/");
-          console.log("facility saved");
-          setShowSyncDataModal(true);
+        }).then((updatedFacility) => {
+          if (facility?.id) {
+            deselectFacility();
+            navigate("/");
+          } else {
+            if (
+              updatedFacility &&
+              useReferenceFacilities &&
+              !!scenario.baseline
+            ) {
+              setSyncDataModalFacility(updatedFacility.id);
+            }
+          }
         }),
       );
     } else {
@@ -208,18 +221,15 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   };
 
   // delete modal stuff
-  const [showDeleteModal, updateShowDeleteModal] = useState(false);
-  const openDeleteModal = () => {
-    updateShowDeleteModal(true);
-  };
-  const closeDeleteModal = () => {
-    updateShowDeleteModal(false);
-  };
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const openDeleteModal = () => setShowDeleteModal(true);
+  const closeDeleteModal = () => setShowDeleteModal(false);
 
   const popupItems = [
     { name: "Duplicate", onClick: onDuplicateFacility },
     { name: "Delete", onClick: openDeleteModal },
   ];
+
   const removeFacility = async () => {
     const facilityId = facility?.id;
     if (facilityId) {
@@ -227,7 +237,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
       deselectFacility();
       window.history.back();
     }
-    updateShowDeleteModal(false);
+    setShowDeleteModal(false);
   };
 
   const onModalSave = (newFacility: Facility) => {
@@ -314,7 +324,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
         </Column>
 
         {/* MODAL */}
-        <SyncReferenceFacilityModal open={showSyncDataModal} />
+        <SyncReferenceFacilityModal facilityId={syncDataModalFacility} />
         <ModalDialog
           closeModal={closeDeleteModal}
           open={showDeleteModal}
