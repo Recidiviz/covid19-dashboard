@@ -30,6 +30,7 @@ const BaseColors = {
   darkForest: "#033342",
   paleForest: "#667c7b",
   jade: "#447F7C",
+  paleJade: "#A4AFAF",
   darkTeal: "#759f9e",
   paleTeal: "#58b596",
   darkGray: "#c8d3d3",
@@ -48,6 +49,7 @@ const Colors = {
   forest50: hexAlpha(BaseColors.forest, 0.5),
   forest20: hexAlpha(BaseColors.forest, 0.2),
   darkRed10: hexAlpha(BaseColors.darkRed, 0.1),
+  paleJade20: hexAlpha(BaseColors.paleJade, 0.2),
 };
 
 // Shared colors for the Projection charts
