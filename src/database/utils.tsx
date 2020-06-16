@@ -4,11 +4,9 @@ import { EpidemicModelPersistent } from "../impact-dashboard/EpidemicModelContex
 
 const undefinedString = "undefined";
 
-export const prepareForStorage = (
-  stateName: EpidemicModelPersistent,
-): object => {
+export const prepareForStorage = (state: EpidemicModelPersistent): object => {
   return mapObject(
-    stateName,
+    state,
     (key, value) => {
       if (value === undefinedString) {
         throw new Error(`The string '${undefinedString}' cannot be persisted`);
@@ -20,11 +18,9 @@ export const prepareForStorage = (
   );
 };
 
-export const prepareFromStorage = (
-  stateName: object,
-): EpidemicModelPersistent => {
+export const prepareFromStorage = (state: object): EpidemicModelPersistent => {
   return mapObject(
-    stateName,
+    state,
     (key, value) => [key, value === undefinedString ? undefined : value],
     { deep: true },
   );

@@ -43,7 +43,6 @@ const LocaleInformation: React.FC = () => {
       // despite the above checks; replace these assertions
       // with proper type guards
       const keys = localeDataSource?.get(stateName)?.keys();
-      console.log(keys);
       const newCountyList = Array.from(
         keys as Iterable<string>,
       ).map((value) => ({ value }));
