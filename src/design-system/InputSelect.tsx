@@ -46,6 +46,10 @@ const StyledSelect = styled.input`
   appearance: none;
   padding-right: ${caretSize * 2 + 16}px;
   text-overflow: ellipsis;
+
+  &::-ms-expand {
+    display: none;
+  }
 `;
 
 const InputSelect: React.FC<Props> = (props) => {

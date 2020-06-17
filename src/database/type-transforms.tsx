@@ -146,7 +146,7 @@ export const buildReferenceFacility = (
   });
 
   let {
-    state,
+    stateName,
     canonicalName,
     facilityType,
     capacity,
@@ -155,7 +155,7 @@ export const buildReferenceFacility = (
   } = data;
 
   // cast known types
-  state = String(state);
+  stateName = String(stateName);
   canonicalName = String(canonicalName);
   facilityType = String(facilityType);
   // if these are not arrays then unfortunately they are garbage
@@ -171,7 +171,7 @@ export const buildReferenceFacility = (
 
   return {
     id: facilityDocument.id,
-    state,
+    stateName,
     canonicalName,
     facilityType,
     capacity,
