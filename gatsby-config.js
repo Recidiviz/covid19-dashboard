@@ -41,6 +41,7 @@ module.exports = {
       options: {
         fonts: [
           { family: "Libre Baskerville" },
+          { family: "Libre Franklin" },
           { family: "Poppins", variants: ["300", "400", "600"] },
           { family: "Rubik" },
         ],

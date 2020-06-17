@@ -140,7 +140,7 @@ const ResponseImpactDashboard: React.FC<Props> = ({
                     {facilities[0].systemType === "County Jail" &&
                     epidemicModelState[0].countyName !== "Total"
                       ? epidemicModelState[0].countyName
-                      : epidemicModelState[0].stateCode}{" "}
+                      : epidemicModelState[0].stateName}{" "}
                     COVID-19 Response Impact
                   </PageHeader>
                   <ReportDateDiv>

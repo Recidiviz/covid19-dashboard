@@ -1,5 +1,5 @@
 import numeral from "numeral";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import InputTextNumeric from "../design-system/InputTextNumeric";
@@ -20,10 +20,6 @@ const FacilityInformationDiv = styled.div``;
 
 const LabelRow = styled(FormGridRow)`
   margin-bottom: 0;
-`;
-
-const CollapseIcon = styled.span`
-  font-size: xx-small;
 `;
 
 const LabelCell: React.FC = (props) => (
@@ -69,6 +65,41 @@ const FormHeaderRow: React.FC<FormHeaderRowProps> = (props) => (
   </LabelRow>
 );
 
+const passedAgesKnown = (model: Record<string, any> | undefined) => {
+  if (model !== undefined) {
+    let keys = Object.keys(model);
+    return keys.some(function (key) {
+      return RegExp(/age\d+/).test(key);
+    });
+  } else {
+    return true;
+  }
+};
+
+const passedAgesUnknown = (model: Record<string, any> | undefined) => {
+  if (model !== undefined) {
+    let keys = Object.keys(model);
+    return keys.some(function (key) {
+      return RegExp(/ageUnknown\w+/).test(key);
+    });
+  } else {
+    return true;
+  }
+};
+
+const collapseAgeInputs = (model: Record<string, any> | undefined) => {
+  if (passedAgesKnown(model)) {
+    return false;
+  } else if (
+    passedAgesKnown(model) === false &&
+    passedAgesUnknown(model) === true
+  ) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
 interface AgeGroupGridProps {
   model: Partial<EpidemicModelState>;
   updateModel: (update: EpidemicModelUpdate) => void;
@@ -80,46 +111,51 @@ export const AgeGroupGrid: React.FC<AgeGroupGridProps> = ({
   ...props
 }) => {
   const [collapsed, setCollapsed] = useState(collapsible);
+
+  useEffect(() => {
+    setCollapsed(collapseAgeInputs(props.model));
+  }, [props.model]);
+
   const ageSpecificCaseCounts = (
     <>
       <AgeGroupRow
-        label="Ages 0-19"
+        label="Residents Ages 0-19"
         leftKey="age0Cases"
         rightKey="age0Population"
         {...props}
       />
       <AgeGroupRow
-        label="Ages 20-44"
+        label="Residents Ages 20-44"
         leftKey="age20Cases"
         rightKey="age20Population"
         {...props}
       />
       <AgeGroupRow
-        label="Ages 45-54"
+        label="Residents Ages 45-54"
         leftKey="age45Cases"
         rightKey="age45Population"
         {...props}
       />
       <AgeGroupRow
-        label="Ages 55-64"
+        label="Residents Ages 55-64"
         leftKey="age55Cases"
         rightKey="age55Population"
         {...props}
       />
       <AgeGroupRow
-        label="Ages 65-74"
+        label="Residents Ages 65-74"
         leftKey="age65Cases"
         rightKey="age65Population"
         {...props}
       />
       <AgeGroupRow
-        label="Ages 75-84"
+        label="Residents Ages 75-84"
         leftKey="age75Cases"
         rightKey="age75Population"
         {...props}
       />
       <AgeGroupRow
-        label="Ages 85+"
+        label="Residents Ages 85+"
         leftKey="age85Cases"
         rightKey="age85Population"
         {...props}
@@ -139,24 +175,37 @@ export const AgeGroupGrid: React.FC<AgeGroupGridProps> = ({
       {/* empty row for spacing */}
       <FormGridRow />
       <FormHeaderRow label="Total Population" />
-      <AgeGroupRow
-        label="Resident population (ages unknown)"
-        leftKey="ageUnknownCases"
-        rightKey="ageUnknownPopulation"
-        {...props}
-      />
       {collapsed ? (
-        <div
-          className="flex flex-row justify-center mt-8 cursor-pointer"
-          onClick={() => {
-            setCollapsed(false);
-          }}
-        >
-          <TextLabel>Add residents and cases by age</TextLabel>
-          <CollapseIcon>▾</CollapseIcon>
+        <div>
+          <AgeGroupRow
+            label="Resident population (ages unknown)"
+            leftKey="ageUnknownCases"
+            rightKey="ageUnknownPopulation"
+            {...props}
+          />
+          <div
+            className="flex flex-row justify-center mt-8 cursor-pointer"
+            onClick={() => {
+              setCollapsed(false);
+            }}
+          >
+            <TextLabel margin={true}>Add residents and cases by age</TextLabel>
+          </div>
         </div>
       ) : (
-        ageSpecificCaseCounts
+        <div>
+          {ageSpecificCaseCounts}
+          <div
+            className="flex flex-row justify-center mt-8 cursor-pointer"
+            onClick={() => {
+              setCollapsed(true);
+            }}
+          >
+            <TextLabel margin={true}>
+              Add residents and cases without ages
+            </TextLabel>
+          </div>
+        </div>
       )}
     </FormGrid>
   );

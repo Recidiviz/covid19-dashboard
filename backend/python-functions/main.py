@@ -3,6 +3,7 @@ from collections import defaultdict
 from helpers import cloudfunction
 from schemas import rt_input, rt_output
 from realtime_rt import compute_r_t
+from data_ingest import ingest_daily_covid_case_data
 
 @cloudfunction(
     in_schema=rt_input,
@@ -25,3 +26,11 @@ def calculate_rt(request_json):
         resp['high90'].append({'date': date_str, 'value': result_df.loc[day, 'High_90']})
 
     return resp
+
+def ingest_covid_case_data(event, _context):
+    """
+        Ingests Covid case data. This function is triggered when a new
+        CSV file containing daily Covid case data is placed into the
+        c19-backend-covid-case-data bucket.
+    """
+    ingest_daily_covid_case_data(event['bucket'], event['name'])

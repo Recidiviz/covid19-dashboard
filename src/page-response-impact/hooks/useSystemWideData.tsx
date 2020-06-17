@@ -45,12 +45,12 @@ export function useSystemWideData(
     if (systemType === "State Prison") {
       localeDefaultIncarceratedPopulation = getLocaleDefaults(
         localeDataSource,
-        epidemicModelState[0].stateCode,
+        epidemicModelState[0].stateName,
       ).totalPrisonPopulation;
     } else {
       localeDefaultIncarceratedPopulation = getLocaleDefaults(
         localeDataSource,
-        epidemicModelState[0].stateCode,
+        epidemicModelState[0].stateName,
         epidemicModelState[0].countyName,
       ).totalJailPopulation;
     }
