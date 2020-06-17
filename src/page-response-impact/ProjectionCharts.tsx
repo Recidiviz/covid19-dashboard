@@ -4,9 +4,12 @@ import styled from "styled-components";
 
 import Colors, { MarkColors } from "../design-system/Colors";
 import CurveChart from "../impact-dashboard/CurveChart";
+import {
+  getCurveChartData,
+  SystemWideData,
+} from "../impact-dashboard/responseChartData";
 import { CurveFunctionInputs } from "../infection-model";
 import ProjectionsLegend from "../page-multi-facility/ProjectionsLegend";
-import { getCurveChartData, SystemWideData } from "./responseChartData";
 import { ChartHeader } from "./styles";
 
 const CurveChartContainer = styled.div`

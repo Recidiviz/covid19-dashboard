@@ -5,9 +5,12 @@ import {
   EpidemicModelState,
   getLocaleDefaults,
 } from "../../impact-dashboard/EpidemicModelContext";
+import {
+  getSystemWideSums,
+  SystemWideData,
+} from "../../impact-dashboard/responseChartData";
 import { LocaleData } from "../../locale-data-context";
 import { Facilities, Scenario } from "../../page-multi-facility/types";
-import { getSystemWideSums, SystemWideData } from "../responseChartData";
 
 export function useSystemWideData(
   baselinePopulations: Scenario["baselinePopulations"],

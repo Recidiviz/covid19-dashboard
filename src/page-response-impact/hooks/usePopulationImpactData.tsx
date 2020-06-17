@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
+import { calculateCurveData } from "../../impact-dashboard/responseChartData";
 import { CurveFunctionInputs } from "../../infection-model";
-import { calculateCurveData } from "../responseChartData";
 import {
   calculatePopulationImpactDifference,
   PopulationImpact,

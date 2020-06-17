@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { EpidemicModelState } from "../impact-dashboard/EpidemicModelContext";
-import { getEpidemicModelState } from "../infection-model";
+import { getEpidemicModelState } from "../impact-dashboard/responseChartData";
 import { LocaleData } from "../locale-data-context";
 import { Facilities } from "../page-multi-facility/types";
 

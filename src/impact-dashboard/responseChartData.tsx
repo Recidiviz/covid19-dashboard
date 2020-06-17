@@ -2,15 +2,10 @@ import { zip } from "d3-array";
 import ndarray from "ndarray";
 
 import {
-  EpidemicModelState,
-  getLocaleDefaults,
-} from "../impact-dashboard/EpidemicModelContext";
-import { RateOfSpread } from "../impact-dashboard/EpidemicModelContext";
-import { countCasesForDay } from "../impact-dashboard/ImpactProjectionTableContainer";
-import {
   calculateCurves,
   CurveData,
   CurveFunctionInputs,
+  curveInputsFromUserInputs,
   isCurveData,
 } from "../infection-model";
 import { NUM_DAYS } from "../infection-model";
@@ -18,6 +13,9 @@ import { getAllValues, getColView } from "../infection-model/matrixUtils";
 import { seirIndex } from "../infection-model/seir";
 import { LocaleData } from "../locale-data-context";
 import { Facilities } from "../page-multi-facility/types";
+import { EpidemicModelState, getLocaleDefaults } from "./EpidemicModelContext";
+import { RateOfSpread } from "./EpidemicModelContext";
+import { countCasesForDay } from "./ImpactProjectionTableContainer";
 
 export type SystemWideData = {
   baselinePopulationDate: Date;
@@ -34,6 +32,29 @@ export type SystemWideData = {
   ageUnknownCases: number;
   incarceratedPopulation: number;
 };
+
+export function getEpidemicModelState(
+  facilities: Facilities,
+  localeDataSource: LocaleData,
+) {
+  return facilities.map((facility) => {
+    const modelInputs = facility.modelInputs;
+    return {
+      ...modelInputs,
+      ...getLocaleDefaults(
+        localeDataSource,
+        modelInputs.stateName,
+        modelInputs.countyName,
+      ),
+    };
+  });
+}
+
+export function getCurveInputs(modelInputs: EpidemicModelState[]) {
+  return modelInputs.map((modelInput) => {
+    return curveInputsFromUserInputs(modelInput);
+  });
+}
 
 function originalEpidemicModelInputs(systemWideData: SystemWideData) {
   return {

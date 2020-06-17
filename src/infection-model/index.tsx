@@ -5,11 +5,7 @@ import { Omit } from "utility-types";
 import {
   calculateFacilityOccupancyPct,
   EpidemicModelInputs,
-  EpidemicModelState,
-  getLocaleDefaults,
 } from "../impact-dashboard/EpidemicModelContext";
-import { LocaleData } from "../locale-data-context";
-import { Facilities } from "../page-multi-facility/types";
 import {
   adjustPopulations,
   ageGroupIndex,
@@ -241,29 +237,6 @@ export function getAdjustedTotalPopulation(inputs: CurveFunctionInputs) {
     populationTurnover: inputs.populationTurnover,
   });
   return sum(ageGroupPopulations);
-}
-
-export function getCurveInputs(modelInputs: EpidemicModelState[]) {
-  return modelInputs.map((modelInput) => {
-    return curveInputsFromUserInputs(modelInput);
-  });
-}
-
-export function getEpidemicModelState(
-  facilities: Facilities,
-  localeDataSource: LocaleData,
-) {
-  return facilities.map((facility) => {
-    const modelInputs = facility.modelInputs;
-    return {
-      ...modelInputs,
-      ...getLocaleDefaults(
-        localeDataSource,
-        modelInputs.stateName,
-        modelInputs.countyName,
-      ),
-    };
-  });
 }
 
 export function estimatePeakHospitalUse() {
