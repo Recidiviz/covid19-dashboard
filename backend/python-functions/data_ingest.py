@@ -52,7 +52,7 @@ def reshape_facilities_data(file_location):
       "Colorado::Denver Reception & Diagnostic Center": {
         "canonicalName": "Denver Reception & Diagnostic Center",
         "facilityType": "State Prisons",
-        "state": "Colorado",
+        "stateName": "Colorado",
         "covidCases": {
           "2020-06-01": {
             "popDeaths": 0,
@@ -84,12 +84,12 @@ def reshape_facilities_data(file_location):
         reader = csv.DictReader(csv_file, delimiter=',')
 
         for row in reader:
-            state = row["State"].strip()
+            state_name = row["State"].strip()
             canonical_facility_name = row["Canonical Facility Name"].strip()
             facility_type = row['Facility Type'].strip()
             date = row['Date'].strip()
 
-            key = f'{state}::{canonical_facility_name}'
+            key = f'{state_name}::{canonical_facility_name}'
             
             if (key in facilities):
                 # If the facility already exists, append the case counts for a given day.
@@ -100,7 +100,7 @@ def reshape_facilities_data(file_location):
                 facilities[key] = {
                     'canonicalName': canonical_facility_name,
                     'facilityType': facility_type,
-                    'state': state,
+                    'stateName': state_name,
                     'covidCases': {
                         f'{date}': build_covid_case_counts(row)
                     }
@@ -114,9 +114,12 @@ def persist(facilities):
     facilities_collection = db.collection(REFERENCE_FACILITIES_COLLECTION_ID)
                 
     for _key, facility in facilities.items():
+        state_name = facility["stateName"]
+        facility_name = facility["canonicalName"]
+
         facilitiesQueryResult = facilities_collection \
-            .where('state', '==', f'{facility["state"]}') \
-            .where('canonicalName', '==', f'{facility["canonicalName"]}') \
+            .where('stateName', '==', f'{state_name}') \
+            .where('canonicalName', '==', f'{facility_name}') \
             .stream()
 
         facilityDocuments = list(facilitiesQueryResult)       
@@ -141,8 +144,7 @@ def persist(facilities):
             
             batch.commit()
         else:
-            log.error(f'Multiple Documents were returned for ' \
-                f'{facility["canonicalName"]} in {facility["state"]}')
+            log.error(f'Multiple Documents were returned for {facility_name} in {state_name}')
 
 def ingest_daily_covid_case_data(bucket_name, file_name):
     file_location = download_covid_case_data(bucket_name, file_name)
