@@ -307,7 +307,7 @@ export const saveScenario = async (scenario: any): Promise<Scenario | null> => {
   }
 };
 
-export const getFacilityModelVersions = async ({
+const getFacilityModelVersions = async ({
   facilityId,
   scenarioId,
   distinctByObservedAt = false,
