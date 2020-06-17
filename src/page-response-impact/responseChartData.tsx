@@ -11,7 +11,6 @@ import {
   calculateCurves,
   CurveData,
   CurveFunctionInputs,
-  curveInputsFromUserInputs,
   isCurveData,
 } from "../infection-model";
 import { NUM_DAYS } from "../infection-model";
@@ -35,29 +34,6 @@ export type SystemWideData = {
   ageUnknownCases: number;
   incarceratedPopulation: number;
 };
-
-export function getEpidemicModelState(
-  facilities: Facilities,
-  localeDataSource: LocaleData,
-) {
-  return facilities.map((facility) => {
-    const modelInputs = facility.modelInputs;
-    return {
-      ...modelInputs,
-      ...getLocaleDefaults(
-        localeDataSource,
-        modelInputs.stateName,
-        modelInputs.countyName,
-      ),
-    };
-  });
-}
-
-export function getCurveInputs(modelInputs: EpidemicModelState[]) {
-  return modelInputs.map((modelInput) => {
-    return curveInputsFromUserInputs(modelInput);
-  });
-}
 
 function originalEpidemicModelInputs(systemWideData: SystemWideData) {
   return {

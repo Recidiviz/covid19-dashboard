@@ -8,6 +8,8 @@ import iconBackSrc from "../design-system/icons/ic_back.svg";
 import Loading from "../design-system/Loading";
 import { Column, PageContainer } from "../design-system/PageColumn";
 import { Spacer } from "../design-system/Spacer";
+import { useCurrentCurveData } from "../hooks/useCurrentCurveData";
+import { useEpidemicModelState } from "../hooks/useEpidemicModelState";
 import useRejectionToast from "../hooks/useRejectionToast";
 import { sumAgeGroupPopulations } from "../impact-dashboard/EpidemicModelContext";
 import { getFacilitiesRtDataById } from "../infection-model/rt";
@@ -16,8 +18,6 @@ import { BaselinePopulations, Scenario } from "../page-multi-facility/types";
 import { Facilities, RtDataMapping } from "../page-multi-facility/types";
 import BaselinePopulationModal from "./BaselinePopulationModal";
 import {
-  useCurrentCurveData,
-  useEpidemicModelState,
   useOriginalCurveData,
   usePopulationImpactData,
   useSystemWideData,

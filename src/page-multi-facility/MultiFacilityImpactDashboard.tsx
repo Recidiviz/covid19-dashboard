@@ -9,16 +9,14 @@ import Loading from "../design-system/Loading";
 import TextLabel from "../design-system/TextLabel";
 import { useFacilities } from "../facilities-context";
 import { useFlag } from "../feature-flags";
+import { useCurrentCurveData } from "../hooks/useCurrentCurveData";
+import { useEpidemicModelState } from "../hooks/useEpidemicModelState";
 import useRejectionToast from "../hooks/useRejectionToast";
 import ChartArea from "../impact-dashboard/ChartArea";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
 import { getFacilitiesRtDataById } from "../infection-model/rt";
 import { useLocaleDataState } from "../locale-data-context";
 import { publicCurvesAndCaseToggles } from "../page-multi-facility/curveToggles";
-import {
-  useCurrentCurveData,
-  useEpidemicModelState,
-} from "../page-response-impact/hooks";
 import { getCurveChartData } from "../page-response-impact/responseChartData";
 import useScenario from "../scenario-context/useScenario";
 import FacilityRow from "./FacilityRow";
@@ -93,8 +91,14 @@ const MultiFacilityImpactDashboard: React.FC = () => {
   } = useFacilities();
   const facilities = Object.values(facilitiesState.facilities);
   const rtData = getFacilitiesRtDataById(facilitiesState.rtData, facilities);
-  const epidemicModelStates = useEpidemicModelState(facilities, localeDataSource);
-  const curveChartInputs = useCurrentCurveData(epidemicModelStates, localeDataSource);
+  const epidemicModelStates = useEpidemicModelState(
+    facilities,
+    localeDataSource,
+  );
+  const curveChartInputs = useCurrentCurveData(
+    epidemicModelStates,
+    localeDataSource,
+  );
   const curvedChartData = getCurveChartData(curveChartInputs);
 
   const handleFacilitySave = async (facility: Facility) => {

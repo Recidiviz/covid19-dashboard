@@ -2,13 +2,9 @@ import { useEffect, useState } from "react";
 
 import { EpidemicModelState } from "../../impact-dashboard/EpidemicModelContext";
 import { CurveFunctionInputs } from "../../infection-model";
+import { getCurveInputs, getEpidemicModelState } from "../../infection-model";
 import { LocaleData } from "../../locale-data-context";
-import {
-  getCurveInputs,
-  getEpidemicModelState,
-  originalProjection,
-  SystemWideData,
-} from "../responseChartData";
+import { originalProjection, SystemWideData } from "../responseChartData";
 
 export function useOriginalCurveData(
   epidemicModelState: EpidemicModelState[],
