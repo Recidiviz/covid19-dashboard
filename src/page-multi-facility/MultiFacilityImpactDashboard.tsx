@@ -99,7 +99,7 @@ const MultiFacilityImpactDashboard: React.FC = () => {
     epidemicModelStates,
     localeDataSource,
   );
-  const curvedChartData = getCurveChartData(curveChartInputs);
+  const curvedChartData = getCurveChartData(curveChartInputs, true);
 
   const handleFacilitySave = async (facility: Facility) => {
     if (scenarioId) {

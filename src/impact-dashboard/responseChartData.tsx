@@ -148,7 +148,10 @@ function getCaseCount(combinedData: ndarray<number>) {
   return cases;
 }
 
-export function getCurveChartData(facilitiesInputs: CurveFunctionInputs[]) {
+export function getCurveChartData(
+  facilitiesInputs: CurveFunctionInputs[],
+  includeCases = false,
+) {
   if (!facilitiesInputs.length)
     return {
       // NOTE: We should guard against this in the dashboard and remove
@@ -163,13 +166,17 @@ export function getCurveChartData(facilitiesInputs: CurveFunctionInputs[]) {
   const combinedData: ndarray = combineFacilitiesProjectionData(
     facilitiesProjectionData.filter(isCurveData),
   );
-  return {
+  const curvedData = {
     exposed: getAllValues(getColView(combinedData, seirIndex.exposed)),
     fatalities: getAllValues(getColView(combinedData, seirIndex.fatalities)),
     hospitalized: getAllValues(
       getColView(combinedData, seirIndex.hospitalized),
     ),
     infectious: getAllValues(getColView(combinedData, seirIndex.infectious)),
-    cases: getCaseCount(combinedData),
   };
+  if (includeCases) {
+    return { ...curvedData, cases: getCaseCount(combinedData) };
+  } else {
+    return curvedData;
+  }
 }
