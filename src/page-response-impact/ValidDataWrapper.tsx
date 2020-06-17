@@ -36,7 +36,7 @@ const ValidDataWrapper: React.FC<Props> = ({ children, facilities = [] }) => {
     return facilities.some((f) => {
       return (
         facilities[0].systemType !== f.systemType ||
-        facilities[0].modelInputs.stateCode !== f.modelInputs.stateCode ||
+        facilities[0].modelInputs.stateName !== f.modelInputs.stateName ||
         (facilities[0].systemType === "County Jail" &&
           facilities[0].modelInputs.countyName !== f.modelInputs.countyName)
       );

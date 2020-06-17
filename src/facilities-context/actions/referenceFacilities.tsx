@@ -8,11 +8,11 @@ export const RECEIVE_REFERENCE_FACILITIES = "RECEIVE_REFERENCE_FACILITIES";
 export const CLEAR_REFERENCE_FACILITIES = "CLEAR_REFERENCE_FACILITIES";
 
 export async function fetchReferenceFacilities(
-  state: string,
+  stateName: string,
   systemType: string,
   dispatch: FacilitiesDispatch,
 ) {
-  const facilities = await getReferenceFacilities({ state, systemType });
+  const facilities = await getReferenceFacilities({ stateName, systemType });
   const payload: ReferenceFacilityMapping = {};
   facilities.forEach((f) => {
     payload[f.id] = f;

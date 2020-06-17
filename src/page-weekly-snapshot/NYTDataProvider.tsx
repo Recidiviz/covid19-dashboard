@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 
 export type NYTStateRecord = {
   date: Date;
-  state: string | undefined;
+  stateName: string | undefined;
   cases: number;
   deaths: number;
   confirmedCases?: number;
@@ -39,7 +39,7 @@ const NYTDataContext = React.createContext<NYTDataContext | undefined>(
 
 function transformRow(row: DSVRowString): NYTCountyRecord | NYTStateRecord {
   return {
-    state: row.state,
+    stateName: row.state,
     county: row.county,
     date: row.date ? parse(row.date, "yyyy-MM-dd", new Date()) : startOfToday(),
     cases: numeral(row["cases"]).value() || 0,
@@ -93,7 +93,6 @@ async function fetchNYTData() {
     fetchLatestNYTStatesData(),
     fetchHistoricalNYTStatesData(),
   ]);
-
   const daySeven = latestStateData[0].date;
   const dayOne = subWeeks(daySeven, 1);
   const filteredCountyData = historicalCountyData.filter((d) =>
@@ -104,15 +103,21 @@ async function fetchNYTData() {
   );
   let data: { [key: string]: any } = {};
   for (const stateData of latestStateData) {
-    if (stateData.state) {
-      data[stateData.state] = {
+    if (stateData.stateName) {
+      data[stateData.stateName] = {
         state: [
           stateData,
-          ...filteredStateData.filter((d) => d.state === stateData.state),
+          ...filteredStateData.filter(
+            (d) => d.stateName === stateData.stateName,
+          ),
         ],
         counties: [
-          ...latestCountyData.filter((d) => d.state === stateData.state),
-          ...filteredCountyData.filter((d) => d.state === stateData.state),
+          ...latestCountyData.filter(
+            (d) => d.stateName === stateData.stateName,
+          ),
+          ...filteredCountyData.filter(
+            (d) => d.stateName === stateData.stateName,
+          ),
         ],
       };
     }

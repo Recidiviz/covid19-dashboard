@@ -115,8 +115,8 @@ export default function LocaleSummary() {
   const daySeven = getDay(selectedState?.state || [], 7);
 
   useEffect(() => {
-    if (dayOne?.state && daySeven?.state && selectedState) {
-      const stateLocaleData = localeData?.get(dayOne.state);
+    if (dayOne?.stateName && daySeven?.stateName && selectedState) {
+      const stateLocaleData = localeData?.get(dayOne.stateName);
       const totalLocaleData = stateLocaleData?.get("Total");
       const sevenDayDiffInCases = daySeven.cases - dayOne.cases;
       const totalBeds =
@@ -142,7 +142,6 @@ export default function LocaleSummary() {
       setSevenDayDiffInCases(sevenDayDiffInCases);
     }
   }, [selectedState, localeData, dayOne, daySeven]);
-
   return (
     <LocaleDataProvider>
       {loading || nytLoading ? (
