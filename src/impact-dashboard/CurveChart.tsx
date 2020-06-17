@@ -35,7 +35,10 @@ const TooltipDatum = styled.li`
   opacity: 0.8;
 `;
 
-const formatThousands = format(",.0f");
+// Note:
+// if tick value = 1,001.00, displays 1001
+// if tick value = 2.5, displays 2.5
+const formatThousands = format(",~g");
 
 interface TooltipProps {
   count: number;
