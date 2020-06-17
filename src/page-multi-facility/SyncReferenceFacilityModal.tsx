@@ -163,14 +163,7 @@ const SyncReferenceFacilityModal: React.FC<Props> = ({
         ))}
       </ModalContent>
       <ModalFooter>
-        <CancelButton
-          onClick={() => {
-            deselectFacility();
-            navigate("/");
-          }}
-        >
-          Don't sync this facility
-        </CancelButton>
+        <CancelButton onClick={onClose}>Don't sync this facility</CancelButton>
         <SaveButton disabled={!selectedRefFacilityId} onClick={handleSave}>
           Save
         </SaveButton>
