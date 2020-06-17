@@ -38,9 +38,7 @@ const TooltipDatum = styled.li`
 const formatThousands = format(",.0f");
 
 interface TooltipProps {
-  countTotal: number;
-  countIncarcerated: number;
-  countStaff: number;
+  count: number;
   days: number;
   parentLine: {
     title: string;
@@ -50,8 +48,7 @@ interface TooltipProps {
 }
 
 const Tooltip: React.FC<TooltipProps> = ({
-  countIncarcerated,
-  countStaff,
+  count,
   days,
   parentLine: { title },
 }) => {
@@ -64,10 +61,7 @@ const Tooltip: React.FC<TooltipProps> = ({
         <TooltipDatum>
           <DateMMMMdyyyy date={displayDate} />
         </TooltipDatum>
-        <TooltipDatum>
-          Incarcerated: {formatThousands(countIncarcerated)}
-        </TooltipDatum>
-        <TooltipDatum>Staff: {formatThousands(countStaff)}</TooltipDatum>
+        <TooltipDatum>People: {formatThousands(count)}</TooltipDatum>
       </TooltipDatalist>
     </ChartTooltip>
   );
@@ -125,16 +119,14 @@ const CurveChart: React.FC<CurveChartProps> = ({
       title: bucket,
       key: bucket,
       coordinates: values.map((count, index) => ({
-        countTotal: count.total,
-        countIncarcerated: count.incarcerated,
-        countStaff: count.staff,
+        count,
         days: index,
       })),
     })),
     renderKey: (d, i) => d.key || i,
     lineType: { type: "area", interpolator: curveCatmullRom },
     xAccessor: "days",
-    yAccessor: "countTotal",
+    yAccessor: "count",
     responsiveHeight: true,
     responsiveWidth: true,
     size: [450, 450],
