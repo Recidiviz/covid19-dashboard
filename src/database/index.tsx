@@ -44,7 +44,7 @@ const usersCollectionId = "users";
 // TODO (#521): when the datasource stabilizes, change this to the real collection
 const referenceFacilitiesCollectionId = "reference_facilities_test";
 const referenceFacilitiesCovidCasesCollectionId = "covidCases";
-// TODO (#559): when we switch to using the real data update this property for the scenario
+// TODO (#521): when we switch to using the real data update this property for the scenario
 export const referenceFacilitiesProp = "testReferenceFacilities";
 
 // Note: None of these are secrets.

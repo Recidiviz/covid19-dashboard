@@ -1,4 +1,3 @@
-import { navigate } from "gatsby";
 import React, { useState } from "react";
 import styled from "styled-components";
 
@@ -115,7 +114,6 @@ const SyncReferenceFacilityModal: React.FC<Props> = ({
   const scenario = scenarioState.data;
   const {
     state: { facilities, referenceFacilities },
-    actions: { deselectFacility },
   } = useFacilities();
   const [selectedRefFacilityId, setSelectedRefFacilityId] = useState<
     string | null
