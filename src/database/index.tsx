@@ -769,12 +769,12 @@ export const saveFacility = async (
 
     // If the facility's model inputs have been provided, store a new
     // versioned copy of those inputs.
-    if (facility.modelInputs) {
+    if (modelInputsToSave) {
       const newModelVersionDoc = facilityDoc
         .collection(modelVersionCollectionId)
         .doc();
 
-      batch.set(newModelVersionDoc, facility.modelInputs);
+      batch.set(newModelVersionDoc, modelInputsToSave);
     }
     await batch.commit();
 
