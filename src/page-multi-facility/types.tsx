@@ -1,3 +1,4 @@
+import { referenceFacilitiesProp } from "../database";
 import { EpidemicModelPersistent } from "../impact-dashboard/EpidemicModelContext";
 import { RtData, RtError } from "../infection-model/rt";
 
@@ -5,6 +6,10 @@ export interface ModelInputs extends EpidemicModelPersistent {
   observedAt: Date;
   updatedAt: Date;
 }
+
+export type FacilityReferenceMapping = {
+  [key in Facility["id"]]: ReferenceFacility["id"];
+};
 
 export type Facility = {
   id: string;
@@ -27,6 +32,7 @@ export type Scenario = {
   dailyReports: boolean;
   promoStatuses: PromoStatuses;
   baselinePopulations: BaselinePopulations[];
+  [referenceFacilitiesProp]: FacilityReferenceMapping;
   description: string;
   roles: {
     [key: string]: "owner" | "viewer";

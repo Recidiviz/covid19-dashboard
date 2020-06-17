@@ -71,6 +71,7 @@ export function createOrUpdateFacility(dispatch: FacilitiesDispatch) {
             payload: { ...updatedFacility },
           });
         }
+        return updatedFacility;
       } catch (error) {
         console.error(
           `Error creating or updating facility for scenario: ${scenarioId}`,

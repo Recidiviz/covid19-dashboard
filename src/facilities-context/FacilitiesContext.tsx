@@ -35,7 +35,7 @@ export type ExportedActions = {
   createOrUpdateFacility: (
     scenarioId: Scenario["id"],
     facility: Partial<Facility>,
-  ) => Promise<void>;
+  ) => Promise<Facility | void>;
   removeFacility: (
     scenarioId: Scenario["id"],
     facilityId: Facility["id"],
