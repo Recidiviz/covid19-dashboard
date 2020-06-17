@@ -4,22 +4,37 @@ import { RtData, RtError } from "../infection-model/rt";
 
 export interface ModelInputs extends EpidemicModelPersistent {
   observedAt: Date;
-  updatedAt: Date;
+  updatedAt?: Date;
 }
 
 export type FacilityReferenceMapping = {
   [key in Facility["id"]]: ReferenceFacility["id"];
 };
 
-export type Facility = {
-  id: string;
-  scenarioId: string;
+export interface PersistedFacility {
   name: string;
   description?: string | null;
   systemType?: string | null;
   modelInputs: ModelInputs;
   createdAt: Date;
   updatedAt: Date;
+}
+// only the keys enumerated here should be saved to the database
+export const PERSISTED_FACILITY_KEYS: (keyof PersistedFacility)[] = [
+  "name",
+  "description",
+  "systemType",
+  "modelInputs",
+  "createdAt",
+  "updatedAt",
+];
+
+export type Facility = PersistedFacility & {
+  id: string;
+  scenarioId: string;
+  modelVersions: ModelInputs[];
+  canonicalName?: string;
+  [key: string]: unknown;
 };
 
 export type Facilities = Facility[];

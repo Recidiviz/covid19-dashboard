@@ -29,10 +29,12 @@ import {
   buildScenario,
   buildUser,
   buildReferenceFacility,
+  buildFacilityDocUpdate,
 } from "./type-transforms";
 import AppAuth0ClientPromise from "../auth/AppAuth0ClientPromise";
 import { ascending, zip } from "d3-array";
 import { validateCumulativeCases } from "../infection-model/validators";
+import { ModelInputsUpdate } from "./types";
 
 // As long as there is just one Auth0 config, this endpoint will work with any environment (local, prod, etc.).
 const tokenExchangeEndpoint =
@@ -110,10 +112,10 @@ const getDb = async () => {
   return firebase.firestore();
 };
 
-const buildCreatePayload = (entity: any) => {
+const buildCreatePayload = <T,>(entity: T): T => {
   // Make sure the 'id' key doesn't exist on the entity object
   // or else Firestore won't permit the addition.
-  delete entity.id;
+  delete (entity as any).id;
 
   const timestamp = currentTimestamp();
   return Object.assign({}, entity, {
@@ -122,7 +124,7 @@ const buildCreatePayload = (entity: any) => {
   });
 };
 
-const buildUpdatePayload = (entity: any) => {
+const buildUpdatePayload = <T,>(entity: T): T => {
   const timestamp = currentTimestamp();
   const payload = Object.assign({}, entity, {
     updatedAt: timestamp,
@@ -133,7 +135,7 @@ const buildUpdatePayload = (entity: any) => {
   // `delete payload.id` and not `delete entity.id` (like we do in
   // buildCreatePayload) because we do not want to mutate the entity object and
   // throw away the reference to its own id.
-  delete payload.id;
+  delete (payload as any).id;
 
   return payload;
 };
@@ -305,41 +307,6 @@ export const saveScenario = async (scenario: any): Promise<Scenario | null> => {
   }
 };
 
-export const getFacilities = async (
-  scenarioId: string,
-): Promise<Array<Facility> | null> => {
-  try {
-    const scenario = await getScenario(scenarioId);
-
-    if (!scenario) return null;
-
-    const db = await getDb();
-
-    const facilitiesResults = await db
-      .collection(scenariosCollectionId)
-      .doc(scenario.id)
-      .collection(facilitiesCollectionId)
-      .orderBy("name")
-      .get();
-
-    const facilities = facilitiesResults.docs.map((doc) => {
-      return buildFacility(scenario.id, doc);
-    });
-
-    return facilities;
-  } catch (error) {
-    console.error("Encountered error while attempting to retrieve facilities:");
-    console.error(error);
-
-    throwIfPermissionsError(
-      error,
-      "You don't have permission to access these facilities.",
-    );
-
-    throw error;
-  }
-};
-
 export const getFacilityModelVersions = async ({
   facilityId,
   scenarioId,
@@ -403,6 +370,51 @@ export const getFacilityModelVersions = async ({
       "You don't have permission to access this facility's history.",
     );
     return [];
+  }
+};
+
+export const getFacilities = async (
+  scenarioId: string,
+): Promise<Array<Facility> | null> => {
+  try {
+    const scenario = await getScenario(scenarioId);
+
+    if (!scenario) return null;
+
+    const db = await getDb();
+
+    const facilitiesResults = await db
+      .collection(scenariosCollectionId)
+      .doc(scenario.id)
+      .collection(facilitiesCollectionId)
+      .orderBy("name")
+      .get();
+
+    const facilities = facilitiesResults.docs.map((doc) => {
+      return buildFacility(scenario.id, doc);
+    });
+
+    await Promise.all(
+      facilities.map(async (facility) => {
+        facility.modelVersions = await getFacilityModelVersions({
+          facilityId: facility.id,
+          scenarioId: facility.scenarioId,
+          distinctByObservedAt: true,
+        });
+      }),
+    );
+
+    return facilities;
+  } catch (error) {
+    console.error("Encountered error while attempting to retrieve facilities:");
+    console.error(error);
+
+    throwIfPermissionsError(
+      error,
+      "You don't have permission to access these facilities.",
+    );
+
+    throw error;
   }
 };
 
@@ -646,28 +658,27 @@ const batchSetFacilityModelVersions = (
  */
 export const saveFacility = async (
   scenarioId: string,
-  facility: any,
+  facility: Partial<Facility>,
 ): Promise<Facility | void> => {
   try {
     const scenarioRef = await getScenarioRef(scenarioId);
 
     if (!scenarioRef) return;
 
+    let modelInputsToSave: ModelInputsUpdate | undefined;
+
     if (facility.modelInputs) {
       // Ensures we don't store any attributes that our model does not know
       // about. This also makes a copy of modelInputs, since we shouldn't mutate
       // the original.
-      facility.modelInputs = pick(facility.modelInputs, persistedKeys);
+      modelInputsToSave = pick(facility.modelInputs, persistedKeys);
 
-      facility.modelInputs.updatedAt = currentTimestamp();
+      modelInputsToSave.updatedAt = currentTimestamp();
 
       // Use observedAt if available. If it is not provided default to today.
-      facility.modelInputs.observedAt =
-        facility.modelInputs.observedAt || new Date();
+      modelInputsToSave.observedAt = modelInputsToSave.observedAt || new Date();
       // Normalize to the start of day in either case.
-      facility.modelInputs.observedAt = startOfDay(
-        facility.modelInputs.observedAt,
-      );
+      modelInputsToSave.observedAt = startOfDay(modelInputsToSave.observedAt);
     }
 
     const db = await getDb();
@@ -675,20 +686,24 @@ export const saveFacility = async (
 
     const facilitiesCollection = scenarioRef.collection(facilitiesCollectionId);
 
-    let facilityDoc;
+    let facilityDoc: firebase.firestore.DocumentReference<firebase.firestore.DocumentData>;
+    let facilityUpdate = {
+      ...buildFacilityDocUpdate(facility),
+      modelInputs: modelInputsToSave,
+    };
 
     // If the facility already has an id associated with it then
     // we just need to update that facility. Otherwise, we are
     // appending a new facility to the scenario's facilities
     // collection.
     if (facility.id) {
-      const payload = buildUpdatePayload(facility);
+      facilityUpdate = buildUpdatePayload(facilityUpdate);
       facilityDoc = facilitiesCollection.doc(facility.id);
 
       // Handle facility updates in a context where we are also updating
       // modelInputs (i.e. Facility Details Page, Add Cases Shortcut)
-      if (facility.modelInputs) {
-        const incomingObservedAt = facility.modelInputs.observedAt;
+      if (facilityUpdate.modelInputs) {
+        const incomingObservedAt = facilityUpdate.modelInputs.observedAt;
 
         // validate against existing versions to ensure case counts are increasing monotonically
         const modelInputVersions = (
@@ -719,7 +734,10 @@ export const saveFacility = async (
           );
 
           if (
-            !validateCumulativeCases(facility.modelInputs, { previous, next })
+            !validateCumulativeCases(facilityUpdate.modelInputs, {
+              previous,
+              next,
+            })
           ) {
             throw new Error(
               "Failed to save. Case and death counts are cumulative, and can only increase over time.",
@@ -736,17 +754,17 @@ export const saveFacility = async (
           startOfDay(incomingObservedAt) >=
             startOfDay(currentFacility.modelInputs.observedAt)
         ) {
-          batch.update(facilityDoc, payload);
+          batch.update(facilityDoc, facilityUpdate);
         }
         // Handle facility updates from a context where we are not also updating
         // modelInputs (i.e. renaming a facility in the FacilityRow).
       } else {
-        batch.update(facilityDoc, payload);
+        batch.update(facilityDoc, facilityUpdate);
       }
     } else {
-      const payload = buildCreatePayload(facility);
+      facilityUpdate = buildCreatePayload(facilityUpdate);
       facilityDoc = facilitiesCollection.doc();
-      batch.set(facilityDoc, payload);
+      batch.set(facilityDoc, facilityUpdate);
     }
 
     // If the facility's model inputs have been provided, store a new
