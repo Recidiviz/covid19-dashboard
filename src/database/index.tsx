@@ -839,8 +839,23 @@ export const deleteFacility = async (
       .collection(modelVersionCollectionId)
       .get();
 
+    const scenarioDoc = await scenarioRef.get();
+    const scenario = buildScenario(scenarioDoc);
+    const referenceFacilities = Object.assign(
+      {},
+      scenario[referenceFacilitiesProp],
+    );
+
     const db = await getDb();
     const batch = db.batch();
+
+    // Remove the facility from the scenario referenceFacilities mapping
+    delete referenceFacilities[facilityId];
+    const payload = buildUpdatePayload({
+      ...scenario,
+      [referenceFacilitiesProp]: referenceFacilities,
+    });
+    batch.update(scenarioRef, payload);
 
     modelVersions.docs.forEach((doc) => {
       batch.delete(doc.ref);
