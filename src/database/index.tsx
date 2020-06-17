@@ -777,8 +777,19 @@ export const saveFacility = async (
       batch.set(newModelVersionDoc, facility.modelInputs);
     }
     await batch.commit();
-    const savedFacilityDoc = await facilityDoc.get();
-    return buildFacility(scenarioId, savedFacilityDoc);
+
+    // construct and return a Facility object with newly saved data
+    const [savedFacilityDoc, savedFacilityModelVersions] = await Promise.all([
+      facilityDoc.get(),
+      getFacilityModelVersions({
+        facilityId: facilityDoc.id,
+        scenarioId: scenarioId,
+        distinctByObservedAt: true,
+      }),
+    ]);
+    const savedFacility = buildFacility(scenarioId, savedFacilityDoc);
+    savedFacility.modelVersions = savedFacilityModelVersions;
+    return savedFacility;
   } catch (error) {
     console.error("Encountered error while attempting to save a facility:");
     console.error(error);
