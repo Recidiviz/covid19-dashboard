@@ -18,26 +18,24 @@ export const getBracketData = (modelInputs: ModelInputs) => {
 };
 
 function findMostRecentDate(
-  defaultDate: Date,
+  currentDate: Date,
   facilityModelVersions: ModelInputs[] | undefined,
 ) {
-  let mostRecentDate = defaultDate;
+  let mostRecentDate = currentDate;
   if (facilityModelVersions) {
     // create array of dates with observed data at a given facility
-    let facilityDatesObservedAt = facilityModelVersions.map(
+    const facilityDatesObservedAt = facilityModelVersions.map(
       (observedAt) => observedAt.observedAt,
     );
     if (facilityDatesObservedAt.length > 0) {
-      // filter to dates earlier than (or the same as) the observed date
-      let earlierDates = facilityDatesObservedAt.filter(function (d) {
-        return d.valueOf() <= defaultDate.valueOf();
+      // filter to dates earlier than the current date
+      const earlierDates = facilityDatesObservedAt.filter(function (d) {
+        return d.valueOf() <= currentDate.valueOf();
       });
-      // if there is data for a prior date, use it
+      // if there is data for a prior date, use it, otherwise use the current date
       if (earlierDates.length > 0) {
         mostRecentDate = earlierDates[earlierDates.length - 1];
-      }
-      // there is no data for a prior date, so use the observed date
-      else {
+      } else {
         mostRecentDate = facilityDatesObservedAt[0];
       }
     }
@@ -85,9 +83,12 @@ const useAddCasesInputs = (
   >();
   // whenever observation date changes we should look for a new model version
   useEffect(() => {
-    const newDate = findMostRecentDate(observationDate, facilityModelVersions);
+    const mostRecentDate = findMostRecentDate(
+      observationDate,
+      facilityModelVersions,
+    );
     const newObservedAtVersion = findMatchingDay({
-      date: newDate,
+      date: mostRecentDate,
       facilityModelVersions,
     });
 
@@ -158,7 +159,6 @@ const useAddCasesInputs = (
 
           onSave(latestFacilityData);
           updateModelVersions();
-          //setObservationDate(defaultObservationDate);
           addToast("Data successfully saved!");
         }),
     );
