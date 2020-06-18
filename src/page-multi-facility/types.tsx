@@ -33,8 +33,6 @@ export type Facility = PersistedFacility & {
   id: string;
   scenarioId: string;
   modelVersions: ModelInputs[];
-  canonicalName?: string;
-  [key: string]: unknown;
 };
 
 export type Facilities = Facility[];
