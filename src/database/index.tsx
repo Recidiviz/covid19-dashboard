@@ -617,6 +617,26 @@ const batchSetFacilityModelVersions = (
   });
 };
 
+const fetchFacilityAndVersions = async (
+  facilityRef: firebase.firestore.DocumentReference<
+    firebase.firestore.DocumentData
+  >,
+  scenarioId: string,
+) => {
+  // construct and return a Facility object with newly saved data
+  const [savedFacilityDoc, savedFacilityModelVersions] = await Promise.all([
+    facilityRef.get(),
+    getFacilityModelVersions({
+      facilityId: facilityRef.id,
+      scenarioId: scenarioId,
+      distinctByObservedAt: true,
+    }),
+  ]);
+  const savedFacility = buildFacility(scenarioId, savedFacilityDoc);
+  savedFacility.modelVersions = savedFacilityModelVersions;
+  return savedFacility;
+};
+
 /**
  * Please note the following usage patterns and provide data to this method
  * accordingly when updating a facility:
@@ -686,7 +706,7 @@ export const saveFacility = async (
 
     const facilitiesCollection = scenarioRef.collection(facilitiesCollectionId);
 
-    let facilityDoc: firebase.firestore.DocumentReference<firebase.firestore.DocumentData>;
+    let facilityRef: firebase.firestore.DocumentReference<firebase.firestore.DocumentData>;
     let facilityUpdate = {
       ...buildFacilityDocUpdate(facility),
       modelInputs: modelInputsToSave,
@@ -698,7 +718,7 @@ export const saveFacility = async (
     // collection.
     if (facility.id) {
       facilityUpdate = buildUpdatePayload(facilityUpdate);
-      facilityDoc = facilitiesCollection.doc(facility.id);
+      facilityRef = facilitiesCollection.doc(facility.id);
 
       // Handle facility updates in a context where we are also updating
       // modelInputs (i.e. Facility Details Page, Add Cases Shortcut)
@@ -707,7 +727,7 @@ export const saveFacility = async (
 
         // validate against existing versions to ensure case counts are increasing monotonically
         const modelInputVersions = (
-          await facilityDoc.collection(modelVersionCollectionId).get()
+          await facilityRef.collection(modelVersionCollectionId).get()
         ).docs.map((doc) => buildModelInputs(doc.data()));
 
         if (modelInputVersions.length) {
@@ -746,7 +766,7 @@ export const saveFacility = async (
         }
 
         // Only update the facility if the incoming observedAt date is > than the current observedAt date in the existing facility
-        const currentFacilityData = await facilityDoc.get();
+        const currentFacilityData = await facilityRef.get();
         const currentFacility = buildFacility(scenarioId, currentFacilityData);
         if (
           incomingObservedAt &&
@@ -754,23 +774,23 @@ export const saveFacility = async (
           startOfDay(incomingObservedAt) >=
             startOfDay(currentFacility.modelInputs.observedAt)
         ) {
-          batch.update(facilityDoc, facilityUpdate);
+          batch.update(facilityRef, facilityUpdate);
         }
         // Handle facility updates from a context where we are not also updating
         // modelInputs (i.e. renaming a facility in the FacilityRow).
       } else {
-        batch.update(facilityDoc, facilityUpdate);
+        batch.update(facilityRef, facilityUpdate);
       }
     } else {
       facilityUpdate = buildCreatePayload(facilityUpdate);
-      facilityDoc = facilitiesCollection.doc();
-      batch.set(facilityDoc, facilityUpdate);
+      facilityRef = facilitiesCollection.doc();
+      batch.set(facilityRef, facilityUpdate);
     }
 
     // If the facility's model inputs have been provided, store a new
     // versioned copy of those inputs.
     if (modelInputsToSave) {
-      const newModelVersionDoc = facilityDoc
+      const newModelVersionDoc = facilityRef
         .collection(modelVersionCollectionId)
         .doc();
 
@@ -779,17 +799,7 @@ export const saveFacility = async (
     await batch.commit();
 
     // construct and return a Facility object with newly saved data
-    const [savedFacilityDoc, savedFacilityModelVersions] = await Promise.all([
-      facilityDoc.get(),
-      getFacilityModelVersions({
-        facilityId: facilityDoc.id,
-        scenarioId: scenarioId,
-        distinctByObservedAt: true,
-      }),
-    ]);
-    const savedFacility = buildFacility(scenarioId, savedFacilityDoc);
-    savedFacility.modelVersions = savedFacilityModelVersions;
-    return savedFacility;
+    return await fetchFacilityAndVersions(facilityRef, scenarioId);
   } catch (error) {
     console.error("Encountered error while attempting to save a facility:");
     console.error(error);
@@ -829,8 +839,7 @@ export const duplicateFacility = async (
     batch.set(facilityRef, payload);
     await batch.commit();
 
-    const duplicatedFacility = await facilityRef.get();
-    return buildFacility(scenarioId, duplicatedFacility);
+    return await fetchFacilityAndVersions(facilityRef, scenarioId);
   } catch (error) {
     console.error(
       `Encountered error while attempting to duplicate facility: ${facilityId}`,
