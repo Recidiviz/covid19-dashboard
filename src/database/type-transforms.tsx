@@ -56,22 +56,15 @@ export const buildModelInputs = (document: any): ModelInputs => {
 export const buildFacility = (
   scenarioId: string,
   document: firebase.firestore.DocumentData,
+  modelVersions?: ModelInputs[],
 ): Facility => {
   const documentData = document.data();
 
-  let {
-    createdAt,
-    updatedAt,
-    modelInputs,
-    name,
-    description,
-    systemType,
-  } = documentData;
+  let { name, description, systemType } = documentData;
   const id = document.id;
-  createdAt = timestampToDate(documentData.createdAt);
-  updatedAt = timestampToDate(documentData.updatedAt);
-  modelInputs = buildModelInputs(documentData.modelInputs);
-  const modelVersions: ModelInputs[] = [];
+  const createdAt = timestampToDate(documentData.createdAt);
+  const updatedAt = timestampToDate(documentData.updatedAt);
+  const modelInputs = buildModelInputs(documentData.modelInputs);
 
   return {
     createdAt,
@@ -82,7 +75,7 @@ export const buildFacility = (
     scenarioId,
     systemType,
     updatedAt,
-    modelVersions,
+    modelVersions: modelVersions || [],
   };
 };
 

@@ -390,21 +390,16 @@ export const getFacilities = async (
       .orderBy("name")
       .get();
 
-    const facilities = facilitiesResults.docs.map((doc) => {
-      return buildFacility(scenario.id, doc);
-    });
-
-    await Promise.all(
-      facilities.map(async (facility) => {
-        facility.modelVersions = await getFacilityModelVersions({
-          facilityId: facility.id,
-          scenarioId: facility.scenarioId,
+    return Promise.all(
+      facilitiesResults.docs.map(async (doc) => {
+        const modelVersions = await getFacilityModelVersions({
+          scenarioId: scenarioId,
+          facilityId: doc.id,
           distinctByObservedAt: true,
         });
+        return buildFacility(scenario.id, doc, modelVersions);
       }),
     );
-
-    return facilities;
   } catch (error) {
     console.error("Encountered error while attempting to retrieve facilities:");
     console.error(error);
@@ -617,24 +612,27 @@ const batchSetFacilityModelVersions = (
   });
 };
 
-const fetchFacilityAndVersions = async (
-  facilityRef: firebase.firestore.DocumentReference<
-    firebase.firestore.DocumentData
-  >,
-  scenarioId: string,
-) => {
+const getFacility = async (scenarioId: string, facilityId: string) => {
+  const db = await getDb();
   // construct and return a Facility object with newly saved data
   const [savedFacilityDoc, savedFacilityModelVersions] = await Promise.all([
-    facilityRef.get(),
+    db
+      .collection(scenariosCollectionId)
+      .doc(scenarioId)
+      .collection(facilitiesCollectionId)
+      .doc(facilityId)
+      .get(),
     getFacilityModelVersions({
-      facilityId: facilityRef.id,
       scenarioId: scenarioId,
+      facilityId: facilityId,
       distinctByObservedAt: true,
     }),
   ]);
-  const savedFacility = buildFacility(scenarioId, savedFacilityDoc);
-  savedFacility.modelVersions = savedFacilityModelVersions;
-  return savedFacility;
+  return buildFacility(
+    scenarioId,
+    savedFacilityDoc,
+    savedFacilityModelVersions,
+  );
 };
 
 /**
@@ -799,7 +797,7 @@ export const saveFacility = async (
     await batch.commit();
 
     // construct and return a Facility object with newly saved data
-    return await fetchFacilityAndVersions(facilityRef, scenarioId);
+    return await getFacility(scenarioId, facilityRef.id);
   } catch (error) {
     console.error("Encountered error while attempting to save a facility:");
     console.error(error);
@@ -839,7 +837,7 @@ export const duplicateFacility = async (
     batch.set(facilityRef, payload);
     await batch.commit();
 
-    return await fetchFacilityAndVersions(facilityRef, scenarioId);
+    return await getFacility(scenarioId, facilityRef.id);
   } catch (error) {
     console.error(
       `Encountered error while attempting to duplicate facility: ${facilityId}`,
