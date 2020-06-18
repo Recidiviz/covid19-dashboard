@@ -39,7 +39,7 @@ const NYTDataContext = React.createContext<NYTDataContext | undefined>(
 
 function transformRow(row: DSVRowString): NYTCountyRecord | NYTStateRecord {
   return {
-    stateName: row.stateName,
+    stateName: row.state,
     county: row.county,
     date: row.date ? parse(row.date, "yyyy-MM-dd", new Date()) : startOfToday(),
     cases: numeral(row["cases"]).value() || 0,
@@ -93,7 +93,6 @@ async function fetchNYTData() {
     fetchLatestNYTStatesData(),
     fetchHistoricalNYTStatesData(),
   ]);
-
   const daySeven = latestStateData[0].date;
   const dayOne = subWeeks(daySeven, 1);
   const filteredCountyData = historicalCountyData.filter((d) =>
