@@ -17,6 +17,38 @@ export const getBracketData = (modelInputs: ModelInputs) => {
   return pick(modelInputs, populationBracketKeys);
 };
 
+function findMostRecentDate(
+  defaultDate: Date,
+  facilityModelVersions: ModelInputs[] | undefined,
+) {
+  let mostRecentDate = defaultDate;
+  if (facilityModelVersions) {
+    console.log("facilittyModelVersions", facilityModelVersions);
+    let facilityDatesObservedAt = facilityModelVersions.map(
+      (observedAt) => observedAt.observedAt,
+    );
+    console.log(
+      "default Date",
+      defaultDate,
+      "dates observed",
+      facilityDatesObservedAt,
+    );
+    if (facilityDatesObservedAt.length > 0) {
+      let earlierDates = facilityDatesObservedAt.filter(function (d) {
+        console.log("d", d);
+        // TODO: why isn't june 17 earlier than june 18?
+        // console.log(d.toDateString(), defaultDate.toDateString());
+        return d.toDateString() <= defaultDate.toDateString();
+      });
+      console.log("earlier dates", earlierDates);
+      if (earlierDates.length > 0)
+        mostRecentDate = earlierDates[earlierDates.length - 1];
+    }
+  }
+  console.log(mostRecentDate);
+  return mostRecentDate;
+}
+
 const findMatchingDay = ({
   date,
   facilityModelVersions,
@@ -57,13 +89,17 @@ const useAddCasesInputs = (
   >();
   // whenever observation date changes we should look for a new model version
   useEffect(() => {
+    const newDate = findMostRecentDate(observationDate, facilityModelVersions);
     const newObservedAtVersion = findMatchingDay({
-      date: observationDate,
+      date: newDate,
       facilityModelVersions,
     });
 
+    // setObservedAtVersion(newObservedAtVersion);
+
     if (newObservedAtVersion) {
       setObservedAtVersion(newObservedAtVersion);
+      console.log(newObservedAtVersion);
     } else {
       setObservedAtVersion(defaultInputs);
     }
