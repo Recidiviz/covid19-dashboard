@@ -23,29 +23,25 @@ function findMostRecentDate(
 ) {
   let mostRecentDate = defaultDate;
   if (facilityModelVersions) {
-    console.log("facilittyModelVersions", facilityModelVersions);
+    // create array of dates with observed data at a given facility
     let facilityDatesObservedAt = facilityModelVersions.map(
       (observedAt) => observedAt.observedAt,
     );
-    console.log(
-      "default Date",
-      defaultDate,
-      "dates observed",
-      facilityDatesObservedAt,
-    );
     if (facilityDatesObservedAt.length > 0) {
+      // filter to dates earlier than (or the same as) the observed date
       let earlierDates = facilityDatesObservedAt.filter(function (d) {
-        console.log("d", d);
-        // TODO: why isn't june 17 earlier than june 18?
-        // console.log(d.toDateString(), defaultDate.toDateString());
-        return d.toDateString() <= defaultDate.toDateString();
+        return d.valueOf() <= defaultDate.valueOf();
       });
-      console.log("earlier dates", earlierDates);
-      if (earlierDates.length > 0)
+      // if there is data for a prior date, use it
+      if (earlierDates.length > 0) {
         mostRecentDate = earlierDates[earlierDates.length - 1];
+      }
+      // there is no data for a prior date, so use the observed date
+      else {
+        mostRecentDate = facilityDatesObservedAt[0];
+      }
     }
   }
-  console.log(mostRecentDate);
   return mostRecentDate;
 }
 
@@ -95,11 +91,8 @@ const useAddCasesInputs = (
       facilityModelVersions,
     });
 
-    // setObservedAtVersion(newObservedAtVersion);
-
     if (newObservedAtVersion) {
       setObservedAtVersion(newObservedAtVersion);
-      console.log(newObservedAtVersion);
     } else {
       setObservedAtVersion(defaultInputs);
     }
@@ -165,6 +158,7 @@ const useAddCasesInputs = (
 
           onSave(latestFacilityData);
           updateModelVersions();
+          //setObservationDate(defaultObservationDate);
           addToast("Data successfully saved!");
         }),
     );
