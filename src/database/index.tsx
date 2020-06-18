@@ -420,21 +420,17 @@ const getUserDocument = async (
 
   if (userResult.docs.length > 1) {
     throw new Error(`Multiple users found matching ${key} ${value}`);
-  } else if (userResult.docs.length === 0) {
-    throw new Error(`No users found matching ${key} ${value}`);
   }
 
   return userResult.docs[0];
 };
 
 export const getUser = async (auth0Id: string): Promise<User | null> => {
-  try {
-    const userDocument = await getUserDocument({ auth0Id });
-    return buildUser(userDocument);
-  } catch (e) {
-    console.error("Encountered error while attempting to retrieve user: \n", e);
-    return null;
-  }
+  const userDocument = await getUserDocument({ auth0Id });
+  // It is ok for this method to return null if we do not find a user document
+  // for the given auth0Id.  This will always be the case when a user logs in
+  // for the first time.
+  return userDocument ? buildUser(userDocument) : null;
 };
 
 export const getScenarioUsers = async (
