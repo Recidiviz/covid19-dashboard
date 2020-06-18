@@ -5,6 +5,7 @@ import { RtData, RtError } from "../infection-model/rt";
 export interface ModelInputs extends EpidemicModelPersistent {
   observedAt: Date;
   updatedAt?: Date;
+  isReference?: boolean;
 }
 
 export type FacilityReferenceMapping = {

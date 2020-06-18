@@ -2,19 +2,15 @@ import { differenceInCalendarDays } from "date-fns";
 import { maxBy } from "lodash";
 
 import { validateCumulativeCases } from "../infection-model/validators";
-import { MergedModelInputs } from "./transforms";
+import { ModelInputs } from "../page-multi-facility/types";
 
 type SingleDayValidator = (
-  modelInputs: MergedModelInputs | null,
-) => MergedModelInputs | null;
+  modelInputs: ModelInputs | null,
+) => ModelInputs | null;
 
-type HistoryValidator = (
-  modelVersions: MergedModelInputs[],
-) => MergedModelInputs[];
+type HistoryValidator = (modelVersions: ModelInputs[]) => ModelInputs[];
 
-function notNull(
-  version: MergedModelInputs | null,
-): version is MergedModelInputs {
+function notNull(version: ModelInputs | null): version is ModelInputs {
   return version !== null;
 }
 
@@ -34,7 +30,7 @@ const removeNonsenseCases: SingleDayValidator = (modelInputs) => {
 
 const getPrecedingVersion = (
   currentObservedAt: Date,
-  modelInputVersions: MergedModelInputs[],
+  modelInputVersions: ModelInputs[],
 ) => {
   return maxBy(
     modelInputVersions.filter(
@@ -46,8 +42,8 @@ const getPrecedingVersion = (
 };
 
 const isMonotonicIncrease = (
-  modelInputs: MergedModelInputs,
-  modelInputVersions: MergedModelInputs[],
+  modelInputs: ModelInputs,
+  modelInputVersions: ModelInputs[],
 ): boolean => {
   const currentObservedAt = modelInputs.observedAt;
   const previous = getPrecedingVersion(currentObservedAt, modelInputVersions);
@@ -87,8 +83,8 @@ const ensureCasesIncreaseMonotonically: HistoryValidator = (modelVersions) => {
 };
 
 export function validateMergedModelVersions(
-  modelVersions: MergedModelInputs[],
-): MergedModelInputs[] {
+  modelVersions: ModelInputs[],
+): ModelInputs[] {
   let validVersions = [...modelVersions];
 
   const singleDayValidators = [removeNonsenseCases];

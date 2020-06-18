@@ -15,23 +15,22 @@ function getFindByDay(targetDate: Date) {
 
 describe("merged facility", () => {
   let userFacility: Facility;
-  let userHistory: ModelInputs[];
   let referenceFacility: ReferenceFacility;
   const stateName = "Florida";
 
   beforeEach(() => {
-    userHistory = [
+    const userHistory = [
       {
         observedAt: new Date(2020, 5, 1),
         updatedAt: new Date(2020, 5, 10, 12, 0, 4),
-        stateCode: stateName,
+        stateName,
         ageUnknownCases: 10,
         ageUnknownPopulation: 300,
       },
       {
         observedAt: new Date(2020, 5, 5),
         updatedAt: new Date(2020, 5, 5, 12, 0, 4),
-        stateCode: stateName,
+        stateName,
         ageUnknownCases: 22,
         ageUnknownPopulation: 300,
       },
@@ -45,11 +44,12 @@ describe("merged facility", () => {
       updatedAt: new Date(),
       systemType: "State Prison",
       modelInputs: last(userHistory) as ModelInputs,
+      modelVersions: userHistory,
     };
 
     referenceFacility = {
       id: "testReferenceId",
-      state: stateName,
+      stateName: stateName,
       canonicalName: "Florida State Test Facility",
       facilityType: "State Prison",
       yearOpened: 1975,
@@ -106,38 +106,37 @@ describe("merged facility", () => {
   });
 
   it("can be created from user data alone", () => {
-    const merged = mergeFacilityObjects({
-      userData: { facility: userFacility, modelVersions: userHistory },
-    });
-    expect(merged).toEqual({
-      facility: userFacility,
-      modelVersions: userHistory,
-    });
+    const merged = mergeFacilityObjects({ userFacility });
+    expect(merged).toEqual(userFacility);
   });
 
   it("can be created from reference data plus minimal user data", () => {
     // a minimal facility (created from reference data) won't have any real model history,
     // but at least one model version will be created.
     // in this case we expect it to not actually have any case or population data
-    userHistory = [pick(userFacility.modelInputs, ["observedAt", "updatedAt"])];
+    userFacility.modelVersions = [
+      pick(userFacility.modelInputs, ["observedAt", "updatedAt"]),
+    ];
 
-    const merged = mergeFacilityObjects({
-      userData: { facility: userFacility, modelVersions: userHistory },
-      referenceData: referenceFacility,
-    });
+    const merged = mergeFacilityObjects({ userFacility, referenceFacility });
 
     // extra metadata properties we expect to carry over
     const { canonicalName, yearOpened, securityStatus } = referenceFacility;
 
-    const userFacilityMetadata = omit(userFacility, ["modelInputs"]);
+    const userFacilityMetadata = omit(userFacility, [
+      "modelInputs",
+      "modelVersions",
+    ]);
 
-    expect(merged.facility).toEqual({
-      ...userFacilityMetadata,
-      canonicalName,
-      yearOpened,
-      securityStatus,
-      modelInputs: last(merged.modelVersions),
-    });
+    expect(merged).toEqual(
+      expect.objectContaining({
+        ...userFacilityMetadata,
+        canonicalName,
+        yearOpened,
+        securityStatus,
+        modelInputs: last(merged.modelVersions),
+      }),
+    );
 
     const referencePop = referenceFacility.population[0].value;
     const referenceCapacity = referenceFacility.capacity[0].value;
@@ -164,22 +163,27 @@ describe("merged facility", () => {
 
   it("can be created from reference data and robust user data", () => {
     const merged = mergeFacilityObjects({
-      userData: { facility: userFacility, modelVersions: userHistory },
-      referenceData: referenceFacility,
+      userFacility,
+      referenceFacility: referenceFacility,
     });
 
     // extra metadata properties we expect to carry over
     const { canonicalName, yearOpened, securityStatus } = referenceFacility;
 
-    const userFacilityMetadata = omit(userFacility, ["modelInputs"]);
+    const userFacilityMetadata = omit(userFacility, [
+      "modelInputs",
+      "modelVersions",
+    ]);
 
-    expect(merged.facility).toEqual({
-      ...userFacilityMetadata,
-      canonicalName,
-      yearOpened,
-      securityStatus,
-      modelInputs: last(merged.modelVersions),
-    });
+    expect(merged).toEqual(
+      expect.objectContaining({
+        ...userFacilityMetadata,
+        canonicalName,
+        yearOpened,
+        securityStatus,
+        modelInputs: last(merged.modelVersions),
+      }),
+    );
 
     const referencePop = referenceFacility.population[0].value;
     const referenceCapacity = referenceFacility.capacity[0].value;
@@ -189,27 +193,29 @@ describe("merged facility", () => {
     merged.modelVersions.forEach((mergedCase) => {
       const hasMatchingDate = getFindByDay(mergedCase.observedAt);
       const referenceCase = referenceFacility.covidCases.find(hasMatchingDate);
-      const userCase = userHistory.find(hasMatchingDate);
+      const userCase = userFacility.modelVersions.find(hasMatchingDate);
       if (userCase) {
         expect(mergedCase).toEqual(userCase);
       } else if (referenceCase) {
         let expectedPopulation: number;
         if (
           differenceInCalendarDays(
-            userHistory[0].observedAt,
+            userFacility.modelVersions[0].observedAt,
             mergedCase.observedAt,
           ) > 0
         ) {
           expectedPopulation = referencePop;
         } else if (
           differenceInCalendarDays(
-            userHistory[1].observedAt,
+            userFacility.modelVersions[1].observedAt,
             mergedCase.observedAt,
           ) > 0
         ) {
-          expectedPopulation = userHistory[0].ageUnknownPopulation as number;
+          expectedPopulation = userFacility.modelVersions[0]
+            .ageUnknownPopulation as number;
         } else {
-          expectedPopulation = userHistory[1].ageUnknownPopulation as number;
+          expectedPopulation = userFacility.modelVersions[1]
+            .ageUnknownPopulation as number;
         }
 
         expect(mergedCase).toEqual({
@@ -227,13 +233,10 @@ describe("merged facility", () => {
   });
 
   it("should sort model versions chronologically", () => {
-    userHistory.reverse();
+    userFacility.modelVersions.reverse();
     referenceFacility.covidCases.reverse();
 
-    const merged = mergeFacilityObjects({
-      userData: { facility: userFacility, modelVersions: userHistory },
-      referenceData: referenceFacility,
-    });
+    const merged = mergeFacilityObjects({ userFacility, referenceFacility });
     let isChron = true;
     merged.modelVersions.reduce((prev, curr) => {
       isChron = isChron && prev.observedAt < curr.observedAt;
@@ -246,20 +249,17 @@ describe("merged facility", () => {
     const testStaffPop = 45;
     const testDay = new Date(2020, 5, 6);
 
-    userHistory.push({
+    userFacility.modelVersions.push({
       observedAt: testDay,
       updatedAt: new Date(2020, 5, 6, 12, 0, 4),
-      stateCode: stateName,
+      stateName,
       ageUnknownCases: 25,
       ageUnknownPopulation: 300,
       staffCases: 1,
       staffPopulation: testStaffPop,
     });
 
-    const merged = mergeFacilityObjects({
-      userData: { facility: userFacility, modelVersions: userHistory },
-      referenceData: referenceFacility,
-    });
+    const merged = mergeFacilityObjects({ userFacility, referenceFacility });
 
     merged.modelVersions.forEach((version) => {
       if (version.isReference) {
@@ -270,22 +270,19 @@ describe("merged facility", () => {
 
   it("should impute missing reference incarcerated population from user data", () => {
     referenceFacility.population = [];
-    userHistory[1].ageUnknownPopulation = 290;
+    userFacility.modelVersions[1].ageUnknownPopulation = 290;
 
-    const merged = mergeFacilityObjects({
-      userData: { facility: userFacility, modelVersions: userHistory },
-      referenceData: referenceFacility,
-    });
+    const merged = mergeFacilityObjects({ userFacility, referenceFacility });
 
     merged.modelVersions.forEach((version) => {
       if (version.isReference) {
-        if (version.observedAt < userHistory[1].observedAt) {
+        if (version.observedAt < userFacility.modelVersions[1].observedAt) {
           expect(version.ageUnknownPopulation).toBe(
-            userHistory[0].ageUnknownPopulation,
+            userFacility.modelVersions[0].ageUnknownPopulation,
           );
         } else {
           expect(version.ageUnknownPopulation).toBe(
-            userHistory[1].ageUnknownPopulation,
+            userFacility.modelVersions[1].ageUnknownPopulation,
           );
         }
       }
@@ -294,23 +291,20 @@ describe("merged facility", () => {
 
   it("should impute missing reference capacity from user data", () => {
     referenceFacility.capacity = [];
-    userHistory[0].facilityCapacity = 345;
-    userHistory[1].facilityCapacity = 275;
+    userFacility.modelVersions[0].facilityCapacity = 345;
+    userFacility.modelVersions[1].facilityCapacity = 275;
 
-    const merged = mergeFacilityObjects({
-      userData: { facility: userFacility, modelVersions: userHistory },
-      referenceData: referenceFacility,
-    });
+    const merged = mergeFacilityObjects({ userFacility, referenceFacility });
 
     merged.modelVersions.forEach((version) => {
       if (version.isReference) {
-        if (version.observedAt < userHistory[1].observedAt) {
+        if (version.observedAt < userFacility.modelVersions[1].observedAt) {
           expect(version.facilityCapacity).toBe(
-            userHistory[0].facilityCapacity,
+            userFacility.modelVersions[0].facilityCapacity,
           );
         } else {
           expect(version.facilityCapacity).toBe(
-            userHistory[1].facilityCapacity,
+            userFacility.modelVersions[1].facilityCapacity,
           );
         }
       }
@@ -318,13 +312,10 @@ describe("merged facility", () => {
   });
 
   it("should use reference data as facility.modelInputs when it is most recent", () => {
-    const merged = mergeFacilityObjects({
-      userData: { facility: userFacility, modelVersions: userHistory },
-      referenceData: referenceFacility,
-    });
+    const merged = mergeFacilityObjects({ userFacility, referenceFacility });
 
-    expect(merged.facility.modelInputs).toBe(last(merged.modelVersions));
-    expect(merged.facility.modelInputs.isReference).toBe(true);
+    expect(merged.modelInputs).toBe(last(merged.modelVersions));
+    expect(merged.modelInputs.isReference).toBe(true);
   });
 
   describe("validation", () => {
@@ -332,10 +323,7 @@ describe("merged facility", () => {
       const testRecord = referenceFacility.covidCases[0];
       testRecord.popTestedPositive = -5;
 
-      let merged = mergeFacilityObjects({
-        userData: { facility: userFacility, modelVersions: userHistory },
-        referenceData: referenceFacility,
-      });
+      let merged = mergeFacilityObjects({ userFacility, referenceFacility });
 
       expect(
         merged.modelVersions.find(getFindByDay(testRecord.observedAt)),
@@ -344,8 +332,8 @@ describe("merged facility", () => {
       testRecord.popTestedPositive = referenceFacility.population[0].value + 20;
 
       merged = mergeFacilityObjects({
-        userData: { facility: userFacility, modelVersions: userHistory },
-        referenceData: referenceFacility,
+        userFacility,
+        referenceFacility: referenceFacility,
       });
 
       expect(
@@ -358,10 +346,7 @@ describe("merged facility", () => {
       const testDay = referenceFacility.covidCases[1];
       testDay.popTestedPositive = 2;
 
-      const merged = mergeFacilityObjects({
-        userData: { facility: userFacility, modelVersions: userHistory },
-        referenceData: referenceFacility,
-      });
+      const merged = mergeFacilityObjects({ userFacility, referenceFacility });
 
       expect(
         merged.modelVersions.find(getFindByDay(testDay.observedAt)),
@@ -379,10 +364,7 @@ describe("merged facility", () => {
       };
       referenceFacility.covidCases.push(testDay);
 
-      const merged = mergeFacilityObjects({
-        userData: { facility: userFacility, modelVersions: userHistory },
-        referenceData: referenceFacility,
-      });
+      const merged = mergeFacilityObjects({ userFacility, referenceFacility });
 
       expect(
         merged.modelVersions.find(getFindByDay(testDay.observedAt)),
@@ -390,17 +372,14 @@ describe("merged facility", () => {
     });
 
     it("should not reject user case counts that do not increase monotonically", () => {
-      const testDay = userHistory[1];
+      const testDay = userFacility.modelVersions[1];
       const unaffectedReferenceDay = referenceFacility.covidCases[1];
-      const unaffectedUserDay = userHistory[0];
+      const unaffectedUserDay = userFacility.modelVersions[0];
       const affectedReferenceDays = referenceFacility.covidCases.slice(3, 5);
 
       testDay.ageUnknownCases = 5;
 
-      const merged = mergeFacilityObjects({
-        userData: { facility: userFacility, modelVersions: userHistory },
-        referenceData: referenceFacility,
-      });
+      const merged = mergeFacilityObjects({ userFacility, referenceFacility });
 
       expect(
         merged.modelVersions.find(getFindByDay(testDay.observedAt)),

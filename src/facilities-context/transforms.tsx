@@ -17,21 +17,8 @@ import {
 import { validateMergedModelVersions } from "./validators";
 
 type MergeProps = {
-  userData: {
-    facility: Facility;
-    modelVersions: ModelInputs[];
-  };
-  referenceData?: ReferenceFacility;
-};
-
-type MergedFacility = Omit<Facility, "modelInputs"> & {
-  canonicalName?: string;
-  modelInputs: MergedModelInputs;
-  [key: string]: unknown;
-};
-
-export type MergedModelInputs = Optional<ModelInputs, "updatedAt"> & {
-  isReference?: boolean;
+  userFacility: Facility;
+  referenceFacility?: ReferenceFacility;
 };
 
 type MergedHistoryInputs = {
@@ -120,8 +107,8 @@ Pick<MergedHistoryInputs, "userVersions">) {
 function mergeModelVersions({
   userVersions,
   referenceFacility,
-}: Optional<MergedHistoryInputs, "referenceFacility">): MergedModelInputs[] {
-  const combinedVersions: MergedModelInputs[] = [...userVersions];
+}: Optional<MergedHistoryInputs, "referenceFacility">): ModelInputs[] {
+  const combinedVersions: ModelInputs[] = [...userVersions];
 
   if (referenceFacility) {
     const populationForDate = getPopulationFunc({
@@ -183,22 +170,15 @@ function mergeModelVersions({
   );
 }
 
-export const mergeFacilityObjects = ({
-  userData: { facility, modelVersions },
-  referenceData,
-}: MergeProps): {
-  facility: MergedFacility;
-  modelVersions: MergedModelInputs[];
-} => {
-  const mergedFacility: MergedFacility = { ...facility };
-  const mergedModelVersions = mergeModelVersions({
-    userVersions: modelVersions,
-    referenceFacility: referenceData,
-  });
+export function mergeFacilityObjects({
+  userFacility,
+  referenceFacility,
+}: MergeProps): Facility {
+  const mergedFacility = { ...userFacility };
 
-  if (referenceData) {
+  if (referenceFacility) {
     // pull in additional facility metadata fields
-    const additionalMetadata = omit(referenceData, [
+    const additionalMetadata = omit(referenceFacility, [
       "id",
       "state",
       "facilityType",
@@ -207,12 +187,17 @@ export const mergeFacilityObjects = ({
       "covidCases",
     ]);
     Object.assign(mergedFacility, additionalMetadata);
+
+    mergedFacility.modelVersions = mergeModelVersions({
+      userVersions: userFacility.modelVersions,
+      referenceFacility: referenceFacility,
+    });
+
+    const mostRecentVersion = last(mergedFacility.modelVersions);
+    if (mostRecentVersion) {
+      mergedFacility.modelInputs = mostRecentVersion;
+    }
   }
 
-  const mostRecentVersion = last(mergedModelVersions);
-  if (mostRecentVersion) {
-    mergedFacility.modelInputs = mostRecentVersion;
-  }
-
-  return { facility: mergedFacility, modelVersions: mergedModelVersions };
-};
+  return mergedFacility;
+}
