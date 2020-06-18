@@ -1,4 +1,4 @@
-import { startOfDay } from "date-fns";
+import { isToday, startOfDay } from "date-fns";
 import { pick } from "lodash";
 import { useEffect, useState } from "react";
 
@@ -25,19 +25,21 @@ function findMostRecentDate(
   if (facilityModelVersions) {
     // create array of dates with observed data at a given facility
     const facilityDatesObservedAt = facilityModelVersions.map(
-      (observedAt) => observedAt.observedAt,
+      (facility) => facility.observedAt,
     );
-    if (facilityDatesObservedAt.length > 0) {
-      // filter to dates earlier than the current date
-      const earlierDates = facilityDatesObservedAt.filter(function (d) {
-        return d.valueOf() <= currentDate.valueOf();
-      });
-      // if there is data for a prior date, use it, otherwise use the current date
-      if (earlierDates.length > 0) {
-        mostRecentDate = earlierDates[earlierDates.length - 1];
-      } else {
-        mostRecentDate = facilityDatesObservedAt[0];
+    // filter to dates earlier than the current date
+    const earlierDates = facilityDatesObservedAt?.filter(function (date) {
+      return startOfDay(date) < startOfDay(currentDate);
+    });
+    // if there is data for a prior date, use it, otherwise use the current date
+    if (earlierDates.length > 0) {
+      mostRecentDate = earlierDates[earlierDates.length - 1];
+      // handles edge case where most recent date is today, but no data has been saved for today
+      if (isToday(mostRecentDate) === true && earlierDates.length > 1) {
+        mostRecentDate = earlierDates[earlierDates.length - 2];
       }
+    } else {
+      mostRecentDate = facilityDatesObservedAt[0];
     }
   }
   return mostRecentDate;
@@ -87,6 +89,8 @@ const useAddCasesInputs = (
       observationDate,
       facilityModelVersions,
     );
+
+    // get facility data for most recent date
     const newObservedAtVersion = findMatchingDay({
       date: mostRecentDate,
       facilityModelVersions,
