@@ -18,28 +18,24 @@ export const getBracketData = (modelInputs: ModelInputs) => {
 };
 
 function findMostRecentDate(
-  currentDate: Date,
+  observedAtDate: Date,
   facilityModelVersions: ModelInputs[] | undefined,
 ) {
-  let mostRecentDate = currentDate;
+  let mostRecentDate = observedAtDate;
   if (facilityModelVersions) {
     // create array of dates with observed data at a given facility
-    const facilityDatesObservedAt = facilityModelVersions.map(
+    const facilityObservedAtDates = facilityModelVersions.map(
       (facility) => facility.observedAt,
     );
     // filter to dates earlier than the current date
-    const earlierDates = facilityDatesObservedAt?.filter(function (date) {
-      return startOfDay(date) < startOfDay(currentDate);
+    const earlierDates = facilityObservedAtDates?.filter(function (date) {
+      return startOfDay(date) < startOfDay(observedAtDate);
     });
-    // if there is data for a prior date, use it, otherwise use the current date
+    // if there is data for prior dates, use the most recent one, otherwise use the current date
     if (earlierDates.length > 0) {
       mostRecentDate = earlierDates[earlierDates.length - 1];
-      // handles edge case where most recent date is today, but no data has been saved for today
-      if (isToday(mostRecentDate) === true && earlierDates.length > 1) {
-        mostRecentDate = earlierDates[earlierDates.length - 2];
-      }
     } else {
-      mostRecentDate = facilityDatesObservedAt[0];
+      mostRecentDate = facilityObservedAtDates[0];
     }
   }
   return mostRecentDate;
