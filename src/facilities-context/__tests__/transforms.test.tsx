@@ -17,6 +17,7 @@ describe("merged facility", () => {
   let userFacility: Facility;
   let referenceFacility: ReferenceFacility;
   const stateName = "Florida";
+  const countyName = "Bay";
 
   beforeEach(() => {
     const userHistory = [
@@ -24,6 +25,7 @@ describe("merged facility", () => {
         observedAt: new Date(2020, 5, 1),
         updatedAt: new Date(2020, 5, 10, 12, 0, 4),
         stateName,
+        countyName,
         ageUnknownCases: 10,
         ageUnknownPopulation: 300,
       },
@@ -31,6 +33,7 @@ describe("merged facility", () => {
         observedAt: new Date(2020, 5, 5),
         updatedAt: new Date(2020, 5, 5, 12, 0, 4),
         stateName,
+        countyName,
         ageUnknownCases: 22,
         ageUnknownPopulation: 300,
       },
@@ -49,7 +52,8 @@ describe("merged facility", () => {
 
     referenceFacility = {
       id: "testReferenceId",
-      stateName: stateName,
+      stateName,
+      countyName,
       canonicalName: "Florida State Test Facility",
       facilityType: "State Prison",
       yearOpened: 1975,
@@ -157,6 +161,8 @@ describe("merged facility", () => {
         isReference: true,
         staffCases: referenceCase?.staffTestedPositive,
         staffPopulation: undefined,
+        stateName,
+        countyName,
       });
     });
   });
@@ -225,6 +231,8 @@ describe("merged facility", () => {
           facilityCapacity: referenceCapacity,
           isReference: true,
           staffCases: referenceCase.staffTestedPositive,
+          stateName,
+          countyName,
         });
       } else {
         throw new Error("no case found matching this date");
@@ -253,6 +261,7 @@ describe("merged facility", () => {
       observedAt: testDay,
       updatedAt: new Date(2020, 5, 6, 12, 0, 4),
       stateName,
+      countyName,
       ageUnknownCases: 25,
       ageUnknownPopulation: 300,
       staffCases: 1,

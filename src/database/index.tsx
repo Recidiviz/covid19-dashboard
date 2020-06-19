@@ -1046,7 +1046,7 @@ export const getReferenceFacilities = async ({
 
   const facilities = await db
     .collection(referenceFacilitiesCollectionId)
-    .where("state", "==", stateName)
+    .where("stateName", "==", stateName)
     .where("facilityType", "==", systemType)
     .get();
 

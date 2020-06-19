@@ -109,6 +109,9 @@ function mergeModelVersions({
   referenceFacility,
 }: Optional<MergedHistoryInputs, "referenceFacility">): ModelInputs[] {
   const combinedVersions: ModelInputs[] = [...userVersions];
+  let { stateName, countyName } = combinedVersions.length
+    ? (last(combinedVersions) as ModelInputs)
+    : ({} as ModelInputs);
 
   if (referenceFacility) {
     const populationForDate = getPopulationFunc({
@@ -122,6 +125,8 @@ function mergeModelVersions({
     });
 
     const staffPopByDate = getStaffPopulationFunc({ userVersions });
+    stateName = stateName || referenceFacility.stateName;
+    countyName = countyName || referenceFacility.countyName;
 
     // fill any gaps with reference records:
     // don't overwrite any user records with actual data
@@ -152,6 +157,8 @@ function mergeModelVersions({
           facilityCapacity: capacityForDate(observedAt),
           staffCases: staffTestedPositive,
           staffPopulation: staffPopByDate(observedAt),
+          stateName,
+          countyName,
         };
         if (shouldReplaceExisting && existingRecord) {
           const i = combinedVersions.indexOf(existingRecord);
@@ -180,7 +187,7 @@ export function mergeFacilityObjects({
     // pull in additional facility metadata fields
     const additionalMetadata = omit(referenceFacility, [
       "id",
-      "state",
+      "stateName",
       "facilityType",
       "capacity",
       "population",

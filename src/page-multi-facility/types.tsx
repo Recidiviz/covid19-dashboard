@@ -34,6 +34,7 @@ export type Facility = PersistedFacility & {
   id: string;
   scenarioId: string;
   modelVersions: ModelInputs[];
+  canonicalName?: string;
 };
 
 export type Facilities = Facility[];
@@ -105,6 +106,7 @@ export type ReferenceFacilityCovidCase = {
 export type ReferenceFacility = {
   id: string;
   stateName: string;
+  countyName: string;
   canonicalName: string;
   facilityType: string;
   capacity: SimpleTimeseries[];
