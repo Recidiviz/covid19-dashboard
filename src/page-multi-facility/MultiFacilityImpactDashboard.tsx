@@ -88,7 +88,7 @@ const MultiFacilityImpactDashboard: React.FC = () => {
 
   const handleFacilitySave = async (facility: Facility) => {
     if (scenarioId) {
-      await rejectionToast(createOrUpdateFacility(scenarioId, facility));
+      await rejectionToast(createOrUpdateFacility(facility));
     }
   };
 

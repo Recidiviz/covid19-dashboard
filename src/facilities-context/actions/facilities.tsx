@@ -8,7 +8,6 @@ import {
 import {
   Facilities,
   Facility,
-  FacilityReferenceMapping,
   ReferenceFacility,
   Scenario,
 } from "../../page-multi-facility/types";
@@ -28,6 +27,24 @@ export const SELECT_FACILITY = "SELECT_FACILITY";
 export const DESELECT_FACILITY = "DESELECT_FACILITY";
 export const REMOVE_FACILITY = "REMOVE_FACILITY";
 export const CREATE_OR_UPDATE_FACILITY = "CREATE_OR_UPDATE_FACILITY";
+
+function getReferenceFacility({
+  scenario,
+  referenceFacilities,
+  facility,
+}: {
+  scenario: Scenario;
+  referenceFacilities: ReferenceFacilityMapping;
+  facility: Facility;
+}): ReferenceFacility | undefined {
+  if (scenario.useReferenceData) {
+    // this will be undefined if there are no reference facilities,
+    // or if there isn't a mapping in facilityToReference. So this is
+    // still safe if the feature is turned off or not configured
+    return referenceFacilities[scenario[referenceFacilitiesProp][facility.id]];
+  }
+  return undefined;
+}
 
 export function deselectFacility(dispatch: FacilitiesDispatch) {
   return () => {
@@ -54,7 +71,7 @@ export async function fetchFacilities(
   dispatch({ type: REQUEST_FACILITIES });
   try {
     const facilitiesList: Facilities | null = await getFacilities(scenario.id);
-    let referenceFacilities: ReferenceFacilityMapping | undefined;
+    let referenceFacilities: ReferenceFacilityMapping = {};
     const facilities: FacilityMapping = {};
 
     if (facilitiesList) {
@@ -75,16 +92,13 @@ export async function fetchFacilities(
       }
 
       facilitiesList.forEach((facility) => {
-        let referenceFacility: ReferenceFacility | undefined;
-
-        if (scenario.useReferenceData && referenceFacilities) {
-          referenceFacility =
-            referenceFacilities[scenario[referenceFacilitiesProp][facility.id]];
-        }
-
         facilities[facility.id] = mergeFacilityObjects({
           userFacility: facility,
-          referenceFacility,
+          referenceFacility: getReferenceFacility({
+            scenario,
+            referenceFacilities,
+            facility,
+          }),
         });
       });
 
@@ -107,28 +121,28 @@ export function createOrUpdateFacility(
   scenario: Scenario | null,
   referenceFacilities: ReferenceFacilityMapping,
 ) {
-  let facilityToReference: FacilityReferenceMapping = {};
-  if (scenario && scenario.useReferenceData) {
-    facilityToReference = scenario[referenceFacilitiesProp];
-  }
-  return async (scenarioId: string, facility: Partial<Facility>) => {
-    if (scenarioId) {
+  return async (facility: Partial<Facility>) => {
+    if (scenario) {
       try {
-        const updatedFacility = await saveFacility(scenarioId, facility);
+        let updatedFacility = await saveFacility(scenario.id, facility);
         if (updatedFacility && updatedFacility.id) {
+          updatedFacility = mergeFacilityObjects({
+            userFacility: updatedFacility,
+            referenceFacility: getReferenceFacility({
+              scenario,
+              referenceFacilities,
+              facility: updatedFacility,
+            }),
+          });
           dispatch({
             type: CREATE_OR_UPDATE_FACILITY,
-            payload: mergeFacilityObjects({
-              userFacility: updatedFacility,
-              referenceFacility:
-                referenceFacilities[facilityToReference[updatedFacility.id]],
-            }),
+            payload: updatedFacility,
           });
         }
         return updatedFacility;
       } catch (error) {
         console.error(
-          `Error creating or updating facility for scenario: ${scenarioId}`,
+          `Error creating or updating facility for scenario: ${scenario.id}`,
         );
         throw error;
       }
@@ -153,15 +167,27 @@ export function removeFacility(dispatch: FacilitiesDispatch) {
   };
 }
 
-export function duplicateFacility(dispatch: FacilitiesDispatch) {
-  return async (scenarioId: string, facility: Facility) => {
-    if (scenarioId && facility.id) {
+export function duplicateFacility(
+  dispatch: FacilitiesDispatch,
+  scenario: Scenario | null,
+  referenceFacilities: ReferenceFacilityMapping,
+) {
+  return async (facility: Facility) => {
+    if (scenario && facility.id) {
       try {
-        const duplicatedFacility = await duplicate(scenarioId, facility);
+        let duplicatedFacility = await duplicate(scenario.id, facility);
         if (duplicatedFacility && duplicatedFacility.id) {
+          duplicatedFacility = mergeFacilityObjects({
+            userFacility: duplicatedFacility,
+            referenceFacility: getReferenceFacility({
+              scenario,
+              referenceFacilities,
+              facility: duplicatedFacility,
+            }),
+          });
           dispatch({
             type: CREATE_OR_UPDATE_FACILITY,
-            payload: { ...duplicatedFacility },
+            payload: duplicatedFacility,
           });
         }
         return duplicatedFacility;

@@ -34,17 +34,13 @@ export type FacilitiesDispatch = (
 export type ExportedActions = {
   fetchFacilityRtData: (facility: Facility) => Promise<void>;
   createOrUpdateFacility: (
-    scenarioId: Scenario["id"],
     facility: Partial<Facility>,
   ) => Promise<Facility | void>;
   removeFacility: (
     scenarioId: Scenario["id"],
     facilityId: Facility["id"],
   ) => Promise<void>;
-  duplicateFacility: (
-    scenarioId: Scenario["id"],
-    facility: Facility,
-  ) => Promise<Facility | void>;
+  duplicateFacility: (facility: Facility) => Promise<Facility | void>;
   deselectFacility: () => void;
   selectFacility: (faclityId: Facility["id"]) => void;
 };
@@ -87,7 +83,11 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
     ),
     fetchFacilityRtData: facilitiesActions.fetchFacilityRtData(dispatch),
     removeFacility: facilitiesActions.removeFacility(dispatch),
-    duplicateFacility: facilitiesActions.duplicateFacility(dispatch),
+    duplicateFacility: facilitiesActions.duplicateFacility(
+      dispatch,
+      scenario,
+      state.referenceFacilities,
+    ),
     deselectFacility: facilitiesActions.deselectFacility(dispatch),
     selectFacility: facilitiesActions.selectFacility(dispatch),
   };
