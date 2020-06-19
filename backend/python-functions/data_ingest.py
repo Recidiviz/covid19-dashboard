@@ -125,18 +125,27 @@ def persist(facilities):
         facilityDocuments = list(facilitiesQueryResult)       
 
         if len(facilityDocuments) <= 1:
-            # Accesses an existing reference facility document or creates a new one if
-            # one does not exist.
-            facility_id = facilityDocuments[0].id if len(facilityDocuments) == 1 else None
+            # If a reference facility already exists we will set facility_id to the existing
+            # reference facility's id in order to perform an update on that reference
+            # facility.  Otherwise, we will set the facility_id to None which signals to
+            # Firestore to create a new reference facility document.
+            existing_reference_facility = len(facilityDocuments) == 1
+            facility_id = facilityDocuments[0].id if existing_reference_facility else None
             facility_ref = facilities_collection.document(facility_id)
-            
+
+            # For new reference facility documents, set a createdAt timestamp.  This allows
+            # us to know which reference facilities are "new" from the perspective of a given
+            # user.
+            if (not existing_reference_facility):
+                facility['createdAt'] = firestore.SERVER_TIMESTAMP
+
             # Remove the Covid case data so that it can be stored separately in its own
             # sub-collection.
             covid_cases = facility.pop('covidCases')
             
             batch = db.batch()
-            
-            batch.set(facility_ref, facility)    
+
+            batch.set(facility_ref, facility, merge=True)
 
             for date, cases in covid_cases.items():
                 covidCasesOnDateRef = facility_ref.collection('covidCases').document(date)
