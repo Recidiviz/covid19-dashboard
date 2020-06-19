@@ -17,7 +17,10 @@ import {
   ReferenceFacilityMapping,
 } from "../FacilitiesContext";
 import { mergeFacilityObjects } from "../transforms";
-import { fetchReferenceFacilities } from "./referenceFacilities";
+import {
+  CLEAR_REFERENCE_FACILITIES,
+  fetchReferenceFacilities,
+} from "./referenceFacilities";
 
 export const REQUEST_FACILITIES = "REQUEST_FACILITIES";
 export const RECEIVE_FACILITIES = "RECEIVE_FACILITIES";
@@ -69,6 +72,7 @@ export async function fetchFacilities(
   scenario: Scenario,
 ) {
   dispatch({ type: REQUEST_FACILITIES });
+  dispatch({ type: CLEAR_REFERENCE_FACILITIES });
   try {
     const facilitiesList: Facilities | null = await getFacilities(scenario.id);
     let referenceFacilities: ReferenceFacilityMapping = {};

@@ -692,9 +692,7 @@ export const saveFacility = async (
       modelInputsToSave.observedAt = modelInputsToSave.observedAt || new Date();
       // Normalize to the start of day in either case.
       modelInputsToSave.observedAt = startOfDay(modelInputsToSave.observedAt);
-      // Ensures we don't store any attributes that our model does not know
-      // about. This also makes a copy of modelInputs, since we shouldn't mutate
-      // the original.
+      // Ensures we don't store any attributes that our model does not know about.
       modelInputsToSave = pick(modelInputsToSave, persistedKeys);
       // remove any keys that are explicitly set to undefined or Firestore will object
       modelInputsToSave = pickBy(
