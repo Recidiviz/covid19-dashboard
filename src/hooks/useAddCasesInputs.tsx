@@ -1,4 +1,4 @@
-import { isToday, startOfDay } from "date-fns";
+import { startOfDay } from "date-fns";
 import { pick } from "lodash";
 import { useEffect, useState } from "react";
 
@@ -32,7 +32,7 @@ function findMostRecentDate(
       return startOfDay(date) <= startOfDay(observedAtDate);
     });
     // if there is data for prior dates, use the most recent one, otherwise use the current date
-    if (earlierDates?.length > 0) {
+    if (earlierDates && earlierDates.length > 0) {
       mostRecentDate = earlierDates[earlierDates.length - 1];
     } else {
       mostRecentDate = facilityObservedAtDates[0];
