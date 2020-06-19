@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 
+import { referenceFacilitiesProp } from "../database";
 import useReferenceFacilitiesEligible from "../hooks/useReferenceFacilitiesEligible";
 import {
   Facility,
@@ -69,10 +70,21 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
     selectedFacilityId: null,
     rtData: {},
   });
-  const [scenario] = useScenario();
-  const scenarioId = scenario?.data?.id;
+  const [scenarioState] = useScenario();
+  const shouldUseReferenceFacilities = useReferenceFacilitiesEligible();
+  const scenario = scenarioState.data;
+  const scenarioId = scenario?.id;
+  const facilityToReference =
+    scenario && shouldUseReferenceFacilities
+      ? scenario[referenceFacilitiesProp]
+      : undefined;
+
   const actions = {
-    createOrUpdateFacility: facilitiesActions.createOrUpdateFacility(dispatch),
+    createOrUpdateFacility: facilitiesActions.createOrUpdateFacility(
+      dispatch,
+      scenario,
+      state.referenceFacilities,
+    ),
     fetchFacilityRtData: facilitiesActions.fetchFacilityRtData(dispatch),
     removeFacility: facilitiesActions.removeFacility(dispatch),
     duplicateFacility: facilitiesActions.duplicateFacility(dispatch),
@@ -81,12 +93,17 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   useEffect(() => {
-    if (scenarioId) {
-      facilitiesActions.fetchFacilities(scenarioId, dispatch);
+    if (scenario) {
       // clean up any existing reference facility data
       facilitiesActions.clearReferenceFacilities(dispatch);
+
+      facilitiesActions.fetchFacilities(
+        shouldUseReferenceFacilities,
+        dispatch,
+        scenario,
+      );
     }
-  }, [scenarioId]);
+  }, [facilityToReference, scenario, shouldUseReferenceFacilities]);
 
   useEffect(() => {
     const facilities = Object.values({ ...state.facilities });
@@ -98,28 +115,6 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
       });
     }
   }, [scenarioId, state.facilities, state.rtData]);
-
-  // fetch reference facilities based on user facilities
-  const shouldFetchReferenceFacilities = useReferenceFacilitiesEligible();
-  useEffect(() => {
-    if (!shouldFetchReferenceFacilities) return;
-
-    const facilities = Object.values({ ...state.facilities });
-    if (facilities.length) {
-      // first facility is the reference; assume they're all the same
-      const {
-        modelInputs: { stateName },
-        systemType,
-      } = facilities[0];
-      if (stateName && systemType) {
-        facilitiesActions.fetchReferenceFacilities(
-          stateName,
-          systemType,
-          dispatch,
-        );
-      }
-    }
-  }, [shouldFetchReferenceFacilities, state.facilities]);
 
   return (
     <FacilitiesContext.Provider value={{ state, dispatch, actions }}>

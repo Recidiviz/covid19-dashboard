@@ -12,6 +12,7 @@ import {
   Scenario,
   User,
 } from "../page-multi-facility/types";
+import { referenceFacilitiesProp } from ".";
 import { FacilityDocUpdate } from "./types";
 
 const timestampToDate = (timestamp: firebase.firestore.Timestamp): Date => {
@@ -120,6 +121,10 @@ export const buildScenario = (
       scenario.promoStatuses[flagName] = true;
     }
   });
+
+  // this is a newer field that isn't guaranteed to exist in storage;
+  // provide a default here because it's required by the type definition
+  scenario[referenceFacilitiesProp] = scenario[referenceFacilitiesProp] || {};
 
   return scenario;
 };

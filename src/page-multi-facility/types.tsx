@@ -45,6 +45,7 @@ export type Scenario = {
   baseline: boolean;
   dataSharing: boolean;
   dailyReports: boolean;
+  useReferenceData?: boolean;
   promoStatuses: PromoStatuses;
   baselinePopulations: BaselinePopulations[];
   [referenceFacilitiesProp]: FacilityReferenceMapping;

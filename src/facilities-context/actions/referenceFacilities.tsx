@@ -18,6 +18,7 @@ export async function fetchReferenceFacilities(
     payload[f.id] = f;
   });
   dispatch({ type: RECEIVE_REFERENCE_FACILITIES, payload });
+  return payload;
 }
 
 export async function clearReferenceFacilities(dispatch: FacilitiesDispatch) {
