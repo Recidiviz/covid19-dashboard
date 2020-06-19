@@ -27,12 +27,12 @@ function findMostRecentDate(
     const facilityObservedAtDates = facilityModelVersions.map(
       (facility) => facility.observedAt,
     );
-    // filter to dates earlier than the current date
+    // filter to dates earlier than (or the same as) the current date
     const earlierDates = facilityObservedAtDates?.filter(function (date) {
-      return startOfDay(date) < startOfDay(observedAtDate);
+      return startOfDay(date) <= startOfDay(observedAtDate);
     });
     // if there is data for prior dates, use the most recent one, otherwise use the current date
-    if (earlierDates.length > 0) {
+    if (earlierDates?.length > 0) {
       mostRecentDate = earlierDates[earlierDates.length - 1];
     } else {
       mostRecentDate = facilityObservedAtDates[0];
