@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { getFacilityModelVersions } from "../database";
 import { Facility, ModelInputs } from "../page-multi-facility/types";
 import useError from "./useError";
 
@@ -14,11 +13,7 @@ const useFacilityModelVersions = (facility: Facility | undefined) => {
   const updateModelVersions = useCallback(async () => {
     if (!facility) return;
     try {
-      const modelVersions = await getFacilityModelVersions({
-        facilityId: facility.id,
-        scenarioId: facility.scenarioId,
-        distinctByObservedAt: true,
-      });
+      const { modelVersions } = facility;
       setFacilityModelVersions(modelVersions);
     } catch (e) {
       rethrowSync(e);

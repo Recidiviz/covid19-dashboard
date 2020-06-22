@@ -8,7 +8,6 @@ import {
 import { has, mapValues, maxBy, minBy, pick } from "lodash";
 
 import { RateOfSpreadType } from "../constants/EpidemicModel";
-import { getFacilityModelVersions } from "../database";
 import { totalConfirmedCases } from "../impact-dashboard/EpidemicModelContext";
 import {
   Facilities,
@@ -90,19 +89,11 @@ export async function fetchRt(requestData: RtInputs): Promise<RawRtData> {
   return responseData;
 }
 
-const getRtInputsForFacility = async (
-  facility: Facility,
-): Promise<RtInputs> => {
-  let modelVersions = await getFacilityModelVersions({
-    scenarioId: facility.scenarioId,
-    facilityId: facility.id,
-    distinctByObservedAt: true,
-  });
-
+const getRtInputsForFacility = (facility: Facility): RtInputs => {
   const cases: number[] = [];
   const dates: string[] = [];
 
-  modelVersions.forEach((model) => {
+  facility.modelVersions.forEach((model) => {
     const seconds = model.observedAt.getTime() / 1000;
 
     dates.push(
@@ -133,7 +124,7 @@ export const getRtDataForFacility = async (
   facility: Facility,
 ): Promise<RtValue> => {
   try {
-    const { cases, dates } = await getRtInputsForFacility(facility);
+    const { cases, dates } = getRtInputsForFacility(facility);
     const fetchedData = await fetchRt({ dates, cases });
     return cleanRtData(fetchedData);
   } catch (error) {

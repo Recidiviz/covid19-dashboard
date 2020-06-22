@@ -82,6 +82,7 @@ export const originalProjection = (systemWideData: SystemWideData) => {
       updatedAt: new Date(),
       systemType: "State Prison",
       modelInputs: originalEpidemicModelInputs(systemWideData),
+      modelVersions: [],
     },
   ] as Facilities;
 };
