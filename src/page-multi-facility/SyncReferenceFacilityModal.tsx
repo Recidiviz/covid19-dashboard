@@ -70,10 +70,10 @@ const RowIcon = styled.img`
 
 const SyncDataTitle = (
   <SyncDataTitleContainer>
-    <TitleText>Sync Data</TitleText>
+    <TitleText>Prepopulate Data</TitleText>
     <TitleText>
-      To sync with daily public facility data, please select the corresponding
-      facility.
+      To autofill this facility with real-time COVID-19 data, please select the
+      corresponding facility.
     </TitleText>
   </SyncDataTitleContainer>
 );
@@ -161,7 +161,9 @@ const SyncReferenceFacilityModal: React.FC<Props> = ({
         ))}
       </ModalContent>
       <ModalFooter>
-        <CancelButton onClick={onClose}>Don't sync this facility</CancelButton>
+        <CancelButton onClick={onClose}>
+          Don't prepopulate this facility
+        </CancelButton>
         <SaveButton disabled={!selectedRefFacilityId} onClick={handleSave}>
           Save
         </SaveButton>
