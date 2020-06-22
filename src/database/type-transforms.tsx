@@ -37,10 +37,15 @@ const buildPlannedRelease = (plannedReleaseData: any): PlannedRelease => {
 };
 
 export const buildModelInputs = (document: any): ModelInputs => {
-  let modelInputs: ModelInputs = document;
+  let modelInputs: ModelInputs = { ...document };
 
   modelInputs.observedAt = timestampToDate(document.observedAt);
   modelInputs.updatedAt = timestampToDate(document.updatedAt);
+  // this field was renamed, existing instances should be mapped over
+  if (document.stateCode) {
+    modelInputs.stateName = modelInputs.stateName || document.stateCode;
+    delete (modelInputs as any).stateCode;
+  }
 
   const plannedReleases = document.plannedReleases;
   if (plannedReleases) {

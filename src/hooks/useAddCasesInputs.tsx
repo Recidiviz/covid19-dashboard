@@ -17,6 +17,31 @@ export const getBracketData = (modelInputs: ModelInputs) => {
   return pick(modelInputs, populationBracketKeys);
 };
 
+function findMostRecentDate(
+  observedAtDate: Date,
+  facilityModelVersions: ModelInputs[] | undefined,
+) {
+  let mostRecentDate = observedAtDate;
+  if (facilityModelVersions) {
+    // create array of dates with observed data at a given facility
+    const facilityObservedAtDates = facilityModelVersions.map(
+      (facility) => facility.observedAt,
+    );
+    // filter to dates earlier than (or the same as) the current date
+    const earlierDates = facilityObservedAtDates?.filter(function (date) {
+      return startOfDay(date) <= startOfDay(observedAtDate);
+    });
+    // if there is data for prior dates, use the most recent one, otherwise use
+    // the next forward-looking date that we have for the facility
+    if (earlierDates && earlierDates.length > 0) {
+      mostRecentDate = earlierDates[earlierDates.length - 1];
+    } else if (facilityObservedAtDates) {
+      mostRecentDate = facilityObservedAtDates[0];
+    }
+  }
+  return mostRecentDate;
+}
+
 const findMatchingDay = ({
   date,
   facilityModelVersions,
@@ -57,8 +82,14 @@ const useAddCasesInputs = (
   >();
   // whenever observation date changes we should look for a new model version
   useEffect(() => {
+    const mostRecentDate = findMostRecentDate(
+      observationDate,
+      facilityModelVersions,
+    );
+
+    // get facility data for most recent date
     const newObservedAtVersion = findMatchingDay({
-      date: observationDate,
+      date: mostRecentDate,
       facilityModelVersions,
     });
 
