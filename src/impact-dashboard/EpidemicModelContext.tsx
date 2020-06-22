@@ -341,10 +341,20 @@ export function calculateFacilityOccupancyPct(
     : 1;
 }
 
-export function hasCases(inputs: ModelInputsPopulationBrackets) {
+export function hasCases(inputs: ModelInputsPopulationBrackets): boolean {
   return casesKeys.some((key) => inputs[key] !== undefined);
 }
 
-export function hasPopulation(inputs: ModelInputs) {
+export function hasPopulation(inputs: ModelInputs): boolean {
   return populationKeys.some((key) => inputs[key] !== undefined);
+}
+
+export function hasCapacity(inputs: ModelInputs): boolean {
+  return inputs.facilityCapacity !== undefined;
+}
+
+export function hasStaffPopulation(
+  inputs: ModelInputsPopulationBrackets,
+): boolean {
+  return inputs.staffPopulation !== undefined;
 }

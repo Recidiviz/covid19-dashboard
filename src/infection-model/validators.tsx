@@ -64,8 +64,9 @@ export const validateCumulativeCases = (
   }
 
   if (next !== undefined) {
-    const compareFn = (current: number, comparison: number) =>
-      comparison >= current;
+    const compareFn = (current: number, comparison: number) => {
+      return comparison >= current;
+    };
     if (compareSums) {
       valid = valid && validateCasesBySum(inputs, next, compareFn);
     } else {

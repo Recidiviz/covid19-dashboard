@@ -113,6 +113,4 @@ export type ReferenceFacility = {
   capacity: SimpleTimeseries[];
   population: SimpleTimeseries[];
   covidCases: ReferenceFacilityCovidCase[];
-  // various other metadata that we don't explicitly care about may also be present
-  [key: string]: unknown;
 };

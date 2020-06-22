@@ -94,9 +94,6 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     if (scenario) {
-      // clean up any existing reference facility data
-      facilitiesActions.clearReferenceFacilities(dispatch);
-
       facilitiesActions.fetchFacilities(
         shouldUseReferenceFacilities,
         dispatch,

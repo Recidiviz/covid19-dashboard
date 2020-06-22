@@ -56,8 +56,6 @@ describe("merged facility", () => {
       countyName,
       canonicalName: "Florida State Test Facility",
       facilityType: "State Prison",
-      yearOpened: 1975,
-      securityStatus: "mixed",
       capacity: [{ date: new Date(2020, 0, 1), value: 275 }],
       population: [{ date: new Date(2020, 0, 1), value: 380 }],
       covidCases: [
@@ -125,22 +123,20 @@ describe("merged facility", () => {
     const merged = mergeFacilityObjects({ userFacility, referenceFacility });
 
     // extra metadata properties we expect to carry over
-    const { canonicalName, yearOpened, securityStatus } = referenceFacility;
+    const { canonicalName } = referenceFacility;
 
     const userFacilityMetadata = omit(userFacility, [
       "modelInputs",
       "modelVersions",
     ]);
 
-    expect(merged).toEqual(
-      expect.objectContaining({
-        ...userFacilityMetadata,
-        canonicalName,
-        yearOpened,
-        securityStatus,
-        modelInputs: last(merged.modelVersions),
-      }),
-    );
+    expect(merged).toEqual({
+      ...userFacilityMetadata,
+      canonicalName,
+      modelInputs: last(merged.modelVersions),
+      // the contents of this array are tested below
+      modelVersions: expect.any(Array),
+    });
 
     const referencePop = referenceFacility.population[0].value;
     const referenceCapacity = referenceFacility.capacity[0].value;
@@ -174,22 +170,20 @@ describe("merged facility", () => {
     });
 
     // extra metadata properties we expect to carry over
-    const { canonicalName, yearOpened, securityStatus } = referenceFacility;
+    const { canonicalName } = referenceFacility;
 
     const userFacilityMetadata = omit(userFacility, [
       "modelInputs",
       "modelVersions",
     ]);
 
-    expect(merged).toEqual(
-      expect.objectContaining({
-        ...userFacilityMetadata,
-        canonicalName,
-        yearOpened,
-        securityStatus,
-        modelInputs: last(merged.modelVersions),
-      }),
-    );
+    expect(merged).toEqual({
+      ...userFacilityMetadata,
+      canonicalName,
+      modelInputs: last(merged.modelVersions),
+      // the contents of this array are tested below
+      modelVersions: expect.any(Array),
+    });
 
     const referencePop = referenceFacility.population[0].value;
     const referenceCapacity = referenceFacility.capacity[0].value;
@@ -204,19 +198,23 @@ describe("merged facility", () => {
         expect(mergedCase).toEqual(userCase);
       } else if (referenceCase) {
         let expectedPopulation: number;
-        if (
+
+        const isOlderThanUserData =
           differenceInCalendarDays(
             userFacility.modelVersions[0].observedAt,
             mergedCase.observedAt,
-          ) > 0
-        ) {
-          expectedPopulation = referencePop;
-        } else if (
+          ) > 0;
+
+        const isBetweenUserRecords =
+          !isOlderThanUserData &&
           differenceInCalendarDays(
             userFacility.modelVersions[1].observedAt,
             mergedCase.observedAt,
-          ) > 0
-        ) {
+          ) > 0;
+
+        if (isOlderThanUserData) {
+          expectedPopulation = referencePop;
+        } else if (isBetweenUserRecords) {
           expectedPopulation = userFacility.modelVersions[0]
             .ageUnknownPopulation as number;
         } else {

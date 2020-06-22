@@ -1,11 +1,13 @@
 import { scaleThreshold } from "d3";
 import { getTime, isSameDay } from "date-fns";
-import { last, omit, orderBy } from "lodash";
+import { last, omit, orderBy, pick } from "lodash";
 import { Optional } from "utility-types";
 
 import {
+  hasCapacity,
   hasCases,
   hasPopulation,
+  hasStaffPopulation,
   totalIncarceratedPopulation,
 } from "../impact-dashboard/EpidemicModelContext";
 import {
@@ -70,14 +72,12 @@ function getCapacityFunc({
   const capacityByDate: SimpleTimeseries[] = orderBy(
     [
       ...referenceFacility.capacity,
-      ...userVersions
-        .filter((version) => version.facilityCapacity !== undefined)
-        .map((version) => ({
-          date: version.observedAt,
-          // this is a safe assertion because we filtered out undefined values above,
-          // although TypeScript is not smart enough to figure that out
-          value: version.facilityCapacity as number,
-        })),
+      ...userVersions.filter(hasCapacity).map((version) => ({
+        date: version.observedAt,
+        // this is a safe assertion because we filtered out undefined values above,
+        // although TypeScript is not smart enough to figure that out
+        value: version.facilityCapacity as number,
+      })),
     ],
     ["date"],
   );
@@ -90,14 +90,12 @@ function getStaffPopulationFunc({
 }: // NOTE: currently we don't have any staff counts in reference data
 Pick<MergedHistoryInputs, "userVersions">) {
   const staffPopByDate: SimpleTimeseries[] = orderBy(
-    userVersions
-      .filter((version) => version.staffPopulation !== undefined)
-      .map((version) => ({
-        date: version.observedAt,
-        // this is a safe assertion because we filtered out undefined values above,
-        // although TypeScript is not smart enough to figure that out
-        value: version.staffPopulation as number,
-      })),
+    userVersions.filter(hasStaffPopulation).map((version) => ({
+      date: version.observedAt,
+      // this is a safe assertion because we filtered out undefined values above,
+      // although TypeScript is not smart enough to figure that out
+      value: version.staffPopulation as number,
+    })),
     ["date"],
   );
 
@@ -125,6 +123,7 @@ function mergeModelVersions({
     });
 
     const staffPopByDate = getStaffPopulationFunc({ userVersions });
+
     stateName = stateName || referenceFacility.stateName;
     countyName = countyName || referenceFacility.countyName;
 
@@ -144,8 +143,12 @@ function mergeModelVersions({
         let shouldReplaceExisting = false;
 
         if (existingRecord) {
+          // if there is already case data for this date, bail out now;
+          // we won't use any reference data for this date
           if (hasCases(existingRecord)) return;
 
+          // if we've gotten this far, we will be inserting reference data;
+          // this flag tells us to splice it in rather than append it
           shouldReplaceExisting = true;
         }
 
@@ -160,6 +163,7 @@ function mergeModelVersions({
           stateName,
           countyName,
         };
+
         if (shouldReplaceExisting && existingRecord) {
           const i = combinedVersions.indexOf(existingRecord);
           combinedVersions[i] = newRecord;
@@ -188,6 +192,7 @@ export function mergeFacilityObjects({
     const additionalMetadata = omit(referenceFacility, [
       "id",
       "stateName",
+      "countyName",
       "facilityType",
       "capacity",
       "population",
