@@ -11,7 +11,7 @@ import {
   useProjectionData,
 } from "../projectionCurveHooks";
 
-describe.skip("useProjectionData", () => {
+describe("useProjectionData", () => {
   let input: any;
   let returnVal: any;
   let rtData: any;
@@ -106,7 +106,7 @@ describe.skip("useProjectionData", () => {
   });
 });
 
-describe.skip("useChartDataFromProjectionData", () => {
+describe("useChartDataFromProjectionData", () => {
   let input: CurveData;
   let returnVal: any;
 

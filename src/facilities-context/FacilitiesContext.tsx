@@ -42,7 +42,7 @@ export type ExportedActions = {
   ) => Promise<void>;
   duplicateFacility: (facility: Facility) => Promise<Facility | void>;
   deselectFacility: () => void;
-  selectFacility: (faclityId: Facility["id"]) => void;
+  selectFacility: (facilityId: Facility["id"]) => void;
 };
 
 interface FacilitiesContext {

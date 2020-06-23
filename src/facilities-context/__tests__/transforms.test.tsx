@@ -1,11 +1,14 @@
-import { differenceInCalendarDays, isSameDay } from "date-fns";
-import { last, omit, pick } from "lodash";
+import { isSameDay } from "date-fns";
+import { cloneDeep, last, pick } from "lodash";
 
 import {
-  Facility,
-  ModelInputs,
-  ReferenceFacility,
-} from "../../page-multi-facility/types";
+  compositeFacility,
+  countyName,
+  referenceFacility as referenceFacilityFixture,
+  stateName,
+  userFacility as userFacilityFixture,
+} from "../__fixtures__";
+import { Facility, ReferenceFacility } from "../../page-multi-facility/types";
 import { mergeFacilityObjects } from "../transforms";
 
 function getFindByDay(targetDate: Date) {
@@ -16,95 +19,10 @@ function getFindByDay(targetDate: Date) {
 describe("merged facility", () => {
   let userFacility: Facility;
   let referenceFacility: ReferenceFacility;
-  const stateName = "Florida";
-  const countyName = "Bay";
 
   beforeEach(() => {
-    const userHistory = [
-      {
-        observedAt: new Date(2020, 5, 1),
-        updatedAt: new Date(2020, 5, 10, 12, 0, 4),
-        stateName,
-        countyName,
-        ageUnknownCases: 10,
-        ageUnknownPopulation: 300,
-      },
-      {
-        observedAt: new Date(2020, 5, 5),
-        updatedAt: new Date(2020, 5, 5, 12, 0, 4),
-        stateName,
-        countyName,
-        ageUnknownCases: 22,
-        ageUnknownPopulation: 300,
-      },
-    ];
-
-    userFacility = {
-      id: "testFacilityId",
-      scenarioId: "testScenarioId",
-      name: "Test Facility",
-      createdAt: new Date(2020, 5, 5),
-      updatedAt: new Date(),
-      systemType: "State Prison",
-      modelInputs: last(userHistory) as ModelInputs,
-      modelVersions: userHistory,
-    };
-
-    referenceFacility = {
-      id: "testReferenceId",
-      stateName,
-      countyName,
-      canonicalName: "Florida State Test Facility",
-      facilityType: "State Prison",
-      capacity: [{ date: new Date(2020, 0, 1), value: 275 }],
-      population: [{ date: new Date(2020, 0, 1), value: 380 }],
-      covidCases: [
-        {
-          observedAt: new Date(2020, 4, 28),
-          popDeaths: 0,
-          popTestedPositive: 5,
-        },
-        {
-          observedAt: new Date(2020, 4, 29),
-          popDeaths: 0,
-          popTestedPositive: 6,
-        },
-        {
-          observedAt: new Date(2020, 5, 1),
-          popDeaths: 0,
-          popTestedPositive: 9,
-          popTested: 55,
-        },
-        {
-          observedAt: new Date(2020, 5, 3),
-          popDeaths: 0,
-          popTestedPositive: 14,
-          popTested: 55,
-          staffTestedPositive: 1,
-        },
-        {
-          observedAt: new Date(2020, 5, 4),
-          popDeaths: 0,
-          popTestedPositive: 19,
-          popTested: 80,
-          staffTestedPositive: 1,
-        },
-        {
-          observedAt: new Date(2020, 5, 5),
-          popDeaths: 1,
-          popTestedPositive: 22,
-          popTested: 80,
-          staffTestedPositive: 1,
-        },
-        {
-          observedAt: new Date(2020, 5, 7),
-          popDeaths: 1,
-          popTestedPositive: 28,
-          popTested: 91,
-          staffTestedPositive: 3,
-        },
-      ],
-    };
+    userFacility = cloneDeep(userFacilityFixture);
+    referenceFacility = cloneDeep(referenceFacilityFixture);
   });
 
   it("can be created from user data alone", () => {
@@ -122,17 +40,8 @@ describe("merged facility", () => {
 
     const merged = mergeFacilityObjects({ userFacility, referenceFacility });
 
-    // extra metadata properties we expect to carry over
-    const { canonicalName } = referenceFacility;
-
-    const userFacilityMetadata = omit(userFacility, [
-      "modelInputs",
-      "modelVersions",
-    ]);
-
     expect(merged).toEqual({
-      ...userFacilityMetadata,
-      canonicalName,
+      ...compositeFacility,
       modelInputs: last(merged.modelVersions),
       // the contents of this array are tested below
       modelVersions: expect.any(Array),
@@ -169,73 +78,7 @@ describe("merged facility", () => {
       referenceFacility: referenceFacility,
     });
 
-    // extra metadata properties we expect to carry over
-    const { canonicalName } = referenceFacility;
-
-    const userFacilityMetadata = omit(userFacility, [
-      "modelInputs",
-      "modelVersions",
-    ]);
-
-    expect(merged).toEqual({
-      ...userFacilityMetadata,
-      canonicalName,
-      modelInputs: last(merged.modelVersions),
-      // the contents of this array are tested below
-      modelVersions: expect.any(Array),
-    });
-
-    const referencePop = referenceFacility.population[0].value;
-    const referenceCapacity = referenceFacility.capacity[0].value;
-
-    expect(merged.modelVersions.length).toBe(7);
-
-    merged.modelVersions.forEach((mergedCase) => {
-      const hasMatchingDate = getFindByDay(mergedCase.observedAt);
-      const referenceCase = referenceFacility.covidCases.find(hasMatchingDate);
-      const userCase = userFacility.modelVersions.find(hasMatchingDate);
-      if (userCase) {
-        expect(mergedCase).toEqual(userCase);
-      } else if (referenceCase) {
-        let expectedPopulation: number;
-
-        const isOlderThanUserData =
-          differenceInCalendarDays(
-            userFacility.modelVersions[0].observedAt,
-            mergedCase.observedAt,
-          ) > 0;
-
-        const isBetweenUserRecords =
-          !isOlderThanUserData &&
-          differenceInCalendarDays(
-            userFacility.modelVersions[1].observedAt,
-            mergedCase.observedAt,
-          ) > 0;
-
-        if (isOlderThanUserData) {
-          expectedPopulation = referencePop;
-        } else if (isBetweenUserRecords) {
-          expectedPopulation = userFacility.modelVersions[0]
-            .ageUnknownPopulation as number;
-        } else {
-          expectedPopulation = userFacility.modelVersions[1]
-            .ageUnknownPopulation as number;
-        }
-
-        expect(mergedCase).toEqual({
-          observedAt: referenceCase.observedAt,
-          ageUnknownCases: referenceCase.popTestedPositive,
-          ageUnknownPopulation: expectedPopulation,
-          facilityCapacity: referenceCapacity,
-          isReference: true,
-          staffCases: referenceCase.staffTestedPositive,
-          stateName,
-          countyName,
-        });
-      } else {
-        throw new Error("no case found matching this date");
-      }
-    });
+    expect(merged).toEqual(compositeFacility);
   });
 
   it("should sort model versions chronologically", () => {
@@ -416,4 +259,9 @@ describe("merged facility", () => {
       ).toBeDefined();
     });
   });
+
+  it.todo("uses county name if missing");
+  it.todo(
+    "can handle there being no population data at all (same for staff or capacity)",
+  );
 });
