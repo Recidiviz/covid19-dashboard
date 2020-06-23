@@ -10,7 +10,12 @@ import ModalDialog from "../design-system/ModalDialog";
 import { useFacilities } from "../facilities-context";
 import useRejectionToast from "../hooks/useRejectionToast";
 import useScenario from "../scenario-context/useScenario";
-import { Facilities, Facility } from "./types";
+import {
+  Facilities,
+  Facility,
+  FacilityReferenceMapping,
+  ReferenceFacility,
+} from "./types";
 
 const ModalContent = styled.div`
   display: flex;
@@ -49,6 +54,10 @@ const TitleText = styled.h1`
   line-height: 22px;
   color: ${Colors.forest};
   font-family: "Libre Franklin";
+
+  &:nth-of-type(3) {
+    margin: 10px 0;
+  }
 `;
 
 const Row = styled.div`
@@ -66,9 +75,27 @@ const Row = styled.div`
 
 const Header = styled.h3`
   color: ${Colors.opacityForest};
+  flex: 1 1;
   font-family: "Poppins", sans serif;
   font-size: 9px;
   font-weight: 600;
+`;
+
+const HeaderRow = styled(Row)`
+  padding: 10px 0;
+  border-bottom: 0;
+`;
+
+const FacilityName = styled.div`
+  flex: 1 1;
+`;
+
+const FacilitySelectContainer = styled.div`
+  max-width: 300px;
+`;
+
+const Spacer = styled.span`
+  margin-right: 2em;
 `;
 
 // Send in the stateName/systemType to the title
@@ -79,7 +106,11 @@ const SyncDataTitle = (
       We've found new facility data - select a corresponding facility to
       autofill with case data
     </TitleText>
-    <TitleText>State: Idaho Type of System: State Prison</TitleText>
+    <TitleText>
+      State: Idaho
+      <Spacer />
+      Type of System: State Prison
+    </TitleText>
   </SyncDataTitleContainer>
 );
 
@@ -90,45 +121,67 @@ interface Props {
 
 const FacilitiesSelect: React.FC<{
   value: Facility["id"] | undefined;
+  selections: { [key in ReferenceFacility["id"]]: Facility["id"] };
   facilities: Facilities;
   onChange: (value: Facility["id"] | undefined) => void;
-}> = ({ value, facilities, onChange }) => {
+}> = ({ selections, value, facilities, onChange }) => {
+  const disabledOption = (facilityId: Facility["id"]) =>
+    Object.values(selections).includes(facilityId);
   return (
-    <InputSelect
-      onChange={(event) => {
-        console.log("onchange event", event.target.value);
-        onChange(event.target.value);
-      }}
-      value={value}
-      label={"Your facilities"}
-    >
-      {facilities.map((facility: Facility) => {
-        return (
-          <option key={facility.id} value={facility.id}>
-            facility.name
-          </option>
-        );
-      })}
-    </InputSelect>
+    <FacilitySelectContainer>
+      <InputSelect
+        onChange={(event) => {
+          console.log("onchange event", event.target.value);
+          const value = event.target.value;
+          onChange(value === "" ? undefined : value);
+        }}
+        value={value || ""}
+      >
+        <option value={""}>Select a facility</option>
+        {facilities.map((facility: Facility) => {
+          return (
+            <option
+              key={facility.id}
+              value={facility.id}
+              disabled={disabledOption(facility.id)}
+            >
+              {facility.name}
+            </option>
+          );
+        })}
+      </InputSelect>
+    </FacilitySelectContainer>
   );
+};
+
+const filterSyncedFacilities = (
+  syncedRefFacilities: FacilityReferenceMapping,
+) => {
+  return (facility: Facility) => {
+    return !Object.keys(syncedRefFacilities).includes(facility.id);
+  };
 };
 
 const ReSyncRefFacilityModal: React.FC<Props> = ({ open, onClose }) => {
   const rejectionToast = useRejectionToast();
-  const [mapping, setMapping] = useState<{
+  const [selections, setSelections] = useState<{
     [refFacilityId: string]: Facility["id"];
   }>({});
   const [scenarioState, dispatchScenarioUpdate] = useScenario();
   const scenario = scenarioState.data;
+  const syncedRefFacilities = scenario?.[referenceFacilitiesProp] || {};
+
   const {
     state: { facilities: facilitiesState, referenceFacilities },
   } = useFacilities();
 
-  const facilities = Object.values(facilitiesState);
+  const facilities = Object.values(facilitiesState).filter(
+    filterSyncedFacilities(syncedRefFacilities),
+  );
 
   async function handleSave() {
-    if (Object.keys(mapping)) {
-      const facilityIdToReferenceId = invert(mapping);
+    if (Object.keys(selections)) {
+      const facilityIdToReferenceId = invert(selections);
 
       await rejectionToast(
         saveScenario({
@@ -149,34 +202,39 @@ const ReSyncRefFacilityModal: React.FC<Props> = ({ open, onClose }) => {
   return (
     <ModalDialog open={open} title={SyncDataTitle}>
       <ModalContent>
-        <Row>
+        <HeaderRow>
           <Header>Facilities with available prepopulated data</Header>
           <Header>Your facilities</Header>
-        </Row>
-        {Object.values(referenceFacilities).map((refFacility) => (
-          <>
-            <Row>
-              {refFacility.canonicalName}
+        </HeaderRow>
+        {Object.values(referenceFacilities).map((refFacility) => {
+          return (
+            <Row key={refFacility.id}>
+              <FacilityName>{refFacility.canonicalName}</FacilityName>
               <FacilitiesSelect
+                selections={selections}
                 facilities={facilities}
-                value={mapping[refFacility.id]}
+                value={selections[refFacility.id]}
                 onChange={(facilityId) => {
                   if (facilityId) {
-                    setMapping({
-                      ...mapping,
+                    setSelections({
+                      ...selections,
                       [refFacility.id]: facilityId,
                     });
+                  } else {
+                    const selectionsCopy = { ...selections };
+                    delete selectionsCopy[refFacility.id];
+                    setSelections(selectionsCopy);
                   }
                 }}
               />
             </Row>
-          </>
-        ))}
+          );
+        })}
       </ModalContent>
       <ModalFooter>
         <CancelButton onClick={onClose}>Not now</CancelButton>
         <SaveButton
-          disabled={!!Object.keys(mapping).length}
+          disabled={!Object.keys(selections).length}
           onClick={handleSave}
         >
           Save
