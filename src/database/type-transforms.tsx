@@ -6,11 +6,13 @@ import { PlannedRelease } from "../impact-dashboard/EpidemicModelContext";
 import {
   Facility,
   ModelInputs,
+  PERSISTED_FACILITY_KEYS,
   ReferenceFacility,
   ReferenceFacilityCovidCase,
   Scenario,
   User,
 } from "../page-multi-facility/types";
+import { FacilityDocUpdate } from "./types";
 
 const timestampToDate = (timestamp: firebase.firestore.Timestamp): Date => {
   return timestamp.toDate();
@@ -59,17 +61,33 @@ export const buildModelInputs = (document: any): ModelInputs => {
 export const buildFacility = (
   scenarioId: string,
   document: firebase.firestore.DocumentData,
+  modelVersions?: ModelInputs[],
 ): Facility => {
   const documentData = document.data();
 
-  let facility: Facility = documentData;
-  facility.id = document.id;
-  facility.scenarioId = scenarioId;
-  facility.createdAt = timestampToDate(documentData.createdAt);
-  facility.updatedAt = timestampToDate(documentData.updatedAt);
-  facility.modelInputs = buildModelInputs(documentData.modelInputs);
+  let { name, description, systemType } = documentData;
+  const id = document.id;
+  const createdAt = timestampToDate(documentData.createdAt);
+  const updatedAt = timestampToDate(documentData.updatedAt);
+  const modelInputs = buildModelInputs(documentData.modelInputs);
 
-  return facility;
+  return {
+    createdAt,
+    description,
+    id,
+    modelInputs,
+    name,
+    scenarioId,
+    systemType,
+    updatedAt,
+    modelVersions: modelVersions || [],
+  };
+};
+
+export const buildFacilityDocUpdate = (
+  facility: Partial<Facility>,
+): FacilityDocUpdate => {
+  return pick(facility, PERSISTED_FACILITY_KEYS);
 };
 
 export const buildScenario = (
