@@ -8,6 +8,10 @@ import { getRtDataForFacility } from "../infection-model/rt";
 import { useLocaleDataState } from "../locale-data-context";
 import FacilityRow from "./FacilityRow";
 import FacilityRowPlaceholder from "./FacilityRowPlaceholder";
+import {
+  useChartDataFromProjectionData,
+  useProjectionData,
+} from "./projectionCurveHooks";
 import { Facility, RtValue, Scenario } from "./types";
 
 const FacilityChart: React.FC<{
@@ -18,6 +22,7 @@ const FacilityChart: React.FC<{
     firstFacilityRtData,
     setFirstFacilityRtData,
   ] = useState<RtValue | null>();
+
   const { data: localeDataSource } = useLocaleDataState();
 
   const handleFacilitySave = (facility: Facility) => {
