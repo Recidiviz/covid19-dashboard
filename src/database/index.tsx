@@ -1,6 +1,6 @@
 // the core Firebase SDK must be imported before other Firebase modules
 // eslint-disable-next-line simple-import-sort/sort
-import * as firebase from "firebase/app";
+import firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
 
@@ -156,6 +156,7 @@ export const SCENARIO_DEFAULTS = {
   dataSharing: false,
   promoStatuses: {},
   baselinePopulations: [],
+  referenceDataObservedAt: undefined,
   [referenceFacilitiesProp]: {},
 };
 
@@ -191,9 +192,7 @@ const getScenarioRef = async (
   try {
     const db = await getDb();
 
-    const scenarioRef = await db
-      .collection(scenariosCollectionId)
-      .doc(scenarioId);
+    const scenarioRef = db.collection(scenariosCollectionId).doc(scenarioId);
 
     return scenarioRef;
   } catch (error) {

@@ -50,6 +50,7 @@ export type Scenario = {
   roles: {
     [key: string]: "owner" | "viewer";
   };
+  referenceDataObservedAt: Date | undefined;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -109,6 +110,7 @@ export type ReferenceFacility = {
   capacity: SimpleTimeseries[];
   population: SimpleTimeseries[];
   covidCases: ReferenceFacilityCovidCase[];
+  createdAt: Date;
   // various other metadata that we don't explicitly care about may also be present
   [key: string]: unknown;
 };
