@@ -107,7 +107,7 @@ export type ReferenceFacilityCovidCase = {
 export type ReferenceFacility = {
   id: string;
   stateName: string;
-  countyName: string;
+  countyName?: string;
   canonicalName: string;
   facilityType: string;
   capacity: SimpleTimeseries[];

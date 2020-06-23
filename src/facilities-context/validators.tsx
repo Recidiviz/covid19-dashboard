@@ -1,5 +1,5 @@
 import { differenceInCalendarDays } from "date-fns";
-import { maxBy } from "lodash";
+import { has, maxBy } from "lodash";
 
 import { validateCumulativeCases } from "../infection-model/validators";
 import { ModelInputs } from "../page-multi-facility/types";
@@ -26,6 +26,29 @@ const removeNonsenseCases: SingleDayValidator = (modelInputs) => {
     }
   }
   return modelInputs;
+};
+
+const requirePopulation: SingleDayValidator = (modelInputs) => {
+  const validInputs = modelInputs ? { ...modelInputs } : null;
+  if (validInputs?.isReference) {
+    // cases without population should be removed
+    if (validInputs.ageUnknownPopulation === undefined) {
+      delete validInputs.ageUnknownCases;
+      delete validInputs.ageUnknownPopulation;
+    }
+    if (validInputs.staffPopulation === undefined) {
+      delete validInputs.staffCases;
+      delete validInputs.staffPopulation;
+    }
+    // if there are are now no cases at all, kill the record entirely
+    if (
+      !has(validInputs, "ageUnknownCases") &&
+      !has(validInputs, "staffCases")
+    ) {
+      return null;
+    }
+  }
+  return validInputs;
 };
 
 const getPrecedingVersion = (
@@ -87,7 +110,7 @@ export function validateMergedModelVersions(
 ): ModelInputs[] {
   let validVersions = [...modelVersions];
 
-  const singleDayValidators = [removeNonsenseCases];
+  const singleDayValidators = [removeNonsenseCases, requirePopulation];
   const historyValidators = [ensureCasesIncreaseMonotonically];
 
   for (const fn of singleDayValidators) {

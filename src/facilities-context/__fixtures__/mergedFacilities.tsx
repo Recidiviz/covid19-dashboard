@@ -107,7 +107,6 @@ export const compositeFacility: Facility = {
       stateName,
       countyName,
       facilityCapacity: referenceFacility.capacity[0].value,
-      staffPopulation: undefined,
     },
     {
       observedAt: new Date(2020, 4, 29),
@@ -117,7 +116,6 @@ export const compositeFacility: Facility = {
       stateName,
       countyName,
       facilityCapacity: referenceFacility.capacity[0].value,
-      staffPopulation: undefined,
     },
     userHistory[0],
     {
@@ -128,19 +126,15 @@ export const compositeFacility: Facility = {
       stateName,
       countyName,
       facilityCapacity: referenceFacility.capacity[0].value,
-      staffPopulation: undefined,
-      staffCases: 1,
     },
     {
       observedAt: new Date(2020, 5, 4),
       ageUnknownCases: 19,
       ageUnknownPopulation: userHistory[0].ageUnknownPopulation,
-      staffCases: 1,
       isReference: true,
       stateName,
       countyName,
       facilityCapacity: referenceFacility.capacity[0].value,
-      staffPopulation: undefined,
     },
     userHistory[1],
     {
@@ -151,8 +145,6 @@ export const compositeFacility: Facility = {
       stateName,
       countyName,
       facilityCapacity: referenceFacility.capacity[0].value,
-      staffPopulation: undefined,
-      staffCases: 3,
     },
   ],
   modelInputs: {
@@ -163,7 +155,5 @@ export const compositeFacility: Facility = {
     stateName,
     countyName,
     facilityCapacity: referenceFacility.capacity[0].value,
-    staffPopulation: undefined,
-    staffCases: 3,
   },
 };

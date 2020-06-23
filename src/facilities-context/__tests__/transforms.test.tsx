@@ -64,8 +64,6 @@ describe("merged facility", () => {
         ageUnknownPopulation: referencePop,
         facilityCapacity: referenceCapacity,
         isReference: true,
-        staffCases: referenceCase?.staffTestedPositive,
-        staffPopulation: undefined,
         stateName,
         countyName,
       });
@@ -168,6 +166,13 @@ describe("merged facility", () => {
     expect(merged.modelInputs.isReference).toBe(true);
   });
 
+  it("uses user specified county name when missing from reference", () => {
+    delete referenceFacility.countyName;
+
+    const merged = mergeFacilityObjects({ userFacility, referenceFacility });
+    expect(merged).toEqual(compositeFacility);
+  });
+
   describe("validation", () => {
     it("should reject reference days with nonsensical case values", () => {
       const testRecord = referenceFacility.covidCases[0];
@@ -258,10 +263,19 @@ describe("merged facility", () => {
         ),
       ).toBeDefined();
     });
-  });
 
-  it.todo("uses county name if missing");
-  it.todo(
-    "can handle there being no population data at all (same for staff or capacity)",
-  );
+    it("discards all history if there is no population data", () => {
+      referenceFacility.population = [];
+      const userInputsNoData = { ...userFacility.modelInputs };
+      delete userInputsNoData.ageUnknownCases;
+      delete userInputsNoData.ageUnknownPopulation;
+      userFacility.modelInputs = userInputsNoData;
+      userFacility.modelVersions = [userInputsNoData];
+
+      const merged = mergeFacilityObjects({ userFacility, referenceFacility });
+
+      expect(merged.modelInputs).toEqual(userInputsNoData);
+      expect(merged.modelVersions).toEqual([]);
+    });
+  });
 });
