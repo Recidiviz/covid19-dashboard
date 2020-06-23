@@ -65,7 +65,7 @@ const FormHeaderRow: React.FC<FormHeaderRowProps> = (props) => (
   </LabelRow>
 );
 
-const passedAgesKnown = (model: Record<string, any> | undefined) => {
+const pastAgesKnown = (model: Record<string, any> | undefined) => {
   if (model !== undefined) {
     let keys = Object.keys(model);
     return keys.some(function (key) {
@@ -76,7 +76,7 @@ const passedAgesKnown = (model: Record<string, any> | undefined) => {
   }
 };
 
-const passedAgesUnknown = (model: Record<string, any> | undefined) => {
+const pastAgesUnknown = (model: Record<string, any> | undefined) => {
   if (model !== undefined) {
     let keys = Object.keys(model);
     return keys.some(function (key) {
@@ -84,19 +84,6 @@ const passedAgesUnknown = (model: Record<string, any> | undefined) => {
     });
   } else {
     return true;
-  }
-};
-
-const collapseAgeInputs = (model: Record<string, any> | undefined) => {
-  if (passedAgesKnown(model)) {
-    return false;
-  } else if (
-    passedAgesKnown(model) === false &&
-    passedAgesUnknown(model) === true
-  ) {
-    return true;
-  } else {
-    return false;
   }
 };
 
@@ -112,9 +99,22 @@ export const AgeGroupGrid: React.FC<AgeGroupGridProps> = ({
 }) => {
   const [collapsed, setCollapsed] = useState(collapsible);
 
+  const collapseAgeInputs = () => {
+    if (pastAgesKnown(props.model)) {
+      return false;
+    } else if (
+      pastAgesKnown(props.model) === false &&
+      pastAgesUnknown(props.model) === true
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
   useEffect(() => {
-    setCollapsed(collapseAgeInputs(props.model));
-  }, [props.model]);
+    setCollapsed(collapseAgeInputs());
+  }, []);
 
   const ageSpecificCaseCounts = (
     <>
