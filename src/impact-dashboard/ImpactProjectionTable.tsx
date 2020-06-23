@@ -15,7 +15,7 @@ export interface TableRow {
 interface Props {
   incarceratedData: TableRow[];
   peakData: TableRow[];
-  staffData: TableRow[];
+  staffData?: TableRow[] | undefined;
 }
 
 const Table = styled.table`
@@ -141,17 +141,19 @@ const ImpactProjectionTable: React.FC<Props> = ({
         </tr>
         {staffData.map((row) => makeTableRow(row))}
       </TableSection>
-      <TableSection>
-        <tr>
-          <HeadingCell left scope="rowgroup">
-            Maximum utilization
-          </HeadingCell>
-        </tr>
-        {peakData.map((row, i) => {
-          const formatter = i === 0 ? formatPct : undefined;
-          return makeOverallOnlyRow(row, formatter);
-        })}
-      </TableSection>
+      { peakData &&
+        <TableSection>
+          <tr>
+            <HeadingCell left scope="rowgroup">
+              Maximum utilization
+            </HeadingCell>
+          </tr>
+          {peakData.map((row, i) => {
+            const formatter = i === 0 ? formatPct : undefined;
+            return makeOverallOnlyRow(row, formatter);
+          })}
+        </TableSection>
+      }
     </Table>
   );
 };

@@ -13,7 +13,7 @@ import { seirIndex } from "../infection-model/seir";
 import { useEpidemicModelState } from "./EpidemicModelContext";
 import ImpactProjectionTable, { TableRow } from "./ImpactProjectionTable";
 
-function buildTableRowFromCurves(
+export function buildTableRowFromCurves(
   data: ndarray,
   label: string,
   calculator: Function,
@@ -102,42 +102,43 @@ function buildHospitalizedRow(data: ndarray): TableRow {
   return row;
 }
 
-const ImpactProjectionTableContainer: React.FC<{
-  projectionData?: CurveData;
-}> = ({ projectionData }) => {
-  const { hospitalBeds } = useEpidemicModelState();
+export function buildStaffData(staff, showHospitalizedRow = true) {
+  const staffHospitalized = buildHospitalizedRow(staff)
+  const staffData: TableRow[] = [
+    buildTableRowFromCurves(staff, "Cases", countCasesForDay),
+    Object.assign(
+      buildTableRowFromCurves(staff, "Unable to work", countUnableToWorkForDay),
+      { overall: null },
+    ),
+  ];
+  showHospitalizedRow && staffData.push(staffHospitalized);
+  staffData.push(
+    buildTableRowFromCurves(staff, "Fatalities", getFatalitiesForDay)
+  );
+  return staffData
+}
 
-  if (!projectionData) return <Loading />;
-
-  const { incarcerated, staff } = projectionData;
+export function buildIncarceratedData(incarcerated, hospitalBeds = null) {
   const incarceratedData: TableRow[] = [
     buildTableRowFromCurves(incarcerated, "Cases", countCasesForDay),
   ];
   const incarceratedHospitalized = buildHospitalizedRow(incarcerated);
 
   incarceratedData.push(incarceratedHospitalized);
-  incarceratedData.push({
+  hospitalBeds && incarceratedData.push({
     label: "% of public hospital beds used for incarc. pop.",
-    // none of these numbers are null unless explicitly set,
-    // which we haven't done
     week1: (incarceratedHospitalized.week1 as number) / hospitalBeds,
     week2: (incarceratedHospitalized.week2 as number) / hospitalBeds,
     week3: (incarceratedHospitalized.week3 as number) / hospitalBeds,
     overall: null,
   });
   incarceratedData.push(
-    buildTableRowFromCurves(incarcerated, "Deceased", getFatalitiesForDay),
+    buildTableRowFromCurves(incarcerated, "Fatalities", getFatalitiesForDay),
   );
+  return incarceratedData;
+}
 
-  const staffData: TableRow[] = [
-    buildTableRowFromCurves(staff, "Infected", countCasesForDay),
-    Object.assign(
-      buildTableRowFromCurves(staff, "Unable to work", countUnableToWorkForDay),
-      { overall: null },
-    ),
-    buildHospitalizedRow(staff),
-    buildTableRowFromCurves(staff, "Deceased", getFatalitiesForDay),
-  ];
+function buildPeakData(incarcerated, hospitalBeds) {
   const peakStats = getPeakHospitalized(incarcerated, hospitalBeds);
   const peakData: TableRow[] = [
     // TODO: dynamically indicate if this is for state or county
@@ -158,6 +159,20 @@ const ImpactProjectionTableContainer: React.FC<{
     week3: null,
     overall: value,
   }));
+  return peakData;
+}
+
+const ImpactProjectionTableContainer: React.FC<{
+  projectionData?: CurveData;
+}> = ({ projectionData }) => {
+  if (!projectionData) return <Loading />;
+  const { hospitalBeds } = useEpidemicModelState();
+
+  const { incarcerated, staff } = projectionData;
+
+  const incarceratedData = buildIncarceratedData(incarcerated, hospitalBeds)
+  const staffData = buildStaffData(staff)
+  const peakData = buildPeakData(incarcerated, hospitalBeds)
 
   return (
     <ImpactProjectionTable {...{ incarceratedData, staffData, peakData }} />
