@@ -17,6 +17,7 @@ import FacilityRow from "./FacilityRow";
 import FacilityRowPlaceholder from "./FacilityRowPlaceholder";
 import ProjectionsHeader from "./ProjectionsHeader";
 import RateOfSpreadPanel from "./RateOfSpreadPanel";
+import ReSyncRefFacilityModal from "./ReSyncRefFacilityModal";
 import ScenarioSidebar from "./ScenarioSidebar";
 import SystemSummary from "./SystemSummary";
 import { Facility } from "./types";
@@ -77,6 +78,7 @@ const MultiFacilityImpactDashboard: React.FC = () => {
   const rejectionToast = useRejectionToast();
   const showRateOfSpreadTab = useFlag(["showRateOfSpreadTab"]);
   const { data: localeDataSource } = useLocaleDataState();
+  const [syncModalOpen, setSyncModalOpen] = useState(true);
   const [scenario] = useScenario();
   const scenarioId = scenario?.data?.id;
   const {
@@ -170,6 +172,10 @@ const MultiFacilityImpactDashboard: React.FC = () => {
           />
         )}
       </div>
+      <ReSyncRefFacilityModal
+        open={syncModalOpen}
+        onClose={() => setSyncModalOpen(false)}
+      />
     </MultiFacilityImpactDashboardContainer>
   );
 };
