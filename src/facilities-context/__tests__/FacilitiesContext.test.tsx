@@ -4,7 +4,7 @@ jest.mock("../../feature-flags");
 
 import { renderHook } from "@testing-library/react-hooks";
 import JestMockPromise from "jest-mock-promise";
-import { cloneDeep, noop } from "lodash";
+import { cloneDeep, isEmpty, noop } from "lodash";
 import React from "react";
 import { mocked } from "ts-jest/utils";
 
@@ -86,7 +86,7 @@ describe("FacilitiesContext", () => {
   });
 
   it("does not use reference data when feature is toggled off", async () => {
-    const { result, rerender, waitForNextUpdate } = getTestHook();
+    const { result, rerender, wait } = getTestHook();
     expect(result.current.state.facilities).toEqual({});
 
     mockedUseScenario.mockReturnValue([
@@ -97,6 +97,7 @@ describe("FacilitiesContext", () => {
       },
       noop,
     ]);
+
     mockedGetFacilities.mockResolvedValue([cloneDeep(userFacility)]);
 
     mockedGetReferenceFacilities.mockResolvedValue([
@@ -105,7 +106,7 @@ describe("FacilitiesContext", () => {
 
     rerender();
 
-    await waitForNextUpdate();
+    await wait(() => !isEmpty(result.current.state.facilities));
 
     expect(result.current.state.facilities).toEqual({
       [userFacility.id]: userFacility,
@@ -113,7 +114,7 @@ describe("FacilitiesContext", () => {
   });
 
   it("waits for reference facilities to load before updating facilities", async () => {
-    const { result, rerender, waitForNextUpdate } = getTestHook();
+    const { result, rerender, waitForValueToChange } = getTestHook();
     expect(result.current.state.facilities).toEqual({});
 
     mockedUseScenario.mockReturnValue([
@@ -137,7 +138,9 @@ describe("FacilitiesContext", () => {
 
     mockReferencePromise.resolve([cloneDeep(referenceFacility)]);
 
-    await waitForNextUpdate();
+    rerender();
+
+    await waitForValueToChange(() => result.current.state.facilities);
 
     expect(result.current.state.facilities).toEqual({
       [userFacility.id]: compositeFacility,
