@@ -136,7 +136,7 @@ def persist(facilities):
             # For new reference facility documents, set a createdAt timestamp.  This allows
             # us to know which reference facilities are "new" from the perspective of a given
             # user.
-            if (not existing_reference_facility):
+            if not existing_reference_facility:
                 facility['createdAt'] = firestore.SERVER_TIMESTAMP
 
             # Remove the Covid case data so that it can be stored separately in its own
