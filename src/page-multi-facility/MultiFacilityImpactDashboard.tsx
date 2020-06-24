@@ -90,12 +90,10 @@ const MultiFacilityImpactDashboard: React.FC = () => {
     state: facilitiesState,
     actions: { createOrUpdateFacility, deselectFacility },
   } = useFacilities();
-  const facilities = Object.values(facilitiesState.facilities);
+  const facilities = Object.values(facilitiesState.facilities) || [];
   const rtData = getFacilitiesRtDataById(facilitiesState.rtData, facilities);
-  const {
-    systemType,
-    modelInputs: { stateName },
-  } = facilities?.[0];
+  const systemType = facilities[0]?.systemType;
+  const stateName = facilities[0]?.modelInputs.stateName;
 
   const newlyAddedReferenceData =
     !scenario?.referenceDataObservedAt ||
