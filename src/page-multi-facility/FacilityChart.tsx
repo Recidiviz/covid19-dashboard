@@ -50,9 +50,7 @@ const FacilityChart: React.FC<{
         const facilityRtData = await getRtDataForFacility(facility);
         if (mounted) {
           setFacility(facility);
-          if (facilityRtData) {
-            setFacilityRtData(facilityRtData);
-          }
+          setFacilityRtData(facilityRtData);
         }
       }
     }
