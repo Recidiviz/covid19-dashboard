@@ -132,7 +132,7 @@ def compute_r_t(historical_case_counts):
     # we need at least two days to represent change over time
     if len(smoothed) < 2:
         raise ValueError('Not enough data to compute R(t);'
-            ' at least two days of non-repeating case counts are required')
+            ' at least two days of data are required')
 
     # Note that we're fixing sigma to a value just for the example
     posteriors, _ = get_posteriors(smoothed, sigma=.25)
