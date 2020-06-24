@@ -139,7 +139,7 @@ const useAddCasesInputs = (
     // unlike the local state handlers
     await rejectionToast(
       actions
-        .createOrUpdateFacility(facility.scenarioId, {
+        .createOrUpdateFacility({
           id: facility.id,
           modelInputs: newInputs,
         })

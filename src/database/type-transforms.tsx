@@ -12,6 +12,7 @@ import {
   Scenario,
   User,
 } from "../page-multi-facility/types";
+import { referenceFacilitiesProp } from ".";
 import { FacilityDocUpdate } from "./types";
 
 const timestampToDate = (timestamp: firebase.firestore.Timestamp): Date => {
@@ -131,6 +132,10 @@ export const buildScenario = (
     }
   });
 
+  // this is a newer field that isn't guaranteed to exist in storage;
+  // provide a default here because it's required by the type definition
+  scenario[referenceFacilitiesProp] = scenario[referenceFacilitiesProp] || {};
+
   return scenario;
 };
 
@@ -173,22 +178,31 @@ export const buildReferenceFacility = (
     value: record.value,
   });
 
+  // NOTE: there are other fields that may be present in the document;
+  // as they are added to the ReferenceFacility type they should be handled here
   let {
     stateName,
     canonicalName,
     facilityType,
     capacity,
     population,
+    countyName,
     createdAt,
-    ...other
   } = data;
 
-  // cast known types
+  // do some explicit type casts for safety
+
+  // we don't expect these fields to ever be missing from the document;
+  // bad things will result if they are
   stateName = String(stateName);
   canonicalName = String(canonicalName);
   facilityType = String(facilityType);
+  countyName = String(countyName);
   createdAt = timestampToDate(data.createdAt);
-  // if these are not arrays then unfortunately they are garbage
+
+  // if these are not arrays then unfortunately they are garbage;
+  // this probably means the documents have been mangled somehow,
+  // it is not an expected case
   if (!Array.isArray(capacity)) {
     capacity = [];
   }
@@ -202,12 +216,12 @@ export const buildReferenceFacility = (
   return {
     id: facilityDocument.id,
     stateName,
+    countyName,
     canonicalName,
     facilityType,
     capacity,
     population,
     createdAt,
     covidCases: facilityCovidCaseDocuments.map(buildCovidCase),
-    ...other,
   };
 };
