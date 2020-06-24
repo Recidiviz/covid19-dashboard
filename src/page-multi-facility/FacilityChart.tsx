@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import { getFacilities } from "../database";
@@ -28,43 +28,31 @@ const LoadingWrapper = styled.div`
   align-content: center;
 `;
 
+interface FacilityChartProps {
+  facility: Facility | undefined;
+  facilityRtData: RtValue | undefined;
+}
+
 const FacilityChart: React.FC<{
   scenarioId: string;
-}> = ({ scenarioId }) => {
-  const [firstFacility, setFirstFacility] = useState<Facility | null>();
-  const [firstFacilityRtData, setFirstFacilityRtData] = useState<
-    RtValue | undefined
-  >();
+  indexOfFacility: number;
+}> = ({ scenarioId, indexOfFacility }) => {
+  const [facility, setFacility] = useState<Facility | undefined>();
+  const [facilityRtData, setFacilityRtData] = useState<RtValue | undefined>();
   const { data: localeDataSource } = useLocaleDataState();
-
-  //   const fetchFacility = useCallback(async () => {
-  //     const facilities = await getFacilities(scenarioId);
-  //     let firstFacility = null;
-  //     let firstFacilityRtData = null;
-  //     if (facilities) {
-  //         firstFacility = facilities.[0];
-  //         firstFacilityRtData = await getRtDataForFacility(firstFacility);
-  //     }
-  //     if (firstFacility) {
-  //     //   setFirstFacility(firstFacility);
-  //     //   setFirstFacilityRtData(firstFacilityRtData);
-  //     }
-  //   }, []);
 
   useEffect(() => {
     let mounted = true;
     async function fetchFacility() {
       const facilities = await getFacilities(scenarioId);
-      let firstFacility = null;
-      let firstFacilityRtData = null;
       if (facilities) {
-        firstFacility = facilities?.[0];
-        firstFacilityRtData = await getRtDataForFacility(firstFacility);
-      }
-      if (mounted) {
-        setFirstFacility(firstFacility);
-        if (firstFacilityRtData) {
-          setFirstFacilityRtData(firstFacilityRtData);
+        const facility = facilities[indexOfFacility];
+        const facilityRtData = await getRtDataForFacility(facility);
+        if (mounted) {
+          setFacility(facility);
+          if (facilityRtData) {
+            setFacilityRtData(facilityRtData);
+          }
         }
       }
     }
@@ -74,7 +62,7 @@ const FacilityChart: React.FC<{
     };
   }, []);
 
-  const FacilityChartWrapper = (props: any) => {
+  const FacilityChartWrapper = (props: FacilityChartProps) => {
     const [model] = useModel();
     const latestRt = isRtData(props.facilityRtData)
       ? getNewestRt(props.facilityRtData.Rt)?.value
@@ -104,14 +92,14 @@ const FacilityChart: React.FC<{
 
   return (
     <>
-      {firstFacility && firstFacilityRtData ? (
+      {facility && facilityRtData ? (
         <EpidemicModelProvider
-          facilityModel={firstFacility?.modelInputs}
+          facilityModel={facility?.modelInputs}
           localeDataSource={localeDataSource}
         >
           <FacilityChartWrapper
-            facility={firstFacility}
-            facilityRtData={firstFacilityRtData}
+            facility={facility}
+            facilityRtData={facilityRtData}
           />
         </EpidemicModelProvider>
       ) : (

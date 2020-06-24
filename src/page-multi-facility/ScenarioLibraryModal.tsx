@@ -71,13 +71,6 @@ const ScenarioHeaderText = styled.h1`
   white-space: nowrap;
 `;
 
-const ScenarioDataViz = styled.div`
-  color: ${Colors.opacityGray};
-  display: flex;
-  height: 45%;
-  background-color: ${Colors.gray};
-`;
-
 const ScenarioDescription = styled.div`
   color: ${Colors.opacityForest};
   font-family: "Poppins";
@@ -135,12 +128,6 @@ const IconCheck = styled.img<IconCheckProps>`
   width: 20px;
   height: 20px;
   margin-right: 8px;
-`;
-
-const IconRecidviz = styled.img`
-  width: 50px;
-  height: 50px;
-  margin: auto;
 `;
 
 const DeleteModalContents = styled.div`
@@ -331,10 +318,7 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
                     />
                     <ScenarioHeaderText>{scenario.name}</ScenarioHeaderText>
                   </ScenarioHeader>
-                  <FacilityChart scenarioId={scenario.id} />
-                  {/* <ScenarioDataViz>
-                    <IconRecidviz alt="Recidiviz" src={iconSrcRecidiviz} />
-                  </ScenarioDataViz> */}
+                  <FacilityChart scenarioId={scenario.id} indexOfFacility={0} />
                   <ScenarioDescription>
                     {scenario.description}
                   </ScenarioDescription>
