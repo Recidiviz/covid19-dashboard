@@ -15,7 +15,6 @@ import useCurrentUserId from "../hooks/useCurrentUserId";
 import useRejectionToast from "../hooks/useRejectionToast";
 import useScenario from "../scenario-context/useScenario";
 import CreateNewScenarioModal from "../scenario-create-new/CreateNewScenarioModal";
-import FacilityChart from "./FacilityChart";
 import { Scenario } from "./types";
 
 const ModalContents = styled.div`
@@ -331,10 +330,9 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
                     />
                     <ScenarioHeaderText>{scenario.name}</ScenarioHeaderText>
                   </ScenarioHeader>
-                  <FacilityChart scenarioId={scenario.id} />
-                  {/* <ScenarioDataViz>
+                  <ScenarioDataViz>
                     <IconRecidviz alt="Recidiviz" src={iconSrcRecidiviz} />
-                  </ScenarioDataViz> */}
+                  </ScenarioDataViz>
                   <ScenarioDescription>
                     {scenario.description}
                   </ScenarioDescription>
