@@ -14,6 +14,7 @@ import {
 } from "../infection-model/rt";
 import { useLocaleDataState } from "../locale-data-context";
 import { initialPublicCurveToggles } from "./curveToggles";
+import FacilityRowRtValuePill from "./FacilityRowRtValuePill";
 import {
   useChartDataFromProjectionData,
   useProjectionData,
@@ -31,10 +32,9 @@ const FacilityChart: React.FC<{
   scenarioId: string;
 }> = ({ scenarioId }) => {
   const [firstFacility, setFirstFacility] = useState<Facility | null>();
-  const [
-    firstFacilityRtData,
-    setFirstFacilityRtData,
-  ] = useState<RtValue | null>();
+  const [firstFacilityRtData, setFirstFacilityRtData] = useState<
+    RtValue | undefined
+  >();
   const { data: localeDataSource } = useLocaleDataState();
 
   //   const fetchFacility = useCallback(async () => {
@@ -61,12 +61,14 @@ const FacilityChart: React.FC<{
         firstFacility = facilities?.[0];
         firstFacilityRtData = await getRtDataForFacility(firstFacility);
       }
-      setFirstFacility(firstFacility);
-      setFirstFacilityRtData(firstFacilityRtData);
+      if (mounted) {
+        setFirstFacility(firstFacility);
+        if (firstFacilityRtData) {
+          setFirstFacilityRtData(firstFacilityRtData);
+        }
+      }
     }
-    if (mounted) {
-      fetchFacility();
-    }
+    fetchFacility();
     return () => {
       mounted = false;
     };
@@ -74,13 +76,19 @@ const FacilityChart: React.FC<{
 
   const FacilityChartWrapper = (props: any) => {
     const [model] = useModel();
+    const latestRt = isRtData(props.facilityRtData)
+      ? getNewestRt(props.facilityRtData.Rt)?.value
+      : props.facilityRtData;
     const chartData = useChartDataFromProjectionData(
       useProjectionData(model, true, props.facilityRtData),
     );
 
     return (
       <>
-        <div>
+        <div className="relative">
+          {props.facilityRtData !== undefined && (
+            <FacilityRowRtValuePill latestRt={latestRt} />
+          )}
           <CurveChartContainer
             curveData={chartData}
             chartHeight={144}
@@ -96,7 +104,7 @@ const FacilityChart: React.FC<{
 
   return (
     <>
-      {(firstFacility && firstFacilityRtData) ? (
+      {firstFacility && firstFacilityRtData ? (
         <EpidemicModelProvider
           facilityModel={firstFacility?.modelInputs}
           localeDataSource={localeDataSource}
