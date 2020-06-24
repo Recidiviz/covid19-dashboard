@@ -7,7 +7,11 @@ import useRejectionToast from "../hooks/useRejectionToast";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
 import useModel from "../impact-dashboard/useModel";
-import { getRtDataForFacility } from "../infection-model/rt";
+import {
+  getNewestRt,
+  getRtDataForFacility,
+  isRtData,
+} from "../infection-model/rt";
 import { useLocaleDataState } from "../locale-data-context";
 import { initialPublicCurveToggles } from "./curveToggles";
 import FacilityRow from "./FacilityRow";
@@ -43,9 +47,21 @@ const FacilityChart: React.FC<{
     }
   }, []);
 
+  //   useEffect(() => {
+  //       let isMounted = true;
+  //     if (isMounted) {
+  //         fetchFacility();
+  //     }
+  //     return () => isMounted = false
+  //   }, [fetchFacility]);
+
   useEffect(() => {
-    fetchFacility();
-  }, [fetchFacility]);
+    let isMounted = true;
+    if (isMounted) {
+      fetchFacility();
+    }
+    isMounted = false;
+  }, []);
 
   const FacilityChartWrapper = (props: any) => {
     const [model] = useModel();
@@ -56,9 +72,6 @@ const FacilityChart: React.FC<{
     return (
       <>
         <div>
-          {/* {props.facilityRtData !== undefined && (
-        <FacilityRowRtValuePill latestRt={latestRt} />
-        )} */}
           <CurveChartContainer
             curveData={chartData}
             chartHeight={144}
@@ -75,27 +88,18 @@ const FacilityChart: React.FC<{
   return (
     <>
       {firstFacility && firstFacilityRtData ? (
-        <FacilityRowPlaceholder key={firstFacility?.id}>
-          <EpidemicModelProvider
-            facilityModel={firstFacility?.modelInputs}
-            localeDataSource={localeDataSource}
-          >
-            <FacilityChartWrapper
-              facility={firstFacility}
-              facilityRtData={firstFacilityRtData}
-            />
-
-            {/* <FacilityRow
-              facility={firstFacility}
-              facilityRtData={firstFacilityRtData}
-              onSave={handleFacilitySave}
-            /> */}
-          </EpidemicModelProvider>
-        </FacilityRowPlaceholder>
+        <EpidemicModelProvider
+          facilityModel={firstFacility?.modelInputs}
+          localeDataSource={localeDataSource}
+        >
+          <FacilityChartWrapper
+            facility={firstFacility}
+            facilityRtData={firstFacilityRtData}
+          />
+        </EpidemicModelProvider>
       ) : (
-        <Loading />
+        <Loading styles={{ minHeight: 100, paddingBottom: 100 }} />
       )}
-      ;
     </>
   );
 };
