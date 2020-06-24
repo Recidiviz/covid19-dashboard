@@ -11,7 +11,7 @@ import {
   isSameDay,
   isEqual,
 } from "date-fns";
-import { pick, orderBy, uniqBy, findKey, maxBy, minBy } from "lodash";
+import { pick, orderBy, uniqBy, findKey, maxBy, minBy, pickBy } from "lodash";
 import { Optional } from "utility-types";
 
 import { MMMMdyyyy } from "../constants";
@@ -682,17 +682,19 @@ export const saveFacility = async (
     let modelInputsToSave: ModelInputsUpdate | undefined;
 
     if (facility.modelInputs) {
-      // Ensures we don't store any attributes that our model does not know
-      // about. This also makes a copy of modelInputs, since we shouldn't mutate
-      // the original.
-      modelInputsToSave = pick(facility.modelInputs, persistedKeys);
-
+      modelInputsToSave = { ...facility.modelInputs };
       modelInputsToSave.updatedAt = currentTimestamp();
-
       // Use observedAt if available. If it is not provided default to today.
       modelInputsToSave.observedAt = modelInputsToSave.observedAt || new Date();
       // Normalize to the start of day in either case.
       modelInputsToSave.observedAt = startOfDay(modelInputsToSave.observedAt);
+      // Ensures we don't store any attributes that our model does not know about.
+      modelInputsToSave = pick(modelInputsToSave, persistedKeys);
+      // remove any keys that are explicitly set to undefined or Firestore will object
+      modelInputsToSave = pickBy(
+        modelInputsToSave,
+        (value) => value !== undefined,
+      ) as ModelInputsUpdate;
     }
 
     const db = await getDb();
@@ -1042,7 +1044,7 @@ export const getReferenceFacilities = async ({
 
   const facilities = await db
     .collection(referenceFacilitiesCollectionId)
-    .where("state", "==", stateName)
+    .where("stateName", "==", stateName)
     .where("facilityType", "==", systemType)
     .get();
 
