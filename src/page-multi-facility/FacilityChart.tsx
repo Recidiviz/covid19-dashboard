@@ -96,7 +96,7 @@ const FacilityChart: React.FC<{
 
   return (
     <>
-      {firstFacility && firstFacilityRtData ? (
+      {(firstFacility && firstFacilityRtData) ? (
         <EpidemicModelProvider
           facilityModel={firstFacility?.modelInputs}
           localeDataSource={localeDataSource}
