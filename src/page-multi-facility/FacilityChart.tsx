@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useState } from "react";
+import styled from "styled-components";
 
 import { getFacilities } from "../database";
 import Colors, { MarkColors as markColors } from "../design-system/Colors";
 import Loading from "../design-system/Loading";
-import useRejectionToast from "../hooks/useRejectionToast";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
 import useModel from "../impact-dashboard/useModel";
@@ -14,14 +14,18 @@ import {
 } from "../infection-model/rt";
 import { useLocaleDataState } from "../locale-data-context";
 import { initialPublicCurveToggles } from "./curveToggles";
-import FacilityRow from "./FacilityRow";
-import FacilityRowPlaceholder from "./FacilityRowPlaceholder";
-import FacilityRowRtValuePill from "./FacilityRowRtValuePill";
 import {
   useChartDataFromProjectionData,
   useProjectionData,
 } from "./projectionCurveHooks";
-import { Facility, RtValue, Scenario } from "./types";
+import { Facility, RtValue } from "./types";
+
+const LoadingWrapper = styled.div`
+  color: ${Colors.opacityGray};
+  display: flex;
+  height: 45%;
+  align-content: center;
+`;
 
 const FacilityChart: React.FC<{
   scenarioId: string;
@@ -33,34 +37,39 @@ const FacilityChart: React.FC<{
   ] = useState<RtValue | null>();
   const { data: localeDataSource } = useLocaleDataState();
 
-  const handleFacilitySave = (facility: Facility) => {
-    console.log(facility);
-  };
+  //   const fetchFacility = useCallback(async () => {
+  //     const facilities = await getFacilities(scenarioId);
+  //     let firstFacility = null;
+  //     let firstFacilityRtData = null;
+  //     if (facilities) {
+  //         firstFacility = facilities.[0];
+  //         firstFacilityRtData = await getRtDataForFacility(firstFacility);
+  //     }
+  //     if (firstFacility) {
+  //     //   setFirstFacility(firstFacility);
+  //     //   setFirstFacilityRtData(firstFacilityRtData);
+  //     }
+  //   }, []);
 
-  const fetchFacility = useCallback(async () => {
-    const facilities = await getFacilities(scenarioId);
-    const firstFacility = facilities?.[0];
-    if (firstFacility) {
-      const firstFacilityRtData = await getRtDataForFacility(firstFacility);
+  useEffect(() => {
+    let mounted = true;
+    async function fetchFacility() {
+      const facilities = await getFacilities(scenarioId);
+      let firstFacility = null;
+      let firstFacilityRtData = null;
+      if (facilities) {
+        firstFacility = facilities?.[0];
+        firstFacilityRtData = await getRtDataForFacility(firstFacility);
+      }
       setFirstFacility(firstFacility);
       setFirstFacilityRtData(firstFacilityRtData);
     }
-  }, []);
-
-  //   useEffect(() => {
-  //       let isMounted = true;
-  //     if (isMounted) {
-  //         fetchFacility();
-  //     }
-  //     return () => isMounted = false
-  //   }, [fetchFacility]);
-
-  useEffect(() => {
-    let isMounted = true;
-    if (isMounted) {
+    if (mounted) {
       fetchFacility();
     }
-    isMounted = false;
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const FacilityChartWrapper = (props: any) => {
@@ -98,7 +107,9 @@ const FacilityChart: React.FC<{
           />
         </EpidemicModelProvider>
       ) : (
-        <Loading styles={{ minHeight: 100, paddingBottom: 100 }} />
+        <LoadingWrapper>
+          <Loading />
+        </LoadingWrapper>
       )}
     </>
   );
