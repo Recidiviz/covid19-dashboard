@@ -14,6 +14,7 @@ import {
   Facilities,
   Facility,
   FacilityReferenceMapping,
+  ModelInputs,
   ReferenceFacility,
 } from "./types";
 
@@ -92,32 +93,32 @@ const FacilityName = styled.div`
 
 const FacilitySelectContainer = styled.div`
   max-width: 300px;
+  flex: 1 1;
 `;
 
 const Spacer = styled.span`
   margin-right: 2em;
 `;
 
-// Send in the stateName/systemType to the title
-const SyncDataTitle = (
+const SyncDataTitle: React.FC<{
+  stateName: ModalProps["stateName"];
+  systemType: ModalProps["systemType"];
+}> = ({ stateName, systemType }) => (
   <SyncDataTitleContainer>
     <TitleText>Prepopulate Data</TitleText>
     <TitleText>
       We've found new facility data - select a corresponding facility to
       autofill with case data
     </TitleText>
-    <TitleText>
-      State: Idaho
-      <Spacer />
-      Type of System: State Prison
-    </TitleText>
+    {stateName && systemType && (
+      <TitleText>
+        State: {stateName}
+        <Spacer />
+        Type of System: {systemType}
+      </TitleText>
+    )}
   </SyncDataTitleContainer>
 );
-
-interface Props {
-  open: boolean;
-  onClose: () => void;
-}
 
 const FacilitiesSelect: React.FC<{
   value: Facility["id"] | undefined;
@@ -162,18 +163,33 @@ const filterSyncedFacilities = (
   };
 };
 
-const ReSyncRefFacilityModal: React.FC<Props> = ({ open, onClose }) => {
-  const rejectionToast = useRejectionToast();
-  const [selections, setSelections] = useState<{
-    [refFacilityId: string]: Facility["id"];
-  }>({});
-  const [scenarioState, dispatchScenarioUpdate] = useScenario();
-  const scenario = scenarioState.data;
-  const syncedRefFacilities = scenario?.[referenceFacilitiesProp] || {};
+interface ModalProps {
+  open: boolean;
+  stateName: ModelInputs["stateName"];
+  systemType: Facility["systemType"];
+  onClose: () => void;
+}
 
+const ReSyncRefFacilityModal: React.FC<ModalProps> = ({
+  open,
+  stateName,
+  systemType,
+  onClose,
+}) => {
+  const rejectionToast = useRejectionToast();
+  const [scenarioState, dispatchScenarioUpdate] = useScenario();
   const {
     state: { facilities: facilitiesState, referenceFacilities },
   } = useFacilities();
+
+  const [selections, setSelections] = useState<{
+    [refFacilityId: string]: Facility["id"];
+  }>({});
+
+  const scenario = scenarioState.data;
+  const syncedRefFacilities = scenario?.[referenceFacilitiesProp] || {};
+
+  if (!open) return null;
 
   const facilities = Object.values(facilitiesState).filter(
     filterSyncedFacilities(syncedRefFacilities),
@@ -200,7 +216,10 @@ const ReSyncRefFacilityModal: React.FC<Props> = ({ open, onClose }) => {
   }
 
   return (
-    <ModalDialog open={open} title={SyncDataTitle}>
+    <ModalDialog
+      open={open}
+      title={<SyncDataTitle stateName={stateName} systemType={systemType} />}
+    >
       <ModalContent>
         <HeaderRow>
           <Header>Facilities with available prepopulated data</Header>
