@@ -36,16 +36,8 @@ function getTestHook() {
   return renderHook(() => useFacilities(), { wrapper });
 }
 
-// TODO: make a fixture?
-const mockBaselineScenario: Scenario = {
-  name: "Mock Baseline",
-  baseline: true,
-  id: "mock-baseline-id",
-  [referenceFacilitiesProp]: { [userFacility.id]: referenceFacility.id },
-  useReferenceData: true,
-} as Scenario; // we are missing some fields but they should not be relevant here
-
 describe("FacilitiesContext", () => {
+  let mockBaselineScenario: Scenario;
   beforeEach(() => {
     // setup mocks
     mockedUseFlag.mockReturnValue(true);
@@ -57,6 +49,14 @@ describe("FacilitiesContext", () => {
       },
       noop,
     ]);
+
+    mockBaselineScenario = {
+      name: "Mock Baseline",
+      baseline: true,
+      id: "mock-baseline-id",
+      [referenceFacilitiesProp]: { [userFacility.id]: referenceFacility.id },
+      useReferenceData: true,
+    } as Scenario; // we are missing some fields but they should not be relevant here
   });
 
   it("updates reference facilities when the scenario changes", async () => {
@@ -141,6 +141,51 @@ describe("FacilitiesContext", () => {
     rerender();
 
     await waitForValueToChange(() => result.current.state.facilities);
+
+    expect(result.current.state.facilities).toEqual({
+      [userFacility.id]: compositeFacility,
+    });
+  });
+
+  it("updates facilities when the mapping changes", async () => {
+    const { result, rerender, wait } = getTestHook();
+
+    const unmappedScenario = {
+      ...mockBaselineScenario,
+      [referenceFacilitiesProp]: {},
+    };
+    mockedUseScenario.mockReturnValue([
+      {
+        loading: false,
+        failed: false,
+        data: unmappedScenario,
+      },
+      noop,
+    ]);
+    mockedGetFacilities.mockResolvedValue([cloneDeep(userFacility)]);
+
+    mockedGetReferenceFacilities.mockResolvedValue([
+      cloneDeep(referenceFacility),
+    ]);
+
+    rerender();
+
+    await wait(() => !isEmpty(result.current.state.facilities));
+
+    expect(result.current.state.facilities).toEqual({
+      [userFacility.id]: userFacility,
+    });
+
+    mockedUseScenario.mockReturnValue([
+      {
+        loading: false,
+        failed: false,
+        data: mockBaselineScenario,
+      },
+      noop,
+    ]);
+
+    rerender();
 
     expect(result.current.state.facilities).toEqual({
       [userFacility.id]: compositeFacility,
