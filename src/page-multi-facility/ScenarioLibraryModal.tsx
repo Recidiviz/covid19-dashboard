@@ -5,7 +5,6 @@ import { deleteScenario, duplicateScenario, getScenarios } from "../database";
 import Colors from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import iconSrcCheck from "../design-system/icons/ic_check.svg";
-import iconSrcRecidiviz from "../design-system/icons/ic_recidiviz.svg";
 import { StyledButton } from "../design-system/InputButton";
 import Loading from "../design-system/Loading";
 import Modal, { Props as ModalProps } from "../design-system/Modal";
@@ -318,7 +317,7 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
                     />
                     <ScenarioHeaderText>{scenario.name}</ScenarioHeaderText>
                   </ScenarioHeader>
-                  <FacilityChart scenarioId={scenario.id} indexOfFacility={0} />
+                  <FacilityChart scenarioId={scenario.id} />
                   <ScenarioDescription>
                     {scenario.description}
                   </ScenarioDescription>

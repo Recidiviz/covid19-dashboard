@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import { getFacilities } from "../database";
 import Colors, { MarkColors as markColors } from "../design-system/Colors";
+import iconSrcRecidiviz from "../design-system/icons/ic_recidiviz.svg";
 import Loading from "../design-system/Loading";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
@@ -21,6 +22,19 @@ import {
 } from "./projectionCurveHooks";
 import { Facility, RtValue } from "./types";
 
+const ScenarioDataViz = styled.div`
+  color: ${Colors.opacityGray};
+  display: flex;
+  height: 45%;
+  background-color: ${Colors.gray};
+`;
+
+const IconRecidviz = styled.img`
+  width: 50px;
+  height: 50px;
+  margin: auto;
+`;
+
 const LoadingWrapper = styled.div`
   color: ${Colors.opacityGray};
   display: flex;
@@ -29,48 +43,23 @@ const LoadingWrapper = styled.div`
 `;
 
 interface FacilityChartProps {
+  hasFacility: boolean;
   facility: Facility | undefined;
   facilityRtData: RtValue | undefined;
 }
 
-const FacilityChart: React.FC<{
-  scenarioId: string;
-  indexOfFacility: number;
-}> = ({ scenarioId, indexOfFacility }) => {
-  const [facility, setFacility] = useState<Facility | undefined>();
-  const [facilityRtData, setFacilityRtData] = useState<RtValue | undefined>();
-  const { data: localeDataSource } = useLocaleDataState();
+const FacilityChartWrapper = (props: FacilityChartProps) => {
+  const [model] = useModel();
+  const latestRt = isRtData(props.facilityRtData)
+    ? getNewestRt(props.facilityRtData.Rt)?.value
+    : props.facilityRtData;
+  const chartData = useChartDataFromProjectionData(
+    useProjectionData(model, true, props.facilityRtData),
+  );
 
-  useEffect(() => {
-    let mounted = true;
-    async function fetchFacility() {
-      const facilities = await getFacilities(scenarioId);
-      if (facilities) {
-        const facility = facilities[indexOfFacility];
-        const facilityRtData = await getRtDataForFacility(facility);
-        if (mounted) {
-          setFacility(facility);
-          setFacilityRtData(facilityRtData);
-        }
-      }
-    }
-    fetchFacility();
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  const FacilityChartWrapper = (props: FacilityChartProps) => {
-    const [model] = useModel();
-    const latestRt = isRtData(props.facilityRtData)
-      ? getNewestRt(props.facilityRtData.Rt)?.value
-      : props.facilityRtData;
-    const chartData = useChartDataFromProjectionData(
-      useProjectionData(model, true, props.facilityRtData),
-    );
-
-    return (
-      <>
+  return (
+    <>
+      {props.hasFacility ? (
         <div className="relative">
           {props.facilityRtData !== undefined && (
             <FacilityRowRtValuePill latestRt={latestRt} />
@@ -84,13 +73,53 @@ const FacilityChart: React.FC<{
             addAnnotations={false}
           />
         </div>
-      </>
-    );
-  };
+      ) : (
+        <ScenarioDataViz>
+          <IconRecidviz alt="Recidiviz" src={iconSrcRecidiviz} />
+        </ScenarioDataViz>
+      )}
+    </>
+  );
+};
+
+const FacilityChart: React.FC<{
+  scenarioId: string;
+}> = ({ scenarioId }) => {
+  const [loading, setLoading] = useState(true);
+  const [hasFacility, setHasFacility] = useState(false);
+  const [facility, setFacility] = useState<Facility | undefined>();
+  const [facilityRtData, setFacilityRtData] = useState<RtValue | undefined>();
+  const { data: localeDataSource } = useLocaleDataState();
+
+  useEffect(() => {
+    let mounted = true;
+    async function fetchFacility() {
+      const facilities = await getFacilities(scenarioId);
+      if (facilities && facilities.length > 0) {
+        const firstFacility = facilities[0];
+        const firstFacilityRtData = await getRtDataForFacility(firstFacility);
+        if (mounted) {
+          setHasFacility(true);
+          setFacility(firstFacility);
+          setFacilityRtData(firstFacilityRtData);
+          setLoading(false);
+        }
+      } else {
+        if (mounted) {
+          setHasFacility(false);
+          setLoading(false);
+        }
+      }
+    }
+    fetchFacility();
+    return () => {
+      mounted = false;
+    };
+  }, [scenarioId]);
 
   return (
     <>
-      {facility && facilityRtData ? (
+      {!loading ? (
         <EpidemicModelProvider
           facilityModel={facility?.modelInputs}
           localeDataSource={localeDataSource}
@@ -98,6 +127,7 @@ const FacilityChart: React.FC<{
           <FacilityChartWrapper
             facility={facility}
             facilityRtData={facilityRtData}
+            hasFacility={hasFacility}
           />
         </EpidemicModelProvider>
       ) : (
