@@ -94,13 +94,12 @@ const MultiFacilityImpactDashboard: React.FC = () => {
   const rtData = getFacilitiesRtDataById(facilitiesState.rtData, facilities);
   const systemType = facilities[0]?.systemType;
   const stateName = facilities[0]?.modelInputs.stateName;
-
   const newlyAddedReferenceData =
     !scenario?.referenceDataObservedAt ||
     Object.values(facilitiesState.referenceFacilities).some((refFacility) => {
       return (
         scenario?.referenceDataObservedAt &&
-        isAfter(scenario.referenceDataObservedAt, refFacility.createdAt)
+        isAfter(refFacility.createdAt, scenario.referenceDataObservedAt)
       );
     });
 
