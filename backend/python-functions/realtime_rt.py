@@ -126,17 +126,13 @@ def compute_r_t(historical_case_counts):
         raise ValueError(
             'Case counts must be cumulative and monotonically increasing')
 
-    # we believe duplicates are mostly an artifact of little-to-no testing
-    # and should be excluded from the model
-    case_df = case_df.drop_duplicates(keep='first')
-
     _, smoothed = prepare_cases(case_df)
 
     # Raise an error if there are not enough valid cases to use
     # we need at least two days to represent change over time
     if len(smoothed) < 2:
         raise ValueError('Not enough data to compute R(t);'
-            ' at least two days of non-repeating case counts are required')
+            ' at least two days of data are required')
 
     # Note that we're fixing sigma to a value just for the example
     posteriors, _ = get_posteriors(smoothed, sigma=.25)
@@ -150,4 +146,7 @@ def compute_r_t(historical_case_counts):
     most_likely = posteriors.idxmax().rename('ML')
     # the first day is not a valid value because it has no priors; exclude it
     result = pd.concat([most_likely, hdis], axis=1).iloc[1:]
+    # smooth the final result to reduce noise from infrequent testing
+    result = result.rolling(7, win_type='gaussian',
+                            min_periods=1, center=True).mean(std=2).round(2)
     return result
