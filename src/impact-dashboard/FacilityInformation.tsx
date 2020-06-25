@@ -57,7 +57,13 @@ const FormHeaderRow: React.FC<FormHeaderRowProps> = (props) => (
   <LabelRow>
     <LabelCell />
     <InputCell>
-      <TextLabel>Current Cases (Cumulative)</TextLabel>
+      <TextLabel>Cumulative Cases</TextLabel>
+    </InputCell>
+    <InputCell>
+      <TextLabel>Recovered Cases</TextLabel>
+    </InputCell>
+    <InputCell>
+      <TextLabel>Deaths</TextLabel>
     </InputCell>
     <InputCell>
       <TextLabel>{props.label}</TextLabel>
@@ -172,6 +178,7 @@ export const AgeGroupGrid: React.FC<AgeGroupGridProps> = ({
         rightKey="staffPopulation"
         {...props}
       />
+
       {/* empty row for spacing */}
       <FormGridRow />
       <FormHeaderRow label="Total Population" />
@@ -243,6 +250,28 @@ const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
       <LabelCell>
         <TextLabel>{props.label}</TextLabel>
       </LabelCell>
+      <InputCell>
+        <InputTextNumeric
+          type="number"
+          valueEntered={model[props.leftKey] as number}
+          inputRelativityError={inputRelativityError}
+          onValueChange={(value) => {
+            checkInputRelativity(value, model[props.rightKey] as number);
+            updateModel({ [props.leftKey]: value });
+          }}
+        />
+      </InputCell>
+      <InputCell>
+        <InputTextNumeric
+          type="number"
+          valueEntered={model[props.leftKey] as number}
+          inputRelativityError={inputRelativityError}
+          onValueChange={(value) => {
+            checkInputRelativity(value, model[props.rightKey] as number);
+            updateModel({ [props.leftKey]: value });
+          }}
+        />
+      </InputCell>
       <InputCell>
         <InputTextNumeric
           type="number"
