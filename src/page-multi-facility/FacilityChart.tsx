@@ -125,9 +125,9 @@ const FacilityChart: React.FC<{
           localeDataSource={localeDataSource}
         >
           <FacilityChartWrapper
+            hasFacility={hasFacility}
             facility={facility}
             facilityRtData={facilityRtData}
-            hasFacility={hasFacility}
           />
         </EpidemicModelProvider>
       ) : (
@@ -139,4 +139,4 @@ const FacilityChart: React.FC<{
   );
 };
 
-export default FacilityChart;
+export default React.memo(FacilityChart);
