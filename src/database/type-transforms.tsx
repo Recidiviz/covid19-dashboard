@@ -95,14 +95,11 @@ export const buildScenario = (
   document: firebase.firestore.DocumentData,
 ): Scenario => {
   const documentData = document.data();
-  const hasReferenceObservedAt =
-    documentData.hasOwnProperty("referenceDataObservedAt") &&
-    documentData.referenceDataObservedAt;
   let scenario: Scenario = documentData;
   scenario.id = document.id;
   scenario.createdAt = timestampToDate(documentData.createdAt);
   scenario.updatedAt = timestampToDate(documentData.updatedAt);
-  scenario.referenceDataObservedAt = hasReferenceObservedAt
+  scenario.referenceDataObservedAt = documentData.referenceDataObservedAt
     ? timestampToDate(documentData.referenceDataObservedAt)
     : undefined;
   scenario.baselinePopulations = documentData.hasOwnProperty(

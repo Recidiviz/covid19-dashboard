@@ -53,7 +53,7 @@ export type Scenario = {
   roles: {
     [key: string]: "owner" | "viewer";
   };
-  referenceDataObservedAt: Date | undefined;
+  referenceDataObservedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 };

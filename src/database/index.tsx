@@ -156,7 +156,6 @@ export const SCENARIO_DEFAULTS = {
   dataSharing: false,
   promoStatuses: {},
   baselinePopulations: [],
-  referenceDataObservedAt: undefined,
   [referenceFacilitiesProp]: {},
 };
 

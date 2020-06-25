@@ -100,7 +100,6 @@ const MultiFacilityImpactDashboard: React.FC = () => {
     Object.values(facilitiesState.referenceFacilities).some((refFacility) => {
       return (
         scenario?.referenceDataObservedAt &&
-        refFacility.createdAt &&
         isAfter(scenario.referenceDataObservedAt, refFacility.createdAt)
       );
     });
