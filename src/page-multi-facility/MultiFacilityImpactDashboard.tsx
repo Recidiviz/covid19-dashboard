@@ -19,7 +19,7 @@ import FacilityRow from "./FacilityRow";
 import FacilityRowPlaceholder from "./FacilityRowPlaceholder";
 import ProjectionsHeader from "./ProjectionsHeader";
 import RateOfSpreadPanel from "./RateOfSpreadPanel";
-import ReSyncRefFacilityModal from "./ReSyncRefFacilityModal";
+import SyncNewReferenceData from "./ReferenceDataModal/SyncNewReferenceData";
 import ScenarioSidebar from "./ScenarioSidebar";
 import SystemSummary from "./SystemSummary";
 import { Facility } from "./types";
@@ -195,7 +195,7 @@ const MultiFacilityImpactDashboard: React.FC = () => {
           />
         )}
       </div>
-      <ReSyncRefFacilityModal
+      <SyncNewReferenceData
         open={referenceDataModalOpen}
         stateName={stateName}
         systemType={systemType}
