@@ -40,11 +40,11 @@ const Title: React.FC<Pick<Props, "stateName" | "systemType">> = ({
   </TitleContainer>
 );
 
-const hasNoSyncedFacilities = (
-  syncedRefFacilities: FacilityReferenceMapping,
+const unmappedFacility = (
+  mappedReferenceFacilities: FacilityReferenceMapping,
 ) => {
   return (facility: Facility) => {
-    return !Object.keys(syncedRefFacilities).includes(facility.id);
+    return !Object.keys(mappedReferenceFacilities).includes(facility.id);
   };
 };
 
@@ -67,11 +67,10 @@ const SyncNewReferenceData: React.FC<Props> = ({
     state: { facilities: facilitiesState, referenceFacilities },
   } = useFacilities();
   const scenario = scenarioState.data;
-  const syncedRefFacilities = scenario?.[referenceFacilitiesProp] || {};
+  const mappedReferenceFacilities = scenario?.[referenceFacilitiesProp] || {};
   const facilities = Object.values(facilitiesState).filter(
-    hasNoSyncedFacilities(syncedRefFacilities),
+    unmappedFacility(mappedReferenceFacilities),
   );
-
   if (!open) return null;
 
   function handleChange(refFacilityId: ReferenceFacility["id"]) {

@@ -20,6 +20,9 @@ const ModalContent = styled.div`
 const SaveButton = styled(StyledButton)`
   font-size: 14px;
   font-weight: normal;
+  background-color: ${(props) =>
+    props.disabled ? Colors.opacityGray : Colors.forest};
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
 `;
 
 const CancelButton = styled(StyledButton)`
@@ -58,11 +61,24 @@ const ReferenceDataModal: React.FC<Props> = ({
   const [scenarioState, dispatchScenarioUpdate] = useScenario();
   const scenario = scenarioState.data;
 
+  async function handleClose() {
+    await rejectionToast(
+      saveScenario({
+        ...scenario,
+        referenceDataObservedAt: new Date(),
+      }).then((savedScenario) => {
+        if (savedScenario) dispatchScenarioUpdate(savedScenario);
+      }),
+    );
+    onClose();
+  }
+
   async function handleSave() {
     if (Object.keys(selections)) {
       await rejectionToast(
         saveScenario({
           ...scenario,
+          referenceDataObservedAt: new Date(),
           [referenceFacilitiesProp]: Object.assign(
             {},
             scenario?.[referenceFacilitiesProp],
@@ -77,11 +93,11 @@ const ReferenceDataModal: React.FC<Props> = ({
   }
 
   return (
-    <ModalDialog open={open} title={title}>
+    <ModalDialog width="650px" open={open} title={title}>
       <ModalContent>{children}</ModalContent>
       <ModalFooter>
         {cancelText && (
-          <CancelButton onClick={onClose}>{cancelText}</CancelButton>
+          <CancelButton onClick={handleClose}>{cancelText}</CancelButton>
         )}
         <SaveButton disabled={isEmpty(selections)} onClick={handleSave}>
           Save
