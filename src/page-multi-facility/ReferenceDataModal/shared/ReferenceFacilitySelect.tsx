@@ -71,7 +71,7 @@ const FacilitiesSelect: React.FC<FacilitiesSelectProps> = ({
   );
 };
 
-interface ReferenceFacilitySelect {
+interface ReferenceFacilitySelectProps {
   referenceFacilities: ReferenceFacilityMapping;
   facilities: Facilities;
   onChange: (
@@ -80,7 +80,7 @@ interface ReferenceFacilitySelect {
   selections: ReferenceFacilitySelections;
 }
 
-export const ReferenceFacilitySelect: React.FC<ReferenceFacilitySelect> = ({
+export const ReferenceFacilitySelect: React.FC<ReferenceFacilitySelectProps> = ({
   referenceFacilities,
   facilities,
   selections,

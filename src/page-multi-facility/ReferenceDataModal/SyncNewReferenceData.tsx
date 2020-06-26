@@ -68,7 +68,7 @@ const SyncNewReferenceData: React.FC<Props> = ({
   } = useFacilities();
   const scenario = scenarioState.data;
   const mappedReferenceFacilities = scenario?.[referenceFacilitiesProp] || {};
-  const facilities = Object.values(facilitiesState).filter(
+  const unmappedFacilities = Object.values(facilitiesState).filter(
     unmappedFacility(mappedReferenceFacilities),
   );
   if (!open) return null;
@@ -97,7 +97,7 @@ const SyncNewReferenceData: React.FC<Props> = ({
       cancelText="Not now"
     >
       <ReferenceFacilitySelect
-        facilities={facilities}
+        facilities={unmappedFacilities}
         referenceFacilities={referenceFacilities}
         selections={selections}
         onChange={handleChange}

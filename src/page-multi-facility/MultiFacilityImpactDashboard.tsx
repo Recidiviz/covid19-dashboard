@@ -157,7 +157,7 @@ const MultiFacilityImpactDashboard: React.FC = () => {
         {rtData && (
           <SystemSummary
             facilities={facilities}
-            scenarioId={scenario?.id}
+            scenarioId={scenarioId}
             rtData={rtData}
           />
         )}
