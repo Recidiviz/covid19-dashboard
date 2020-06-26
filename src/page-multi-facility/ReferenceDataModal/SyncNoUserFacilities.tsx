@@ -1,12 +1,8 @@
-import { startOfDay } from "date-fns";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import { referenceFacilitiesProp, saveScenario } from "../../database";
-import { FacilityDocUpdate, ModelInputsUpdate } from "../../database/types";
 import Colors from "../../design-system/Colors";
-import dataSyncSelectedIcon from "../../design-system/icons/ic_data_sync_selected.svg";
-import dataSyncIcon from "../../design-system/icons/ic_data_sync.svg";
 import InputButton from "../../design-system/InputButton";
 import InputSelect from "../../design-system/InputSelect";
 import Modal from "../../design-system/Modal";

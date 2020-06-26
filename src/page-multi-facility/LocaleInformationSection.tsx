@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 
-import InputSelect from "../design-system/InputSelect";
 import LocaleInformation from "../impact-dashboard/LocaleInformation";
 import { SectionHeader } from "./FacilityInputForm";
 import SystemTypeSelection from "./SystemTypeSelection";
