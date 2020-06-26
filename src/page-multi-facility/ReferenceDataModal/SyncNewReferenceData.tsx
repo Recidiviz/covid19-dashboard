@@ -1,3 +1,4 @@
+import { isEmpty } from "lodash";
 import React, { useState } from "react";
 import styled from "styled-components";
 
@@ -30,9 +31,9 @@ const Title: React.FC<Pick<Props, "stateName" | "systemType">> = ({
       autofill with case data
     </TitleText>
     <TitleText>
-      State: {stateName || ""}
+      State: {stateName}
       <Spacer />
-      Type of System: {systemType || ""}
+      Type of System: {systemType}
     </TitleText>
   </TitleContainer>
 );
@@ -66,7 +67,7 @@ const SyncNewReferenceData: React.FC<Props> = ({
     referenceFacilities,
   );
 
-  if (!open) return null;
+  if (!open || isEmpty(unmappedReferenceFacilities)) return null;
 
   function handleChange(refFacilityId: ReferenceFacility["id"]) {
     return (facilityId: Facility["id"] | undefined) => {
