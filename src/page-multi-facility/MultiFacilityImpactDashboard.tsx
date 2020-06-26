@@ -20,6 +20,7 @@ import FacilityRowPlaceholder from "./FacilityRowPlaceholder";
 import ProjectionsHeader from "./ProjectionsHeader";
 import RateOfSpreadPanel from "./RateOfSpreadPanel";
 import SyncNewReferenceData from "./ReferenceDataModal/SyncNewReferenceData";
+import SyncNoUserFacilities from "./ReferenceDataModal/SyncNoUserFacilities";
 import ScenarioSidebar from "./ScenarioSidebar";
 import SystemSummary from "./SystemSummary";
 import { Facility } from "./types";
@@ -94,14 +95,20 @@ const MultiFacilityImpactDashboard: React.FC = () => {
   const rtData = getFacilitiesRtDataById(facilitiesState.rtData, facilities);
   const systemType = facilities[0]?.systemType;
   const stateName = facilities[0]?.modelInputs.stateName;
+  const showSyncNoFacilities =
+    referenceFacilitiesEligible &&
+    !facilitiesState.loading &&
+    facilities.length == 0;
+
   const newlyAddedReferenceData =
-    !scenario?.referenceDataObservedAt ||
-    Object.values(facilitiesState.referenceFacilities).some((refFacility) => {
-      return (
-        scenario?.referenceDataObservedAt &&
-        isAfter(refFacility.createdAt, scenario.referenceDataObservedAt)
-      );
-    });
+    !scenarioState.loading &&
+    (!scenario?.referenceDataObservedAt ||
+      Object.values(facilitiesState.referenceFacilities).some((refFacility) => {
+        return (
+          scenario?.referenceDataObservedAt &&
+          isAfter(refFacility.createdAt, scenario.referenceDataObservedAt)
+        );
+      }));
 
   const handleFacilitySave = async (facility: Facility) => {
     if (scenarioId) {
@@ -110,10 +117,20 @@ const MultiFacilityImpactDashboard: React.FC = () => {
   };
 
   useEffect(() => {
-    if (referenceFacilitiesEligible && newlyAddedReferenceData) {
+    if (
+      referenceFacilitiesEligible &&
+      newlyAddedReferenceData &&
+      !showSyncNoFacilities
+    ) {
       setReferenceDataModalOpen(true);
+    } else {
+      setReferenceDataModalOpen(false);
     }
-  }, [referenceFacilitiesEligible, newlyAddedReferenceData]);
+  }, [
+    referenceFacilitiesEligible,
+    newlyAddedReferenceData,
+    showSyncNoFacilities,
+  ]);
 
   const openAddFacilityPage = () => {
     deselectFacility();
@@ -193,6 +210,7 @@ const MultiFacilityImpactDashboard: React.FC = () => {
           />
         )}
       </div>
+      {showSyncNoFacilities && <SyncNoUserFacilities />}
       <SyncNewReferenceData
         open={referenceDataModalOpen}
         stateName={stateName}
