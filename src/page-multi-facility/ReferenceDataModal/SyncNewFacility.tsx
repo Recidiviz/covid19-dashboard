@@ -1,4 +1,4 @@
-import { findKey } from "lodash";
+import { findKey, isEmpty } from "lodash";
 import React, { useState } from "react";
 
 import { referenceFacilitiesProp } from "../../database";
@@ -42,7 +42,7 @@ const SyncNewFacility: React.FC<Props> = ({ facilityId, onClose }) => {
     mappedReferenceFacilities,
     referenceFacilities,
   );
-  if (!facilityId) return null;
+  if (!facilityId || isEmpty(unmappedReferenceFacilities)) return null;
 
   return (
     <ReferenceDataModal
