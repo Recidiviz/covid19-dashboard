@@ -167,6 +167,78 @@ const CancelButton = styled(ModalButton)`
 
 type Props = Pick<ModalProps, "trigger">;
 
+interface ScenarioLibraryWrapperProps {
+  scenarios: {
+    data: Scenario[];
+    loading: boolean;
+  };
+  ownedFlag: boolean;
+  copyScenario: (scenarioId: string) => void;
+  openDeleteModal: (scenarioId: string) => void;
+  changeScenario: (scenario: Scenario) => void;
+}
+
+const ScenarioLibraryWrapper = (props: ScenarioLibraryWrapperProps) => {
+  return (
+    <>
+      {props.scenarios?.loading ? (
+        <Loading />
+      ) : (
+        <ScenarioLibrary>
+          {props.ownedFlag && <CreateNewScenarioModal />}
+          {props.scenarios?.data.map((scenario: any) => {
+            const popupItems = [
+              {
+                name: "Duplicate",
+                onClick: () => {
+                  props.copyScenario(scenario.id);
+                },
+              },
+            ];
+
+            // Only show the Delete option for non-baseline & owned scenarios
+            if (!scenario.baseline && props.ownedFlag) {
+              popupItems.push({
+                name: "Delete",
+                onClick: () => {
+                  props.openDeleteModal(scenario.id);
+                },
+              });
+            }
+            return (
+              <ScenarioCard
+                key={scenario.id}
+                onClick={() => {
+                  props.changeScenario(scenario);
+                }}
+              >
+                <ScenarioHeader>
+                  <IconCheck
+                    alt="check"
+                    src={iconSrcCheck}
+                    baseline={scenario.baseline}
+                  />
+                  <ScenarioHeaderText>{scenario.name}</ScenarioHeaderText>
+                </ScenarioHeader>
+                <FacilityChart scenarioId={scenario.id} />
+                <ScenarioDescription>
+                  {scenario.description}
+                </ScenarioDescription>
+                <ScenarioFooter>
+                  <LastUpdatedLabel>
+                    Last Update: <DateMMMMdyyyy date={scenario.updatedAt} />
+                  </LastUpdatedLabel>
+                  <PopUpMenu items={popupItems} />
+                </ScenarioFooter>
+              </ScenarioCard>
+            );
+          })}
+        </ScenarioLibrary>
+      )}
+    </>
+  );
+};
+
 const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [currentScenario, dispatchScenarioUpdate] = useScenario();
@@ -281,61 +353,6 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
     closeDeleteModal(event);
   };
 
-  const ScenarioLibraryWrapper = (props: any) => {
-    return (
-      <>
-        {props.scenarios?.loading ? (
-          <Loading />
-        ) : (
-          <ScenarioLibrary>
-            {props.ownedFlag && <CreateNewScenarioModal />}
-            {props.scenarios?.data.map((scenario: any) => {
-              const popupItems = [
-                {
-                  name: "Duplicate",
-                  onClick: () => copyScenario(scenario.id),
-                },
-              ];
-
-              // Only show the Delete option for non-baseline & owned scenarios
-              if (!scenario.baseline && props.ownedFlag) {
-                popupItems.push({
-                  name: "Delete",
-                  onClick: () => openDeleteModal(scenario.id),
-                });
-              }
-              return (
-                <ScenarioCard
-                  key={scenario.id}
-                  onClick={() => changeScenario(scenario)}
-                >
-                  <ScenarioHeader>
-                    <IconCheck
-                      alt="check"
-                      src={iconSrcCheck}
-                      baseline={scenario.baseline}
-                    />
-                    <ScenarioHeaderText>{scenario.name}</ScenarioHeaderText>
-                  </ScenarioHeader>
-                  <FacilityChart scenarioId={scenario.id} />
-                  <ScenarioDescription>
-                    {scenario.description}
-                  </ScenarioDescription>
-                  <ScenarioFooter>
-                    <LastUpdatedLabel>
-                      Last Update: <DateMMMMdyyyy date={scenario.updatedAt} />
-                    </LastUpdatedLabel>
-                    <PopUpMenu items={popupItems} />
-                  </ScenarioFooter>
-                </ScenarioCard>
-              );
-            })}
-          </ScenarioLibrary>
-        )}
-      </>
-    );
-  };
-
   return (
     <Modal
       modalTitle="Library"
@@ -346,13 +363,22 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
       width="756px"
     >
       <ModalContents>
-        <ScenarioLibraryWrapper scenarios={ownedScenarios} ownedFlag={true} />
+        <ScenarioLibraryWrapper
+          scenarios={ownedScenarios}
+          openDeleteModal={openDeleteModal}
+          copyScenario={copyScenario}
+          changeScenario={changeScenario}
+          ownedFlag={true}
+        />
 
         {sharedScenarios?.data?.length !== 0 && (
           <div>
             <h3>Shared Scenarios</h3>
             <ScenarioLibraryWrapper
               scenarios={sharedScenarios}
+              openDeleteModal={openDeleteModal}
+              copyScenario={copyScenario}
+              changeScenario={changeScenario}
               ownedFlag={false}
             />
           </div>

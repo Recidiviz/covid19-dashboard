@@ -119,7 +119,11 @@ const FacilityChart: React.FC<{
 
   return (
     <>
-      {!loading ? (
+      {loading ? (
+        <LoadingWrapper>
+          <Loading />
+        </LoadingWrapper>
+      ) : (
         <EpidemicModelProvider
           facilityModel={facility?.modelInputs}
           localeDataSource={localeDataSource}
@@ -130,13 +134,9 @@ const FacilityChart: React.FC<{
             facilityRtData={facilityRtData}
           />
         </EpidemicModelProvider>
-      ) : (
-        <LoadingWrapper>
-          <Loading />
-        </LoadingWrapper>
       )}
     </>
   );
 };
 
-export default React.memo(FacilityChart);
+export default FacilityChart;
