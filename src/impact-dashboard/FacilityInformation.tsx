@@ -29,7 +29,7 @@ const LabelCell: React.FC = (props) => (
 );
 
 const InputCell: React.FC = (props) => (
-  <FormGridCell width={22}>{props.children}</FormGridCell>
+  <FormGridCell width={20}>{props.children}</FormGridCell>
 );
 
 const InputNote = styled(Description)`
