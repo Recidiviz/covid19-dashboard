@@ -101,7 +101,7 @@ const StateAndSystemSelectionCard: React.FC<StateAndSystemProps> = (props) => {
 
   // This card doesn't have a title so we just clear out any existing
   // title that may exist if the user navigates back to this card.
-  setModalTitle("");
+  useEffect(() => setModalTitle(""));
 
   const { data: localeDataSource } = useLocaleDataState();
 
@@ -153,8 +153,6 @@ const SyncReferenceFacilitiesCard: React.FC<SyncReferenceFacilitiesCardProps> = 
 ) => {
   const { stateName, systemType, setActiveStep, setModalTitle } = props;
 
-  setModalTitle("Prepoulate Data");
-
   const [scenarioState, dispatchScenarioUpdate] = useScenario();
   const scenario = scenarioState.data;
   const {
@@ -168,6 +166,8 @@ const SyncReferenceFacilitiesCard: React.FC<SyncReferenceFacilitiesCardProps> = 
   >([]);
 
   useEffect(() => {
+    setModalTitle("Prepoulate Data");
+
     const retrieveReferenceFacilities = async () => {
       if (!stateName || !systemType) return;
 
