@@ -3,7 +3,6 @@ import styled from "styled-components";
 
 import Colors from "../../../design-system/Colors";
 import InputSelect from "../../../design-system/InputSelect";
-import { ReferenceFacilityMapping } from "../../../facilities-context";
 import { Facilities, Facility, ReferenceFacility } from "../../types";
 import { ReferenceFacilitySelections } from ".";
 
@@ -72,7 +71,7 @@ const FacilitiesSelect: React.FC<FacilitiesSelectProps> = ({
 };
 
 interface ReferenceFacilitySelectProps {
-  referenceFacilities: ReferenceFacilityMapping;
+  referenceFacilities: ReferenceFacility[];
   facilities: Facilities;
   onChange: (
     id: ReferenceFacility["id"],
@@ -88,7 +87,7 @@ export const ReferenceFacilitySelect: React.FC<ReferenceFacilitySelectProps> = (
 }) => {
   return (
     <>
-      {Object.values(referenceFacilities).map((refFacility) => {
+      {referenceFacilities.map((refFacility) => {
         return (
           <Row key={refFacility.id}>
             <FacilityName>{refFacility.canonicalName}</FacilityName>

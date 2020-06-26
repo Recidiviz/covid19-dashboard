@@ -1,8 +1,12 @@
 import { findKey } from "lodash";
 import React, { useState } from "react";
 
+import { referenceFacilitiesProp } from "../../database";
+import { useFacilities } from "../../facilities-context";
+import useScenario from "../../scenario-context/useScenario";
 import ReferenceDataModal from ".";
 import {
+  getUnmappedReferenceFacilities,
   ReferenceFacilityList,
   ReferenceFacilitySelections,
   TitleContainer,
@@ -26,7 +30,18 @@ interface Props {
 
 const SyncNewFacility: React.FC<Props> = ({ facilityId, onClose }) => {
   const [selections, setSelections] = useState<ReferenceFacilitySelections>({});
+  const [scenarioState] = useScenario();
+  const mappedReferenceFacilities =
+    scenarioState.data?.[referenceFacilitiesProp] || {};
 
+  const {
+    state: { referenceFacilities },
+  } = useFacilities();
+
+  const unmappedReferenceFacilities = getUnmappedReferenceFacilities(
+    mappedReferenceFacilities,
+    referenceFacilities,
+  );
   if (!facilityId) return null;
 
   return (
@@ -38,6 +53,7 @@ const SyncNewFacility: React.FC<Props> = ({ facilityId, onClose }) => {
       cancelText="Don't prepopulate this facility"
     >
       <ReferenceFacilityList
+        referenceFacilities={unmappedReferenceFacilities}
         onClick={(refFacilityId) => {
           if (!selections[refFacilityId]) {
             setSelections({ [refFacilityId]: facilityId });

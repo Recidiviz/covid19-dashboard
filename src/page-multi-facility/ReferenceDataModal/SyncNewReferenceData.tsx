@@ -4,14 +4,11 @@ import styled from "styled-components";
 import { referenceFacilitiesProp } from "../../database";
 import { useFacilities } from "../../facilities-context";
 import useScenario from "../../scenario-context/useScenario";
-import {
-  Facility,
-  FacilityReferenceMapping,
-  ModelInputs,
-  ReferenceFacility,
-} from "../types";
+import { Facility, ModelInputs, ReferenceFacility } from "../types";
 import ReferenceDataModal from ".";
 import {
+  getUnmappedFacilities,
+  getUnmappedReferenceFacilities,
   ReferenceFacilitySelect,
   ReferenceFacilitySelections,
   TitleContainer,
@@ -40,14 +37,6 @@ const Title: React.FC<Pick<Props, "stateName" | "systemType">> = ({
   </TitleContainer>
 );
 
-const unmappedFacility = (
-  mappedReferenceFacilities: FacilityReferenceMapping,
-) => {
-  return (facility: Facility) => {
-    return !Object.keys(mappedReferenceFacilities).includes(facility.id);
-  };
-};
-
 interface Props {
   open: boolean;
   stateName: ModelInputs["stateName"];
@@ -64,13 +53,19 @@ const SyncNewReferenceData: React.FC<Props> = ({
   const [selections, setSelections] = useState<ReferenceFacilitySelections>({});
   const [scenarioState] = useScenario();
   const {
-    state: { facilities: facilitiesState, referenceFacilities },
+    state: { facilities: facilitiesMapping, referenceFacilities },
   } = useFacilities();
   const scenario = scenarioState.data;
   const mappedReferenceFacilities = scenario?.[referenceFacilitiesProp] || {};
-  const unmappedFacilities = Object.values(facilitiesState).filter(
-    unmappedFacility(mappedReferenceFacilities),
+  const unmappedFacilities = getUnmappedFacilities(
+    mappedReferenceFacilities,
+    facilitiesMapping,
   );
+  const unmappedReferenceFacilities = getUnmappedReferenceFacilities(
+    mappedReferenceFacilities,
+    referenceFacilities,
+  );
+
   if (!open) return null;
 
   function handleChange(refFacilityId: ReferenceFacility["id"]) {
@@ -98,7 +93,7 @@ const SyncNewReferenceData: React.FC<Props> = ({
     >
       <ReferenceFacilitySelect
         facilities={unmappedFacilities}
-        referenceFacilities={referenceFacilities}
+        referenceFacilities={unmappedReferenceFacilities}
         selections={selections}
         onChange={handleChange}
       />
