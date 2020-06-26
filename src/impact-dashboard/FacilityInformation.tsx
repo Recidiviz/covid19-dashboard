@@ -29,7 +29,7 @@ const LabelCell: React.FC = (props) => (
 );
 
 const InputCell: React.FC = (props) => (
-  <FormGridCell width={39}>{props.children}</FormGridCell>
+  <FormGridCell width={22}>{props.children}</FormGridCell>
 );
 
 const InputNote = styled(Description)`
@@ -126,44 +126,58 @@ export const AgeGroupGrid: React.FC<AgeGroupGridProps> = ({
     <>
       <AgeGroupRow
         label="Residents Ages 0-19"
-        leftKey="age0Cases"
-        rightKey="age0Population"
+        firstKey="age0Cases"
+        secondKey="age0Recovered"
+        thirdKey="age0Deaths"
+        lastKey="age0Population"
         {...props}
       />
       <AgeGroupRow
         label="Residents Ages 20-44"
-        leftKey="age20Cases"
-        rightKey="age20Population"
+        firstKey="age20Cases"
+        secondKey="age20Recovered"
+        thirdKey="age20Deaths"
+        lastKey="age20Population"
         {...props}
       />
       <AgeGroupRow
         label="Residents Ages 45-54"
-        leftKey="age45Cases"
-        rightKey="age45Population"
+        firstKey="age45Cases"
+        secondKey="age45Recovered"
+        thirdKey="age45Deaths"
+        lastKey="age45Population"
         {...props}
       />
       <AgeGroupRow
         label="Residents Ages 55-64"
-        leftKey="age55Cases"
-        rightKey="age55Population"
+        firstKey="age55Cases"
+        secondKey="age55Recovered"
+        thirdKey="age55Deaths"
+        lastKey="age55Population"
         {...props}
       />
       <AgeGroupRow
         label="Residents Ages 65-74"
-        leftKey="age65Cases"
-        rightKey="age65Population"
+        firstKey="age65Cases"
+        secondKey="age65Recovered"
+        thirdKey="age65Deaths"
+        lastKey="age65Population"
         {...props}
       />
       <AgeGroupRow
         label="Residents Ages 75-84"
-        leftKey="age75Cases"
-        rightKey="age75Population"
+        firstKey="age75Cases"
+        secondKey="age75Recovered"
+        thirdKey="age75Deaths"
+        lastKey="age75Population"
         {...props}
       />
       <AgeGroupRow
         label="Residents Ages 85+"
-        leftKey="age85Cases"
-        rightKey="age85Population"
+        firstKey="age85Cases"
+        secondKey="age85Recovered"
+        thirdKey="age85Deaths"
+        lastKey="age85Population"
         {...props}
       />
     </>
@@ -174,8 +188,10 @@ export const AgeGroupGrid: React.FC<AgeGroupGridProps> = ({
       <FormHeaderRow label="Staff Population" />
       <AgeGroupRow
         label="Facility Staff"
-        leftKey="staffCases"
-        rightKey="staffPopulation"
+        firstKey="staffCases"
+        secondKey="staffRecovered"
+        thirdKey="staffDeaths"
+        lastKey="staffPopulation"
         {...props}
       />
 
@@ -186,8 +202,10 @@ export const AgeGroupGrid: React.FC<AgeGroupGridProps> = ({
         <div>
           <AgeGroupRow
             label="Resident population (ages unknown)"
-            leftKey="ageUnknownCases"
-            rightKey="ageUnknownPopulation"
+            firstKey="ageUnknownCases"
+            secondKey="ageUnknownRecovered"
+            thirdKey="ageUnknownDeaths"
+            lastKey="ageUnknownPopulation"
             {...props}
           />
           <div
@@ -220,8 +238,10 @@ export const AgeGroupGrid: React.FC<AgeGroupGridProps> = ({
 
 interface AgeGroupRowProps {
   label: string;
-  leftKey: keyof EpidemicModelUpdate;
-  rightKey: keyof EpidemicModelUpdate;
+  firstKey: keyof EpidemicModelUpdate;
+  secondKey: keyof EpidemicModelUpdate;
+  thirdKey: keyof EpidemicModelUpdate;
+  lastKey: keyof EpidemicModelUpdate;
   model: Partial<EpidemicModelState>;
   updateModel: (update: EpidemicModelUpdate) => void;
 }
@@ -232,6 +252,8 @@ const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
 
   function checkInputRelativity(
     cases: number | undefined,
+    recovered: number | undefined,
+    deaths: number | undefined,
     total: number | undefined,
   ) {
     if (cases === undefined) {
@@ -239,6 +261,13 @@ const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
     } else if (cases !== undefined && total === undefined) {
       setInputRelativityError(true);
     } else if (total !== undefined && cases > total) {
+      setInputRelativityError(true);
+    } else if (
+      total !== undefined &&
+      recovered !== undefined &&
+      deaths !== undefined &&
+      cases + recovered + deaths > total
+    ) {
       setInputRelativityError(true);
     } else {
       setInputRelativityError(false);
@@ -253,43 +282,63 @@ const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
       <InputCell>
         <InputTextNumeric
           type="number"
-          valueEntered={model[props.leftKey] as number}
+          valueEntered={model[props.firstKey] as number}
           inputRelativityError={inputRelativityError}
-          onValueChange={(value) => {
-            checkInputRelativity(value, model[props.rightKey] as number);
-            updateModel({ [props.leftKey]: value });
+          onValueChange={(cases) => {
+            checkInputRelativity(
+              cases,
+              model[props.secondKey] as number,
+              model[props.thirdKey] as number,
+              model[props.lastKey] as number,
+            );
+            updateModel({ [props.firstKey]: cases });
           }}
         />
       </InputCell>
       <InputCell>
         <InputTextNumeric
           type="number"
-          valueEntered={model[props.leftKey] as number}
+          valueEntered={model[props.secondKey] as number}
           inputRelativityError={inputRelativityError}
-          onValueChange={(value) => {
-            checkInputRelativity(value, model[props.rightKey] as number);
-            updateModel({ [props.leftKey]: value });
+          onValueChange={(recovered) => {
+            checkInputRelativity(
+              model[props.firstKey] as number,
+              recovered,
+              model[props.thirdKey] as number,
+              model[props.lastKey] as number,
+            );
+            updateModel({ [props.secondKey]: recovered });
           }}
         />
       </InputCell>
       <InputCell>
         <InputTextNumeric
           type="number"
-          valueEntered={model[props.leftKey] as number}
+          valueEntered={model[props.thirdKey] as number}
           inputRelativityError={inputRelativityError}
-          onValueChange={(value) => {
-            checkInputRelativity(value, model[props.rightKey] as number);
-            updateModel({ [props.leftKey]: value });
+          onValueChange={(deaths) => {
+            checkInputRelativity(
+              model[props.firstKey] as number,
+              model[props.secondKey] as number,
+              deaths,
+              model[props.lastKey] as number,
+            );
+            updateModel({ [props.thirdKey]: deaths });
           }}
         />
       </InputCell>
       <InputCell>
         <InputTextNumeric
           type="number"
-          valueEntered={model[props.rightKey] as number}
-          onValueChange={(value) => {
-            checkInputRelativity(model[props.leftKey] as number, value);
-            updateModel({ [props.rightKey]: value });
+          valueEntered={model[props.lastKey] as number}
+          onValueChange={(total) => {
+            checkInputRelativity(
+              model[props.firstKey] as number,
+              model[props.secondKey] as number,
+              model[props.thirdKey] as number,
+              total,
+            );
+            updateModel({ [props.lastKey]: total });
           }}
         />
       </InputCell>
