@@ -95,7 +95,7 @@ const MultiFacilityImpactDashboard: React.FC = () => {
   const rtData = getFacilitiesRtDataById(facilitiesState.rtData, facilities);
   const systemType = facilities[0]?.systemType;
   const stateName = facilities[0]?.modelInputs.stateName;
-  const showSyncNoFacilities =
+  const showSyncNoUserFacilities =
     referenceFacilitiesEligible &&
     !facilitiesState.loading &&
     facilities.length == 0;
@@ -120,7 +120,7 @@ const MultiFacilityImpactDashboard: React.FC = () => {
     if (
       referenceFacilitiesEligible &&
       newlyAddedReferenceData &&
-      !showSyncNoFacilities
+      !showSyncNoUserFacilities
     ) {
       setReferenceDataModalOpen(true);
     } else {
@@ -129,7 +129,7 @@ const MultiFacilityImpactDashboard: React.FC = () => {
   }, [
     referenceFacilitiesEligible,
     newlyAddedReferenceData,
-    showSyncNoFacilities,
+    showSyncNoUserFacilities,
   ]);
 
   const openAddFacilityPage = () => {
@@ -210,7 +210,7 @@ const MultiFacilityImpactDashboard: React.FC = () => {
           />
         )}
       </div>
-      {showSyncNoFacilities && <SyncNoUserFacilities />}
+      {showSyncNoUserFacilities && <SyncNoUserFacilities />}
       <SyncNewReferenceData
         open={referenceDataModalOpen}
         stateName={stateName}

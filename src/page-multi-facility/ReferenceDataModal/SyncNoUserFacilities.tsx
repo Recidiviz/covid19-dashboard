@@ -7,15 +7,10 @@ import InputButton from "../../design-system/InputButton";
 import InputSelect from "../../design-system/InputSelect";
 import Modal from "../../design-system/Modal";
 import { useFacilities } from "../../facilities-context";
-import { LocaleData } from "../../locale-data-context";
 import { useLocaleDataState } from "../../locale-data-context";
 import useScenario from "../../scenario-context/useScenario";
 import SystemTypeSelection from "../SystemTypeSelection";
-import {
-  Facility,
-  FacilityReferenceMapping,
-  ReferenceFacility,
-} from "../types";
+import { FacilityReferenceMapping, ReferenceFacility } from "../types";
 import ReferenceFacilityRow from "./shared/ReferenceFacilityRow";
 
 const STATE_AND_SYSTEM_SELECTION_CARD = "STATE_AND_SYSTEM_SELECTION_CARD";
@@ -101,7 +96,9 @@ const StateAndSystemSelectionCard: React.FC<StateAndSystemProps> = (props) => {
 
   // This card doesn't have a title so we just clear out any existing
   // title that may exist if the user navigates back to this card.
-  useEffect(() => setModalTitle(""));
+  useEffect(() => {
+    setModalTitle("");
+  }, [setModalTitle]);
 
   const { data: localeDataSource } = useLocaleDataState();
 
@@ -166,7 +163,7 @@ const SyncReferenceFacilitiesCard: React.FC<SyncReferenceFacilitiesCardProps> = 
   >([]);
 
   useEffect(() => {
-    setModalTitle("Prepoulate Data");
+    setModalTitle("Prepopulate Data");
 
     const retrieveReferenceFacilities = async () => {
       if (!stateName || !systemType) return;
