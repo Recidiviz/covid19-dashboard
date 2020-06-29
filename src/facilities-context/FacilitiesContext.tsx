@@ -1,5 +1,7 @@
+import { size } from "lodash";
 import React, { useEffect } from "react";
 
+import { referenceFacilitiesProp } from "../database";
 import useReferenceFacilitiesEligible from "../hooks/useReferenceFacilitiesEligible";
 import {
   Facility,
@@ -33,19 +35,15 @@ export type FacilitiesDispatch = (
 export type ExportedActions = {
   fetchFacilityRtData: (facility: Facility) => Promise<void>;
   createOrUpdateFacility: (
-    scenarioId: Scenario["id"],
     facility: Partial<Facility>,
   ) => Promise<Facility | void>;
   removeFacility: (
     scenarioId: Scenario["id"],
     facilityId: Facility["id"],
   ) => Promise<void>;
-  duplicateFacility: (
-    scenarioId: Scenario["id"],
-    facility: Facility,
-  ) => Promise<Facility | void>;
+  duplicateFacility: (facility: Facility) => Promise<Facility | void>;
   deselectFacility: () => void;
-  selectFacility: (faclityId: Facility["id"]) => void;
+  selectFacility: (facilityId: Facility["id"]) => void;
 };
 
 interface FacilitiesContext {
@@ -69,24 +67,147 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
     selectedFacilityId: null,
     rtData: {},
   });
-  const [scenario] = useScenario();
-  const scenarioId = scenario?.data?.id;
+  const [scenarioState] = useScenario();
+
+  const scenario = scenarioState.data;
+  const scenarioId = scenario?.id;
+
+  const shouldFetchReferenceFacilities = useReferenceFacilitiesEligible();
+  const shouldUseReferenceFacilities =
+    shouldFetchReferenceFacilities && scenario?.useReferenceData;
+
+  const facilityToReference =
+    scenario && shouldUseReferenceFacilities
+      ? scenario[referenceFacilitiesProp]
+      : undefined;
+
   const actions = {
-    createOrUpdateFacility: facilitiesActions.createOrUpdateFacility(dispatch),
+    createOrUpdateFacility: async (
+      facility: Partial<Facility>,
+    ): Promise<void | Facility> => {
+      if (scenarioId) {
+        const savedFacility = await facilitiesActions.createOrUpdateFacility(
+          scenarioId,
+          facility,
+        );
+        if (savedFacility) {
+          // if shadow data is disabled or there is no mapped reference facility,
+          // this action will pass through the user data unchanged
+          const compositeFacility = facilitiesActions.buildCompositeFacility(
+            savedFacility,
+            state.referenceFacilities,
+            facilityToReference,
+          );
+          facilitiesActions.updateFacilities(dispatch, compositeFacility);
+          return compositeFacility;
+        }
+      }
+    },
     fetchFacilityRtData: facilitiesActions.fetchFacilityRtData(dispatch),
     removeFacility: facilitiesActions.removeFacility(dispatch),
-    duplicateFacility: facilitiesActions.duplicateFacility(dispatch),
+    duplicateFacility: async (facility: Facility): Promise<void | Facility> => {
+      if (scenarioId) {
+        const savedFacility = await facilitiesActions.duplicateFacility(
+          scenarioId,
+          facility,
+        );
+        if (savedFacility) {
+          // if shadow data is disabled or there is no mapped reference facility,
+          // this action will pass through the user data unchanged
+          const compositeFacility = facilitiesActions.buildCompositeFacility(
+            savedFacility,
+            state.referenceFacilities,
+            facilityToReference,
+          );
+          facilitiesActions.updateFacilities(dispatch, compositeFacility);
+          return compositeFacility;
+        }
+      }
+    },
     deselectFacility: facilitiesActions.deselectFacility(dispatch),
     selectFacility: facilitiesActions.selectFacility(dispatch),
   };
 
-  useEffect(() => {
-    if (scenarioId) {
-      facilitiesActions.fetchFacilities(scenarioId, dispatch);
-      // clean up any existing reference facility data
-      facilitiesActions.clearReferenceFacilities(dispatch);
-    }
-  }, [scenarioId]);
+  // when a new scenario is loaded, facility data must be initialized
+  // in a specific order to avoid unwanted side effects:
+  // we fetch user facility data, then fetch reference data (when applicable);
+  // only when both fetches are complete and any necessary merges are done
+  // can we then dispatch facility data into the context
+  useEffect(
+    () => {
+      async function initializeFacilities() {
+        if (scenarioId) {
+          facilitiesActions.requestFacilities(dispatch);
+          facilitiesActions.clearReferenceFacilities(dispatch);
+          try {
+            let facilities = await facilitiesActions.fetchUserFacilities(
+              scenarioId,
+            );
+
+            if (shouldFetchReferenceFacilities && size(facilities)) {
+              // fetch reference facilities based on user facilities
+              // first facility is the reference; assume they're all the same
+              const {
+                modelInputs: { stateName },
+                systemType,
+              } = Object.values(facilities)[0];
+              if (stateName && systemType) {
+                const referenceFacilities = await facilitiesActions.fetchReferenceFacilities(
+                  stateName,
+                  systemType,
+                  dispatch,
+                );
+
+                facilities = facilitiesActions.buildCompositeFacilities(
+                  facilities,
+                  referenceFacilities,
+                  facilityToReference,
+                );
+              }
+            }
+
+            // dispatch facilities to state
+            facilitiesActions.receiveFacilities(dispatch, facilities);
+          } catch (error) {
+            console.error(
+              `Error fetching facilities for scenario: ${scenarioId}`,
+            );
+            console.error(error);
+            facilitiesActions.receiveFacilitiesError(dispatch);
+          }
+        }
+      }
+      initializeFacilities();
+    },
+
+    // shouldFetchReferenceFacilities should change at the same time as the scenarioId
+    // and is safe to depend on here; however, we don't want to fire all of this logic off
+    // every time facilityToReference changes; we want explicitly to depend on its initial
+    // state when a new scenario is loaded, so it is excluded here.
+    // Another effect will handle subsequent changes to its value based on user input
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [scenarioId, shouldFetchReferenceFacilities],
+  );
+
+  // update facilities when reference mapping changes
+  useEffect(
+    () => {
+      if (state.loading) return;
+      facilitiesActions.receiveFacilities(
+        dispatch,
+        facilitiesActions.buildCompositeFacilities(
+          state.facilities,
+          state.referenceFacilities,
+          facilityToReference,
+        ),
+      );
+    },
+    // we are controlling changes to the state imperatively via the action functions,
+    // so it should be safe to exclude. When facilityToReference changes (externally
+    // to this context) we can safely use the most recent state
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [facilityToReference],
+  );
 
   useEffect(() => {
     const facilities = Object.values({ ...state.facilities });
@@ -98,28 +219,6 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
       });
     }
   }, [scenarioId, state.facilities, state.rtData]);
-
-  // fetch reference facilities based on user facilities
-  const shouldFetchReferenceFacilities = useReferenceFacilitiesEligible();
-  useEffect(() => {
-    if (!shouldFetchReferenceFacilities) return;
-
-    const facilities = Object.values({ ...state.facilities });
-    if (facilities.length) {
-      // first facility is the reference; assume they're all the same
-      const {
-        modelInputs: { stateName },
-        systemType,
-      } = facilities[0];
-      if (stateName && systemType) {
-        facilitiesActions.fetchReferenceFacilities(
-          stateName,
-          systemType,
-          dispatch,
-        );
-      }
-    }
-  }, [shouldFetchReferenceFacilities, state.facilities]);
 
   return (
     <FacilitiesContext.Provider value={{ state, dispatch, actions }}>

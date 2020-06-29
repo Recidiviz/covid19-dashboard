@@ -4,22 +4,37 @@ import { RtData, RtError } from "../infection-model/rt";
 
 export interface ModelInputs extends EpidemicModelPersistent {
   observedAt: Date;
-  updatedAt: Date;
+  updatedAt?: Date;
+  isReference?: boolean;
 }
 
 export type FacilityReferenceMapping = {
   [key in Facility["id"]]: ReferenceFacility["id"];
 };
 
-export type Facility = {
-  id: string;
-  scenarioId: string;
+export interface PersistedFacility {
   name: string;
   description?: string | null;
   systemType?: string | null;
   modelInputs: ModelInputs;
   createdAt: Date;
   updatedAt: Date;
+}
+// only the keys enumerated here should be saved to the database
+export const PERSISTED_FACILITY_KEYS: (keyof PersistedFacility)[] = [
+  "name",
+  "description",
+  "systemType",
+  "modelInputs",
+  "createdAt",
+  "updatedAt",
+];
+
+export type Facility = PersistedFacility & {
+  id: string;
+  scenarioId: string;
+  modelVersions: ModelInputs[];
+  canonicalName?: string;
 };
 
 export type Facilities = Facility[];
@@ -30,6 +45,7 @@ export type Scenario = {
   baseline: boolean;
   dataSharing: boolean;
   dailyReports: boolean;
+  useReferenceData?: boolean;
   promoStatuses: PromoStatuses;
   baselinePopulations: BaselinePopulations[];
   [referenceFacilitiesProp]: FacilityReferenceMapping;
@@ -37,6 +53,7 @@ export type Scenario = {
   roles: {
     [key: string]: "owner" | "viewer";
   };
+  referenceDataObservedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -71,7 +88,7 @@ export type ScenarioUsers = {
   viewers: User[];
 };
 
-type SimpleTimeseries = {
+export type SimpleTimeseries = {
   date: Date;
   value: number;
 };
@@ -91,11 +108,11 @@ export type ReferenceFacilityCovidCase = {
 export type ReferenceFacility = {
   id: string;
   stateName: string;
+  countyName?: string;
   canonicalName: string;
   facilityType: string;
   capacity: SimpleTimeseries[];
   population: SimpleTimeseries[];
   covidCases: ReferenceFacilityCovidCase[];
-  // various other metadata that we don't explicitly care about may also be present
-  [key: string]: unknown;
+  createdAt: Date;
 };

@@ -1,5 +1,6 @@
+import { isAfter } from "date-fns";
 import { navigate } from "gatsby";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
@@ -8,6 +9,7 @@ import Loading from "../design-system/Loading";
 import TextLabel from "../design-system/TextLabel";
 import { useFacilities } from "../facilities-context";
 import { useFlag } from "../feature-flags";
+import useReferenceFacilitiesEligible from "../hooks/useReferenceFacilitiesEligible";
 import useRejectionToast from "../hooks/useRejectionToast";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
 import { getFacilitiesRtDataById } from "../infection-model/rt";
@@ -17,6 +19,7 @@ import FacilityRow from "./FacilityRow";
 import FacilityRowPlaceholder from "./FacilityRowPlaceholder";
 import ProjectionsHeader from "./ProjectionsHeader";
 import RateOfSpreadPanel from "./RateOfSpreadPanel";
+import SyncNewReferenceData from "./ReferenceDataModal/SyncNewReferenceData";
 import ScenarioSidebar from "./ScenarioSidebar";
 import SystemSummary from "./SystemSummary";
 import { Facility } from "./types";
@@ -75,22 +78,42 @@ const ScenarioTab = styled.li<{ active?: boolean }>`
 
 const MultiFacilityImpactDashboard: React.FC = () => {
   const rejectionToast = useRejectionToast();
+  const referenceFacilitiesEligible = useReferenceFacilitiesEligible();
   const showRateOfSpreadTab = useFlag(["showRateOfSpreadTab"]);
+
   const { data: localeDataSource } = useLocaleDataState();
-  const [scenario] = useScenario();
-  const scenarioId = scenario?.data?.id;
+  const [referenceDataModalOpen, setReferenceDataModalOpen] = useState(false);
+  const [scenarioState] = useScenario();
+  const scenario = scenarioState?.data;
+  const scenarioId = scenario?.id;
   const {
     state: facilitiesState,
     actions: { createOrUpdateFacility, deselectFacility },
   } = useFacilities();
-  const facilities = Object.values(facilitiesState.facilities);
+  const facilities = Object.values(facilitiesState.facilities) || [];
   const rtData = getFacilitiesRtDataById(facilitiesState.rtData, facilities);
+  const systemType = facilities[0]?.systemType;
+  const stateName = facilities[0]?.modelInputs.stateName;
+  const newlyAddedReferenceData =
+    !scenario?.referenceDataObservedAt ||
+    Object.values(facilitiesState.referenceFacilities).some((refFacility) => {
+      return (
+        scenario?.referenceDataObservedAt &&
+        isAfter(refFacility.createdAt, scenario.referenceDataObservedAt)
+      );
+    });
 
   const handleFacilitySave = async (facility: Facility) => {
     if (scenarioId) {
-      await rejectionToast(createOrUpdateFacility(scenarioId, facility));
+      await rejectionToast(createOrUpdateFacility(facility));
     }
   };
+
+  useEffect(() => {
+    if (referenceFacilitiesEligible && newlyAddedReferenceData) {
+      setReferenceDataModalOpen(true);
+    }
+  }, [referenceFacilitiesEligible, newlyAddedReferenceData]);
 
   const openAddFacilityPage = () => {
     deselectFacility();
@@ -125,7 +148,7 @@ const MultiFacilityImpactDashboard: React.FC = () => {
 
   return (
     <MultiFacilityImpactDashboardContainer>
-      {scenario.loading ? (
+      {scenarioState.loading ? (
         <Loading />
       ) : (
         <ScenarioSidebar numFacilities={facilities.length} />
@@ -134,7 +157,7 @@ const MultiFacilityImpactDashboard: React.FC = () => {
         {rtData && (
           <SystemSummary
             facilities={facilities}
-            scenarioId={scenario?.data?.id}
+            scenarioId={scenarioId}
             rtData={rtData}
           />
         )}
@@ -170,6 +193,12 @@ const MultiFacilityImpactDashboard: React.FC = () => {
           />
         )}
       </div>
+      <SyncNewReferenceData
+        open={referenceDataModalOpen}
+        stateName={stateName}
+        systemType={systemType}
+        onClose={() => setReferenceDataModalOpen(false)}
+      />
     </MultiFacilityImpactDashboardContainer>
   );
 };

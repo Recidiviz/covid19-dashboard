@@ -67,7 +67,7 @@ class TestCalculateRt(TestCase):
         resp = self.get_response_json()
         self.assertNotIn('error', resp)
 
-    def test_exclude_duplicates(self):
+    def test_exclude_first_date(self):
         data = {
             'dates': ['2020-04-15', '2020-04-16', '2020-04-18', '2020-04-19'],
             'cases': [50, 66, 66, 129]
@@ -75,8 +75,8 @@ class TestCalculateRt(TestCase):
         self.req.get_json.return_value = data
 
         resp = self.get_response_json()
-        # duplicate case counts will be dropped
-        expected_response_dates = [data['dates'][1], data['dates'][3]]
+        # the first date will be dropped
+        expected_response_dates = data['dates'][1:]
         self.verify_response_data(resp, expected_response_dates)
 
     def test_ensure_cumulative(self):

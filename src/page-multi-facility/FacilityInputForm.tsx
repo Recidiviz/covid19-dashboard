@@ -27,7 +27,7 @@ import AddCasesModal from "./AddCasesModal";
 import FacilityProjections from "./FacilityProjections";
 import HistoricalCasesChart from "./HistoricalCasesChart";
 import LocaleInformationSection from "./LocaleInformationSection";
-import SyncReferenceFacilityModal from "./SyncReferenceFacilityModal";
+import SyncNewFacility from "./ReferenceDataModal/SyncNewFacility";
 import { Facility, Scenario } from "./types";
 
 interface ButtonSectionProps {
@@ -185,7 +185,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
 
     if (facilityName) {
       await rejectionToast(
-        createOrUpdateFacility(scenarioId, {
+        createOrUpdateFacility({
           id: facility?.id,
           name: facilityName,
           description: description || null,
@@ -207,7 +207,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   const onDuplicateFacility = async () => {
     if (facility) {
       await rejectionToast(
-        duplicateFacility(scenarioId, facility).then((duplicatedFacility) => {
+        duplicateFacility(facility).then((duplicatedFacility) => {
           if (duplicatedFacility) {
             selectFacility(duplicatedFacility.id);
             addToast("Facility successfully duplicated");
@@ -321,7 +321,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
         </Column>
 
         {/* MODAL */}
-        <SyncReferenceFacilityModal
+        <SyncNewFacility
           facilityId={syncDataModalFacility}
           onClose={navigateHome}
         />

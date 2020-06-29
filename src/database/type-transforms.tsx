@@ -1,16 +1,19 @@
 import { parse, parseISO, startOfToday } from "date-fns";
-import * as firebase from "firebase/app";
+import firebase from "firebase/app";
 import { pick } from "lodash";
 
 import { PlannedRelease } from "../impact-dashboard/EpidemicModelContext";
 import {
   Facility,
   ModelInputs,
+  PERSISTED_FACILITY_KEYS,
   ReferenceFacility,
   ReferenceFacilityCovidCase,
   Scenario,
   User,
 } from "../page-multi-facility/types";
+import { referenceFacilitiesProp } from ".";
+import { FacilityDocUpdate } from "./types";
 
 const timestampToDate = (timestamp: firebase.firestore.Timestamp): Date => {
   return timestamp.toDate();
@@ -59,28 +62,46 @@ export const buildModelInputs = (document: any): ModelInputs => {
 export const buildFacility = (
   scenarioId: string,
   document: firebase.firestore.DocumentData,
+  modelVersions?: ModelInputs[],
 ): Facility => {
   const documentData = document.data();
 
-  let facility: Facility = documentData;
-  facility.id = document.id;
-  facility.scenarioId = scenarioId;
-  facility.createdAt = timestampToDate(documentData.createdAt);
-  facility.updatedAt = timestampToDate(documentData.updatedAt);
-  facility.modelInputs = buildModelInputs(documentData.modelInputs);
+  let { name, description, systemType } = documentData;
+  const id = document.id;
+  const createdAt = timestampToDate(documentData.createdAt);
+  const updatedAt = timestampToDate(documentData.updatedAt);
+  const modelInputs = buildModelInputs(documentData.modelInputs);
 
-  return facility;
+  return {
+    createdAt,
+    description,
+    id,
+    modelInputs,
+    name,
+    scenarioId,
+    systemType,
+    updatedAt,
+    modelVersions: modelVersions || [],
+  };
+};
+
+export const buildFacilityDocUpdate = (
+  facility: Partial<Facility>,
+): FacilityDocUpdate => {
+  return pick(facility, PERSISTED_FACILITY_KEYS);
 };
 
 export const buildScenario = (
   document: firebase.firestore.DocumentData,
 ): Scenario => {
   const documentData = document.data();
-
   let scenario: Scenario = documentData;
   scenario.id = document.id;
   scenario.createdAt = timestampToDate(documentData.createdAt);
   scenario.updatedAt = timestampToDate(documentData.updatedAt);
+  scenario.referenceDataObservedAt = documentData.referenceDataObservedAt
+    ? timestampToDate(documentData.referenceDataObservedAt)
+    : undefined;
   scenario.baselinePopulations = documentData.hasOwnProperty(
     "baselinePopulations",
   )
@@ -107,6 +128,10 @@ export const buildScenario = (
       scenario.promoStatuses[flagName] = true;
     }
   });
+
+  // this is a newer field that isn't guaranteed to exist in storage;
+  // provide a default here because it's required by the type definition
+  scenario[referenceFacilitiesProp] = scenario[referenceFacilitiesProp] || {};
 
   return scenario;
 };
@@ -150,20 +175,31 @@ export const buildReferenceFacility = (
     value: record.value,
   });
 
+  // NOTE: there are other fields that may be present in the document;
+  // as they are added to the ReferenceFacility type they should be handled here
   let {
     stateName,
     canonicalName,
     facilityType,
     capacity,
     population,
-    ...other
+    countyName,
+    createdAt,
   } = data;
 
-  // cast known types
+  // do some explicit type casts for safety
+
+  // we don't expect these fields to ever be missing from the document;
+  // bad things will result if they are
   stateName = String(stateName);
   canonicalName = String(canonicalName);
   facilityType = String(facilityType);
-  // if these are not arrays then unfortunately they are garbage
+  countyName = String(countyName);
+  createdAt = timestampToDate(data.createdAt);
+
+  // if these are not arrays then unfortunately they are garbage;
+  // this probably means the documents have been mangled somehow,
+  // it is not an expected case
   if (!Array.isArray(capacity)) {
     capacity = [];
   }
@@ -177,11 +213,12 @@ export const buildReferenceFacility = (
   return {
     id: facilityDocument.id,
     stateName,
+    countyName,
     canonicalName,
     facilityType,
     capacity,
     population,
+    createdAt,
     covidCases: facilityCovidCaseDocuments.map(buildCovidCase),
-    ...other,
   };
 };
