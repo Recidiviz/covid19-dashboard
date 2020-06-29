@@ -405,10 +405,34 @@ export function totalConfirmedCases(
   return sum(Object.values(pick(brackets, casesKeys)));
 }
 
+export function totalConfirmedRecoveredCases(
+  brackets: ModelInputsPopulationBrackets,
+): number {
+  return sum(Object.values(pick(brackets, recoveredKeys)));
+}
+
+export function totalConfirmedDeaths(
+  brackets: ModelInputsPopulationBrackets,
+): number {
+  return sum(Object.values(pick(brackets, deathKeys)));
+}
+
 export function totalIncarceratedConfirmedCases(
   brackets: ModelInputsPopulationBrackets,
 ): number {
   return sum(Object.values(pick(brackets, incarceratedCasesKeys)));
+}
+
+export function totalIncarceratedRecoveredCases(
+  brackets: ModelInputsPopulationBrackets,
+): number {
+  return sum(Object.values(pick(brackets, incarceratedRecoveredKeys)));
+}
+
+export function totalIncarceratedDeaths(
+  brackets: ModelInputsPopulationBrackets,
+): number {
+  return sum(Object.values(pick(brackets, incarceratedDeathKeys)));
 }
 
 export function totalIncarceratedPopulation(

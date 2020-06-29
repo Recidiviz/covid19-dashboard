@@ -1,7 +1,11 @@
 import {
   caseBracketKeys,
+  deathBracketKeys,
   ModelInputsPopulationBrackets,
+  recoveredBracketKeys,
   totalConfirmedCases,
+  totalConfirmedDeaths,
+  totalConfirmedRecoveredCases,
 } from "../impact-dashboard/EpidemicModelContext";
 
 type ComparisonOptions = {
@@ -20,8 +24,11 @@ const validateCasesByKey = (
   comparedTo: ModelInputsPopulationBrackets,
   compareFn: ComparisonFunction,
 ): boolean => {
-  return (Object.keys(comparedTo).filter((key) =>
-    caseBracketKeys.includes(key as any),
+  return (Object.keys(comparedTo).filter(
+    (key) =>
+      caseBracketKeys.includes(key as any) ||
+      recoveredBracketKeys.includes(key as any) ||
+      deathBracketKeys.includes(key as any),
   ) as Array<keyof ModelInputsPopulationBrackets>).reduce((valid, key) => {
     const currentVal = current[key];
     const comparisonVal = comparedTo[key];
@@ -41,9 +48,13 @@ const validateCasesBySum = (
   comparedTo: ModelInputsPopulationBrackets,
   compareFn: ComparisonFunction,
 ): boolean => {
-  return compareFn(
-    totalConfirmedCases(current),
-    totalConfirmedCases(comparedTo),
+  return (
+    compareFn(totalConfirmedCases(current), totalConfirmedCases(comparedTo)) &&
+    compareFn(
+      totalConfirmedRecoveredCases(current),
+      totalConfirmedDeaths(comparedTo),
+    ) &&
+    compareFn(totalConfirmedDeaths(current), totalConfirmedDeaths(comparedTo))
   );
 };
 

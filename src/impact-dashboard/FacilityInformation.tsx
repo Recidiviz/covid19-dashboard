@@ -263,17 +263,9 @@ const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
     } else if (total !== undefined && cases > total) {
       setInputRelativityError(true);
     } else if (
-      total !== undefined &&
       recovered !== undefined &&
       deaths !== undefined &&
-      cases + recovered + deaths > total
-    ) {
-      setInputRelativityError(true);
-    } else if (
-      total !== undefined &&
-      recovered !== undefined &&
-      deaths !== undefined &&
-      total < recovered + deaths
+      cases < recovered + deaths
     ) {
       setInputRelativityError(true);
     } else {

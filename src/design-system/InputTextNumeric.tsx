@@ -49,7 +49,7 @@ const InputTextNumeric: React.FC<Props> = (props) => {
       inputRelativityError={props.inputRelativityError}
       labelPlaceholder={
         props.labelPlaceholder ??
-        (props.type === "number" ? "Enter number" : "Enter a percentage")
+        (props.type === "number" ? "0" : "Enter a percentage")
       }
     >
       {props.type === "percent" && <PctAddon>%</PctAddon>}
