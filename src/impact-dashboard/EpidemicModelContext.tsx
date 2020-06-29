@@ -3,7 +3,7 @@ import { pick } from "lodash";
 import React from "react";
 
 import { LocaleData } from "../locale-data-context";
-import { Facility } from "../page-multi-facility/types";
+import { Facility, ModelInputs } from "../page-multi-facility/types";
 
 export type PlannedRelease = { date?: Date; count?: number };
 export type PlannedReleases = PlannedRelease[];
@@ -272,62 +272,53 @@ export function useEpidemicModelDispatch() {
 // calculation helpers
 // *******
 
+const incarceratedCasesKeys: (keyof ModelInputsPopulationBrackets)[] = [
+  "age0Cases",
+  "age20Cases",
+  "age45Cases",
+  "age55Cases",
+  "age65Cases",
+  "age75Cases",
+  "age85Cases",
+  "ageUnknownCases",
+];
+const casesKeys: (keyof ModelInputsPopulationBrackets)[] = [
+  ...incarceratedCasesKeys,
+  "staffCases",
+];
+
+const incarceratedPopulationKeys: (keyof ModelInputsPopulationBrackets)[] = [
+  "age0Population",
+  "age20Population",
+  "age45Population",
+  "age55Population",
+  "age65Population",
+  "age75Population",
+  "age85Population",
+  "ageUnknownPopulation",
+];
+
+const populationKeys: (keyof ModelInputsPopulationBrackets)[] = [
+  ...incarceratedPopulationKeys,
+  "staffPopulation",
+];
+
 export function totalConfirmedCases(
   brackets: ModelInputsPopulationBrackets,
 ): number {
-  return sum(
-    Object.values(
-      pick(brackets, [
-        "age0Cases",
-        "age20Cases",
-        "age45Cases",
-        "age55Cases",
-        "age65Cases",
-        "age75Cases",
-        "age85Cases",
-        "ageUnknownCases",
-        "staffCases",
-      ]),
-    ),
-  );
+  return sum(Object.values(pick(brackets, casesKeys)));
 }
 
 export function totalIncarceratedConfirmedCases(
   brackets: ModelInputsPopulationBrackets,
 ): number {
-  return sum(
-    Object.values(
-      pick(brackets, [
-        "age0Cases",
-        "age20Cases",
-        "age45Cases",
-        "age55Cases",
-        "age65Cases",
-        "age75Cases",
-        "age85Cases",
-        "ageUnknownCases",
-      ]),
-    ),
-  );
+  return sum(Object.values(pick(brackets, incarceratedCasesKeys)));
 }
 
 export function totalIncarceratedPopulation(
   brackets: ModelInputsPopulationBrackets,
 ): number {
-  return sum(
-    Object.values(
-      pick(brackets, [
-        "age0Population",
-        "age20Population",
-        "age45Population",
-        "age55Population",
-        "age65Population",
-        "age75Population",
-        "age85Population",
-        "ageUnknownPopulation",
-      ]),
-    ),
-  );
+  return sum(Object.values(pick(brackets, incarceratedPopulationKeys)));
 }
 
 export function totalPopulation(
@@ -348,4 +339,22 @@ export function calculateFacilityOccupancyPct(
   return facilityCapacity
     ? totalIncarceratedPopulation(userInputs) / facilityCapacity
     : 1;
+}
+
+export function hasCases(inputs: ModelInputsPopulationBrackets): boolean {
+  return casesKeys.some((key) => inputs[key] !== undefined);
+}
+
+export function hasPopulation(inputs: ModelInputs): boolean {
+  return populationKeys.some((key) => inputs[key] !== undefined);
+}
+
+export function hasCapacity(inputs: ModelInputs): boolean {
+  return inputs.facilityCapacity !== undefined;
+}
+
+export function hasStaffPopulation(
+  inputs: ModelInputsPopulationBrackets,
+): boolean {
+  return inputs.staffPopulation !== undefined;
 }

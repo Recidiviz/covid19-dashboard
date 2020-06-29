@@ -33,53 +33,56 @@ export function selectFacility(dispatch: FacilitiesDispatch) {
   };
 }
 
-export async function fetchFacilities(
-  scenarioId: string,
-  dispatch: FacilitiesDispatch,
-) {
+export function requestFacilities(dispatch: FacilitiesDispatch) {
   dispatch({ type: REQUEST_FACILITIES });
+}
+
+export async function fetchUserFacilities(scenarioId: string) {
+  const facilitiesList: Facilities | null = await getFacilities(scenarioId);
+  const facilities: FacilityMapping = {};
+
+  facilitiesList?.forEach((facility) => {
+    facilities[facility.id] = facility;
+  });
+
+  return facilities;
+}
+
+export function receiveFacilities(
+  dispatch: FacilitiesDispatch,
+  payload: FacilityMapping,
+) {
+  dispatch({ type: RECEIVE_FACILITIES, payload });
+}
+
+export function receiveFacilitiesError(dispatch: FacilitiesDispatch) {
+  dispatch({
+    type: RECEIVE_FACILITIES_ERROR,
+  });
+}
+
+export async function createOrUpdateFacility(
+  scenarioId: string,
+  facility: Partial<Facility>,
+) {
   try {
-    const facilitiesList: Facilities | null = await getFacilities(scenarioId);
-    const facilities: FacilityMapping = {};
-
-    if (facilitiesList) {
-      facilitiesList.forEach((facility) => {
-        facilities[facility.id] = facility;
-      });
-
-      dispatch({
-        type: RECEIVE_FACILITIES,
-        payload: { ...facilities },
-      });
-    }
+    return await saveFacility(scenarioId, facility);
   } catch (error) {
-    console.error(`Error fetching facilities for scenario: ${scenarioId}`);
-    dispatch({
-      type: RECEIVE_FACILITIES_ERROR,
-    });
+    console.error(
+      `Error creating or updating facility for scenario: ${scenarioId}`,
+    );
+    throw error;
   }
 }
 
-export function createOrUpdateFacility(dispatch: FacilitiesDispatch) {
-  return async (scenarioId: string, facility: Partial<Facility>) => {
-    if (scenarioId) {
-      try {
-        const updatedFacility = await saveFacility(scenarioId, facility);
-        if (updatedFacility && updatedFacility.id) {
-          dispatch({
-            type: CREATE_OR_UPDATE_FACILITY,
-            payload: { ...updatedFacility },
-          });
-        }
-        return updatedFacility;
-      } catch (error) {
-        console.error(
-          `Error creating or updating facility for scenario: ${scenarioId}`,
-        );
-        throw error;
-      }
-    }
-  };
+export function updateFacilities(
+  dispatch: FacilitiesDispatch,
+  updatedFacility: Facility,
+) {
+  dispatch({
+    type: CREATE_OR_UPDATE_FACILITY,
+    payload: updatedFacility,
+  });
 }
 
 export function removeFacility(dispatch: FacilitiesDispatch) {
@@ -99,22 +102,14 @@ export function removeFacility(dispatch: FacilitiesDispatch) {
   };
 }
 
-export function duplicateFacility(dispatch: FacilitiesDispatch) {
-  return async (scenarioId: string, facility: Facility) => {
-    if (scenarioId && facility.id) {
-      try {
-        const duplicatedFacility = await duplicate(scenarioId, facility);
-        if (duplicatedFacility && duplicatedFacility.id) {
-          dispatch({
-            type: CREATE_OR_UPDATE_FACILITY,
-            payload: { ...duplicatedFacility },
-          });
-        }
-        return duplicatedFacility;
-      } catch (error) {
-        console.error(`Error duplicating facility: ${facility.id}`);
-        throw error;
-      }
-    }
-  };
+export async function duplicateFacility(
+  scenarioId: string,
+  facility: Facility,
+) {
+  try {
+    return await duplicate(scenarioId, facility);
+  } catch (error) {
+    console.error(`Error duplicating facility: ${facility.id}`);
+    throw error;
+  }
 }
