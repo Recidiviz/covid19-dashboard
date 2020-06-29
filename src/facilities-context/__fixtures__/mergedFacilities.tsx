@@ -45,6 +45,7 @@ export const referenceFacility: ReferenceFacility = {
   countyName,
   canonicalName: "Florida State Test Facility",
   facilityType: "State Prison",
+  createdAt: new Date(2020, 5, 5),
   capacity: [{ date: new Date(2020, 0, 1), value: 275 }],
   population: [{ date: new Date(2020, 0, 1), value: 380 }],
   covidCases: [

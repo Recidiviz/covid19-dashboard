@@ -68,7 +68,7 @@ export const LocaleDataProvider: React.FC<{ children: React.ReactNode }> = ({
         try {
           // TODO: fix the intermittent CORS issue on this fetch?
           const response = await fetch(
-            "https://docs.google.com/spreadsheets/d/e/2PACX-1vSeEO7JySaN21_Cxa7ON_x" +
+            "https://cors-anywhere.herokuapp.com/https://docs.google.com/spreadsheets/d/e/2PACX-1vSeEO7JySaN21_Cxa7ON_x" +
               "UHDM-EEOFSMIjOAoLf6YOXBurMRXZYPFi7x_aOe-0awqDcL4KZTK1NhVI/pub?gid=" +
               "1836987932&single=true&output=csv",
           );

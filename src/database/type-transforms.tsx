@@ -1,5 +1,5 @@
 import { parse, parseISO, startOfToday } from "date-fns";
-import * as firebase from "firebase/app";
+import firebase from "firebase/app";
 import { pick } from "lodash";
 
 import { PlannedRelease } from "../impact-dashboard/EpidemicModelContext";
@@ -95,11 +95,13 @@ export const buildScenario = (
   document: firebase.firestore.DocumentData,
 ): Scenario => {
   const documentData = document.data();
-
   let scenario: Scenario = documentData;
   scenario.id = document.id;
   scenario.createdAt = timestampToDate(documentData.createdAt);
   scenario.updatedAt = timestampToDate(documentData.updatedAt);
+  scenario.referenceDataObservedAt = documentData.referenceDataObservedAt
+    ? timestampToDate(documentData.referenceDataObservedAt)
+    : undefined;
   scenario.baselinePopulations = documentData.hasOwnProperty(
     "baselinePopulations",
   )
@@ -182,6 +184,7 @@ export const buildReferenceFacility = (
     capacity,
     population,
     countyName,
+    createdAt,
   } = data;
 
   // do some explicit type casts for safety
@@ -192,6 +195,7 @@ export const buildReferenceFacility = (
   canonicalName = String(canonicalName);
   facilityType = String(facilityType);
   countyName = String(countyName);
+  createdAt = timestampToDate(data.createdAt);
 
   // if these are not arrays then unfortunately they are garbage;
   // this probably means the documents have been mangled somehow,
@@ -214,6 +218,7 @@ export const buildReferenceFacility = (
     facilityType,
     capacity,
     population,
+    createdAt,
     covidCases: facilityCovidCaseDocuments.map(buildCovidCase),
   };
 };

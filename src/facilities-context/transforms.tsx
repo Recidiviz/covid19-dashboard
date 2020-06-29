@@ -1,6 +1,6 @@
 import { scaleThreshold } from "d3";
 import { getTime, isSameDay } from "date-fns";
-import { last, omit, orderBy, pick } from "lodash";
+import { last, omit, orderBy } from "lodash";
 import { Optional } from "utility-types";
 
 import {
