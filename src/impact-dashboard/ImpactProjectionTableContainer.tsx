@@ -102,8 +102,14 @@ function buildHospitalizedRow(data: ndarray): TableRow {
   return row;
 }
 
-export function buildStaffData(staff, showHospitalizedRow = true) {
-  const staffHospitalized = buildHospitalizedRow(staff)
+export function buildStaffData({
+  staff,
+  showHospitalizedRow = true,
+}: {
+  staff: ndarray;
+  showHospitalizedRow?: boolean;
+}) {
+  const staffHospitalized = buildHospitalizedRow(staff);
   const staffData: TableRow[] = [
     buildTableRowFromCurves(staff, "Cases", countCasesForDay),
     Object.assign(
@@ -113,32 +119,36 @@ export function buildStaffData(staff, showHospitalizedRow = true) {
   ];
   showHospitalizedRow && staffData.push(staffHospitalized);
   staffData.push(
-    buildTableRowFromCurves(staff, "Fatalities", getFatalitiesForDay)
+    buildTableRowFromCurves(staff, "Fatalities", getFatalitiesForDay),
   );
-  return staffData
+  return staffData;
 }
 
-export function buildIncarceratedData(incarcerated, hospitalBeds = null) {
+export function buildIncarceratedData(
+  incarcerated: ndarray,
+  hospitalBeds?: number | undefined,
+) {
   const incarceratedData: TableRow[] = [
     buildTableRowFromCurves(incarcerated, "Cases", countCasesForDay),
   ];
   const incarceratedHospitalized = buildHospitalizedRow(incarcerated);
 
   incarceratedData.push(incarceratedHospitalized);
-  hospitalBeds && incarceratedData.push({
-    label: "% of public hospital beds used for incarc. pop.",
-    week1: (incarceratedHospitalized.week1 as number) / hospitalBeds,
-    week2: (incarceratedHospitalized.week2 as number) / hospitalBeds,
-    week3: (incarceratedHospitalized.week3 as number) / hospitalBeds,
-    overall: null,
-  });
+  hospitalBeds &&
+    incarceratedData.push({
+      label: "% of public hospital beds used for incarc. pop.",
+      week1: (incarceratedHospitalized.week1 as number) / hospitalBeds,
+      week2: (incarceratedHospitalized.week2 as number) / hospitalBeds,
+      week3: (incarceratedHospitalized.week3 as number) / hospitalBeds,
+      overall: null,
+    });
   incarceratedData.push(
     buildTableRowFromCurves(incarcerated, "Fatalities", getFatalitiesForDay),
   );
   return incarceratedData;
 }
 
-function buildPeakData(incarcerated, hospitalBeds) {
+function buildPeakData(incarcerated: ndarray, hospitalBeds: number) {
   const peakStats = getPeakHospitalized(incarcerated, hospitalBeds);
   const peakData: TableRow[] = [
     // TODO: dynamically indicate if this is for state or county
@@ -165,14 +175,14 @@ function buildPeakData(incarcerated, hospitalBeds) {
 const ImpactProjectionTableContainer: React.FC<{
   projectionData?: CurveData;
 }> = ({ projectionData }) => {
-  if (!projectionData) return <Loading />;
   const { hospitalBeds } = useEpidemicModelState();
 
-  const { incarcerated, staff } = projectionData;
+  if (!projectionData) return <Loading />;
 
-  const incarceratedData = buildIncarceratedData(incarcerated, hospitalBeds)
-  const staffData = buildStaffData(staff)
-  const peakData = buildPeakData(incarcerated, hospitalBeds)
+  const { incarcerated, staff } = projectionData;
+  const incarceratedData = buildIncarceratedData(incarcerated, hospitalBeds);
+  const staffData = buildStaffData({ staff });
+  const peakData = buildPeakData(incarcerated, hospitalBeds);
 
   return (
     <ImpactProjectionTable {...{ incarceratedData, staffData, peakData }} />

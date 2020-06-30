@@ -15,7 +15,7 @@ export interface TableRow {
 interface Props {
   incarceratedData: TableRow[];
   peakData: TableRow[];
-  staffData?: TableRow[] | undefined;
+  staffData: TableRow[];
 }
 
 const Table = styled.table`
@@ -55,23 +55,26 @@ const TableSection = styled.tbody`
 
 const TableHeadingCell = styled.td<{ left?: boolean }>`
   font-family: "Poppins", sans serif;
-  font-weight: normal;
   font-size: 9px;
   font-weight: 600;
   line-height: 16px;
-  text-align: left;
   opacity: 0.7;
   padding: 5px 0;
   text-align: ${(props) => (props.left ? "left" : "center")};
 `;
 
-const TableCell = styled.td<{ italic?: boolean; center?: boolean }>`
+const TableCell = styled.td<{
+  italic?: boolean;
+  center?: boolean;
+  snapshot?: boolean;
+}>`
   font-size: 13px;
   font-style: ${(props) => (props.italic ? "italic" : "inherit")};
   line-height: 150%;
   text-align: ${(props) => (props.center ? "center" : "left")};
   opacity: 0.7;
   padding-bottom: 0.5em;
+  width: ${(props) => (props.snapshot ? "200px" : "auto")};
 `;
 
 const naString = "N/A";
@@ -79,19 +82,27 @@ function formatThousands(value: number | null): string {
   return value === null ? naString : numeral(value).format("0,0");
 }
 
-function formatPct(value: number | null): string {
+export function formatPct(value: number | null): string {
   return value === null ? naString : numeral(value).format("0,0.0%");
 }
 
-function makeTableRow(row: TableRow, formatter = formatThousands) {
+export function makeTableRow({
+  row,
+  formatter = formatThousands,
+  snapshot = false,
+}: {
+  row: TableRow;
+  formatter?: (value: number | null) => string;
+  snapshot?: boolean;
+}) {
   const { label, week1, week2, week3, overall } = row;
   return (
     <tr key={label}>
-      <TableCell>{label}</TableCell>
-      <TableCell center>{formatter(week1)}</TableCell>
-      <TableCell center>{formatter(week2)}</TableCell>
-      <TableCell center>{formatter(week3)}</TableCell>
-      <TableCell center>{formatter(overall)}</TableCell>
+      <TableCell snapshot={snapshot}>{label}</TableCell>
+      <TableCell center={!snapshot}>{formatter(week1)}</TableCell>
+      <TableCell center={!snapshot}>{formatter(week2)}</TableCell>
+      <TableCell center={!snapshot}>{formatter(week3)}</TableCell>
+      <TableCell center={!snapshot}>{formatter(overall)}</TableCell>
     </tr>
   );
 }
@@ -130,7 +141,7 @@ const ImpactProjectionTable: React.FC<Props> = ({
         </tr>
         {incarceratedData.map((row, i) => {
           const formatter = i === 2 ? formatPct : undefined;
-          return makeTableRow(row, formatter);
+          return makeTableRow({ row, formatter });
         })}
       </TableSection>
       <TableSection>
@@ -139,9 +150,9 @@ const ImpactProjectionTable: React.FC<Props> = ({
             Total In-facility Staff
           </HeadingCell>
         </tr>
-        {staffData.map((row) => makeTableRow(row))}
+        {staffData.map((row) => makeTableRow({ row }))}
       </TableSection>
-      { peakData &&
+      {peakData && (
         <TableSection>
           <tr>
             <HeadingCell left scope="rowgroup">
@@ -153,7 +164,7 @@ const ImpactProjectionTable: React.FC<Props> = ({
             return makeOverallOnlyRow(row, formatter);
           })}
         </TableSection>
-      }
+      )}
     </Table>
   );
 };
