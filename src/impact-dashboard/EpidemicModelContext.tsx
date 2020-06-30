@@ -23,10 +23,10 @@ export enum RateOfSpread {
 export interface ModelInputsPopulationBrackets {
   age0Cases?: number;
   age0Recovered?: number;
-  age0Population?: number;
   age0Deaths?: number;
-  age20Recovered?: number;
+  age0Population?: number;
   age20Cases?: number;
+  age20Recovered?: number;
   age20Deaths?: number;
   age20Population?: number;
   age45Cases?: number;

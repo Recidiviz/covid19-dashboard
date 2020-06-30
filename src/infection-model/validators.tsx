@@ -52,7 +52,7 @@ const validateCasesBySum = (
     compareFn(totalConfirmedCases(current), totalConfirmedCases(comparedTo)) &&
     compareFn(
       totalConfirmedRecoveredCases(current),
-      totalConfirmedDeaths(comparedTo),
+      totalConfirmedRecoveredCases(comparedTo),
     ) &&
     compareFn(totalConfirmedDeaths(current), totalConfirmedDeaths(comparedTo))
   );
