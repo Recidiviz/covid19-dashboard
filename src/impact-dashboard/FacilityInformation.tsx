@@ -248,28 +248,67 @@ interface AgeGroupRowProps {
 
 const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
   const { model, updateModel } = props;
-  const [inputRelativityError, setInputRelativityError] = useState(false);
+  const [casesInputRelativityError, setCasesInputRelativityError] = useState(
+    false,
+  );
+  const [
+    recoveredInputRelativityError,
+    setRecoveredInputRelativityError,
+  ] = useState(false);
+  const [deathsInputRelativityError, setDeathsInputRelativityError] = useState(
+    false,
+  );
 
-  function checkInputRelativity(
+  function checkCasesInputRelativity(
     cases: number | undefined,
-    recovered: number | undefined,
-    deaths: number | undefined,
     total: number | undefined,
   ) {
     if (cases === undefined) {
-      setInputRelativityError(false);
+      setCasesInputRelativityError(false);
     } else if (cases !== undefined && total === undefined) {
-      setInputRelativityError(true);
+      setCasesInputRelativityError(true);
     } else if (total !== undefined && cases > total) {
-      setInputRelativityError(true);
+      setCasesInputRelativityError(true);
+    } else {
+      setCasesInputRelativityError(false);
+    }
+  }
+
+  function checkRecoveredInputRelativity(
+    cases: number | undefined,
+    recovered: number | undefined,
+    deaths: number | undefined,
+  ) {
+    if (recovered === undefined) {
+      setRecoveredInputRelativityError(false);
     } else if (
+      cases !== undefined &&
       recovered !== undefined &&
       deaths !== undefined &&
       cases < recovered + deaths
     ) {
-      setInputRelativityError(true);
+      setRecoveredInputRelativityError(true);
     } else {
-      setInputRelativityError(false);
+      setRecoveredInputRelativityError(false);
+    }
+  }
+
+  function checkDeathsInputRelativity(
+    cases: number | undefined,
+    recovered: number | undefined,
+    deaths: number | undefined,
+  ) {
+    if (deaths === undefined) {
+      setDeathsInputRelativityError(false);
+    } else if (
+      cases !== undefined &&
+      recovered !== undefined &&
+      deaths !== undefined &&
+      cases < recovered + deaths
+    ) {
+      setDeathsInputRelativityError(true);
+    } else {
+      setDeathsInputRelativityError(false);
     }
   }
 
@@ -282,14 +321,9 @@ const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
         <InputTextNumeric
           type="number"
           valueEntered={model[props.firstKey] as number}
-          inputRelativityError={inputRelativityError}
+          inputRelativityError={casesInputRelativityError}
           onValueChange={(cases) => {
-            checkInputRelativity(
-              cases,
-              model[props.secondKey] as number,
-              model[props.thirdKey] as number,
-              model[props.lastKey] as number,
-            );
+            checkCasesInputRelativity(cases, model[props.lastKey] as number);
             updateModel({ [props.firstKey]: cases });
           }}
         />
@@ -298,13 +332,12 @@ const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
         <InputTextNumeric
           type="number"
           valueEntered={model[props.secondKey] as number}
-          inputRelativityError={inputRelativityError}
+          inputRelativityError={recoveredInputRelativityError}
           onValueChange={(recovered) => {
-            checkInputRelativity(
+            checkRecoveredInputRelativity(
               model[props.firstKey] as number,
               recovered,
               model[props.thirdKey] as number,
-              model[props.lastKey] as number,
             );
             updateModel({ [props.secondKey]: recovered });
           }}
@@ -314,13 +347,12 @@ const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
         <InputTextNumeric
           type="number"
           valueEntered={model[props.thirdKey] as number}
-          inputRelativityError={inputRelativityError}
+          inputRelativityError={deathsInputRelativityError}
           onValueChange={(deaths) => {
-            checkInputRelativity(
+            checkDeathsInputRelativity(
               model[props.firstKey] as number,
               model[props.secondKey] as number,
               deaths,
-              model[props.lastKey] as number,
             );
             updateModel({ [props.thirdKey]: deaths });
           }}
@@ -331,12 +363,7 @@ const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
           type="number"
           valueEntered={model[props.lastKey] as number}
           onValueChange={(total) => {
-            checkInputRelativity(
-              model[props.firstKey] as number,
-              model[props.secondKey] as number,
-              model[props.thirdKey] as number,
-              total,
-            );
+            checkCasesInputRelativity(model[props.firstKey] as number, total);
             updateModel({ [props.lastKey]: total });
           }}
         />
