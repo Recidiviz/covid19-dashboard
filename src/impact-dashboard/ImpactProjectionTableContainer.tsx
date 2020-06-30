@@ -13,7 +13,7 @@ import { seirIndex } from "../infection-model/seir";
 import { useEpidemicModelState } from "./EpidemicModelContext";
 import ImpactProjectionTable, { TableRow } from "./ImpactProjectionTable";
 
-export function buildTableRowFromCurves(
+function buildTableRowFromCurves(
   data: ndarray,
   label: string,
   calculator: Function,

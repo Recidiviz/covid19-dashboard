@@ -63,46 +63,37 @@ const TableHeadingCell = styled.td<{ left?: boolean }>`
   text-align: ${(props) => (props.left ? "left" : "center")};
 `;
 
-const TableCell = styled.td<{
-  italic?: boolean;
-  center?: boolean;
-  snapshot?: boolean;
-}>`
+const TableCell = styled.td<{ italic?: boolean; center?: boolean; }>`
   font-size: 13px;
   font-style: ${(props) => (props.italic ? "italic" : "inherit")};
   line-height: 150%;
   text-align: ${(props) => (props.center ? "center" : "left")};
   opacity: 0.7;
   padding-bottom: 0.5em;
-  width: ${(props) => (props.snapshot ? "200px" : "auto")};
 `;
 
 const naString = "N/A";
-function formatThousands(value: number | null): string {
+export function formatThousands(value: number | null): string {
   return value === null ? naString : numeral(value).format("0,0");
 }
 
-export function formatPct(value: number | null): string {
+function formatPct(value: number | null): string {
   return value === null ? naString : numeral(value).format("0,0.0%");
 }
 
-export function makeTableRow({
-  row,
-  formatter = formatThousands,
-  snapshot = false,
-}: {
-  row: TableRow;
-  formatter?: (value: number | null) => string;
-  snapshot?: boolean;
-}) {
+export function makeTableRow(row: TableRow) {
   const { label, week1, week2, week3, overall } = row;
+  const formatter =
+    label === "% of public hospital beds used for incarc. pop."
+      ? formatPct
+      : formatThousands;
   return (
     <tr key={label}>
-      <TableCell snapshot={snapshot}>{label}</TableCell>
-      <TableCell center={!snapshot}>{formatter(week1)}</TableCell>
-      <TableCell center={!snapshot}>{formatter(week2)}</TableCell>
-      <TableCell center={!snapshot}>{formatter(week3)}</TableCell>
-      <TableCell center={!snapshot}>{formatter(overall)}</TableCell>
+      <TableCell>{label}</TableCell>
+      <TableCell center>{formatter(week1)}</TableCell>
+      <TableCell center>{formatter(week2)}</TableCell>
+      <TableCell center>{formatter(week3)}</TableCell>
+      <TableCell center>{formatter(overall)}</TableCell>
     </tr>
   );
 }
@@ -139,10 +130,7 @@ const ImpactProjectionTable: React.FC<Props> = ({
             Total Incarcerated Population
           </HeadingCell>
         </tr>
-        {incarceratedData.map((row, i) => {
-          const formatter = i === 2 ? formatPct : undefined;
-          return makeTableRow({ row, formatter });
-        })}
+        {incarceratedData.map((row) => makeTableRow(row))}
       </TableSection>
       <TableSection>
         <tr>
@@ -150,7 +138,7 @@ const ImpactProjectionTable: React.FC<Props> = ({
             Total In-facility Staff
           </HeadingCell>
         </tr>
-        {staffData.map((row) => makeTableRow({ row }))}
+        {staffData.map((row) => makeTableRow(row))}
       </TableSection>
       {peakData && (
         <TableSection>
