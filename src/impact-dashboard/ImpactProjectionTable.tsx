@@ -63,7 +63,7 @@ const TableHeadingCell = styled.td<{ left?: boolean }>`
   text-align: ${(props) => (props.left ? "left" : "center")};
 `;
 
-const TableCell = styled.td<{ italic?: boolean; center?: boolean; }>`
+const TableCell = styled.td<{ italic?: boolean; center?: boolean }>`
   font-size: 13px;
   font-style: ${(props) => (props.italic ? "italic" : "inherit")};
   line-height: 150%;
