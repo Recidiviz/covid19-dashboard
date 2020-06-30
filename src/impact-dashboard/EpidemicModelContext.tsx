@@ -349,40 +349,6 @@ const casesKeys: (keyof ModelInputsPopulationBrackets)[] = [
   "staffCases",
 ];
 
-const incarceratedRecoveredKeys: (keyof ModelInputsPopulationBrackets)[] = [
-  "age0Recovered",
-  "age20Recovered",
-  "age45Recovered",
-  "age55Recovered",
-  "age65Recovered",
-  "age75Recovered",
-  "age85Recovered",
-  "ageUnknownRecovered",
-];
-const recoveredKeys: (keyof ModelInputsPopulationBrackets)[] = [
-  ...incarceratedRecoveredKeys,
-  "staffRecovered",
-];
-
-export const incarceratedDeathKeys: Array<
-  keyof ModelInputsPopulationBrackets
-> = [
-  "age0Deaths",
-  "age20Deaths",
-  "age45Deaths",
-  "age55Deaths",
-  "age65Deaths",
-  "age75Deaths",
-  "age85Deaths",
-  "ageUnknownDeaths",
-  "staffDeaths",
-];
-
-const deathKeys: (keyof ModelInputsPopulationBrackets)[] = [
-  ...incarceratedDeathKeys,
-  "staffDeaths",
-];
-
 const incarceratedPopulationKeys: (keyof ModelInputsPopulationBrackets)[] = [
   "age0Population",
   "age20Population",
@@ -408,31 +374,19 @@ export function totalConfirmedCases(
 export function totalConfirmedRecoveredCases(
   brackets: ModelInputsPopulationBrackets,
 ): number {
-  return sum(Object.values(pick(brackets, recoveredKeys)));
+  return sum(Object.values(pick(brackets, recoveredBracketKeys)));
 }
 
 export function totalConfirmedDeaths(
   brackets: ModelInputsPopulationBrackets,
 ): number {
-  return sum(Object.values(pick(brackets, deathKeys)));
+  return sum(Object.values(pick(brackets, deathBracketKeys)));
 }
 
 export function totalIncarceratedConfirmedCases(
   brackets: ModelInputsPopulationBrackets,
 ): number {
   return sum(Object.values(pick(brackets, incarceratedCasesKeys)));
-}
-
-export function totalIncarceratedRecoveredCases(
-  brackets: ModelInputsPopulationBrackets,
-): number {
-  return sum(Object.values(pick(brackets, incarceratedRecoveredKeys)));
-}
-
-export function totalIncarceratedDeaths(
-  brackets: ModelInputsPopulationBrackets,
-): number {
-  return sum(Object.values(pick(brackets, incarceratedDeathKeys)));
 }
 
 export function totalIncarceratedPopulation(
@@ -463,14 +417,6 @@ export function calculateFacilityOccupancyPct(
 
 export function hasCases(inputs: ModelInputsPopulationBrackets): boolean {
   return casesKeys.some((key) => inputs[key] !== undefined);
-}
-
-export function hasRecovered(inputs: ModelInputsPopulationBrackets): boolean {
-  return recoveredKeys.some((key) => inputs[key] !== undefined);
-}
-
-export function hasDeath(inputs: ModelInputsPopulationBrackets): boolean {
-  return deathKeys.some((key) => inputs[key] !== undefined);
 }
 
 export function hasPopulation(inputs: ModelInputs): boolean {
