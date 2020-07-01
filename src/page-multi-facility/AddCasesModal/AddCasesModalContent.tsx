@@ -1,7 +1,7 @@
 import { startOfToday } from "date-fns";
 import hexAlpha from "hex-alpha";
 import numeral from "numeral";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 
 import Colors from "../../design-system/Colors";
@@ -117,6 +117,7 @@ const AddCasesModalContent: React.FC<Props> = ({
       ),
     [facilityModelVersions],
   );
+  const [warnedAt, setWarnedAt] = useState(0);
 
   const getTileClassName = useCallback(
     ({ date, view }: { date: Date; view: string }) => {
@@ -193,6 +194,8 @@ const AddCasesModalContent: React.FC<Props> = ({
         model={inputs}
         updateModel={updateInputs}
         collapsible={true}
+        warnedAt={warnedAt}
+        setWarnedAt={setWarnedAt}
       />
       <HorizRule />
       <InputButton label="Save" onClick={onSave} />

@@ -264,6 +264,8 @@ export const saveScenario = async (scenario: any): Promise<Scenario | null> => {
     // If the scenario already has an id associated with it then we just need
     // to update that scenario. Otherwise, we are creating a new scenario.
     if (scenario.id) {
+      // remove any keys that are explicitly set to undefined or Firestore will object
+      scenario = pickBy(scenario, (value) => value !== undefined);
       const payload = buildUpdatePayload(scenario);
 
       await db

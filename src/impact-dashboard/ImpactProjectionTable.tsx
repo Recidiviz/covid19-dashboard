@@ -55,11 +55,9 @@ const TableSection = styled.tbody`
 
 const TableHeadingCell = styled.td<{ left?: boolean }>`
   font-family: "Poppins", sans serif;
-  font-weight: normal;
   font-size: 9px;
   font-weight: 600;
   line-height: 16px;
-  text-align: left;
   opacity: 0.7;
   padding: 5px 0;
   text-align: ${(props) => (props.left ? "left" : "center")};
@@ -75,7 +73,7 @@ const TableCell = styled.td<{ italic?: boolean; center?: boolean }>`
 `;
 
 const naString = "N/A";
-function formatThousands(value: number | null): string {
+export function formatThousands(value: number | null): string {
   return value === null ? naString : numeral(value).format("0,0");
 }
 
@@ -83,8 +81,12 @@ function formatPct(value: number | null): string {
   return value === null ? naString : numeral(value).format("0,0.0%");
 }
 
-function makeTableRow(row: TableRow, formatter = formatThousands) {
+export function makeTableRow(row: TableRow) {
   const { label, week1, week2, week3, overall } = row;
+  const formatter =
+    label === "% of public hospital beds used for incarc. pop."
+      ? formatPct
+      : formatThousands;
   return (
     <tr key={label}>
       <TableCell>{label}</TableCell>
@@ -128,10 +130,7 @@ const ImpactProjectionTable: React.FC<Props> = ({
             Total Incarcerated Population
           </HeadingCell>
         </tr>
-        {incarceratedData.map((row, i) => {
-          const formatter = i === 2 ? formatPct : undefined;
-          return makeTableRow(row, formatter);
-        })}
+        {incarceratedData.map((row) => makeTableRow(row))}
       </TableSection>
       <TableSection>
         <tr>
@@ -141,17 +140,19 @@ const ImpactProjectionTable: React.FC<Props> = ({
         </tr>
         {staffData.map((row) => makeTableRow(row))}
       </TableSection>
-      <TableSection>
-        <tr>
-          <HeadingCell left scope="rowgroup">
-            Maximum utilization
-          </HeadingCell>
-        </tr>
-        {peakData.map((row, i) => {
-          const formatter = i === 0 ? formatPct : undefined;
-          return makeOverallOnlyRow(row, formatter);
-        })}
-      </TableSection>
+      {peakData && (
+        <TableSection>
+          <tr>
+            <HeadingCell left scope="rowgroup">
+              Maximum utilization
+            </HeadingCell>
+          </tr>
+          {peakData.map((row, i) => {
+            const formatter = i === 0 ? formatPct : undefined;
+            return makeOverallOnlyRow(row, formatter);
+          })}
+        </TableSection>
+      )}
     </Table>
   );
 };
