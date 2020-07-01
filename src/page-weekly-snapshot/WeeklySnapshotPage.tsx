@@ -9,6 +9,7 @@ const WeeklySnapshotContainer = styled.div``;
 
 const HorizontalRule = styled.hr`
   border-color: ${Colors.opacityGray};
+  margin: 10px 0;
 `;
 
 const Placeholder = styled.div`
@@ -23,8 +24,6 @@ const FooterContainer = styled.div`
   width: 100%;
   display: flex;
   justify-content: space-between;
-  margin-top: 5px;
-  margin-bottom: 5px;
 `;
 
 const FooterLeft = styled.div`
