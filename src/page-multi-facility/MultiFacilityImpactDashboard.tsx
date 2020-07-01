@@ -9,6 +9,7 @@ import Loading from "../design-system/Loading";
 import TextLabel from "../design-system/TextLabel";
 import { useFacilities } from "../facilities-context";
 import { useFlag } from "../feature-flags";
+import useReadOnlyMode from "../hooks/useReadOnlyMode";
 import useReferenceFacilitiesEligible from "../hooks/useReferenceFacilitiesEligible";
 import useRejectionToast from "../hooks/useRejectionToast";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
@@ -87,6 +88,7 @@ const MultiFacilityImpactDashboard: React.FC = () => {
   const [scenarioState] = useScenario();
   const scenario = scenarioState?.data;
   const scenarioId = scenario?.id;
+  const readOnlyMode = useReadOnlyMode(scenario);
   const {
     state: facilitiesState,
     actions: { createOrUpdateFacility, deselectFacility },
@@ -95,13 +97,18 @@ const MultiFacilityImpactDashboard: React.FC = () => {
   const rtData = getFacilitiesRtDataById(facilitiesState.rtData, facilities);
   const systemType = facilities[0]?.systemType;
   const stateName = facilities[0]?.modelInputs.stateName;
-  const showSyncNoUserFacilities =
+  const showSyncReferenceFacilitiesBaseConditions =
     referenceFacilitiesEligible &&
     !facilitiesState.loading &&
-    facilities.length == 0;
-
-  const newlyAddedReferenceData =
     !scenarioState.loading &&
+    !readOnlyMode; // i.e. User must own of the Scenario
+
+  const showSyncNoUserFacilities =
+    showSyncReferenceFacilitiesBaseConditions && facilities.length == 0;
+
+  const showSyncNewReferenceData =
+    showSyncReferenceFacilitiesBaseConditions &&
+    !showSyncNoUserFacilities &&
     (!scenario?.referenceDataObservedAt ||
       Object.values(facilitiesState.referenceFacilities).some((refFacility) => {
         return (
@@ -117,20 +124,8 @@ const MultiFacilityImpactDashboard: React.FC = () => {
   };
 
   useEffect(() => {
-    if (
-      referenceFacilitiesEligible &&
-      newlyAddedReferenceData &&
-      !showSyncNoUserFacilities
-    ) {
-      setReferenceDataModalOpen(true);
-    } else {
-      setReferenceDataModalOpen(false);
-    }
-  }, [
-    referenceFacilitiesEligible,
-    newlyAddedReferenceData,
-    showSyncNoUserFacilities,
-  ]);
+    setReferenceDataModalOpen(showSyncNewReferenceData);
+  }, [showSyncNewReferenceData]);
 
   const openAddFacilityPage = () => {
     deselectFacility();

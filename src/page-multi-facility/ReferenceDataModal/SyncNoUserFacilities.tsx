@@ -10,7 +10,11 @@ import { useFacilities } from "../../facilities-context";
 import { useLocaleDataState } from "../../locale-data-context";
 import useScenario from "../../scenario-context/useScenario";
 import SystemTypeSelection from "../SystemTypeSelection";
-import { FacilityReferenceMapping, ReferenceFacility } from "../types";
+import {
+  FacilityReferenceMapping,
+  ReferenceFacility,
+  Scenario,
+} from "../types";
 import ReferenceFacilityRow from "./shared/ReferenceFacilityRow";
 
 const STATE_AND_SYSTEM_SELECTION_CARD = "STATE_AND_SYSTEM_SELECTION_CARD";
@@ -103,7 +107,7 @@ const StateAndSystemSelectionCard: React.FC<StateAndSystemProps> = (props) => {
   const { data: localeDataSource } = useLocaleDataState();
 
   const stateNames = Array.from(localeDataSource.keys()).filter(
-    (name) => name !== "US Total",
+    (name) => name !== "US Total" && name !== "US Federal Prisons",
   );
 
   const handleNextButtonClick = async () => {
@@ -143,15 +147,22 @@ const StateAndSystemSelectionCard: React.FC<StateAndSystemProps> = (props) => {
 type SyncReferenceFacilitiesCardProps = CardStateProps & {
   stateName: StateNameProps["stateName"];
   systemType: SystemTypeProps["systemType"];
+  scenario: Scenario;
+  dispatchScenarioUpdate: (scenario: Scenario) => void;
 };
 
 const SyncReferenceFacilitiesCard: React.FC<SyncReferenceFacilitiesCardProps> = (
   props,
 ) => {
-  const { stateName, systemType, setActiveStep, setModalTitle } = props;
+  const {
+    stateName,
+    systemType,
+    setActiveStep,
+    setModalTitle,
+    scenario,
+    dispatchScenarioUpdate,
+  } = props;
 
-  const [scenarioState, dispatchScenarioUpdate] = useScenario();
-  const scenario = scenarioState.data;
   const {
     actions: { createOrUpdateFacility, fetchReferenceFacilities },
   } = useFacilities();
@@ -199,12 +210,14 @@ const SyncReferenceFacilitiesCard: React.FC<SyncReferenceFacilitiesCardProps> = 
   };
 
   const handleSave = async () => {
-    const minimalModelInput = {
-      observedAt: new Date(),
-      updatedAt: new Date(),
-    };
-
     const facilitySaves = selectedFacilities.map((facility) => {
+      const minimalModelInput = {
+        observedAt: new Date(),
+        updatedAt: new Date(),
+        stateName: facility.stateName,
+        countrName: facility.countyName,
+      };
+
       return createOrUpdateFacility({
         name: facility.canonicalName,
         systemType: facility.facilityType,
@@ -215,6 +228,25 @@ const SyncReferenceFacilitiesCard: React.FC<SyncReferenceFacilitiesCardProps> = 
 
     const savedFacilities = await Promise.all(facilitySaves);
 
+    // If for whatever reason the number of facilities saved does not match the
+    // number of facilities that were originally selected then return immediately
+    // so that we don't mis-match User Facilities with Reference Facilities.  See
+    // the comment below about how we use insertion order and indexing to map User
+    // Facilities to Referende Facilities.
+    if (savedFacilities.length !== selectedFacilities.length) {
+      console.error(`The number of saved facilities (${savedFacilities.length}) does not match \
+        the number of selected facilities (${selectedFacilities.length}). The saved User \
+        Facilities will not be mapped to selected Reference Facilities.`);
+      return;
+    }
+
+    // Promise.all preserves insertion order so we can use this information to guarnatee User
+    // Facilities in the savedFacilities array have a matching index with the Reference
+    // Facilities in the selectedFacilities array.  Since the indexes match, it is acceptable
+    // to generate the facilityIdToReferenceId mapping by iterating over the savedFacilities
+    // and mapping corresponding entries at the same index in the selectedFacilities array.
+    // See the following StackOverflow entry for an example of Promise.all's return ordering:
+    // https://stackoverflow.com/questions/28066429/promise-all-order-of-resolved-values
     const facilityIdToReferenceId: FacilityReferenceMapping = {};
 
     savedFacilities.map((facility, index) => {
@@ -224,7 +256,6 @@ const SyncReferenceFacilitiesCard: React.FC<SyncReferenceFacilitiesCardProps> = 
 
     saveScenario({
       ...scenario,
-      referenceDataObservedAt: new Date(),
       [referenceFacilitiesProp]: Object.assign(
         {},
         scenario?.[referenceFacilitiesProp],
@@ -279,6 +310,21 @@ const SyncNoUserFacilities: React.FC = () => {
   const [modalTitle, setModalTitle] = useState<string>();
   const [systemType, setSystemType] = useState<string>();
   const [stateName, setStateName] = useState<string>();
+  const [scenarioState, dispatchScenarioUpdate] = useScenario();
+  const scenario = scenarioState.data;
+  const scenarioId = scenario?.id;
+
+  // Immediately set the referenceDataObservedAt time so that
+  // this modal does not compete with the SyncNewReferenceData
+  // modal for attention.
+  useEffect(() => {
+    saveScenario({
+      ...scenario,
+      referenceDataObservedAt: new Date(),
+    }).then((savedScenario) => {
+      if (savedScenario) dispatchScenarioUpdate(savedScenario);
+    });
+  }, [scenarioId]);
 
   return (
     <Modal
@@ -297,12 +343,14 @@ const SyncNoUserFacilities: React.FC = () => {
           setModalTitle={setModalTitle}
         />
       )}
-      {activeStep === SYNC_REFERENCE_FACILITIES_CARD && (
+      {activeStep === SYNC_REFERENCE_FACILITIES_CARD && scenario && (
         <SyncReferenceFacilitiesCard
           stateName={stateName}
           systemType={systemType}
           setActiveStep={setActiveStep}
           setModalTitle={setModalTitle}
+          scenario={scenario}
+          dispatchScenarioUpdate={dispatchScenarioUpdate}
         />
       )}
     </Modal>
