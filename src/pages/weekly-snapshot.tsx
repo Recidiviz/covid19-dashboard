@@ -4,6 +4,7 @@ import AuthWall from "../auth/AuthWall";
 import useAdminUser from "../hooks/useAdminUser";
 import WeeklySnapshotPage from "../page-weekly-snapshot";
 import { NYTDataProvider } from "../page-weekly-snapshot/NYTDataProvider";
+import { WeeklyReportProvider } from "../page-weekly-snapshot/WeeklyReportContext";
 import PageInfo from "../site-metadata/PageInfo";
 
 // eslint-disable-next-line react/display-name
@@ -16,9 +17,11 @@ export default () => {
         <>
           <PageInfo title="Generate State-level Weekly Snapshot" />
           <AuthWall>
-            <NYTDataProvider>
-              <WeeklySnapshotPage />
-            </NYTDataProvider>
+            <WeeklyReportProvider>
+              <NYTDataProvider>
+                <WeeklySnapshotPage />
+              </NYTDataProvider>
+            </WeeklyReportProvider>
           </AuthWall>
         </>
       ) : (
