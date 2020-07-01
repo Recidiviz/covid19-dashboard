@@ -96,13 +96,14 @@ const dHospitalFatality = 8.3;
 const ratioExposedToInfected = dIncubation / dInfectious;
 // factor for estimating population adjustment based on expected turnover
 const populationAdjustmentRatio = 0.0879;
-// Distribution of initial infected cases, based on curve ratios
-const pInitiallyInfectious = 0.611;
-const pInitiallyMild = 0.231;
-const pInitiallySevere = 0.054;
-const pInitiallyHospitalized = 0.043;
-const pInitiallyMildRecovered = 0.057;
-const pInitiallySevereRecovered = 0.004;
+// Distribution of active cases, based on curve ratios
+const pInitiallyInfectious = 0.293;
+const pInitiallyMild = 0.439;
+const pInitiallySevere = 0.052;
+const pInitiallyHospitalized = 0.216;
+// Distribution of recovered cases, based on curve ratios
+const pInitiallyMildRecovered = 0.856;
+const pInitiallySevereRecovered = 0.144;
 
 function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
   const {
@@ -307,7 +308,9 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
   ).forEach(([pop, cases, recovered, deaths], index) => {
     // distribute cases across compartments proportionally
 
-    const infectious = cases * pInitiallyInfectious;
+    const activeCases = cases - recovered - deaths;
+
+    const infectious = activeCases * pInitiallyInfectious;
     // exposed is related to the number of infectious
     // but it can't be more than the total uninfected population
     const exposed = Math.min(infectious * ratioExposedToInfected, pop - cases);
@@ -315,23 +318,24 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
     singleDayState.set(index, seirIndex.susceptible, pop - cases - exposed);
     singleDayState.set(index, seirIndex.exposed, exposed);
     singleDayState.set(index, seirIndex.infectious, infectious);
-    singleDayState.set(index, seirIndex.mild, cases * pInitiallyMild);
-    singleDayState.set(index, seirIndex.severe, cases * pInitiallySevere);
+    singleDayState.set(index, seirIndex.mild, activeCases * pInitiallyMild);
+    singleDayState.set(index, seirIndex.severe, activeCases * pInitiallySevere);
     singleDayState.set(
       index,
       seirIndex.hospitalized,
-      cases * pInitiallyHospitalized,
+      activeCases * pInitiallyHospitalized,
     );
     singleDayState.set(
       index,
       seirIndex.mildRecovered,
-      cases * pInitiallyMildRecovered,
+      recovered * pInitiallyMildRecovered,
     );
     singleDayState.set(
       index,
       seirIndex.severeRecovered,
-      cases * pInitiallySevereRecovered,
+      recovered * pInitiallySevereRecovered,
     );
+    singleDayState.set(index, seirIndex.fatalities, deaths);
   });
 
   // index expected population adjustments by day;
