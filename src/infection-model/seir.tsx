@@ -17,6 +17,8 @@ interface SimulationInputs {
 
 export interface CurveProjectionInputs extends SimulationInputs {
   ageGroupPopulations: number[];
+  ageGroupRecovered: number[];
+  ageGroupDeaths: number[];
   numDays: number;
   ageGroupInitiallyInfected: number[];
   facilityOccupancyPct: number;
@@ -227,6 +229,8 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
   let {
     ageGroupInitiallyInfected,
     ageGroupPopulations,
+    ageGroupRecovered,
+    ageGroupDeaths,
     facilityDormitoryPct,
     numDays,
     plannedReleases,
@@ -253,7 +257,6 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
       });
     });
   };
-
   const ageGroupFatalityRates = [];
   ageGroupFatalityRates[ageGroupIndex.ageUnknown] = 0.026;
   ageGroupFatalityRates[ageGroupIndex.age0] = 0;
@@ -296,40 +299,41 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
   );
 
   // assign people to initial states
-  zip(ageGroupPopulations, ageGroupInitiallyInfected).forEach(
-    ([pop, cases], index) => {
-      // distribute cases across compartments proportionally
+  zip(
+    ageGroupPopulations,
+    ageGroupInitiallyInfected,
+    ageGroupRecovered,
+    ageGroupDeaths,
+  ).forEach(([pop, cases, recovered, deaths], index) => {
+    console.log(pop, cases, recovered, deaths);
+    // distribute cases across compartments proportionally
 
-      const infectious = cases * pInitiallyInfectious;
-      // exposed is related to the number of infectious
-      // but it can't be more than the total uninfected population
-      const exposed = Math.min(
-        infectious * ratioExposedToInfected,
-        pop - cases,
-      );
+    const infectious = cases * pInitiallyInfectious;
+    // exposed is related to the number of infectious
+    // but it can't be more than the total uninfected population
+    const exposed = Math.min(infectious * ratioExposedToInfected, pop - cases);
 
-      singleDayState.set(index, seirIndex.susceptible, pop - cases - exposed);
-      singleDayState.set(index, seirIndex.exposed, exposed);
-      singleDayState.set(index, seirIndex.infectious, infectious);
-      singleDayState.set(index, seirIndex.mild, cases * pInitiallyMild);
-      singleDayState.set(index, seirIndex.severe, cases * pInitiallySevere);
-      singleDayState.set(
-        index,
-        seirIndex.hospitalized,
-        cases * pInitiallyHospitalized,
-      );
-      singleDayState.set(
-        index,
-        seirIndex.mildRecovered,
-        cases * pInitiallyMildRecovered,
-      );
-      singleDayState.set(
-        index,
-        seirIndex.severeRecovered,
-        cases * pInitiallySevereRecovered,
-      );
-    },
-  );
+    singleDayState.set(index, seirIndex.susceptible, pop - cases - exposed);
+    singleDayState.set(index, seirIndex.exposed, exposed);
+    singleDayState.set(index, seirIndex.infectious, infectious);
+    singleDayState.set(index, seirIndex.mild, cases * pInitiallyMild);
+    singleDayState.set(index, seirIndex.severe, cases * pInitiallySevere);
+    singleDayState.set(
+      index,
+      seirIndex.hospitalized,
+      cases * pInitiallyHospitalized,
+    );
+    singleDayState.set(
+      index,
+      seirIndex.mildRecovered,
+      cases * pInitiallyMildRecovered,
+    );
+    singleDayState.set(
+      index,
+      seirIndex.severeRecovered,
+      cases * pInitiallySevereRecovered,
+    );
+  });
 
   // index expected population adjustments by day;
   const today = Date.now();

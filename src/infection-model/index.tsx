@@ -64,6 +64,67 @@ function prepareAgeGroupPopulations({
   return ageGroupPopulations;
 }
 
+function prepareAgeGroupRecovered({
+  age0Recovered,
+  age20Recovered,
+  age45Recovered,
+  age55Recovered,
+  age65Recovered,
+  age75Recovered,
+  age85Recovered,
+  ageUnknownRecovered,
+  staffRecovered,
+  totalIncarcerated,
+  usePopulationSubsets,
+}: CurveFunctionInputs): number[] {
+  console.log(usePopulationSubsets);
+  const ageGroupRecovered = Array(ageGroupIndex.__length).fill(0);
+  if (usePopulationSubsets) {
+    ageGroupRecovered[ageGroupIndex.age0] = age0Recovered || 0;
+    ageGroupRecovered[ageGroupIndex.age20] = age20Recovered || 0;
+    ageGroupRecovered[ageGroupIndex.age45] = age45Recovered || 0;
+    ageGroupRecovered[ageGroupIndex.age55] = age55Recovered || 0;
+    ageGroupRecovered[ageGroupIndex.age65] = age65Recovered || 0;
+    ageGroupRecovered[ageGroupIndex.age75] = age75Recovered || 0;
+    ageGroupRecovered[ageGroupIndex.age85] = age85Recovered || 0;
+    ageGroupRecovered[ageGroupIndex.ageUnknown] = ageUnknownRecovered || 0;
+    ageGroupRecovered[ageGroupIndex.staff] = staffRecovered || 0;
+  } else {
+    ageGroupRecovered[ageGroupIndex.ageUnknown] = totalIncarcerated || 0;
+  }
+  return ageGroupRecovered;
+}
+
+function prepareAgeGroupDeaths({
+  age0Deaths,
+  age20Deaths,
+  age45Deaths,
+  age55Deaths,
+  age65Deaths,
+  age75Deaths,
+  age85Deaths,
+  ageUnknownDeaths,
+  staffDeaths,
+  totalIncarcerated,
+  usePopulationSubsets,
+}: CurveFunctionInputs): number[] {
+  const ageGroupDeaths = Array(ageGroupIndex.__length).fill(0);
+  if (usePopulationSubsets) {
+    ageGroupDeaths[ageGroupIndex.age0] = age0Deaths || 0;
+    ageGroupDeaths[ageGroupIndex.age20] = age20Deaths || 0;
+    ageGroupDeaths[ageGroupIndex.age45] = age45Deaths || 0;
+    ageGroupDeaths[ageGroupIndex.age55] = age55Deaths || 0;
+    ageGroupDeaths[ageGroupIndex.age65] = age65Deaths || 0;
+    ageGroupDeaths[ageGroupIndex.age75] = age75Deaths || 0;
+    ageGroupDeaths[ageGroupIndex.age85] = age85Deaths || 0;
+    ageGroupDeaths[ageGroupIndex.ageUnknown] = ageUnknownDeaths || 0;
+    ageGroupDeaths[ageGroupIndex.staff] = staffDeaths || 0;
+  } else {
+    ageGroupDeaths[ageGroupIndex.ageUnknown] = totalIncarcerated || 0;
+  }
+  return ageGroupDeaths;
+}
+
 enum R0Cells {
   low = 2.4,
   moderate = 3,
@@ -154,8 +215,10 @@ function prepareCurveData(inputs: CurveFunctionInputs): CurveProjectionInputs {
   const numDays = NUM_DAYS;
 
   const ageGroupPopulations = prepareAgeGroupPopulations(inputs);
-
   const ageGroupInitiallyInfected = Array(ageGroupIndex.__length).fill(0);
+  const ageGroupRecovered = prepareAgeGroupRecovered(inputs);
+  const ageGroupDeaths = prepareAgeGroupRecovered(inputs);
+
   if (usePopulationSubsets) {
     ageGroupInitiallyInfected[ageGroupIndex.age0] = age0Cases || 0;
     ageGroupInitiallyInfected[ageGroupIndex.age20] = age20Cases || 0;
@@ -172,6 +235,8 @@ function prepareCurveData(inputs: CurveFunctionInputs): CurveProjectionInputs {
 
   return {
     ageGroupPopulations,
+    ageGroupRecovered,
+    ageGroupDeaths,
     ageGroupInitiallyInfected,
     facilityDormitoryPct,
     facilityOccupancyPct,
