@@ -1,15 +1,38 @@
 import React from "react";
 import styled from "styled-components";
 
+import Colors from "../design-system/Colors";
 import FacilityProjections from "./FacilityProjections";
 import LocaleSummary from "./LocaleSummary";
 
 const WeeklySnapshotContainer = styled.div``;
 
+const HorizontalRule = styled.hr`
+  border-color: ${Colors.opacityGray};
+`;
+
 const Placeholder = styled.div`
   padding: 20px;
   margin: 20px;
   font-size: 18px;
+`;
+
+const FooterContainer = styled.div`
+  font-family: Libre Franklin;
+  font-size: 11px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+  margin-bottom: 5px;
+`;
+
+const FooterLeft = styled.div`
+  text-align: left;
+`;
+
+const FooterRight = styled.div`
+  text-align: right;
 `;
 
 export default function WeeklySnapshotPage() {
@@ -27,7 +50,14 @@ export default function WeeklySnapshotPage() {
             Facility Projections
             <FacilityProjections />
           </Placeholder>
-          <Placeholder>Page Footer</Placeholder>
+          <HorizontalRule />
+          <FooterContainer>
+            <FooterLeft>Log in to update data: model.recividiz.org</FooterLeft>
+            <FooterRight>
+              Questions and feedback: covid@recidiviz.org
+            </FooterRight>
+          </FooterContainer>
+          <HorizontalRule />
         </div>
       </div>
     </WeeklySnapshotContainer>
