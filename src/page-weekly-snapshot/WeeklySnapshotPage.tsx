@@ -19,11 +19,11 @@ const Placeholder = styled.div`
 `;
 
 const FooterContainer = styled.div`
-  font-family: Libre Franklin;
-  font-size: 11px;
   width: 100%;
   display: flex;
   justify-content: space-between;
+  font-family: Libre Franklin;
+  font-size: 11px;
 `;
 
 const FooterLeft = styled.div`
