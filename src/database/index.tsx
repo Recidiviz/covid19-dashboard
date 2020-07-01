@@ -256,6 +256,51 @@ export const getScenarios = async (): Promise<Scenario[]> => {
   }
 };
 
+export const getSharedBaselineScenarios = async (): Promise<Scenario[]> => {
+  try {
+    const db = await getDb();
+
+    const results = await db
+      .collection(scenariosCollectionId)
+      .where(`roles.${currentUserId()}`, "in", ["viewer"])
+      .where("baseline", "==", true)
+      .get();
+
+    const sharedBaselineScenarios = results.docs.map((doc) => {
+      return buildScenario(doc);
+    });
+
+    return sharedBaselineScenarios;
+  } catch (error) {
+    console.error(
+      `Encountered error while attempting to retrieve shared scenarios:`,
+    );
+    console.error(error);
+
+    return [];
+  }
+};
+
+export const getSharedScenarioByStateName = async (
+  scenarios: Scenario[],
+  stateName: string,
+) => {
+  const db = await getDb();
+
+  const results = await Promise.all(
+    scenarios.map(async (scenario: Scenario) => {
+      const facilities = await db
+        .collection(scenariosCollectionId)
+        .doc(scenario.id)
+        .collection(facilitiesCollectionId)
+        .where("modelInputs.stateName", "==", stateName)
+        .get();
+      return facilities.docs.length > 0 && scenario;
+    }),
+  );
+  return results.find((result) => result);
+};
+
 export const saveScenario = async (scenario: any): Promise<Scenario | null> => {
   try {
     const db = await getDb();
@@ -370,6 +415,21 @@ const getFacilityModelVersions = async ({
     return [];
   }
 };
+
+// Steps:
+// For the covid@recidiviz.org user when they navigate to weekly-snapshot
+// and selects a stateName and the shared scenario exists:
+// 1. db: getSharedBaselineScenarios - get an array of shared baseline scenarios
+// 2. component: store the shared baseline scenarios in component state (or in a weekly snapshot context?)
+// 3. db: for each shared baseline scenario query for facilities by scenarioId, stateName
+// 4. component: fetch facilities by scenarioId, stateName, if useReferenceData = true
+//    then build composite facilities
+
+// For the covid@recidiviz.org user when they navigate to weekly-snapshot
+// and selects a stateName and the shared scenario does NOT exist:
+// 1. Just need to call `getReferenceFacilities` by stateName and systemType = 'State Prison'?
+// I'm not sure if we need any data from the scenario in this case since we wouldn't
+// have a facility <-> reference mapping.
 
 export const getFacilities = async (
   scenarioId: string,
