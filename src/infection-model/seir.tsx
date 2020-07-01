@@ -305,7 +305,6 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
     ageGroupRecovered,
     ageGroupDeaths,
   ).forEach(([pop, cases, recovered, deaths], index) => {
-    console.log(pop, cases, recovered, deaths);
     // distribute cases across compartments proportionally
 
     const infectious = cases * pInitiallyInfectious;
