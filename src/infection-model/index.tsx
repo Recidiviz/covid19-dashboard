@@ -204,7 +204,7 @@ function prepareCurveData(inputs: CurveFunctionInputs): CurveProjectionInputs {
   const ageGroupPopulations = prepareAgeGroupPopulations(inputs);
   const ageGroupInitiallyInfected = Array(ageGroupIndex.__length).fill(0);
   const ageGroupRecovered = prepareAgeGroupRecovered(inputs);
-  const ageGroupDeaths = prepareAgeGroupRecovered(inputs);
+  const ageGroupDeaths = prepareAgeGroupDeaths(inputs);
 
   if (usePopulationSubsets) {
     ageGroupInitiallyInfected[ageGroupIndex.age0] = age0Cases || 0;
