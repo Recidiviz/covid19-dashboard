@@ -24,6 +24,7 @@ const FooterContainer = styled.div`
   justify-content: space-between;
   font-family: Libre Franklin;
   font-size: 11px;
+  line-height: 14px;
 `;
 
 const FooterLeft = styled.div`
