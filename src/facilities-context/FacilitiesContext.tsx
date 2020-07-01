@@ -155,8 +155,12 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
                 const referenceFacilities = await facilitiesActions.fetchReferenceFacilities(
                   stateName,
                   systemType,
-                  dispatch,
                 );
+
+                dispatch({
+                  type: facilitiesActions.RECEIVE_REFERENCE_FACILITIES,
+                  payload: referenceFacilities,
+                });
 
                 facilities = facilitiesActions.buildCompositeFacilities(
                   facilities,
