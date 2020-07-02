@@ -324,7 +324,9 @@ const SyncNoUserFacilities: React.FC = () => {
     }).then((savedScenario) => {
       if (savedScenario) dispatchScenarioUpdate(savedScenario);
     });
-  }, [scenarioId]);
+    // only want to run this once, on initial mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Modal
