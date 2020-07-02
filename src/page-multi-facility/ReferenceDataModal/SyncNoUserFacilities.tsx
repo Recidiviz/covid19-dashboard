@@ -215,7 +215,7 @@ const SyncReferenceFacilitiesCard: React.FC<SyncReferenceFacilitiesCardProps> = 
         observedAt: new Date(),
         updatedAt: new Date(),
         stateName: facility.stateName,
-        countrName: facility.countyName,
+        countyName: facility.countyName,
       };
 
       return createOrUpdateFacility({
@@ -232,7 +232,7 @@ const SyncReferenceFacilitiesCard: React.FC<SyncReferenceFacilitiesCardProps> = 
     // number of facilities that were originally selected then return immediately
     // so that we don't mis-match User Facilities with Reference Facilities.  See
     // the comment below about how we use insertion order and indexing to map User
-    // Facilities to Referende Facilities.
+    // Facilities to Reference Facilities.
     if (savedFacilities.length !== selectedFacilities.length) {
       console.error(`The number of saved facilities (${savedFacilities.length}) does not match \
         the number of selected facilities (${selectedFacilities.length}). The saved User \
