@@ -11,7 +11,17 @@ import {
   isSameDay,
   isEqual,
 } from "date-fns";
-import { pick, orderBy, uniqBy, findKey, maxBy, minBy, pickBy } from "lodash";
+import {
+  pick,
+  orderBy,
+  uniqBy,
+  findKey,
+  maxBy,
+  minBy,
+  pickBy,
+  omitBy,
+  isUndefined,
+} from "lodash";
 import { Optional } from "utility-types";
 
 import { MMMMdyyyy } from "../constants";
@@ -117,16 +127,22 @@ const buildCreatePayload = <T,>(entity: T): T => {
   // or else Firestore won't permit the addition.
   delete (entity as any).id;
 
+  // remove any keys that are explicitly set to undefined or Firestore will object
+  const filteredEntity: any = omitBy(entity, isUndefined);
+
   const timestamp = currentTimestamp();
-  return Object.assign({}, entity, {
+  return Object.assign({}, filteredEntity, {
     createdAt: timestamp,
     updatedAt: timestamp,
   });
 };
 
 const buildUpdatePayload = <T,>(entity: T): T => {
+  // remove any keys that are explicitly set to undefined or Firestore will object
+  const filteredEntity: any = omitBy(entity, isUndefined);
+
   const timestamp = currentTimestamp();
-  const payload = Object.assign({}, entity, {
+  const payload = Object.assign({}, filteredEntity, {
     updatedAt: timestamp,
   });
 
@@ -264,8 +280,6 @@ export const saveScenario = async (scenario: any): Promise<Scenario | null> => {
     // If the scenario already has an id associated with it then we just need
     // to update that scenario. Otherwise, we are creating a new scenario.
     if (scenario.id) {
-      // remove any keys that are explicitly set to undefined or Firestore will object
-      scenario = pickBy(scenario, (value) => value !== undefined);
       const payload = buildUpdatePayload(scenario);
 
       await db
