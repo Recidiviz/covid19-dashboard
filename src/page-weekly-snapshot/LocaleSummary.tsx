@@ -18,7 +18,7 @@ import {
   NYTStateRecord,
   useNYTData,
 } from "./NYTDataProvider";
-import { useWeeklyReport } from "./WeeklyReportContext";
+import { useWeeklyReport } from "./weekly-report-context";
 
 const stateNamesFilter = (key: string) =>
   !["US Total", "US Federal Prisons"].includes(key);

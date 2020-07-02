@@ -4,7 +4,7 @@ import AuthWall from "../auth/AuthWall";
 import useAdminUser from "../hooks/useAdminUser";
 import WeeklySnapshotPage from "../page-weekly-snapshot";
 import { NYTDataProvider } from "../page-weekly-snapshot/NYTDataProvider";
-import { WeeklyReportProvider } from "../page-weekly-snapshot/WeeklyReportContext";
+import { WeeklyReportProvider } from "../page-weekly-snapshot/weekly-report-context";
 import PageInfo from "../site-metadata/PageInfo";
 
 // eslint-disable-next-line react/display-name

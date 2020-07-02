@@ -281,7 +281,7 @@ export const getSharedBaselineScenarios = async (): Promise<Scenario[]> => {
   }
 };
 
-export const getSharedScenarioByStateName = async (
+export const getScenarioByStateName = async (
   scenarios: Scenario[],
   stateName: string,
 ) => {
@@ -415,21 +415,6 @@ const getFacilityModelVersions = async ({
     return [];
   }
 };
-
-// Steps:
-// For the covid@recidiviz.org user when they navigate to weekly-snapshot
-// and selects a stateName and the shared scenario exists:
-// 1. db: getSharedBaselineScenarios - get an array of shared baseline scenarios
-// 2. component: store the shared baseline scenarios in component state (or in a weekly snapshot context?)
-// 3. db: for each shared baseline scenario query for facilities by scenarioId, stateName
-// 4. component: fetch facilities by scenarioId, stateName, if useReferenceData = true
-//    then build composite facilities
-
-// For the covid@recidiviz.org user when they navigate to weekly-snapshot
-// and selects a stateName and the shared scenario does NOT exist:
-// 1. Just need to call `getReferenceFacilities` by stateName and systemType = 'State Prison'?
-// I'm not sure if we need any data from the scenario in this case since we wouldn't
-// have a facility <-> reference mapping.
 
 export const getFacilities = async (
   scenarioId: string,
