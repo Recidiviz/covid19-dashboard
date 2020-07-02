@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import FacilityProjections from "./FacilityProjections";
+import FacilitySummaries from "./FacilitySummaries";
 import LocaleSummary from "./LocaleSummary";
 
 const WeeklySnapshotContainer = styled.div``;
@@ -25,7 +25,7 @@ export default function WeeklySnapshotPage() {
           </Placeholder>
           <Placeholder>
             Facility Projections
-            <FacilityProjections />
+            <FacilitySummaries />
           </Placeholder>
           <Placeholder>Page Footer</Placeholder>
         </div>
