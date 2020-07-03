@@ -190,7 +190,9 @@ const SyncReferenceFacilitiesCard: React.FC<SyncReferenceFacilitiesCardProps> = 
       setSelectedFacilities(facilities);
     };
     retrieveReferenceFacilities();
-  }, []);
+    // only run when the state name or system type change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stateName, systemType]);
 
   const handleSelection = (refFacility: ReferenceFacility) => {
     const selectedFacilitiesCopy = [...selectedFacilities];
@@ -312,7 +314,6 @@ const SyncNoUserFacilities: React.FC = () => {
   const [stateName, setStateName] = useState<string>();
   const [scenarioState, dispatchScenarioUpdate] = useScenario();
   const scenario = scenarioState.data;
-  const scenarioId = scenario?.id;
 
   // Immediately set the referenceDataObservedAt time so that
   // this modal does not compete with the SyncNewReferenceData
