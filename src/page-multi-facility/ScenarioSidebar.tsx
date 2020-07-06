@@ -68,7 +68,9 @@ export function getEnabledPromoType(
 
   const { promoStatuses } = scenario;
 
-  return promoStatuses.rtChart
+  return promoStatuses.newModelInputs
+    ? "newModelInputs"
+    : promoStatuses.rtChart
     ? "rtChart"
     : numFacilities && numFacilities < 3 && promoStatuses?.addFacilities
     ? "addFacilities"
@@ -83,6 +85,10 @@ const promoTexts: { [promoType: string]: string } = {
     for that facility. To get an accurate Rt, enter case counts for previous
     days by clicking the number of cases on the right (in red) to update case
     numbers.`,
+  newModelInputs: `New! We’ve updated our model to factor in recoveries and 
+    deaths to enable more accurate projections based on active cases. This 
+    may have caused some of your projection values to change. You can input 
+    recoveries and deaths when you “Add Historical Data” for a facility.`,
 };
 
 export function getPromoText(promoType: string | null) {
