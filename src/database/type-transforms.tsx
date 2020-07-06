@@ -122,7 +122,7 @@ export const buildScenario = (
   // Runtime migration: make sure a default value is set for
   // promo status flags added since the last data shakeup
   // TODO: Remove this once automated migration is in place per #186
-  const newPromoStatuses = ["rtChart", "newModelInputs", "x"];
+  const newPromoStatuses = ["rtChart", "newModelInputs"];
   newPromoStatuses.forEach((flagName) => {
     if (scenario.promoStatuses[flagName] === undefined) {
       scenario.promoStatuses[flagName] = true;
