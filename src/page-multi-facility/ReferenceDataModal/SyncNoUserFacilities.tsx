@@ -16,6 +16,7 @@ import {
   Scenario,
 } from "../types";
 import ReferenceFacilityRow from "./shared/ReferenceFacilityRow";
+import SyncReferenceFacilitiesToggle from "./shared/SyncReferenceFacilitiesToggle";
 
 const STATE_AND_SYSTEM_SELECTION_CARD = "STATE_AND_SYSTEM_SELECTION_CARD";
 const SYNC_REFERENCE_FACILITIES_CARD = "SYNC_REFERENCE_FACILITIES_CARD";
@@ -46,6 +47,15 @@ const StateAndSystemForm = styled.div`
   margin-bottom: 20px;
 `;
 
+const ModalDescription = styled.div`
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 22px;
+  color: ${Colors.forest};
+  font-family: "Libre Franklin";
+  margin-bottom: 20px;
+`;
+
 type StateNameProps = {
   stateName?: string;
   setStateName: (stateName?: string) => void;
@@ -59,11 +69,20 @@ type SystemTypeProps = {
 type CardStateProps = {
   setActiveStep: (activeStep: string) => void;
   setModalTitle: (modalTitle: string) => void;
+  setModalDescription: (modalDescription: string | React.ReactElement) => void;
 };
 
 type StateNameSelectionProps = StateNameProps & {
   stateNames: string[];
 };
+
+const SyncNoUserFacilitiesModalDescription: React.FC = () => (
+  <ModalDescription>
+    We found publicly available data for these facilities. Click "Save" to
+    import and autofill them with real-time COVID-19 data. You can add
+    facilities or override prepopulated data anytime.
+  </ModalDescription>
+);
 
 const StateNameSelection: React.FC<StateNameSelectionProps> = (props) => {
   const { stateName, stateNames, setStateName } = props;
@@ -96,13 +115,15 @@ const StateAndSystemSelectionCard: React.FC<StateAndSystemProps> = (props) => {
     setSystemType,
     setActiveStep,
     setModalTitle,
+    setModalDescription,
   } = props;
 
-  // This card doesn't have a title so we just clear out any existing
-  // title that may exist if the user navigates back to this card.
+  // This card doesn't have a title or description so we just clear out any existing
+  // title  or description that may exist if the user navigates back to this card.
   useEffect(() => {
     setModalTitle("");
-  }, [setModalTitle]);
+    setModalDescription("");
+  }, [setModalTitle, setModalDescription]);
 
   const { data: localeDataSource } = useLocaleDataState();
 
@@ -159,6 +180,7 @@ const SyncReferenceFacilitiesCard: React.FC<SyncReferenceFacilitiesCardProps> = 
     systemType,
     setActiveStep,
     setModalTitle,
+    setModalDescription,
     scenario,
     dispatchScenarioUpdate,
   } = props;
@@ -172,9 +194,13 @@ const SyncReferenceFacilitiesCard: React.FC<SyncReferenceFacilitiesCardProps> = 
   const [selectedFacilities, setSelectedFacilities] = useState<
     ReferenceFacility[]
   >([]);
+  const [useReferenceData, setUseReferenceData] = useState(
+    scenario?.useReferenceData,
+  );
 
   useEffect(() => {
     setModalTitle("Prepopulate Data");
+    setModalDescription(<SyncNoUserFacilitiesModalDescription />);
 
     const retrieveReferenceFacilities = async () => {
       if (!stateName || !systemType) return;
@@ -195,6 +221,10 @@ const SyncReferenceFacilitiesCard: React.FC<SyncReferenceFacilitiesCardProps> = 
   }, [stateName, systemType]);
 
   const handleSelection = (refFacility: ReferenceFacility) => {
+    // Don't allow user selections if the toggle to use
+    // reference data has been turned off.
+    if (useReferenceData !== undefined && !useReferenceData) return;
+
     const selectedFacilitiesCopy = [...selectedFacilities];
 
     if (selectedFacilitiesCopy.includes(refFacility)) {
@@ -209,6 +239,11 @@ const SyncReferenceFacilitiesCard: React.FC<SyncReferenceFacilitiesCardProps> = 
 
   const handleBackButtonClick = () => {
     setActiveStep(STATE_AND_SYSTEM_SELECTION_CARD);
+  };
+
+  const toggleUseReferenceData = (useReferenceDataToggle: boolean) => {
+    setUseReferenceData(useReferenceDataToggle);
+    setSelectedFacilities(useReferenceDataToggle ? referenceFacilities : []);
   };
 
   const handleSave = async () => {
@@ -258,6 +293,7 @@ const SyncReferenceFacilitiesCard: React.FC<SyncReferenceFacilitiesCardProps> = 
 
     saveScenario({
       ...scenario,
+      useReferenceData: useReferenceData,
       [referenceFacilitiesProp]: Object.assign(
         {},
         scenario?.[referenceFacilitiesProp],
@@ -269,40 +305,43 @@ const SyncReferenceFacilitiesCard: React.FC<SyncReferenceFacilitiesCardProps> = 
   };
 
   return (
-    <CardContent>
-      <CardDescription>
-        We found publicly available data for these facilities. Click "Save" to
-        import and autofill them with real-time COVID-19 data. You can add
-        facilities or override prepopulated data anytime.
-      </CardDescription>
-      {referenceFacilities.map((refFacility) => (
-        <ReferenceFacilityRow
-          key={refFacility.id}
-          selected={selectedFacilities.includes(refFacility)}
-          referenceFacility={refFacility}
-          onClick={() => handleSelection(refFacility)}
-        />
-      ))}
-      <CardNavigation>
-        <InputButton
-          styles={{
-            width: "80px",
-          }}
-          label="Save"
-          onClick={handleSave}
-        />
-        <InputButton
-          styles={{
-            background: "transparent",
-            fontWeight: "normal",
-            color: Colors.forest,
-            width: "50px",
-          }}
-          label="Back"
-          onClick={handleBackButtonClick}
-        />
-      </CardNavigation>
-    </CardContent>
+    <>
+      <SyncReferenceFacilitiesToggle
+        stateName={stateName}
+        systemType={systemType}
+        useReferenceData={useReferenceData}
+        callback={toggleUseReferenceData}
+      />
+      <CardContent>
+        {referenceFacilities.map((refFacility) => (
+          <ReferenceFacilityRow
+            key={refFacility.id}
+            selected={selectedFacilities.includes(refFacility)}
+            referenceFacility={refFacility}
+            onClick={() => handleSelection(refFacility)}
+          />
+        ))}
+        <CardNavigation>
+          <InputButton
+            styles={{
+              width: "80px",
+            }}
+            label="Save"
+            onClick={handleSave}
+          />
+          <InputButton
+            styles={{
+              background: "transparent",
+              fontWeight: "normal",
+              color: Colors.forest,
+              width: "50px",
+            }}
+            label="Back"
+            onClick={handleBackButtonClick}
+          />
+        </CardNavigation>
+      </CardContent>
+    </>
   );
 };
 
@@ -310,6 +349,9 @@ const SyncNoUserFacilities: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(true);
   const [activeStep, setActiveStep] = useState(STATE_AND_SYSTEM_SELECTION_CARD);
   const [modalTitle, setModalTitle] = useState<string>();
+  const [modalDescription, setModalDescription] = useState<
+    string | React.ReactElement
+  >();
   const [systemType, setSystemType] = useState<string>();
   const [stateName, setStateName] = useState<string>();
   const [scenarioState, dispatchScenarioUpdate] = useScenario();
@@ -332,6 +374,7 @@ const SyncNoUserFacilities: React.FC = () => {
   return (
     <Modal
       modalTitle={modalTitle}
+      modalDescription={modalDescription}
       open={modalOpen}
       setOpen={setModalOpen}
       width="600px"
@@ -344,6 +387,7 @@ const SyncNoUserFacilities: React.FC = () => {
           setSystemType={setSystemType}
           setActiveStep={setActiveStep}
           setModalTitle={setModalTitle}
+          setModalDescription={setModalDescription}
         />
       )}
       {activeStep === SYNC_REFERENCE_FACILITIES_CARD && scenario && (
@@ -352,6 +396,7 @@ const SyncNoUserFacilities: React.FC = () => {
           systemType={systemType}
           setActiveStep={setActiveStep}
           setModalTitle={setModalTitle}
+          setModalDescription={setModalDescription}
           scenario={scenario}
           dispatchScenarioUpdate={dispatchScenarioUpdate}
         />

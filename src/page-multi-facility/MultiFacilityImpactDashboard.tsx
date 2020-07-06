@@ -101,7 +101,8 @@ const MultiFacilityImpactDashboard: React.FC = () => {
     referenceFacilitiesEligible &&
     !facilitiesState.loading &&
     !scenarioState.loading &&
-    !readOnlyMode; // i.e. User must own of the Scenario
+    !readOnlyMode && // i.e. User must own of the Scenario
+    (scenario?.useReferenceData == undefined || scenario?.useReferenceData);
 
   const showSyncNoUserFacilities =
     showSyncReferenceFacilitiesBaseConditions && facilities.length == 0;

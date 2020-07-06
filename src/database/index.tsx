@@ -170,6 +170,7 @@ export const SCENARIO_DEFAULTS = {
   baseline: false,
   dailyReports: false,
   dataSharing: false,
+  useReferenceData: true,
   promoStatuses: {},
   baselinePopulations: [],
   [referenceFacilitiesProp]: {},
