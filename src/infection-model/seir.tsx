@@ -315,7 +315,7 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
   ).forEach(([pop, cases, recovered, deaths], index) => {
     // distribute cases across compartments proportionally
 
-    if ((typeof recovered !== 'undefined') & (typeof recovered !== 'undefined')) {
+    if ((typeof recovered !== 'undefined') && (typeof recovered !== 'undefined')) {
         const activeCases = Math.max(cases - recovered - deaths, 0);
 
         const infectious = activeCases * pInitiallyInfectious;
