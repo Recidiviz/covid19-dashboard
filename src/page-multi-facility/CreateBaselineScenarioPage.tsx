@@ -1,4 +1,3 @@
-import { navigate } from "gatsby";
 import React from "react";
 import styled from "styled-components";
 
@@ -57,7 +56,6 @@ const CreateBaselineScenarioPage: React.FC = () => {
 
     if (scenario) {
       dispatchScenarioUpdate(scenario);
-      navigate("/facility");
     }
   };
 
