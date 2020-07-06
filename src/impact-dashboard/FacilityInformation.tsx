@@ -1,9 +1,11 @@
+import { isUndefined, omitBy, pickBy } from "lodash";
 import numeral from "numeral";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import InputTextNumeric from "../design-system/InputTextNumeric";
 import TextLabel from "../design-system/TextLabel";
+import { useToasts } from "../design-system/Toast";
 import {
   curveInputsFromUserInputs,
   getAdjustedTotalPopulation,
@@ -71,7 +73,7 @@ const FormHeaderRow: React.FC<FormHeaderRowProps> = (props) => (
   </LabelRow>
 );
 
-const passedAgesKnown = (model: Record<string, any> | undefined) => {
+const pastAgesKnown = (model: Record<string, any> | undefined) => {
   if (model !== undefined) {
     let keys = Object.keys(model);
     return keys.some(function (key) {
@@ -82,7 +84,7 @@ const passedAgesKnown = (model: Record<string, any> | undefined) => {
   }
 };
 
-const passedAgesUnknown = (model: Record<string, any> | undefined) => {
+const pastAgesUnknown = (model: Record<string, any> | undefined) => {
   if (model !== undefined) {
     let keys = Object.keys(model);
     return keys.some(function (key) {
@@ -93,23 +95,35 @@ const passedAgesUnknown = (model: Record<string, any> | undefined) => {
   }
 };
 
-const collapseAgeInputs = (model: Record<string, any> | undefined) => {
-  if (passedAgesKnown(model)) {
-    return false;
-  } else if (
-    passedAgesKnown(model) === false &&
-    passedAgesUnknown(model) === true
-  ) {
-    return true;
-  } else {
-    return false;
-  }
+const includesKnownAges = (model: object) => {
+  let definedInputs = omitBy(model, isUndefined);
+  let ageKnownInputs = pickBy(definedInputs, (_, key) => {
+    return RegExp(/age\d+/).test(key);
+  });
+  let total = Object.values(ageKnownInputs).reduce((sum, n) => {
+    return sum + n;
+  }, 0);
+  return total > 0;
+};
+
+const includesUnknownAges = (model: object) => {
+  let definedInputs = omitBy(model, isUndefined);
+  let ageUnknownInputs = pickBy(definedInputs, (_, key) => {
+    return RegExp(/ageUnknown\w+/).test(key);
+  });
+  let array = Object.values(ageUnknownInputs);
+  let total = array.reduce((sum, n) => {
+    return sum + n;
+  }, 0);
+  return total > 0;
 };
 
 interface AgeGroupGridProps {
   model: Partial<EpidemicModelState>;
   updateModel: (update: EpidemicModelUpdate) => void;
   collapsible?: boolean;
+  warnedAt: number;
+  setWarnedAt: (warnedAt: number) => void;
 }
 
 export const AgeGroupGrid: React.FC<AgeGroupGridProps> = ({
@@ -118,9 +132,24 @@ export const AgeGroupGrid: React.FC<AgeGroupGridProps> = ({
 }) => {
   const [collapsed, setCollapsed] = useState(collapsible);
 
+  const collapseAgeInputs = () => {
+    if (pastAgesKnown(props.model)) {
+      return false;
+    } else if (
+      pastAgesKnown(props.model) === false &&
+      pastAgesUnknown(props.model) === true
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
   useEffect(() => {
-    setCollapsed(collapseAgeInputs(props.model));
-  }, [props.model]);
+    setCollapsed(collapseAgeInputs());
+    // only want to run this once, on initial mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const ageSpecificCaseCounts = (
     <>
@@ -244,6 +273,8 @@ interface AgeGroupRowProps {
   lastKey: keyof EpidemicModelUpdate;
   model: Partial<EpidemicModelState>;
   updateModel: (update: EpidemicModelUpdate) => void;
+  warnedAt: number;
+  setWarnedAt: (warnedAt: number) => void;
 }
 
 const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
@@ -258,6 +289,7 @@ const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
   const [deathsInputRelativityError, setDeathsInputRelativityError] = useState(
     false,
   );
+  const { addToast } = useToasts();
 
   function checkCasesInputRelativity(
     cases: number | undefined,
@@ -312,6 +344,18 @@ const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
     }
   }
 
+  const checkAgeConflict = (model: object) => {
+    if (Date.now() > props.warnedAt + 10000) {
+      if (includesUnknownAges(model) && includesKnownAges(model)) {
+        addToast(
+          "To prevent duplicate counting, known and unknown ages cannot be entered together. Please clear either the unknown age input or all age inputs.",
+          { appearance: "error" },
+        );
+        props.setWarnedAt(Date.now());
+      }
+    }
+  };
+
   return (
     <FormGridRow>
       <LabelCell>
@@ -325,6 +369,7 @@ const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
           onValueChange={(cases) => {
             checkCasesInputRelativity(cases, model[props.lastKey] as number);
             updateModel({ [props.firstKey]: cases });
+            checkAgeConflict(model);
           }}
         />
       </InputCell>
@@ -340,6 +385,7 @@ const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
               model[props.thirdKey] as number,
             );
             updateModel({ [props.secondKey]: recovered });
+            checkAgeConflict(model);
           }}
         />
       </InputCell>
@@ -355,6 +401,7 @@ const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
               deaths,
             );
             updateModel({ [props.thirdKey]: deaths });
+            checkAgeConflict(model);
           }}
         />
       </InputCell>
@@ -365,6 +412,7 @@ const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
           onValueChange={(total) => {
             checkCasesInputRelativity(model[props.firstKey] as number, total);
             updateModel({ [props.lastKey]: total });
+            checkAgeConflict(model);
           }}
         />
       </InputCell>
@@ -374,11 +422,17 @@ const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
 
 const FacilityInformation: React.FC = () => {
   const [model, updateModel] = useModel();
+  const [warnedAt, setWarnedAt] = useState(0);
 
   return (
     <FacilityInformationDiv>
       <div>
-        <AgeGroupGrid model={model} updateModel={updateModel} />
+        <AgeGroupGrid
+          model={model}
+          updateModel={updateModel}
+          warnedAt={warnedAt}
+          setWarnedAt={setWarnedAt}
+        />
         <FormGrid>
           <FormRow
             inputs={[
