@@ -315,61 +315,79 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
   ).forEach(([pop, cases, recovered, deaths], index) => {
     // distribute cases across compartments proportionally
 
-    if ((typeof recovered !== 'undefined') && (typeof deaths !== 'undefined')) {
-        const activeCases = Math.max(cases - recovered - deaths, 0);
+    if (typeof recovered !== "undefined" && typeof deaths !== "undefined") {
+      const activeCases = Math.max(cases - recovered - deaths, 0);
 
-        const infectious = activeCases * pInitiallyInfectious;
-        // exposed is related to the number of infectious
-        // but it can't be more than the total uninfected population
-        const exposed = Math.min(infectious * ratioExposedToInfected, pop - cases);
+      const infectious = activeCases * pInitiallyInfectious;
+      // exposed is related to the number of infectious
+      // but it can't be more than the total uninfected population
+      const exposed = Math.min(
+        infectious * ratioExposedToInfected,
+        pop - cases,
+      );
 
-        singleDayState.set(index, seirIndex.susceptible, pop - cases - exposed);
-        singleDayState.set(index, seirIndex.exposed, exposed);
-        singleDayState.set(index, seirIndex.infectious, infectious);
-        singleDayState.set(index, seirIndex.mild, activeCases * pInitiallyMild);
-        singleDayState.set(index, seirIndex.severe, activeCases * pInitiallySevere);
-        singleDayState.set(
-          index,
-          seirIndex.hospitalized,
-          activeCases * pInitiallyHospitalized,
-        );
-        singleDayState.set(
-          index,
-          seirIndex.mildRecovered,
-          recovered * pInitiallyMildRecovered,
-        );
-        singleDayState.set(
-          index,
-          seirIndex.severeRecovered,
-          recovered * pInitiallySevereRecovered,
-        );
-        singleDayState.set(index, seirIndex.fatalities, deaths);
+      singleDayState.set(index, seirIndex.susceptible, pop - cases - exposed);
+      singleDayState.set(index, seirIndex.exposed, exposed);
+      singleDayState.set(index, seirIndex.infectious, infectious);
+      singleDayState.set(index, seirIndex.mild, activeCases * pInitiallyMild);
+      singleDayState.set(
+        index,
+        seirIndex.severe,
+        activeCases * pInitiallySevere,
+      );
+      singleDayState.set(
+        index,
+        seirIndex.hospitalized,
+        activeCases * pInitiallyHospitalized,
+      );
+      singleDayState.set(
+        index,
+        seirIndex.mildRecovered,
+        recovered * pInitiallyMildRecovered,
+      );
+      singleDayState.set(
+        index,
+        seirIndex.severeRecovered,
+        recovered * pInitiallySevereRecovered,
+      );
+      singleDayState.set(index, seirIndex.fatalities, deaths);
     } else {
-        const infectious = cases * pInitiallyInfectiousCumulative;
-        // exposed is related to the number of infectious
-        // but it can't be more than the total uninfected population
-        const exposed = Math.min(infectious * ratioExposedToInfected, pop - cases);
+      const infectious = cases * pInitiallyInfectiousCumulative;
+      // exposed is related to the number of infectious
+      // but it can't be more than the total uninfected population
+      const exposed = Math.min(
+        infectious * ratioExposedToInfected,
+        pop - cases,
+      );
 
-        singleDayState.set(index, seirIndex.susceptible, pop - cases - exposed);
-        singleDayState.set(index, seirIndex.exposed, exposed);
-        singleDayState.set(index, seirIndex.infectious, infectious);
-        singleDayState.set(index, seirIndex.mild, cases * pInitiallyMildCumulative);
-        singleDayState.set(index, seirIndex.severe, cases * pInitiallySevereCumulative);
-        singleDayState.set(
-          index,
-          seirIndex.hospitalized,
-          cases * pInitiallyHospitalizedCumulative,
-        );
-        singleDayState.set(
-          index,
-          seirIndex.mildRecovered,
-          cases * pInitiallyMildRecoveredCumulative,
-        );
-        singleDayState.set(
-          index,
-          seirIndex.severeRecovered,
-          cases * pInitiallySevereRecoveredCumulative,
-        );
+      singleDayState.set(index, seirIndex.susceptible, pop - cases - exposed);
+      singleDayState.set(index, seirIndex.exposed, exposed);
+      singleDayState.set(index, seirIndex.infectious, infectious);
+      singleDayState.set(
+        index,
+        seirIndex.mild,
+        cases * pInitiallyMildCumulative,
+      );
+      singleDayState.set(
+        index,
+        seirIndex.severe,
+        cases * pInitiallySevereCumulative,
+      );
+      singleDayState.set(
+        index,
+        seirIndex.hospitalized,
+        cases * pInitiallyHospitalizedCumulative,
+      );
+      singleDayState.set(
+        index,
+        seirIndex.mildRecovered,
+        cases * pInitiallyMildRecoveredCumulative,
+      );
+      singleDayState.set(
+        index,
+        seirIndex.severeRecovered,
+        cases * pInitiallySevereRecoveredCumulative,
+      );
     }
   });
 
