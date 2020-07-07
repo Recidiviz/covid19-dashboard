@@ -88,7 +88,7 @@ const promoTexts: { [promoType: string]: string } = {
   newModelInputs: `New! We’ve updated our model to factor in recoveries and 
     deaths to enable more accurate projections based on active cases. This 
     may have caused some of your projection values to change. You can input 
-    recoveries and deaths when you “Add Historical Data” for a facility.
+    recoveries and deaths when you "Add Historical Data" for a facility.
     Reach out to covid@recidiviz.org if you have questions about how this 
     impacts your projection or how to get started.`,
 };
