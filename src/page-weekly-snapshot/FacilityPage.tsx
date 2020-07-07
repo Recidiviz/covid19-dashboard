@@ -15,21 +15,7 @@ import {
 import { RtData, RtError } from "../infection-model/rt";
 import { useProjectionData } from "../page-multi-facility/projectionCurveHooks";
 import { Facility } from "../page-multi-facility/types";
-
-const FacilitySummaryRowContainer = styled.div`
-  font-size: 11px;
-  font-weight: 400;
-  font-family: "Libre Franklin";
-`;
-
-const FacilityName = styled.div`
-  font-size: 43px;
-  line-height: 45px;
-  letter-spacing: -0.07em;
-  margin-bottom: 3px;
-  font-family: "Libre Baskerville";
-  width: 100%;
-`;
+import Page from "./Page";
 
 const Heading = styled.div`
   font-weight: 700;
@@ -110,7 +96,7 @@ interface Props {
   rtData: RtData | RtError | undefined;
 }
 
-const FacilitySummaryRow: React.FC<Props> = ({ facility, rtData }) => {
+const FacilityPage: React.FC<Props> = ({ facility, rtData }) => {
   const projectionData = useProjectionData(
     useEpidemicModelState(),
     true,
@@ -122,8 +108,7 @@ const FacilitySummaryRow: React.FC<Props> = ({ facility, rtData }) => {
   const incarceratedData = buildIncarceratedData(incarcerated);
   const staffData = buildStaffData({ staff, showHospitalizedRow: false });
   return (
-    <FacilitySummaryRowContainer>
-      <FacilityName>{facility.name}</FacilityName>
+    <Page header={facility.name}>
       Facility-Specific Projection
       <ProjectionSection>
         <Heading>Incarcerated Population Projection</Heading>
@@ -143,8 +128,8 @@ const FacilitySummaryRow: React.FC<Props> = ({ facility, rtData }) => {
           </tbody>
         </Table>
       </ProjectionSection>
-    </FacilitySummaryRowContainer>
+    </Page>
   );
 };
 
-export default FacilitySummaryRow;
+export default FacilityPage;
