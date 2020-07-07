@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import Colors, { MarkColors as markColors } from "../design-system/Colors";
+import Colors from "../design-system/Colors";
 import Loading from "../design-system/Loading";
 import { useEpidemicModelState } from "../impact-dashboard/EpidemicModelContext";
 import {
