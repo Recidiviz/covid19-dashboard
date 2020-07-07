@@ -145,6 +145,7 @@ const FacilitySummaryRow: React.FC<Props> = ({ facility, rtData }) => {
     useEpidemicModelState(),
     true,
     rtData,
+    DURATION,
   );
   if (!projectionData) return <Loading />;
   const { incarcerated, staff } = projectionData;

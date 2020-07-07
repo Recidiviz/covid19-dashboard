@@ -21,11 +21,13 @@ function getCurves(
   input: EpidemicModelInputs,
   useRt?: boolean,
   latestRt?: number,
+  numDays?: number,
 ) {
   return calculateCurves(
     useRt
       ? curveInputsWithRt(input, latestRt)
       : curveInputsFromUserInputs(input),
+    numDays,
   );
 }
 
@@ -33,6 +35,7 @@ export const useProjectionData = (
   input: EpidemicModelInputs,
   useRt?: boolean,
   rtData?: RtValue,
+  numDays?: number,
 ): CurveData | undefined => {
   let latestRt: number | undefined;
 
@@ -44,10 +47,12 @@ export const useProjectionData = (
     }
   }
 
-  const [curves, updateCurves] = useState(getCurves(input, useRt, latestRt));
+  const [curves, updateCurves] = useState(
+    getCurves(input, useRt, latestRt, numDays),
+  );
 
   useEffect(() => {
-    updateCurves(getCurves(input, useRt, latestRt));
+    updateCurves(getCurves(input, useRt, latestRt, numDays));
   }, [input, latestRt, useRt]);
 
   return curves;
