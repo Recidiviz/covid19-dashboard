@@ -78,6 +78,7 @@ const Page: React.FC<Props> = ({ header, subheader, children }) => {
         )}
       </PageWidthContainer>
       <Body>{children}</Body>
+      <HorizontalRule />
       <PageWidthContainer>
         <FooterLeft>Log in to update data: model.recividiz.org</FooterLeft>
         <FooterRight>Questions and feedback: covid@recidiviz.org</FooterRight>
