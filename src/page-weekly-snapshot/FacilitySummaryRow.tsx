@@ -1,8 +1,10 @@
 import React from "react";
 import styled from "styled-components";
 
-import Colors from "../design-system/Colors";
+import Colors, { MarkColors as markColors } from "../design-system/Colors";
 import Loading from "../design-system/Loading";
+import ChartArea from "../impact-dashboard/ChartArea";
+import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
 import { useEpidemicModelState } from "../impact-dashboard/EpidemicModelContext";
 import {
   formatThousands,
@@ -12,9 +14,16 @@ import {
   buildIncarceratedData,
   buildStaffData,
 } from "../impact-dashboard/ImpactProjectionTableContainer";
+import useModel from "../impact-dashboard/useModel";
 import { RtData, RtError } from "../infection-model/rt";
-import { useProjectionData } from "../page-multi-facility/projectionCurveHooks";
-import { Facility } from "../page-multi-facility/types";
+import { getNewestRt, isRtData } from "../infection-model/rt";
+import { initialPublicCurveToggles } from "../page-multi-facility/curveToggles";
+import FacilityRowRtValuePill from "../page-multi-facility/FacilityRowRtValuePill";
+import {
+  useChartDataFromProjectionData,
+  useProjectionData,
+} from "../page-multi-facility/projectionCurveHooks";
+import { Facility, RtValue } from "../page-multi-facility/types";
 
 const FacilitySummaryRowContainer = styled.div`
   font-size: 11px;
@@ -110,6 +119,31 @@ interface Props {
   rtData: RtData | RtError | undefined;
 }
 
+const FacilityProjection: React.FC<Props> = ({ facility, rtData }) => {
+  let useRt, facilityRtData;
+  // when creating a new facility, we won't have Rt yet,
+  // so fall back to using the rate of spread from user input
+  if (rtData) {
+    useRt = true;
+    facilityRtData = rtData;
+  }
+  // TODO: use rt data 0.3 otherwise
+  const projectionData = useProjectionData(
+    useEpidemicModelState(),
+    useRt,
+    facilityRtData,
+  );
+  return (
+    <>
+      <ChartArea
+        projectionData={projectionData}
+        initialCurveToggles={initialPublicCurveToggles}
+        markColors={markColors}
+      />
+    </>
+  );
+};
+
 const FacilitySummaryRow: React.FC<Props> = ({ facility, rtData }) => {
   const projectionData = useProjectionData(
     useEpidemicModelState(),
@@ -125,6 +159,7 @@ const FacilitySummaryRow: React.FC<Props> = ({ facility, rtData }) => {
     <FacilitySummaryRowContainer>
       <FacilityName>{facility.name}</FacilityName>
       Facility-Specific Projection
+      <FacilityProjection facility={facility} rtData={rtData} />
       <ProjectionSection>
         <Heading>Incarcerated Population Projection</Heading>
         <Table>
