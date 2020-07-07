@@ -65,8 +65,6 @@ const ProjectionContainer = styled.div`
   .axis-title text,
   .axis-label {
     fill: ${Colors.black};
-    font-weight: 400;
-    line
     font-family: "Libre Franklin";
   }
 `;
@@ -119,26 +117,22 @@ interface Props {
   rtData: RtData | RtError | undefined;
 }
 
-interface FacilityProps {
+interface ProjectionProps {
   projectionData: CurveData | undefined;
 }
 
-const FacilityProjections: React.FC<FacilityProps> = ({ projectionData }) => {
+const FacilityProjection: React.FC<ProjectionProps> = ({ projectionData }) => {
   return (
     <>
       <ChartArea
         projectionData={projectionData}
         initialCurveToggles={initialPublicCurveToggles}
         markColors={markColors}
+        alternateTitle={true}
       />
     </>
   );
 };
-
-interface Props {
-  facility: Facility;
-  rtData: RtData | RtError | undefined;
-}
 
 const FacilitySummaryRow: React.FC<Props> = ({ facility, rtData }) => {
   const projectionData = useProjectionData(
@@ -158,7 +152,7 @@ const FacilitySummaryRow: React.FC<Props> = ({ facility, rtData }) => {
       Facility-Specific Projection
       <ProjectionSection>
         <ProjectionContainer>
-          <FacilityProjections projectionData={projectionData} />
+          <FacilityProjection projectionData={projectionData} />
         </ProjectionContainer>
 
         <Heading>Incarcerated Population Projection</Heading>
