@@ -63,6 +63,7 @@ export type PromoStatuses = {
   dailyReports: boolean;
   dataSharing: boolean;
   addFacilities: boolean;
+  newModelInputs: boolean;
 };
 
 export type RtValue = RtData | RtError;
