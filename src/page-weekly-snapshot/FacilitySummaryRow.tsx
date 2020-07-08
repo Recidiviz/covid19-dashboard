@@ -123,14 +123,12 @@ interface ProjectionProps {
 
 const FacilityProjection: React.FC<ProjectionProps> = ({ projectionData }) => {
   return (
-    <>
-      <ChartArea
-        projectionData={projectionData}
-        initialCurveToggles={initialPublicCurveToggles}
-        markColors={markColors}
-        alternateTitle={true}
-      />
-    </>
+    <ChartArea
+      projectionData={projectionData}
+      initialCurveToggles={initialPublicCurveToggles}
+      markColors={markColors}
+      title={"Estimated Impact"}
+    />
   );
 };
 

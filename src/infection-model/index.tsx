@@ -180,7 +180,7 @@ export function curveInputsWithRt(
 
 function prepareCurveData(
   inputs: CurveFunctionInputs,
-  duration?: number,
+  numDays = NUM_DAYS,
 ): CurveProjectionInputs {
   const {
     age0Cases,
@@ -201,8 +201,6 @@ function prepareCurveData(
     staffCases,
     usePopulationSubsets,
   } = inputs;
-
-  const numDays = duration ? duration : NUM_DAYS;
 
   const ageGroupPopulations = prepareAgeGroupPopulations(inputs);
   const ageGroupInitiallyInfected = Array(ageGroupIndex.__length).fill(0);
