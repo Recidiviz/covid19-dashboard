@@ -8,6 +8,7 @@ import InputSelect from "../design-system/InputSelect";
 import Loading from "../design-system/Loading";
 import { Column } from "../design-system/PageColumn";
 import {
+  LocaleData,
   LocaleDataProvider,
   LocaleRecord,
   useLocaleDataState,
@@ -31,6 +32,11 @@ const LocaleStatsList = styled.ul``;
 type PerCapitaCountyCase = {
   name: string;
   casesIncreasePerCapita: number | undefined;
+};
+
+type StateRank = {
+  stateName: string;
+  totalCases: number | undefined;
 };
 
 function getDay(nytData: NYTCountyRecord[] | NYTStateRecord[], day: number) {
@@ -67,6 +73,40 @@ function calculatePerCapitaIncrease(
   )
     return;
   return (daySevenCases - dayOneCases) / countyPopulation;
+}
+
+function getStateRank(
+  localeData: LocaleData,
+  stateNames: string[],
+  selectedState: string | undefined,
+) {
+  const stateRanks: StateRank[] = [];
+  for (let i = 0; i < stateNames.length; i++) {
+    // D.C. isn't a state!
+    if (stateNames[i] !== "District of Columbia") {
+      stateRanks.push({
+        stateName: stateNames[i],
+        totalCases: localeData?.get(stateNames[i])?.get("Total")?.[
+          "totalIncarceratedPopulation"
+        ],
+      });
+    }
+  }
+  const rankedStates = orderBy(
+    stateRanks.filter((c) => !!c.totalCases),
+    ["totalCases"],
+    ["desc"],
+  );
+
+  let rank = -1;
+  for (let i = 0; i < rankedStates.length; i++) {
+    const currState = rankedStates[i];
+    if (selectedState && currState.stateName === selectedState) {
+      rank = i;
+      break;
+    }
+  }
+  return rank;
 }
 
 function getCountyIncreasePerCapita(
@@ -114,6 +154,11 @@ export default function LocaleSummary() {
   const dayOne = getDay(selectedState?.state || [], 1);
   const daySeven = getDay(selectedState?.state || [], 7);
 
+  const [totalCases, setTotalCases] = useState<number | undefined>();
+  const [stateTotalRank, setStateTotalRank] = useState<number | undefined>();
+  const [totalDeaths, setTotalDeaths] = useState<number | undefined>();
+  const [stateDeathsRank, setStateDeathsRank] = useState<number | undefined>();
+
   useEffect(() => {
     if (dayOne?.stateName && daySeven?.stateName && selectedState) {
       const stateLocaleData = localeData?.get(dayOne.stateName);
@@ -137,6 +182,14 @@ export default function LocaleSummary() {
           "0.000 %",
         )};`;
       });
+
+      const rank = getStateRank(
+        localeData,
+        stateNames,
+        selectedState.state[0].stateName,
+      );
+      console.log(rank);
+
       setCountiesToWatch(countiesToWatch);
       setTotalBeds(totalBeds);
       setSevenDayDiffInCases(sevenDayDiffInCases);

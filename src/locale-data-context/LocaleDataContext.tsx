@@ -14,6 +14,7 @@ export type LocaleRecord = {
   icuBeds: number;
   totalPrisonPopulation?: number;
   totalJailPopulation?: number;
+  totalDeaths?: number;
 };
 
 export type LocaleData = Map<string, Map<string, LocaleRecord>>;
@@ -101,6 +102,7 @@ export const LocaleDataProvider: React.FC<{ children: React.ReactNode }> = ({
               numeral(row["Total Incarcerated Population"]).value() || 0;
             const totalPopulation: number =
               numeral(row["Total Population"]).value() || 0;
+            const totalDeaths: number = numeral(row["deaths"]).value() || 0;
 
             return {
               county: row.County,
@@ -118,6 +120,7 @@ export const LocaleDataProvider: React.FC<{ children: React.ReactNode }> = ({
               icuBeds: numeral(row["ICU Beds"]).value() || 0,
               ...(totalPrisonPopulation && { totalPrisonPopulation }),
               ...(totalJailPopulation && { totalJailPopulation }),
+              totalDeaths: totalDeaths,
             };
           }).filter((row) => row !== undefined);
 
