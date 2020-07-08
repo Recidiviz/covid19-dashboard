@@ -44,6 +44,10 @@ export type ExportedActions = {
   duplicateFacility: (facility: Facility) => Promise<Facility | void>;
   deselectFacility: () => void;
   selectFacility: (facilityId: Facility["id"]) => void;
+  fetchReferenceFacilities: (
+    stateName: string,
+    systemType: string,
+  ) => Promise<ReferenceFacilityMapping>;
 };
 
 interface FacilitiesContext {
@@ -126,6 +130,16 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
     },
     deselectFacility: facilitiesActions.deselectFacility(dispatch),
     selectFacility: facilitiesActions.selectFacility(dispatch),
+    fetchReferenceFacilities: async (
+      stateName: string,
+      systemType: string,
+    ): Promise<ReferenceFacilityMapping> => {
+      return await facilitiesActions.fetchReferenceFacilities(
+        stateName,
+        systemType,
+        dispatch,
+      );
+    },
   };
 
   // when a new scenario is loaded, facility data must be initialized

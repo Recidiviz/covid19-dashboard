@@ -35,9 +35,14 @@ const ModalContainer = styled.div<ModalContainerProps>`
   overflow-y: auto;
 `;
 
+const ModalDescription = styled.div`
+  border-bottom: 0.5px solid ${Colors.darkGray};
+`;
+
 interface Props {
   numSteps?: number;
   title?: TitleProps["title"];
+  description?: string | React.ReactElement;
   open?: boolean;
   closeModal?: TitleProps["closeModal"];
   height?: string;
@@ -53,7 +58,15 @@ const isOutsideModal = (
   !element.contains(event.target);
 
 const ModalDialog: React.FC<Props> = (props) => {
-  const { title, open, closeModal, height, width, children } = props;
+  const {
+    title,
+    description,
+    open,
+    closeModal,
+    height,
+    width,
+    children,
+  } = props;
   const ref = useRef<HTMLDivElement>(null);
 
   if (!open) return null;
@@ -73,6 +86,7 @@ const ModalDialog: React.FC<Props> = (props) => {
     <BackgroundAside onClick={handleOnClick}>
       <ModalContainer ref={ref} height={height} width={width}>
         <ModalTitle title={title} closeModal={closeModal} />
+        <ModalDescription>{description}</ModalDescription>
         {children}
       </ModalContainer>
     </BackgroundAside>,
