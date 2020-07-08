@@ -53,7 +53,7 @@ export const useProjectionData = (
 
   useEffect(() => {
     updateCurves(getCurves(input, useRt, latestRt, numDays));
-  }, [input, latestRt, useRt]);
+  }, [input, latestRt, useRt, numDays]);
 
   return curves;
 };
