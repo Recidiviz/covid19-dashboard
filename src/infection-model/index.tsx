@@ -178,7 +178,10 @@ export function curveInputsWithRt(
   return curveInputs;
 }
 
-function prepareCurveData(inputs: CurveFunctionInputs): CurveProjectionInputs {
+function prepareCurveData(
+  inputs: CurveFunctionInputs,
+  numDays = NUM_DAYS,
+): CurveProjectionInputs {
   const {
     age0Cases,
     age20Cases,
@@ -198,8 +201,6 @@ function prepareCurveData(inputs: CurveFunctionInputs): CurveProjectionInputs {
     staffCases,
     usePopulationSubsets,
   } = inputs;
-
-  const numDays = NUM_DAYS;
 
   const ageGroupPopulations = prepareAgeGroupPopulations(inputs);
   const ageGroupInitiallyInfected = Array(ageGroupIndex.__length).fill(0);
@@ -237,10 +238,13 @@ function prepareCurveData(inputs: CurveFunctionInputs): CurveProjectionInputs {
 
 export function calculateCurves(
   inputs?: CurveFunctionInputs,
+  numDays?: number,
 ): CurveData | undefined {
   if (!inputs) return;
 
-  const { projectionGrid } = getAllBracketCurves(prepareCurveData(inputs));
+  const { projectionGrid } = getAllBracketCurves(
+    prepareCurveData(inputs, numDays),
+  );
 
   // these will each produce a matrix with row = day and col = SEIR bucket,
   // collapsing all age brackets into a single sum

@@ -36,7 +36,13 @@ const ChartArea: React.FC<{
   projectionData?: CurveData;
   initialCurveToggles: CurveToggles;
   markColors: ProjectionColors;
-}> = ({ projectionData, initialCurveToggles, markColors }) => {
+  title?: string;
+}> = ({
+  projectionData,
+  initialCurveToggles,
+  markColors,
+  title = "Projection",
+}) => {
   const [groupStatus, setGroupStatus] = useState(initialCurveToggles);
 
   const toggleGroup = (groupName: keyof typeof groupStatus) => {
@@ -48,7 +54,7 @@ const ChartArea: React.FC<{
   return (
     <Container>
       <LegendAndActions>
-        <LegendTitle>projection</LegendTitle>
+        <LegendTitle>{title}</LegendTitle>
         <LegendContainer>
           <CurveChartLegend
             markColors={markColors}
