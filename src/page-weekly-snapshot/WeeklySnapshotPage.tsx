@@ -34,10 +34,7 @@ const WeeklySnapshotPage: React.FC = () => {
                   YTD Summary and impact report
                 </SnapshotPage>
                 <SnapshotPage header="System Snapshot" subheader>
-                  <SystemWideProjectionChart
-                    localeData={localeState.data}
-                    facilities={facilities}
-                  />
+                  <SystemWideProjectionChart />
                   <LocaleSummary />
                 </SnapshotPage>
                 <FacilitySummaries

@@ -2,8 +2,6 @@ import React from "react";
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
-import { LocaleData } from "../locale-data-context";
-import { Facilities } from "../page-multi-facility/types";
 
 const SystemWideProjectionChartContainer = styled.div`
   font-size: 12px;
@@ -24,15 +22,7 @@ export const ChartHeader = styled.h3`
   line-height: 13px;
 `;
 
-interface Props {
-  localeData: LocaleData;
-  facilities: Facilities;
-}
-
-const SystemWideProjectionChart: React.FC<Props> = ({
-  localeData,
-  facilities,
-}) => {
+const SystemWideProjectionChart: React.FC = () => {
   return (
     <SystemWideProjectionChartContainer>
       <CurveChartContainer>
