@@ -7,7 +7,7 @@ import { useLocaleDataState } from "../locale-data-context";
 import useScenario from "../scenario-context/useScenario";
 import FacilitySummaries from "./FacilitySummaries";
 import LocaleSummary from "./LocaleSummary";
-import Page from "./Page";
+import SnapshotPage from "./SnapshotPage";
 import SystemWideProjectionChart from "./SystemWideProjectionChart";
 
 const WeeklySnapshotPageDiv = styled.div``;
@@ -30,16 +30,16 @@ const WeeklySnapshotPage: React.FC = () => {
           ) : (
             scenario.data && (
               <WeeklySnapshotContainer>
-                <Page header="COVID-19 Report" subheader>
+                <SnapshotPage header="COVID-19 Report" subheader>
                   YTD Summary and impact report
-                </Page>
-                <Page header="System Snapshot" subheader>
+                </SnapshotPage>
+                <SnapshotPage header="System Snapshot" subheader>
                   <SystemWideProjectionChart
                     localeData={localeState.data}
                     facilities={facilities}
                   />
                   <LocaleSummary />
-                </Page>
+                </SnapshotPage>
                 <FacilitySummaries
                   localeData={localeState.data}
                   loading={loading}

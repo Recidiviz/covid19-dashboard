@@ -15,7 +15,7 @@ import {
 import { RtData, RtError } from "../infection-model/rt";
 import { useProjectionData } from "../page-multi-facility/projectionCurveHooks";
 import { Facility } from "../page-multi-facility/types";
-import Page from "./Page";
+import SnapshotPage from "./SnapshotPage";
 
 const Heading = styled.div`
   font-weight: 700;
@@ -108,7 +108,7 @@ const FacilityPage: React.FC<Props> = ({ facility, rtData }) => {
   const incarceratedData = buildIncarceratedData(incarcerated);
   const staffData = buildStaffData({ staff, showHospitalizedRow: false });
   return (
-    <Page header={facility.name}>
+    <SnapshotPage header={facility.name}>
       Facility-Specific Projection
       <ProjectionSection>
         <Heading>Incarcerated Population Projection</Heading>
@@ -128,7 +128,7 @@ const FacilityPage: React.FC<Props> = ({ facility, rtData }) => {
           </tbody>
         </Table>
       </ProjectionSection>
-    </Page>
+    </SnapshotPage>
   );
 };
 

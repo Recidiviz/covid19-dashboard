@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
 
-const PageContainer = styled.div`
+const SnapshotPageContainer = styled.div`
   min-height: 500px;
   display: flex;
   justify-content: space-between;
@@ -66,9 +66,9 @@ interface Props {
   children: React.ReactNode;
 }
 
-const Page: React.FC<Props> = ({ header, subheader, children }) => {
+const SnapshotPage: React.FC<Props> = ({ header, subheader, children }) => {
   return (
-    <PageContainer>
+    <SnapshotPageContainer>
       <PageWidthContainer>
         <PageHeader>{header}</PageHeader>
         {subheader && (
@@ -84,8 +84,8 @@ const Page: React.FC<Props> = ({ header, subheader, children }) => {
         <FooterRight>Questions and feedback: covid@recidiviz.org</FooterRight>
       </PageWidthContainer>
       <HorizontalRule />
-    </PageContainer>
+    </SnapshotPageContainer>
   );
 };
 
-export default Page;
+export default SnapshotPage;
