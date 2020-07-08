@@ -13,17 +13,18 @@ export function weeklyReportReducer(
         loading: false,
         sharedScenarios: action.payload,
       });
+    case actions.REQUEST_SCENARIO:
+      return Object.assign({}, state, {
+        loading: true,
+      });
     case actions.RECEIVE_SCENARIO:
       return Object.assign({}, state, {
+        loading: false,
         scenario: action.payload,
       });
     case actions.UPDATE_STATE_NAME:
       return Object.assign({}, state, {
         stateName: action.payload,
-      });
-    case actions.RECEIVE_FACILITIES:
-      return Object.assign({}, state, {
-        facilities: action.payload,
       });
     default:
       return state;

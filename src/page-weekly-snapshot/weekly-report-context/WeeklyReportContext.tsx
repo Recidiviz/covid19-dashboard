@@ -1,31 +1,19 @@
 import React, { useEffect } from "react";
-
-import { STATE_PRISON } from "../../constants";
 import {
   getScenarioByStateName,
   getSharedBaselineScenarios,
-  referenceFacilitiesProp,
 } from "../../database";
-import { ReferenceFacilityMapping } from "../../facilities-context";
-import {
-  buildCompositeFacilities,
-  fetchReferenceFacilities,
-  fetchUserFacilities,
-} from "../../facilities-context/actions";
-import {
-  Facilities,
-  ReferenceFacility,
-  Scenario,
-} from "../../page-multi-facility/types";
+import { Scenario } from "../../page-multi-facility/types";
 import * as actions from "./actions";
 import { weeklyReportReducer } from "./reducer";
+
+import useScenario from "../../scenario-context/useScenario"
 
 export interface WeeklyReportState {
   loading: boolean;
   stateName: string | null;
   scenario: Scenario | null;
   sharedScenarios: Scenario[];
-  facilities: Facilities | ReferenceFacility[];
 }
 
 type WeeklyReportDispatch = (action: any) => void;
@@ -42,13 +30,19 @@ const WeeklyReportContext = React.createContext<
 export const WeeklyReportProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  const [,dispatchScenarioUpdate] = useScenario();
   const [state, dispatch] = React.useReducer(weeklyReportReducer, {
     loading: false,
     stateName: null,
     scenario: null,
     sharedScenarios: [],
-    facilities: [],
   });
+
+  useEffect(() => {
+    if (state.scenario) {
+      dispatchScenarioUpdate(state.scenario);
+    }
+  }, [state.scenario]);
 
   useEffect(() => {
     dispatch({ type: actions.REQUEST_SHARED_SCENARIOS });
@@ -64,6 +58,7 @@ export const WeeklyReportProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     if (state.stateName) {
+      dispatch({ type: actions.REQUEST_SCENARIO });
       getScenarioByStateName(state.sharedScenarios, state.stateName).then(
         (scenario) => {
           dispatch({
@@ -74,51 +69,6 @@ export const WeeklyReportProvider: React.FC<{ children: React.ReactNode }> = ({
       );
     }
   }, [state.stateName, state.sharedScenarios]);
-
-  useEffect(() => {
-    const systemType = STATE_PRISON;
-
-    async function fetchFacilities(
-      scenario: Scenario | null,
-      stateName: string | null,
-    ) {
-      let referenceFacilities: ReferenceFacilityMapping = {};
-
-      if (stateName) {
-        referenceFacilities = await fetchReferenceFacilities(
-          stateName,
-          systemType,
-        );
-
-        if (scenario && scenario.useReferenceData) {
-          let facilities = await fetchUserFacilities(scenario.id);
-          facilities = buildCompositeFacilities(
-            facilities,
-            referenceFacilities,
-            scenario[referenceFacilitiesProp],
-          );
-          dispatch({
-            type: actions.RECEIVE_FACILITIES,
-            payload: Object.values(facilities),
-          });
-        } else {
-          const facilities = Object.values(referenceFacilities).map(
-            (refFacility: ReferenceFacility) => {
-              return Object.assign({}, refFacility, {
-                name: refFacility.canonicalName,
-                systemType: refFacility.facilityType,
-                modelInputs: { observedAt: new Date() },
-                updatedAt: refFacility.createdAt,
-              });
-            },
-          );
-          dispatch({ type: actions.RECEIVE_FACILITIES, payload: facilities });
-        }
-      }
-    }
-
-    fetchFacilities(state.scenario, state.stateName);
-  }, [state.stateName, state.scenario]);
 
   return (
     <WeeklyReportContext.Provider value={{ state, dispatch }}>
