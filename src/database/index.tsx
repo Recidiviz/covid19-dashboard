@@ -771,7 +771,7 @@ export const saveFacility = async (
             })
           ) {
             throw new Error(
-              "Failed to save. Case and death counts are cumulative, and can only increase over time.",
+              "Failed to save. Cumulative cases, recovered cases, and deaths can only increase over time.",
             );
           }
         }

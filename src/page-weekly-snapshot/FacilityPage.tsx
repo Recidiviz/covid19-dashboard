@@ -1,8 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 
-import Colors from "../design-system/Colors";
+import Colors, { MarkColors as markColors } from "../design-system/Colors";
 import Loading from "../design-system/Loading";
+import ChartArea from "../impact-dashboard/ChartArea";
 import { useEpidemicModelState } from "../impact-dashboard/EpidemicModelContext";
 import {
   formatThousands,
@@ -12,10 +13,14 @@ import {
   buildIncarceratedData,
   buildStaffData,
 } from "../impact-dashboard/ImpactProjectionTableContainer";
+import { CurveData } from "../infection-model";
 import { RtData, RtError } from "../infection-model/rt";
+import { initialPublicCurveToggles } from "../page-multi-facility/curveToggles";
 import { useProjectionData } from "../page-multi-facility/projectionCurveHooks";
 import { Facility } from "../page-multi-facility/types";
 import SnapshotPage from "./SnapshotPage";
+
+const DURATION = 21;
 
 const Heading = styled.div`
   font-weight: 700;
@@ -46,6 +51,14 @@ const BorderDiv = styled.div`
 const ProjectionSection = styled.div`
   margin-top: 10px;
   padding: 5px 0;
+`;
+
+const ProjectionContainer = styled.div`
+  .axis-title text,
+  .axis-label {
+    fill: ${Colors.black};
+    font-family: "Libre Franklin";
+  }
 `;
 
 const TableCell = styled.td<{ label?: boolean }>`
@@ -91,6 +104,21 @@ function makeHeadingRow() {
   );
 }
 
+interface ProjectionProps {
+  projectionData: CurveData | undefined;
+}
+
+const FacilityProjection: React.FC<ProjectionProps> = ({ projectionData }) => {
+  return (
+    <ChartArea
+      projectionData={projectionData}
+      initialCurveToggles={initialPublicCurveToggles}
+      markColors={markColors}
+      title={"Estimated Impact"}
+    />
+  );
+};
+
 interface Props {
   facility: Facility;
   rtData: RtData | RtError | undefined;
@@ -101,6 +129,7 @@ const FacilityPage: React.FC<Props> = ({ facility, rtData }) => {
     useEpidemicModelState(),
     true,
     rtData,
+    DURATION,
   );
   if (!projectionData) return <Loading />;
   const { incarcerated, staff } = projectionData;
@@ -111,6 +140,10 @@ const FacilityPage: React.FC<Props> = ({ facility, rtData }) => {
     <SnapshotPage header={facility.name}>
       Facility-Specific Projection
       <ProjectionSection>
+        <ProjectionContainer>
+          <FacilityProjection projectionData={projectionData} />
+        </ProjectionContainer>
+
         <Heading>Incarcerated Population Projection</Heading>
         <Table>
           <tbody>
