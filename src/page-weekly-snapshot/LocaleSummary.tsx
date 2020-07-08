@@ -39,6 +39,11 @@ type StateRank = {
   totalCases: number | undefined;
 };
 
+type StateDeathsRank = {
+  stateName: string;
+  deaths: number | undefined;
+};
+
 function getDay(nytData: NYTCountyRecord[] | NYTStateRecord[], day: number) {
   if (day === 1) {
     return minBy(nytData, (d: NYTCountyRecord | NYTStateRecord) => d.date);
@@ -75,7 +80,43 @@ function calculatePerCapitaIncrease(
   return (daySevenCases - dayOneCases) / countyPopulation;
 }
 
-function getStateRank(
+function getStateDeathsRank(
+  localeData: LocaleData,
+  stateNames: string[],
+  selectedState: string | undefined,
+) {
+  const stateRanks: StateDeathsRank[] = [];
+  for (let i = 0; i < stateNames.length; i++) {
+    // D.C. isn't a state!
+    if (stateNames[i] !== "District of Columbia") {
+      stateRanks.push({
+        stateName: stateNames[i],
+        deaths: localeData?.get(stateNames[i])?.get("Total")?.["totalDeaths"],
+      });
+    }
+  }
+
+  const rankedStates = orderBy(
+    stateRanks.filter((c) => !!c.deaths),
+    ["deaths"],
+    ["desc"],
+  );
+
+  for (let i = 0; i < rankedStates.length; i++) {
+    const currState = rankedStates[i];
+    if (
+      selectedState &&
+      currState.stateName === selectedState &&
+      currState.deaths
+    ) {
+      return [currState.deaths, i];
+      break;
+    }
+  }
+  return [undefined, undefined];
+}
+
+function getStateTotalRank(
   localeData: LocaleData,
   stateNames: string[],
   selectedState: string | undefined,
@@ -98,15 +139,18 @@ function getStateRank(
     ["desc"],
   );
 
-  let rank = -1;
   for (let i = 0; i < rankedStates.length; i++) {
     const currState = rankedStates[i];
-    if (selectedState && currState.stateName === selectedState) {
-      rank = i;
+    if (
+      selectedState &&
+      currState.stateName === selectedState &&
+      currState.totalCases
+    ) {
+      return [currState.totalCases, i];
       break;
     }
   }
-  return rank;
+  return [undefined, undefined];
 }
 
 function getCountyIncreasePerCapita(
@@ -183,12 +227,23 @@ export default function LocaleSummary() {
         )};`;
       });
 
-      const rank = getStateRank(
+      const stateTotalRank = getStateTotalRank(
         localeData,
         stateNames,
         selectedState.state[0].stateName,
       );
-      console.log(rank);
+
+      setTotalCases(stateTotalRank[0]);
+      setStateTotalRank(stateTotalRank[1]);
+
+      const stateDeathRank = getStateDeathsRank(
+        localeData,
+        stateNames,
+        selectedState.state[0].stateName,
+      );
+
+      setTotalDeaths(stateDeathRank[0]);
+      setStateDeathsRank(stateDeathRank[1]);
 
       setCountiesToWatch(countiesToWatch);
       setTotalBeds(totalBeds);
@@ -237,6 +292,10 @@ export default function LocaleSummary() {
                   {totalBeds || totalBeds === 0 ? formatNumber(totalBeds) : "?"}
                 </li>
                 <li>Counties to watch: {countiesToWatch?.join(" ")}</li>
+                <li>Number of cases: {totalCases}</li>
+                <li>Rank: {stateTotalRank}</li>
+                <li>Number of deaths: {totalDeaths}</li>
+                <li>Death Rank: {stateDeathsRank}</li>
               </LocaleStatsList>
             </LocaleStats>
           )}
