@@ -36,19 +36,12 @@ type PerCapitaCountyCase = {
   casesIncreasePerCapita: number | undefined;
 };
 
-type StateTotal = {
+type StateMetrics = {
   stateName: string;
-  // totalCases: number | undefined;
-  // totalPopulation: number | undefined;
   casesPerCapita: number | undefined;
-  // deathsPerCapita: number | undefined;
+  deathsPerCapita: number | undefined;
   incarceratedCasesPerCapita: number | undefined;
-  // incarceratedDeathsPerCapita: number | undefined;
-};
-
-type StateDeathsRank = {
-  stateName: string;
-  deaths: number | undefined;
+  incarceratedDeathsPerCapita: number | undefined;
 };
 
 function getDay(nytData: NYTCountyRecord[] | NYTStateRecord[], day: number) {
@@ -87,44 +80,28 @@ function calculatePerCapitaIncrease(
   return (daySevenCases - dayOneCases) / countyPopulation;
 }
 
-function getStateDeathsRank(
-  localeData: LocaleData,
-  stateNames: string[],
-  selectedState: string | undefined,
+function getPerCapita(
+  numerator: number | undefined,
+  denominator: number | undefined,
 ) {
-  const stateRanks: StateDeathsRank[] = [];
-  for (let i = 0; i < stateNames.length; i++) {
-    // D.C. isn't a state!
-    if (stateNames[i] !== "District of Columbia") {
-      stateRanks.push({
-        stateName: stateNames[i],
-        deaths: localeData?.get(stateNames[i])?.get("Total")?.["totalDeaths"],
-      });
+  let result = 0;
+  if (numerator && denominator) {
+    result = Math.round((numerator / denominator) * POPULATION_SIZE);
+  }
+  return result;
+}
+
+function getCurrentStateData(stateMetrics: StateMetrics[], stateName: string) {
+  for (let i = 0; i < stateMetrics.length; i++) {
+    if (stateMetrics[i].stateName === stateName) {
+      return stateMetrics[i];
     }
   }
-
-  const rankedStates = orderBy(
-    stateRanks.filter((c) => !!c.deaths),
-    ["deaths"],
-    ["desc"],
-  );
-
-  for (let i = 0; i < rankedStates.length; i++) {
-    const currState = rankedStates[i];
-    if (
-      selectedState &&
-      currState.stateName === selectedState &&
-      currState.deaths
-    ) {
-      return [currState.deaths, i];
-      break;
-    }
-  }
-  return [undefined, undefined];
+  return undefined;
 }
 
 function getAllStateData(localeData: LocaleData, stateNames: string[]) {
-  const stateTotals: StateTotal[] = [];
+  const stateMetrics: StateMetrics[] = [];
   // D.C. isn't a state!
   stateNames = stateNames.filter((item) => item !== "District of Columbia");
 
@@ -132,59 +109,40 @@ function getAllStateData(localeData: LocaleData, stateNames: string[]) {
     const localeDataStateTotal = localeData?.get(stateNames[i])?.get("Total");
     if (localeDataStateTotal) {
       const totalCases = localeDataStateTotal["reportedCases"];
-      // const totalCases = localeDataStateTotal["reportedCases"];
       const totalPopulation = localeDataStateTotal["totalPopulation"];
-      const totalIncarceratedCases =
-        localeDataStateTotal["estimatedIncarceratedCases"];
+      const totalDeaths = localeDataStateTotal["totalDeaths"];
       const totalIncarceratedPopulation =
         localeDataStateTotal["totalIncarceratedPopulation"];
-      let casesPerCapita = 0;
-      if (totalCases && totalPopulation) {
-        casesPerCapita = Math.round(
-          (totalCases / totalPopulation) * POPULATION_SIZE,
-        );
-      }
-      let incarceratedCasesPerCapita = 0;
-      if (totalIncarceratedCases && totalIncarceratedPopulation) {
-        incarceratedCasesPerCapita = Math.round(
-          (totalIncarceratedCases / totalIncarceratedPopulation) *
-            POPULATION_SIZE,
-        );
-      }
-      stateTotals.push({
+      console.log(
+        totalCases,
+        totalPopulation,
+        totalDeaths,
+        totalIncarceratedPopulation,
+      );
+      const casesPerCapita = getPerCapita(totalCases, totalPopulation);
+      const deathsPerCapita = getPerCapita(totalDeaths, totalPopulation);
+      const incarceratedCasesPerCapita = getPerCapita(
+        totalCases,
+        totalIncarceratedPopulation,
+      );
+      const incarceratedDeathsPerCapita = getPerCapita(
+        totalDeaths,
+        totalIncarceratedPopulation,
+      );
+      stateMetrics.push({
         stateName: stateNames[i],
         casesPerCapita: casesPerCapita,
+        deathsPerCapita: deathsPerCapita,
         incarceratedCasesPerCapita: incarceratedCasesPerCapita,
+        incarceratedDeathsPerCapita: incarceratedDeathsPerCapita,
       });
     }
   }
-  return stateTotals;
-}
-
-function getStateTotalIncarceratedCasesRank(
-  stateTotals: StateTotal[],
-  selectedState: string | undefined,
-) {
-  const rankedStates = orderBy(
-    stateTotals.filter((c) => !!c.incarceratedCasesPerCapita),
-    ["incarceratedCasesPerCapita"],
-    ["desc"],
-  );
-  for (let i = 0; i < rankedStates.length; i++) {
-    const currState = rankedStates[i];
-    if (
-      selectedState &&
-      currState.stateName === selectedState &&
-      currState.incarceratedCasesPerCapita
-    ) {
-      return [currState.incarceratedCasesPerCapita, i + 1];
-    }
-  }
-  return [undefined, undefined];
+  return stateMetrics;
 }
 
 function getStateTotalCasesRank(
-  stateTotals: StateTotal[],
+  stateTotals: StateMetrics[],
   selectedState: string | undefined,
 ) {
   const rankedStates = orderBy(
@@ -201,6 +159,29 @@ function getStateTotalCasesRank(
       currState.casesPerCapita
     ) {
       return [currState.casesPerCapita, i + 1];
+    }
+  }
+  return [undefined, undefined];
+}
+
+function getStateTotalDeathsRank(
+  stateTotals: StateMetrics[],
+  selectedState: string | undefined,
+) {
+  const rankedStates = orderBy(
+    stateTotals.filter((c) => !!c.deathsPerCapita),
+    ["deathsPerCapita"],
+    ["desc"],
+  );
+
+  for (let i = 0; i < rankedStates.length; i++) {
+    const currState = rankedStates[i];
+    if (
+      selectedState &&
+      currState.stateName === selectedState &&
+      currState.deathsPerCapita
+    ) {
+      return [currState.deathsPerCapita, i + 1];
     }
   }
   return [undefined, undefined];
@@ -251,16 +232,21 @@ export default function LocaleSummary() {
   const dayOne = getDay(selectedState?.state || [], 1);
   const daySeven = getDay(selectedState?.state || [], 7);
 
-  const [totalCases, setTotalCases] = useState<number | undefined>();
-  const [stateTotalRank, setStateTotalRank] = useState<number | undefined>();
-  const [totalIncarceratedCases, setTotalIncarceratedCases] = useState<
+  const [casesPerCapita, setCasesPerCapita] = useState<number | undefined>();
+  const [casesPerCapitaRank, setCasesPerCapitaRank] = useState<
     number | undefined
   >();
-  const [stateTotalIncarceratedRank, setStateTotalIncarceratedRank] = useState<
+  const [incarceratedCasesPerCapita, setIncarceratedCasesPerCapita] = useState<
     number | undefined
   >();
-  const [totalDeaths, setTotalDeaths] = useState<number | undefined>();
-  const [stateDeathsRank, setStateDeathsRank] = useState<number | undefined>();
+  const [deathsPerCapita, setDeathsPerCapita] = useState<number | undefined>();
+  const [deathsPerCapitaRank, setDeathsPerCapitaRank] = useState<
+    number | undefined
+  >();
+  const [
+    incarceratedDeathsPerCapita,
+    setIncarceratedDeathsPerCapita,
+  ] = useState<number | undefined>();
 
   useEffect(() => {
     if (dayOne?.stateName && daySeven?.stateName && selectedState) {
@@ -286,23 +272,35 @@ export default function LocaleSummary() {
         )};`;
       });
 
-      const stateTotalCases = getAllStateData(localeData, stateNames);
+      const currStateName = selectedState.state[0].stateName;
+      const allStateMetrics = getAllStateData(localeData, stateNames);
+      if (currStateName) {
+        const currStateMetrics = getCurrentStateData(
+          allStateMetrics,
+          currStateName,
+        );
+        console.log(currStateMetrics);
+        setIncarceratedCasesPerCapita(
+          currStateMetrics?.incarceratedCasesPerCapita,
+        );
+        setIncarceratedDeathsPerCapita(
+          currStateMetrics?.incarceratedDeathsPerCapita,
+        );
+        const selectedStateCasesRank = getStateTotalCasesRank(
+          allStateMetrics,
+          currStateName,
+        );
 
-      const selectedStateTotalRank = getStateTotalCasesRank(
-        stateTotalCases,
-        selectedState.state[0].stateName,
-      );
-      setTotalCases(selectedStateTotalRank[0]);
-      setStateTotalRank(selectedStateTotalRank[1]);
+        setCasesPerCapita(selectedStateCasesRank[0]);
+        setCasesPerCapitaRank(selectedStateCasesRank[1]);
 
-      const selectedStateTotalIncarceratedRank = getStateTotalIncarceratedCasesRank(
-        stateTotalCases,
-        selectedState.state[0].stateName,
-      );
-      setTotalIncarceratedCases(selectedStateTotalIncarceratedRank[0]);
-      setStateTotalIncarceratedRank(selectedStateTotalIncarceratedRank[1]);
-      // setTotalDeaths(selectedStateTotalIncarceratedRank[0]);
-      // setStateDeathsRank(selectedStateTotalIncarceratedRank[1]);
+        const selectedStateDeathsRank = getStateTotalDeathsRank(
+          allStateMetrics,
+          currStateName,
+        );
+        setDeathsPerCapita(selectedStateDeathsRank[0]);
+        setDeathsPerCapitaRank(selectedStateDeathsRank[1]);
+      }
 
       setCountiesToWatch(countiesToWatch);
       setTotalBeds(totalBeds);
@@ -351,10 +349,12 @@ export default function LocaleSummary() {
                   {totalBeds || totalBeds === 0 ? formatNumber(totalBeds) : "?"}
                 </li>
                 <li>Counties to watch: {countiesToWatch?.join(" ")}</li>
-                <li>Total cases: {totalCases}</li>
-                <li>Cases Rank: {stateTotalRank}</li>
-                <li>Total incarcerated: {totalIncarceratedCases}</li>
-                <li>Incarcerated Cases Rank: {stateTotalIncarceratedRank}</li>
+                <li>Total cases: {casesPerCapita}</li>
+                <li>Cases Rank: {casesPerCapitaRank}</li>
+                <li>Total deaths: {deathsPerCapita}</li>
+                <li>Deaths Rank: {deathsPerCapitaRank}</li>
+                <li>Incarcerated Cases: {incarceratedCasesPerCapita}</li>
+                <li>Incarcerated Deaths: {incarceratedDeathsPerCapita}</li>
               </LocaleStatsList>
             </LocaleStats>
           )}
