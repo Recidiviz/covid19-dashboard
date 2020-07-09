@@ -1,65 +1,55 @@
 import React from "react";
 import styled from "styled-components";
 
-import Colors from "../design-system/Colors";
+import Loading from "../design-system/Loading";
+import { useFacilities } from "../facilities-context";
+import { useLocaleDataState } from "../locale-data-context";
+import useScenario from "../scenario-context/useScenario";
 import FacilitySummaries from "./FacilitySummaries";
 import LocaleSummary from "./LocaleSummary";
+import SnapshotPage from "./SnapshotPage";
+import SystemWideProjectionChart from "./SystemWideProjectionChart";
 
+const WeeklySnapshotPageDiv = styled.div``;
 const WeeklySnapshotContainer = styled.div``;
 
-const HorizontalRule = styled.hr`
-  border-color: ${Colors.opacityGray};
-  margin: 10px 0;
-`;
+const WeeklySnapshotPage: React.FC = () => {
+  const localeState = useLocaleDataState();
+  const [scenario] = useScenario();
+  const {
+    state: { loading, facilities: facilitiesState, rtData },
+  } = useFacilities();
+  const facilities = Object.values(facilitiesState);
 
-const Placeholder = styled.div`
-  padding: 20px;
-  margin: 20px;
-  font-size: 18px;
-`;
-
-const FooterContainer = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  font-family: Libre Franklin;
-  font-size: 11px;
-  line-height: 14px;
-`;
-
-const FooterLeft = styled.div`
-  text-align: left;
-`;
-
-const FooterRight = styled.div`
-  text-align: right;
-`;
-
-export default function WeeklySnapshotPage() {
   return (
-    <WeeklySnapshotContainer>
+    <WeeklySnapshotPageDiv>
       <div className="font-body min-h-screen tracking-normal w-full">
         <div className="max-w-screen-xl px-4 mx-auto">
-          <Placeholder>Page Header</Placeholder>
-          <Placeholder>Year To Date Summary and Impact Report</Placeholder>
-          <Placeholder>
-            System Summary
-            <LocaleSummary />
-          </Placeholder>
-          <Placeholder>
-            Facility Projections
-            <FacilitySummaries />
-          </Placeholder>
-          <HorizontalRule />
-          <FooterContainer>
-            <FooterLeft>Log in to update data: model.recividiz.org</FooterLeft>
-            <FooterRight>
-              Questions and feedback: covid@recidiviz.org
-            </FooterRight>
-          </FooterContainer>
-          <HorizontalRule />
+          {localeState.loading || scenario.loading ? (
+            <Loading />
+          ) : (
+            scenario.data && (
+              <WeeklySnapshotContainer>
+                <SnapshotPage header="COVID-19 Report" subheader>
+                  YTD Summary and impact report
+                </SnapshotPage>
+                <SnapshotPage header="System Snapshot" subheader>
+                  <SystemWideProjectionChart />
+                  <LocaleSummary />
+                </SnapshotPage>
+                <FacilitySummaries
+                  localeData={localeState.data}
+                  loading={loading}
+                  facilities={facilities}
+                  rtData={rtData}
+                />
+              </WeeklySnapshotContainer>
+            )
+          )}
         </div>
       </div>
-    </WeeklySnapshotContainer>
+    </WeeklySnapshotPageDiv>
   );
-}
+};
+
+export default WeeklySnapshotPage;
