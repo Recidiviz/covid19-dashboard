@@ -8,6 +8,7 @@ const ModalContainer = styled.div``;
 
 export interface Props {
   modalTitle?: TitleProps["title"];
+  modalDescription?: string | React.ReactElement;
   onClose?: () => void;
   open: boolean;
   setOpen: (open: boolean) => void;
@@ -20,6 +21,7 @@ const Modal: React.FC<Props> = (props) => {
   const {
     trigger,
     modalTitle,
+    modalDescription,
     children,
     open,
     setOpen,
@@ -45,6 +47,7 @@ const Modal: React.FC<Props> = (props) => {
       <div onClick={() => setOpen(true)}> {trigger}</div>
       <ModalDialog
         title={modalTitle}
+        description={modalDescription}
         open={open}
         closeModal={closeModal}
         height={height}
