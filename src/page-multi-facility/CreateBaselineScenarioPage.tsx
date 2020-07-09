@@ -1,4 +1,3 @@
-import { navigate } from "gatsby";
 import React from "react";
 import styled from "styled-components";
 
@@ -43,11 +42,13 @@ const CreateBaselineScenarioPage: React.FC = () => {
       baseline: true,
       dataSharing: false,
       dailyReports: false,
+      useReferenceData: true,
       baselinePopulations: [],
       promoStatuses: {
         dataSharing: true,
         dailyReports: true,
         addFacilities: true,
+        newModelInputs: false,
       },
       description:
         "Welcome to your new scenario. To get started, add in facility data on the right-hand side of the page. Your initial scenario is also your 'Baseline' - meaning this is where you should keep real-world numbers about the current state of your facilities, their cases, and mitigation steps.",
@@ -57,7 +58,6 @@ const CreateBaselineScenarioPage: React.FC = () => {
 
     if (scenario) {
       dispatchScenarioUpdate(scenario);
-      navigate("/facility");
     }
   };
 

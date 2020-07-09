@@ -22,22 +22,40 @@ export enum RateOfSpread {
 // fields that we want to store
 export interface ModelInputsPopulationBrackets {
   age0Cases?: number;
+  age0Recovered?: number;
+  age0Deaths?: number;
   age0Population?: number;
   age20Cases?: number;
+  age20Recovered?: number;
+  age20Deaths?: number;
   age20Population?: number;
   age45Cases?: number;
+  age45Recovered?: number;
+  age45Deaths?: number;
   age45Population?: number;
   age55Cases?: number;
+  age55Recovered?: number;
+  age55Deaths?: number;
   age55Population?: number;
   age65Cases?: number;
+  age65Recovered?: number;
+  age65Deaths?: number;
   age65Population?: number;
   age75Cases?: number;
+  age75Recovered?: number;
+  age75Deaths?: number;
   age75Population?: number;
   age85Cases?: number;
+  age85Recovered?: number;
+  age85Deaths?: number;
   age85Population?: number;
   ageUnknownCases?: number;
+  ageUnknownRecovered?: number;
+  ageUnknownDeaths?: number;
   ageUnknownPopulation?: number;
   staffCases?: number;
+  staffRecovered?: number;
+  staffDeaths?: number;
   staffPopulation?: number;
 }
 
@@ -51,6 +69,32 @@ export const caseBracketKeys: Array<keyof ModelInputsPopulationBrackets> = [
   "age85Cases",
   "ageUnknownCases",
   "staffCases",
+];
+
+export const recoveredBracketKeys: Array<
+  keyof ModelInputsPopulationBrackets
+> = [
+  "age0Recovered",
+  "age20Recovered",
+  "age45Recovered",
+  "age55Recovered",
+  "age65Recovered",
+  "age75Recovered",
+  "age85Recovered",
+  "ageUnknownRecovered",
+  "staffRecovered",
+];
+
+export const deathBracketKeys: Array<keyof ModelInputsPopulationBrackets> = [
+  "age0Deaths",
+  "age20Deaths",
+  "age45Deaths",
+  "age55Deaths",
+  "age65Deaths",
+  "age75Deaths",
+  "age85Deaths",
+  "ageUnknownDeaths",
+  "staffDeaths",
 ];
 
 interface ModelInputsPersistent extends ModelInputsPopulationBrackets {
@@ -99,22 +143,40 @@ export const populationBracketKeys: Array<
   keyof ModelInputsPopulationBrackets
 > = [
   "age0Cases",
+  "age0Recovered",
+  "age0Deaths",
   "age0Population",
   "age20Cases",
+  "age20Recovered",
+  "age20Deaths",
   "age20Population",
   "age45Cases",
+  "age45Recovered",
+  "age45Deaths",
   "age45Population",
   "age55Cases",
+  "age55Recovered",
+  "age55Deaths",
   "age55Population",
   "age65Cases",
+  "age65Recovered",
+  "age65Deaths",
   "age65Population",
   "age75Cases",
+  "age75Recovered",
+  "age75Deaths",
   "age75Population",
   "age85Cases",
+  "age85Recovered",
+  "age85Deaths",
   "age85Population",
   "ageUnknownCases",
+  "ageUnknownRecovered",
+  "ageUnknownDeaths",
   "ageUnknownPopulation",
   "staffCases",
+  "staffRecovered",
+  "staffDeaths",
   "staffPopulation",
 ];
 export const persistedKeys: Array<keyof EpidemicModelPersistent> = [
@@ -307,6 +369,18 @@ export function totalConfirmedCases(
   brackets: ModelInputsPopulationBrackets,
 ): number {
   return sum(Object.values(pick(brackets, casesKeys)));
+}
+
+export function totalConfirmedRecoveredCases(
+  brackets: ModelInputsPopulationBrackets,
+): number {
+  return sum(Object.values(pick(brackets, recoveredBracketKeys)));
+}
+
+export function totalConfirmedDeaths(
+  brackets: ModelInputsPopulationBrackets,
+): number {
+  return sum(Object.values(pick(brackets, deathBracketKeys)));
 }
 
 export function totalIncarceratedConfirmedCases(
