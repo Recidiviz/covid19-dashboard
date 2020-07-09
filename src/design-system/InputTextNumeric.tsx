@@ -8,6 +8,7 @@ interface Props extends InputBaseProps<number> {
   type: "number" | "percent";
   style?: React.CSSProperties;
   inputRelativityError?: boolean;
+  isReference?: boolean;
 }
 
 const PctAddon = styled.div`
@@ -38,6 +39,10 @@ const InputTextNumeric: React.FC<Props> = (props) => {
     } else {
       return `${value}`;
     }
+  }
+
+  if (props.isReference) {
+    console.log("inputtextnumeric", props);
   }
 
   return (
