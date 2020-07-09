@@ -20,6 +20,8 @@ import {
   useNYTData,
 } from "./NYTDataProvider";
 
+const POPULATION_SIZE = 100000;
+
 const stateNamesFilter = (key: string) =>
   !["US Total", "US Federal Prisons"].includes(key);
 const formatNumber = (number: number) => numeral(number).format("0,0");
@@ -34,9 +36,14 @@ type PerCapitaCountyCase = {
   casesIncreasePerCapita: number | undefined;
 };
 
-type StateRank = {
+type StateTotal = {
   stateName: string;
-  totalCases: number | undefined;
+  // totalCases: number | undefined;
+  // totalPopulation: number | undefined;
+  casesPerCapita: number | undefined;
+  // deathsPerCapita: number | undefined;
+  incarceratedCasesPerCapita: number | undefined;
+  // incarceratedDeathsPerCapita: number | undefined;
 };
 
 type StateDeathsRank = {
@@ -116,26 +123,73 @@ function getStateDeathsRank(
   return [undefined, undefined];
 }
 
-function getStateTotalRank(
-  localeData: LocaleData,
-  stateNames: string[],
-  selectedState: string | undefined,
-) {
-  const stateRanks: StateRank[] = [];
+function getAllStateData(localeData: LocaleData, stateNames: string[]) {
+  const stateTotals: StateTotal[] = [];
+  // D.C. isn't a state!
+  stateNames = stateNames.filter((item) => item !== "District of Columbia");
+
   for (let i = 0; i < stateNames.length; i++) {
-    // D.C. isn't a state!
-    if (stateNames[i] !== "District of Columbia") {
-      stateRanks.push({
+    const localeDataStateTotal = localeData?.get(stateNames[i])?.get("Total");
+    if (localeDataStateTotal) {
+      const totalCases = localeDataStateTotal["reportedCases"];
+      // const totalCases = localeDataStateTotal["reportedCases"];
+      const totalPopulation = localeDataStateTotal["totalPopulation"];
+      const totalIncarceratedCases =
+        localeDataStateTotal["estimatedIncarceratedCases"];
+      const totalIncarceratedPopulation =
+        localeDataStateTotal["totalIncarceratedPopulation"];
+      let casesPerCapita = 0;
+      if (totalCases && totalPopulation) {
+        casesPerCapita = Math.round(
+          (totalCases / totalPopulation) * POPULATION_SIZE,
+        );
+      }
+      let incarceratedCasesPerCapita = 0;
+      if (totalIncarceratedCases && totalIncarceratedPopulation) {
+        incarceratedCasesPerCapita = Math.round(
+          (totalIncarceratedCases / totalIncarceratedPopulation) *
+            POPULATION_SIZE,
+        );
+      }
+      stateTotals.push({
         stateName: stateNames[i],
-        totalCases: localeData?.get(stateNames[i])?.get("Total")?.[
-          "totalIncarceratedPopulation"
-        ],
+        casesPerCapita: casesPerCapita,
+        incarceratedCasesPerCapita: incarceratedCasesPerCapita,
       });
     }
   }
+  return stateTotals;
+}
+
+function getStateTotalIncarceratedCasesRank(
+  stateTotals: StateTotal[],
+  selectedState: string | undefined,
+) {
   const rankedStates = orderBy(
-    stateRanks.filter((c) => !!c.totalCases),
-    ["totalCases"],
+    stateTotals.filter((c) => !!c.incarceratedCasesPerCapita),
+    ["incarceratedCasesPerCapita"],
+    ["desc"],
+  );
+  for (let i = 0; i < rankedStates.length; i++) {
+    const currState = rankedStates[i];
+    if (
+      selectedState &&
+      currState.stateName === selectedState &&
+      currState.incarceratedCasesPerCapita
+    ) {
+      return [currState.incarceratedCasesPerCapita, i + 1];
+    }
+  }
+  return [undefined, undefined];
+}
+
+function getStateTotalCasesRank(
+  stateTotals: StateTotal[],
+  selectedState: string | undefined,
+) {
+  const rankedStates = orderBy(
+    stateTotals.filter((c) => !!c.casesPerCapita),
+    ["casesPerCapita"],
     ["desc"],
   );
 
@@ -144,10 +198,9 @@ function getStateTotalRank(
     if (
       selectedState &&
       currState.stateName === selectedState &&
-      currState.totalCases
+      currState.casesPerCapita
     ) {
-      return [currState.totalCases, i];
-      break;
+      return [currState.casesPerCapita, i + 1];
     }
   }
   return [undefined, undefined];
@@ -200,6 +253,12 @@ export default function LocaleSummary() {
 
   const [totalCases, setTotalCases] = useState<number | undefined>();
   const [stateTotalRank, setStateTotalRank] = useState<number | undefined>();
+  const [totalIncarceratedCases, setTotalIncarceratedCases] = useState<
+    number | undefined
+  >();
+  const [stateTotalIncarceratedRank, setStateTotalIncarceratedRank] = useState<
+    number | undefined
+  >();
   const [totalDeaths, setTotalDeaths] = useState<number | undefined>();
   const [stateDeathsRank, setStateDeathsRank] = useState<number | undefined>();
 
@@ -227,23 +286,23 @@ export default function LocaleSummary() {
         )};`;
       });
 
-      const stateTotalRank = getStateTotalRank(
-        localeData,
-        stateNames,
+      const stateTotalCases = getAllStateData(localeData, stateNames);
+
+      const selectedStateTotalRank = getStateTotalCasesRank(
+        stateTotalCases,
         selectedState.state[0].stateName,
       );
+      setTotalCases(selectedStateTotalRank[0]);
+      setStateTotalRank(selectedStateTotalRank[1]);
 
-      setTotalCases(stateTotalRank[0]);
-      setStateTotalRank(stateTotalRank[1]);
-
-      const stateDeathRank = getStateDeathsRank(
-        localeData,
-        stateNames,
+      const selectedStateTotalIncarceratedRank = getStateTotalIncarceratedCasesRank(
+        stateTotalCases,
         selectedState.state[0].stateName,
       );
-
-      setTotalDeaths(stateDeathRank[0]);
-      setStateDeathsRank(stateDeathRank[1]);
+      setTotalIncarceratedCases(selectedStateTotalIncarceratedRank[0]);
+      setStateTotalIncarceratedRank(selectedStateTotalIncarceratedRank[1]);
+      // setTotalDeaths(selectedStateTotalIncarceratedRank[0]);
+      // setStateDeathsRank(selectedStateTotalIncarceratedRank[1]);
 
       setCountiesToWatch(countiesToWatch);
       setTotalBeds(totalBeds);
@@ -292,10 +351,10 @@ export default function LocaleSummary() {
                   {totalBeds || totalBeds === 0 ? formatNumber(totalBeds) : "?"}
                 </li>
                 <li>Counties to watch: {countiesToWatch?.join(" ")}</li>
-                <li>Number of cases: {totalCases}</li>
-                <li>Rank: {stateTotalRank}</li>
-                <li>Number of deaths: {totalDeaths}</li>
-                <li>Death Rank: {stateDeathsRank}</li>
+                <li>Total cases: {totalCases}</li>
+                <li>Cases Rank: {stateTotalRank}</li>
+                <li>Total incarcerated: {totalIncarceratedCases}</li>
+                <li>Incarcerated Cases Rank: {stateTotalIncarceratedRank}</li>
               </LocaleStatsList>
             </LocaleStats>
           )}
