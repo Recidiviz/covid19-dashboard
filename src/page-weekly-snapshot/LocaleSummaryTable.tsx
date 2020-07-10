@@ -1,21 +1,13 @@
 import { sum } from "d3-array";
 import { orderBy } from "lodash";
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 
-import Colors, { MarkColors as markColors } from "../design-system/Colors";
+import Colors from "../design-system/Colors";
 import { Column, PageContainer } from "../design-system/PageColumn";
 import { useFacilities } from "../facilities-context";
-import {
-  formatThousands,
-  TableRow,
-} from "../impact-dashboard/ImpactProjectionTable";
-import {
-  LocaleData,
-  LocaleDataProvider,
-  LocaleRecord,
-  useLocaleDataState,
-} from "../locale-data-context";
+import { formatThousands } from "../impact-dashboard/ImpactProjectionTable";
+import { LocaleData, useLocaleDataState } from "../locale-data-context";
 import { Facility } from "../page-multi-facility/types";
 
 const HorizontalRule = styled.hr`

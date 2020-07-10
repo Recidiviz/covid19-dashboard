@@ -1,21 +1,17 @@
-import { sum } from "d3-array";
 import { maxBy, minBy, orderBy } from "lodash";
 import numeral from "numeral";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
-import Colors, { MarkColors as markColors } from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import InputSelect from "../design-system/InputSelect";
 import Loading from "../design-system/Loading";
 import { Column, PageContainer } from "../design-system/PageColumn";
 import {
-  LocaleData,
   LocaleDataProvider,
   LocaleRecord,
   useLocaleDataState,
 } from "../locale-data-context";
-import { Facility } from "../page-multi-facility/types";
 import LocaleSummaryTable from "./LocaleSummaryTable";
 import {
   NYTCountyRecord,
@@ -23,8 +19,6 @@ import {
   NYTStateRecord,
   useNYTData,
 } from "./NYTDataProvider";
-
-const POPULATION_SIZE = 100000;
 
 const stateNamesFilter = (key: string) =>
   !["US Total", "US Federal Prisons"].includes(key);
@@ -82,96 +76,6 @@ function calculatePerCapitaIncrease(
   return (daySevenCases - dayOneCases) / countyPopulation;
 }
 
-function getPerCapita(
-  numerator: number | undefined,
-  denominator: number | undefined,
-) {
-  let result = 0;
-  if (numerator && denominator) {
-    result = Math.round((numerator / denominator) * POPULATION_SIZE);
-  }
-  return result;
-}
-
-function getCurrentStateData(stateMetrics: StateMetrics[], stateName: string) {
-  for (let i = 0; i < stateMetrics.length; i++) {
-    if (stateMetrics[i].stateName === stateName) {
-      return stateMetrics[i];
-    }
-  }
-  return undefined;
-}
-
-function getAllStateData(localeData: LocaleData, stateNames: string[]) {
-  const stateMetrics: StateMetrics[] = [];
-  // D.C. isn't a state!
-  stateNames = stateNames.filter((item) => item !== "District of Columbia");
-
-  for (let i = 0; i < stateNames.length; i++) {
-    const localeDataStateTotal = localeData?.get(stateNames[i])?.get("Total");
-    // console.log(localeDataStateTotal);
-    if (localeDataStateTotal) {
-      const totalCases = localeDataStateTotal["reportedCases"];
-      const totalPopulation = localeDataStateTotal["totalPopulation"];
-      const totalDeaths = localeDataStateTotal["totalDeaths"];
-      const casesPerCapita = getPerCapita(totalCases, totalPopulation);
-      const deathsPerCapita = getPerCapita(totalDeaths, totalPopulation);
-      stateMetrics.push({
-        stateName: stateNames[i],
-        casesPerCapita: casesPerCapita,
-        deathsPerCapita: deathsPerCapita,
-      });
-    }
-  }
-  return stateMetrics;
-}
-
-function getStateTotalCasesRank(
-  stateTotals: StateMetrics[],
-  selectedState: string | undefined,
-) {
-  const rankedStates = orderBy(
-    stateTotals.filter((c) => !!c.casesPerCapita),
-    ["casesPerCapita"],
-    ["desc"],
-  );
-
-  for (let i = 0; i < rankedStates.length; i++) {
-    const currState = rankedStates[i];
-    if (
-      selectedState &&
-      currState.stateName === selectedState &&
-      currState.casesPerCapita
-    ) {
-      return [currState.casesPerCapita, i + 1];
-    }
-  }
-  return [undefined, undefined];
-}
-
-function getStateTotalDeathsRank(
-  stateTotals: StateMetrics[],
-  selectedState: string | undefined,
-) {
-  const rankedStates = orderBy(
-    stateTotals.filter((c) => !!c.deathsPerCapita),
-    ["deathsPerCapita"],
-    ["desc"],
-  );
-
-  for (let i = 0; i < rankedStates.length; i++) {
-    const currState = rankedStates[i];
-    if (
-      selectedState &&
-      currState.stateName === selectedState &&
-      currState.deathsPerCapita
-    ) {
-      return [currState.deathsPerCapita, i + 1];
-    }
-  }
-  return [undefined, undefined];
-}
-
 function getCountyIncreasePerCapita(
   counties: NYTCountyRecord[],
   stateLocaleData: Map<string, LocaleRecord> | undefined,
@@ -193,108 +97,6 @@ function getCountyIncreasePerCapita(
     });
   }
   return countyCasesIncreasePerCapita;
-}
-
-function getTotalIncarceratedPopulation(facilities: Facility[]) {
-  let result = 0;
-  let hasPopulationData = true;
-  for (let i = 0; i < facilities.length; i++) {
-    const {
-      ageUnknownPopulation,
-      age0Population,
-      age20Population,
-      age45Population,
-      age55Population,
-      age65Population,
-      age75Population,
-      age85Population,
-    } = facilities[i].modelInputs;
-    let ageKnownCaseData = [
-      ageUnknownPopulation,
-      age0Population,
-      age20Population,
-      age45Population,
-      age55Population,
-      age65Population,
-      age75Population,
-      age85Population,
-    ];
-    ageKnownCaseData = ageKnownCaseData.filter((data) => data !== undefined);
-    // TODO: user has no case data
-    if (ageKnownCaseData.length === 0) {
-      hasPopulationData = false;
-    }
-    result += sum(ageKnownCaseData);
-  }
-  return result;
-}
-
-function getTotalIncarceratedCases(facilities: Facility[]) {
-  let result = 0;
-  let hasCaseData = true;
-  for (let i = 0; i < facilities.length; i++) {
-    const {
-      ageUnknownCases,
-      age0Cases,
-      age20Cases,
-      age45Cases,
-      age55Cases,
-      age65Cases,
-      age75Cases,
-      age85Cases,
-    } = facilities[i].modelInputs;
-    let ageKnownCaseData = [
-      ageUnknownCases,
-      age0Cases,
-      age20Cases,
-      age45Cases,
-      age55Cases,
-      age65Cases,
-      age75Cases,
-      age85Cases,
-    ];
-    ageKnownCaseData = ageKnownCaseData.filter((data) => data !== undefined);
-    // TODO: user has no case data
-    if (ageKnownCaseData.length === 0) {
-      hasCaseData = false;
-    }
-    result += sum(ageKnownCaseData);
-  }
-  return result;
-}
-
-function getTotalIncarceratedDeaths(facilities: Facility[]) {
-  let result = 0;
-  let hasDeathData = true;
-  for (let i = 0; i < facilities.length; i++) {
-    const {
-      ageUnknownDeaths,
-      age0Deaths,
-      age20Deaths,
-      age45Deaths,
-      age55Deaths,
-      age65Deaths,
-      age75Deaths,
-      age85Deaths,
-    } = facilities[i].modelInputs;
-    let ageKnownCaseData = [
-      ageUnknownDeaths,
-      age0Deaths,
-      age20Deaths,
-      age45Deaths,
-      age55Deaths,
-      age65Deaths,
-      age75Deaths,
-      age85Deaths,
-    ];
-    ageKnownCaseData = ageKnownCaseData.filter((data) => data !== undefined);
-    // TODO: user has no case data
-    if (ageKnownCaseData.length === 0) {
-      hasDeathData = false;
-    }
-    result += sum(ageKnownCaseData);
-  }
-  return result;
 }
 
 export default function LocaleSummary() {
