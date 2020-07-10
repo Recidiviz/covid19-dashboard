@@ -1,18 +1,22 @@
+import { sum } from "d3-array";
 import { maxBy, minBy, orderBy } from "lodash";
 import numeral from "numeral";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
+import Colors, { MarkColors as markColors } from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import InputSelect from "../design-system/InputSelect";
 import Loading from "../design-system/Loading";
-import { Column } from "../design-system/PageColumn";
+import { Column, PageContainer } from "../design-system/PageColumn";
 import {
   LocaleData,
   LocaleDataProvider,
   LocaleRecord,
   useLocaleDataState,
 } from "../locale-data-context";
+import { Facility } from "../page-multi-facility/types";
+import LocaleSummaryTable from "./LocaleSummaryTable";
 import {
   NYTCountyRecord,
   NYTData,
@@ -40,8 +44,6 @@ type StateMetrics = {
   stateName: string;
   casesPerCapita: number | undefined;
   deathsPerCapita: number | undefined;
-  incarceratedCasesPerCapita: number | undefined;
-  incarceratedDeathsPerCapita: number | undefined;
 };
 
 function getDay(nytData: NYTCountyRecord[] | NYTStateRecord[], day: number) {
@@ -107,34 +109,17 @@ function getAllStateData(localeData: LocaleData, stateNames: string[]) {
 
   for (let i = 0; i < stateNames.length; i++) {
     const localeDataStateTotal = localeData?.get(stateNames[i])?.get("Total");
+    // console.log(localeDataStateTotal);
     if (localeDataStateTotal) {
       const totalCases = localeDataStateTotal["reportedCases"];
       const totalPopulation = localeDataStateTotal["totalPopulation"];
       const totalDeaths = localeDataStateTotal["totalDeaths"];
-      const totalIncarceratedPopulation =
-        localeDataStateTotal["totalIncarceratedPopulation"];
-      console.log(
-        totalCases,
-        totalPopulation,
-        totalDeaths,
-        totalIncarceratedPopulation,
-      );
       const casesPerCapita = getPerCapita(totalCases, totalPopulation);
       const deathsPerCapita = getPerCapita(totalDeaths, totalPopulation);
-      const incarceratedCasesPerCapita = getPerCapita(
-        totalCases,
-        totalIncarceratedPopulation,
-      );
-      const incarceratedDeathsPerCapita = getPerCapita(
-        totalDeaths,
-        totalIncarceratedPopulation,
-      );
       stateMetrics.push({
         stateName: stateNames[i],
         casesPerCapita: casesPerCapita,
         deathsPerCapita: deathsPerCapita,
-        incarceratedCasesPerCapita: incarceratedCasesPerCapita,
-        incarceratedDeathsPerCapita: incarceratedDeathsPerCapita,
       });
     }
   }
@@ -210,6 +195,108 @@ function getCountyIncreasePerCapita(
   return countyCasesIncreasePerCapita;
 }
 
+function getTotalIncarceratedPopulation(facilities: Facility[]) {
+  let result = 0;
+  let hasPopulationData = true;
+  for (let i = 0; i < facilities.length; i++) {
+    const {
+      ageUnknownPopulation,
+      age0Population,
+      age20Population,
+      age45Population,
+      age55Population,
+      age65Population,
+      age75Population,
+      age85Population,
+    } = facilities[i].modelInputs;
+    let ageKnownCaseData = [
+      ageUnknownPopulation,
+      age0Population,
+      age20Population,
+      age45Population,
+      age55Population,
+      age65Population,
+      age75Population,
+      age85Population,
+    ];
+    ageKnownCaseData = ageKnownCaseData.filter((data) => data !== undefined);
+    // TODO: user has no case data
+    if (ageKnownCaseData.length === 0) {
+      hasPopulationData = false;
+    }
+    result += sum(ageKnownCaseData);
+  }
+  return result;
+}
+
+function getTotalIncarceratedCases(facilities: Facility[]) {
+  let result = 0;
+  let hasCaseData = true;
+  for (let i = 0; i < facilities.length; i++) {
+    const {
+      ageUnknownCases,
+      age0Cases,
+      age20Cases,
+      age45Cases,
+      age55Cases,
+      age65Cases,
+      age75Cases,
+      age85Cases,
+    } = facilities[i].modelInputs;
+    let ageKnownCaseData = [
+      ageUnknownCases,
+      age0Cases,
+      age20Cases,
+      age45Cases,
+      age55Cases,
+      age65Cases,
+      age75Cases,
+      age85Cases,
+    ];
+    ageKnownCaseData = ageKnownCaseData.filter((data) => data !== undefined);
+    // TODO: user has no case data
+    if (ageKnownCaseData.length === 0) {
+      hasCaseData = false;
+    }
+    result += sum(ageKnownCaseData);
+  }
+  return result;
+}
+
+function getTotalIncarceratedDeaths(facilities: Facility[]) {
+  let result = 0;
+  let hasDeathData = true;
+  for (let i = 0; i < facilities.length; i++) {
+    const {
+      ageUnknownDeaths,
+      age0Deaths,
+      age20Deaths,
+      age45Deaths,
+      age55Deaths,
+      age65Deaths,
+      age75Deaths,
+      age85Deaths,
+    } = facilities[i].modelInputs;
+    let ageKnownCaseData = [
+      ageUnknownDeaths,
+      age0Deaths,
+      age20Deaths,
+      age45Deaths,
+      age55Deaths,
+      age65Deaths,
+      age75Deaths,
+      age85Deaths,
+    ];
+    ageKnownCaseData = ageKnownCaseData.filter((data) => data !== undefined);
+    // TODO: user has no case data
+    if (ageKnownCaseData.length === 0) {
+      hasDeathData = false;
+    }
+    result += sum(ageKnownCaseData);
+  }
+  return result;
+}
+
 export default function LocaleSummary() {
   const { data, loading: nytLoading } = useNYTData();
   const [selectedState, setSelectedState] = useState<NYTData | undefined>();
@@ -231,22 +318,6 @@ export default function LocaleSummary() {
 
   const dayOne = getDay(selectedState?.state || [], 1);
   const daySeven = getDay(selectedState?.state || [], 7);
-
-  const [casesPerCapita, setCasesPerCapita] = useState<number | undefined>();
-  const [casesPerCapitaRank, setCasesPerCapitaRank] = useState<
-    number | undefined
-  >();
-  const [incarceratedCasesPerCapita, setIncarceratedCasesPerCapita] = useState<
-    number | undefined
-  >();
-  const [deathsPerCapita, setDeathsPerCapita] = useState<number | undefined>();
-  const [deathsPerCapitaRank, setDeathsPerCapitaRank] = useState<
-    number | undefined
-  >();
-  const [
-    incarceratedDeathsPerCapita,
-    setIncarceratedDeathsPerCapita,
-  ] = useState<number | undefined>();
 
   useEffect(() => {
     if (dayOne?.stateName && daySeven?.stateName && selectedState) {
@@ -272,36 +343,6 @@ export default function LocaleSummary() {
         )};`;
       });
 
-      const currStateName = selectedState.state[0].stateName;
-      const allStateMetrics = getAllStateData(localeData, stateNames);
-      if (currStateName) {
-        const currStateMetrics = getCurrentStateData(
-          allStateMetrics,
-          currStateName,
-        );
-        console.log(currStateMetrics);
-        setIncarceratedCasesPerCapita(
-          currStateMetrics?.incarceratedCasesPerCapita,
-        );
-        setIncarceratedDeathsPerCapita(
-          currStateMetrics?.incarceratedDeathsPerCapita,
-        );
-        const selectedStateCasesRank = getStateTotalCasesRank(
-          allStateMetrics,
-          currStateName,
-        );
-
-        setCasesPerCapita(selectedStateCasesRank[0]);
-        setCasesPerCapitaRank(selectedStateCasesRank[1]);
-
-        const selectedStateDeathsRank = getStateTotalDeathsRank(
-          allStateMetrics,
-          currStateName,
-        );
-        setDeathsPerCapita(selectedStateDeathsRank[0]);
-        setDeathsPerCapitaRank(selectedStateDeathsRank[1]);
-      }
-
       setCountiesToWatch(countiesToWatch);
       setTotalBeds(totalBeds);
       setSevenDayDiffInCases(sevenDayDiffInCases);
@@ -312,53 +353,63 @@ export default function LocaleSummary() {
       {loading || nytLoading ? (
         <Loading />
       ) : (
-        <Column>
-          <InputSelect
-            label="State"
-            placeholder="Select a state"
-            onChange={handleOnChange}
-          >
-            <option value="">Select a state</option>
-            {stateNames.map((name) => (
-              <option key={name} value={name}>
-                {name}
-              </option>
-            ))}
-          </InputSelect>
-          {selectedState && (
-            <LocaleStats>
-              <LocaleStatsList>
-                <li>
-                  Latest Date:{" "}
-                  {daySeven?.date && <DateMMMMdyyyy date={daySeven.date} />}
-                </li>
-                <li>
-                  Number of cases in the state:{" "}
-                  {daySeven?.cases || daySeven?.cases === 0
-                    ? formatNumber(daySeven.cases)
-                    : "?"}
-                </li>
-                <li>
-                  Change in state cases since last week:{" "}
-                  {sevenDayDiffInCases || sevenDayDiffInCases === 0
-                    ? formatNumber(sevenDayDiffInCases)
-                    : "?"}
-                </li>
-                <li>
-                  Number of ICU and hospital beds in state:{" "}
-                  {totalBeds || totalBeds === 0 ? formatNumber(totalBeds) : "?"}
-                </li>
-                <li>Counties to watch: {countiesToWatch?.join(" ")}</li>
-                <li>Total cases: {casesPerCapita}</li>
-                <li>Cases Rank: {casesPerCapitaRank}</li>
-                <li>Total deaths: {deathsPerCapita}</li>
-                <li>Deaths Rank: {deathsPerCapitaRank}</li>
-                <li>Incarcerated Cases: {incarceratedCasesPerCapita}</li>
-                <li>Incarcerated Deaths: {incarceratedDeathsPerCapita}</li>
-              </LocaleStatsList>
-            </LocaleStats>
-          )}
-        </Column>
+        <PageContainer>
+          <Column>
+            <InputSelect
+              label="State"
+              placeholder="Select a state"
+              onChange={handleOnChange}
+            >
+              <option value="">Select a state</option>
+              {stateNames.map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
+            </InputSelect>
+            {selectedState && (
+              <LocaleStats>
+                <LocaleStatsList>
+                  <li>
+                    Latest Date:{" "}
+                    {daySeven?.date && <DateMMMMdyyyy date={daySeven.date} />}
+                  </li>
+                  <li>
+                    Number of cases in the state:{" "}
+                    {daySeven?.cases || daySeven?.cases === 0
+                      ? formatNumber(daySeven.cases)
+                      : "?"}
+                  </li>
+                  <li>
+                    Change in state cases since last week:{" "}
+                    {sevenDayDiffInCases || sevenDayDiffInCases === 0
+                      ? formatNumber(sevenDayDiffInCases)
+                      : "?"}
+                  </li>
+                  <li>
+                    Number of ICU and hospital beds in state:{" "}
+                    {totalBeds || totalBeds === 0
+                      ? formatNumber(totalBeds)
+                      : "?"}
+                  </li>
+                  {/* <li>Counties to watch: {countiesToWatch?.join(" ")}</li>
+                <li>cases per capita: {casesPerCapita}</li>
+                <li>cases per capita rank: {casesPerCapitaRank}</li>
+                <li>deaths per capita: {deathsPerCapita}</li>
+                <li>deaths per capita rank : {deathsPerCapitaRank}</li>
+                <li>incarcerated cases per capita: {incarceratedCasesPerCapita}</li>
+                <li>incarcerated deaths per capita: {incarceratedDeathsPerCapita}</li>                */}
+                </LocaleStatsList>
+              </LocaleStats>
+            )}
+          </Column>
+          <Column>
+            <LocaleSummaryTable
+              stateName={selectedState?.state[0].stateName}
+              stateNames={stateNames}
+            />
+          </Column>
+        </PageContainer>
       )}
     </LocaleDataProvider>
   );
