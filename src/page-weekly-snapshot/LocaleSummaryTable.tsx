@@ -1,5 +1,5 @@
 import { sum } from "d3-array";
-import { orderBy } from "lodash";
+import { get, mapKeys, orderBy } from "lodash";
 import React from "react";
 import styled from "styled-components";
 
@@ -63,6 +63,11 @@ type StateMetrics = {
   deathsPerCapita: number | undefined;
 };
 
+type incarceratedDeathData = {
+  incarceratedDeaths: number;
+  hasDeathData: boolean;
+};
+
 const POPULATION_SIZE = 100000;
 
 function getPerCapita(
@@ -76,15 +81,6 @@ function getPerCapita(
   return result;
 }
 
-function getCurrentStateData(stateMetrics: StateMetrics[], stateName: string) {
-  for (let i = 0; i < stateMetrics.length; i++) {
-    if (stateMetrics[i].stateName === stateName) {
-      return stateMetrics[i];
-    }
-  }
-  return undefined;
-}
-
 function getAllStateData(localeData: LocaleData, stateNames: string[]) {
   const stateMetrics: StateMetrics[] = [];
   // D.C. isn't a state!
@@ -92,7 +88,6 @@ function getAllStateData(localeData: LocaleData, stateNames: string[]) {
 
   for (let i = 0; i < stateNames.length; i++) {
     const localeDataStateTotal = localeData?.get(stateNames[i])?.get("Total");
-    // console.log(localeDataStateTotal);
     if (localeDataStateTotal) {
       const totalCases = localeDataStateTotal["reportedCases"];
       const totalPopulation = localeDataStateTotal["totalPopulation"];
@@ -109,47 +104,26 @@ function getAllStateData(localeData: LocaleData, stateNames: string[]) {
   return stateMetrics;
 }
 
-function getStateTotalCasesRank(
+function getStateRank(
   stateTotals: StateMetrics[],
   selectedState: string | undefined,
+  filterValue: string,
 ) {
   const rankedStates = orderBy(
-    stateTotals.filter((c) => !!c.casesPerCapita),
-    ["casesPerCapita"],
+    stateTotals.filter((c) => !!get(c, filterValue)),
+    [filterValue],
     ["desc"],
   );
 
   for (let i = 0; i < rankedStates.length; i++) {
     const currState = rankedStates[i];
+    const currStateCasesPerCapita = get(currState, filterValue);
     if (
       selectedState &&
       currState.stateName === selectedState &&
-      currState.casesPerCapita
+      currStateCasesPerCapita
     ) {
-      return [currState.casesPerCapita, i + 1];
-    }
-  }
-  return [-1, -1];
-}
-
-function getStateTotalDeathsRank(
-  stateTotals: StateMetrics[],
-  selectedState: string | undefined,
-) {
-  const rankedStates = orderBy(
-    stateTotals.filter((c) => !!c.deathsPerCapita),
-    ["deathsPerCapita"],
-    ["desc"],
-  );
-
-  for (let i = 0; i < rankedStates.length; i++) {
-    const currState = rankedStates[i];
-    if (
-      selectedState &&
-      currState.stateName === selectedState &&
-      currState.deathsPerCapita
-    ) {
-      return [currState.deathsPerCapita, i + 1];
+      return [currStateCasesPerCapita, i + 1];
     }
   }
   return [-1, -1];
@@ -225,7 +199,8 @@ function getTotalIncarceratedCases(facilities: Facility[]) {
 
 function getTotalIncarceratedDeaths(facilities: Facility[]) {
   let result = 0;
-  let hasDeathData = true;
+  let deathData = false;
+  console.log(facilities);
   for (let i = 0; i < facilities.length; i++) {
     const {
       ageUnknownDeaths,
@@ -237,7 +212,7 @@ function getTotalIncarceratedDeaths(facilities: Facility[]) {
       age75Deaths,
       age85Deaths,
     } = facilities[i].modelInputs;
-    let ageKnownCaseData = [
+    let ageKnownDeathData = [
       ageUnknownDeaths,
       age0Deaths,
       age20Deaths,
@@ -247,14 +222,37 @@ function getTotalIncarceratedDeaths(facilities: Facility[]) {
       age75Deaths,
       age85Deaths,
     ];
-    ageKnownCaseData = ageKnownCaseData.filter((data) => data !== undefined);
+    ageKnownDeathData = ageKnownDeathData.filter((data) => data !== undefined);
     // TODO: user has no case data
-    if (ageKnownCaseData.length === 0) {
-      hasDeathData = false;
+    if (ageKnownDeathData.length > 0) {
+      deathData = true;
     }
-    result += sum(ageKnownCaseData);
+    result += sum(ageKnownDeathData);
   }
-  return result;
+  const incarceratedDeathData = {
+    incarceratedDeaths: result,
+    hasDeathData: deathData,
+  };
+  return incarceratedDeathData;
+}
+
+function makeIncarceratedDeathsRow(
+  hasDeathData: boolean,
+  incarceratedDeathsPerCapita: number,
+) {
+  if (hasDeathData) {
+    return (
+      <tr>
+        <TableCell>{formatThousands(incarceratedDeathsPerCapita)}</TableCell>
+      </tr>
+    );
+  } else {
+    return (
+      <tr>
+        <TableCell>???</TableCell>
+      </tr>
+    );
+  }
 }
 
 const LocaleSummaryTable: React.FC<{
@@ -276,20 +274,23 @@ const LocaleSummaryTable: React.FC<{
   let incarceratedCasesPerCapita = 0;
   let incarceratedDeathsPerCapita = 0;
 
+  let hasDeathData = true;
+
   const allStateMetrics = getAllStateData(localeData, stateNames);
   if (stateName) {
-    const currStateMetrics = getCurrentStateData(allStateMetrics, stateName);
-    const selectedStateCasesRank = getStateTotalCasesRank(
+    const selectedStateCasesRank = getStateRank(
       allStateMetrics,
       stateName,
+      "casesPerCapita",
     );
 
     casesPerCapita = selectedStateCasesRank?.[0];
     casesPerCapitaRank = selectedStateCasesRank?.[1];
 
-    const selectedStateDeathsRank = getStateTotalDeathsRank(
+    const selectedStateDeathsRank = getStateRank(
       allStateMetrics,
       stateName,
+      "deathsPerCapita",
     );
 
     deathsPerCapita = selectedStateDeathsRank?.[0];
@@ -304,10 +305,12 @@ const LocaleSummaryTable: React.FC<{
       totalIncarceratedCases,
       totalIncarceratedPopulation,
     );
+    console.log(totalIncarceratedDeaths);
     incarceratedDeathsPerCapita = getPerCapita(
-      totalIncarceratedDeaths,
+      totalIncarceratedDeaths.incarceratedDeaths,
       totalIncarceratedPopulation,
     );
+    hasDeathData = totalIncarceratedDeaths.hasDeathData;
   }
 
   return (
@@ -333,7 +336,7 @@ const LocaleSummaryTable: React.FC<{
                 </tr>
                 <tr>
                   <TableCell>
-                    {formatThousands(casesPerCapita)} {casesPerCapitaRank}
+                    {formatThousands(casesPerCapita)} {casesPerCapitaRank} of 50
                   </TableCell>
                 </tr>
               </TableHeadingCell>
@@ -351,17 +354,22 @@ const LocaleSummaryTable: React.FC<{
                 <tr>
                   <TableCell label>Incarcerated Fatalities</TableCell>
                 </tr>
-                <tr>
+                {makeIncarceratedDeathsRow(
+                  hasDeathData,
+                  incarceratedDeathsPerCapita,
+                )}
+                {/* <tr>
                   <TableCell>
                     {formatThousands(incarceratedDeathsPerCapita)}
                   </TableCell>
-                </tr>
+                </tr> */}
                 <tr>
                   <TableCell label>Overall State Fatalities</TableCell>
                 </tr>
                 <tr>
                   <TableCell>
-                    {formatThousands(deathsPerCapita)} {deathsPerCapitaRank}
+                    {formatThousands(deathsPerCapita)} {deathsPerCapitaRank} of
+                    50
                   </TableCell>
                 </tr>
               </TableHeadingCell>
