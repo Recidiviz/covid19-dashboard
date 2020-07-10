@@ -392,13 +392,7 @@ export default function LocaleSummary() {
                       ? formatNumber(totalBeds)
                       : "?"}
                   </li>
-                  {/* <li>Counties to watch: {countiesToWatch?.join(" ")}</li>
-                <li>cases per capita: {casesPerCapita}</li>
-                <li>cases per capita rank: {casesPerCapitaRank}</li>
-                <li>deaths per capita: {deathsPerCapita}</li>
-                <li>deaths per capita rank : {deathsPerCapitaRank}</li>
-                <li>incarcerated cases per capita: {incarceratedCasesPerCapita}</li>
-                <li>incarcerated deaths per capita: {incarceratedDeathsPerCapita}</li>                */}
+                  <li>Counties to watch: {countiesToWatch?.join(" ")}</li>
                 </LocaleStatsList>
               </LocaleStats>
             )}

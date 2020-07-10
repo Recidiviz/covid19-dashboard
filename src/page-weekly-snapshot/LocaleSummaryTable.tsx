@@ -137,7 +137,7 @@ function getStateTotalCasesRank(
       return [currState.casesPerCapita, i + 1];
     }
   }
-  return [undefined, undefined];
+  return [-1, -1];
 }
 
 function getStateTotalDeathsRank(
@@ -160,7 +160,7 @@ function getStateTotalDeathsRank(
       return [currState.deathsPerCapita, i + 1];
     }
   }
-  return [undefined, undefined];
+  return [-1, -1];
 }
 
 function getTotalIncarceratedPopulation(facilities: Facility[]) {
@@ -269,31 +269,20 @@ const LocaleSummaryTable: React.FC<{
   stateName: string | undefined;
   stateNames: string[];
 }> = ({ stateName, stateNames }) => {
-  console.log("here");
   const localeState = useLocaleDataState();
   const localeData = localeState.data;
   const {
-    state: { loading, facilities: facilitiesState, rtData },
+    state: { facilities: facilitiesState },
   } = useFacilities();
   const facilities = Object.values(facilitiesState);
 
-  // const [casesPerCapita, setCasesPerCapita] = useState<number | undefined>();
-  // const [casesPerCapitaRank, setCasesPerCapitaRank] = useState<
-  //   number | undefined
-  // >();
-  // const [incarceratedCasesPerCapita, setIncarceratedCasesPerCapita] = useState<
-  //   number | undefined
-  // >();
-  // const [deathsPerCapita, setDeathsPerCapita] = useState<number | undefined>();
-  // const [deathsPerCapitaRank, setDeathsPerCapitaRank] = useState<
-  //   number | undefined
-  // >();
-  // const [
-  //   incarceratedDeathsPerCapita,
-  //   setIncarceratedDeathsPerCapita,
-  // ] = useState<number | undefined>();
+  let casesPerCapita = 0;
+  let casesPerCapitaRank = 0;
+  let deathsPerCapita = 0;
+  let deathsPerCapitaRank = 0;
 
   let incarceratedCasesPerCapita = 0;
+  let incarceratedDeathsPerCapita = 0;
 
   const allStateMetrics = getAllStateData(localeData, stateNames);
   if (stateName) {
@@ -303,15 +292,17 @@ const LocaleSummaryTable: React.FC<{
       stateName,
     );
 
-    //   setCasesPerCapita(selectedStateCasesRank[0]);
-    //   setCasesPerCapitaRank(selectedStateCasesRank[1]);
+    casesPerCapita = selectedStateCasesRank?.[0];
+    casesPerCapitaRank = selectedStateCasesRank?.[1];
 
     const selectedStateDeathsRank = getStateTotalDeathsRank(
       allStateMetrics,
       stateName,
     );
-    //   setDeathsPerCapita(selectedStateDeathsRank[0]);
-    //   setDeathsPerCapitaRank(selectedStateDeathsRank[1]);
+
+    deathsPerCapita = selectedStateDeathsRank?.[0];
+    deathsPerCapitaRank = selectedStateDeathsRank?.[1];
+
     const totalIncarceratedCases = getTotalIncarceratedCases(facilities);
     const totalIncarceratedDeaths = getTotalIncarceratedDeaths(facilities);
     const totalIncarceratedPopulation = getTotalIncarceratedPopulation(
@@ -321,12 +312,10 @@ const LocaleSummaryTable: React.FC<{
       totalIncarceratedCases,
       totalIncarceratedPopulation,
     );
-    const incarceratedDeathsPerCapita = getPerCapita(
+    incarceratedDeathsPerCapita = getPerCapita(
       totalIncarceratedDeaths,
       totalIncarceratedPopulation,
     );
-    //   setIncarceratedCasesPerCapita(incarceratedCasesPerCapita);
-    //   setIncarceratedDeathsPerCapita(incarceratedDeathsPerCapita);
   }
 
   return (
@@ -350,9 +339,11 @@ const LocaleSummaryTable: React.FC<{
                 <tr>
                   <TableCell label>Overall State Cases</TableCell>
                 </tr>
-                {/* <tr>
-              <TableCell>{formatThousands(casesPerCapita)}</TableCell>
-            </tr> */}
+                <tr>
+                  <TableCell>
+                    {formatThousands(casesPerCapita)} {casesPerCapitaRank}
+                  </TableCell>
+                </tr>
               </TableHeadingCell>
             </tr>
           </tbody>
@@ -368,15 +359,19 @@ const LocaleSummaryTable: React.FC<{
                 <tr>
                   <TableCell label>Incarcerated Fatalities</TableCell>
                 </tr>
-                {/* <tr>
-                <TableCell>{formatThousands(incarceratedDeathsPerCapita)}</TableCell>
-              </tr> */}
+                <tr>
+                  <TableCell>
+                    {formatThousands(incarceratedDeathsPerCapita)}
+                  </TableCell>
+                </tr>
                 <tr>
                   <TableCell label>Overall State Fatalities</TableCell>
                 </tr>
-                {/* <tr>
-                <TableCell>{formatThousands(deathsPerCapita)}</TableCell>
-              </tr> */}
+                <tr>
+                  <TableCell>
+                    {formatThousands(deathsPerCapita)} {deathsPerCapitaRank}
+                  </TableCell>
+                </tr>
               </TableHeadingCell>
             </tr>
           </tbody>
