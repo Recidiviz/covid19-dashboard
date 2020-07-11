@@ -97,12 +97,19 @@ type incarceratedData = {
 };
 
 const POPULATION_SIZE = 100000;
+const NUM_STATES = 50;
 
 const VALUE_MAPPING = {
   deaths: deathBracketKeys,
   cases: caseBracketKeys,
   population: incarceratedPopulationKeys,
 };
+
+function formatOrdinal(value: number) {
+  let suffix = ["th", "st", "nd", "rd"],
+    rem = value % 100;
+  return value + (suffix[(rem - 20) % 10] || suffix[rem] || suffix[0]);
+}
 
 function getPerCapita(
   numerator: number | undefined,
@@ -278,12 +285,14 @@ const LocaleSummaryTable: React.FC<{
         <Table>
           <tbody>
             <td />
-            <TableHeadingCell>
-              <TextContainer>
-                <Right>Cases </Right>
-                <Left>(per 100k)</Left>
-              </TextContainer>
-            </TableHeadingCell>
+            <tr>
+              <TableHeadingCell>
+                <TextContainer>
+                  <Right>Cases </Right>
+                  <Left>(per 100k)</Left>
+                </TextContainer>
+              </TableHeadingCell>
+            </tr>
             <tr>
               <TableCell>Incarcerated Cases</TableCell>
             </tr>
@@ -303,7 +312,9 @@ const LocaleSummaryTable: React.FC<{
                       {formatThousands(casesPerCapita)}
                     </TableNumberCell>
                   </Right>
-                  <Left>{casesPerCapitaRank} lowest of 50</Left>
+                  <Left>
+                    {formatOrdinal(casesPerCapitaRank)} lowest of {NUM_STATES}
+                  </Left>
                 </TextContainer>
               </TableCell>
             </tr>
@@ -341,7 +352,9 @@ const LocaleSummaryTable: React.FC<{
                       {formatThousands(deathsPerCapita)}
                     </TableNumberCell>
                   </Right>
-                  <Left>{deathsPerCapitaRank} lowest of 50</Left>
+                  <Left>
+                    {formatOrdinal(deathsPerCapitaRank)} lowest of {NUM_STATES}
+                  </Left>
                 </TextContainer>
               </TableCell>
             </tr>
