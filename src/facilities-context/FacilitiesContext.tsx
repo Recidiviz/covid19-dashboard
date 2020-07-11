@@ -19,6 +19,8 @@ export type ReferenceFacilityMapping = {
   [key in ReferenceFacility["id"]]: ReferenceFacility;
 };
 
+// Add in the missing death properties from reference facilities
+
 export interface FacilitiesState {
   loading: boolean;
   failed: boolean;
@@ -137,7 +139,6 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
       return await facilitiesActions.fetchReferenceFacilities(
         stateName,
         systemType,
-        dispatch,
       );
     },
   };

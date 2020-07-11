@@ -38,6 +38,7 @@ export type SystemWideData = {
 export function getEpidemicModelState(
   facilities: Facilities,
   localeDataSource: LocaleData,
+  rateOfSpreadFactor = RateOfSpread.high,
 ) {
   return facilities.map((facility) => {
     const modelInputs = facility.modelInputs;
@@ -47,6 +48,7 @@ export function getEpidemicModelState(
         localeDataSource,
         modelInputs.stateName,
         modelInputs.countyName,
+        rateOfSpreadFactor,
       ),
     };
   });
@@ -125,8 +127,9 @@ export function calculateCurveData(facilitiesInputs: CurveFunctionInputs[]) {
   });
 }
 
-function combineFacilitiesProjectionData(
+export function combineFacilitiesProjectionData(
   facilitiesProjectionData: CurveData[],
+  numDays: number = NUM_DAYS,
 ) {
   if (!facilitiesProjectionData.length) return ndarray([], []);
   const incarceratedData = facilitiesProjectionData.map(
@@ -139,7 +142,7 @@ function combineFacilitiesProjectionData(
       return (sum += value);
     }, 0);
   });
-  return ndarray(summedData, [NUM_DAYS, seirIndex.__length]);
+  return ndarray(summedData, [numDays, seirIndex.__length]);
 }
 
 export function getCurveChartData(facilitiesInputs: CurveFunctionInputs[]) {
