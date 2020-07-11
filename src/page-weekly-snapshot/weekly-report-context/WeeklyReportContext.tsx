@@ -42,7 +42,7 @@ export const WeeklyReportProvider: React.FC<{ children: React.ReactNode }> = ({
     if (state.scenario) {
       dispatchScenarioUpdate(state.scenario);
     }
-  }, [state.scenario]);
+  }, [state.scenario, dispatchScenarioUpdate]);
 
   useEffect(() => {
     dispatch({ type: actions.REQUEST_SHARED_SCENARIOS });
