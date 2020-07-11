@@ -28,14 +28,28 @@ export const Table = styled.table`
 `;
 
 const TableHeadingCell = styled.td`
-  font-family: "Poppins", sans serif;
-  line-height: 24px;
-  margin-right: 5px;
+  font-family: "Libre Franklin";
+  font-weight: bold;
+  font-size: 11px;
+  line-height: 13px;
   vertical-align: middle;
 `;
 
+const Right = styled.div`
+  text-align: right;
+`;
+const Left = styled.div`
+  text-align: left;
+`;
+
+const TextContainer = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+`;
+
 const BorderDiv = styled.div`
-  border-top: 2px solid ${Colors.darkGray};
+  border-top: 2px solid ${Colors.black};
   margin-right: 5px;
 `;
 
@@ -58,6 +72,15 @@ const TableCell = styled.td<{ label?: boolean }>`
     text-align: "left"};
     opacity: 0.7;
     border-top: 1px solid  ${Colors.darkGray};
+    vertical-align: middle;
+    width: ${(props) => (props.label ? "200px" : "auto")};
+    `;
+
+const TableNumberCell = styled.td<{ label?: boolean }>`
+    font-size: 24px;
+    font-family: "Libre Baskerville";
+    line-height: 200%;
+    text-align: "left"};
     vertical-align: middle;
     width: ${(props) => (props.label ? "200px" : "auto")};
     `;
@@ -123,7 +146,7 @@ function getStateRank(
   const rankedStates = orderBy(
     stateTotals.filter((c) => !!get(c, filterValue)),
     [filterValue],
-    ["desc"],
+    ["asc"],
   );
 
   for (let i = 0; i < rankedStates.length; i++) {
@@ -144,10 +167,9 @@ function getTotalIncarceratedValue(facilities: Facility[], value: string) {
   let result = 0;
   let hasData = false;
   const valueKeys = get(VALUE_MAPPING, value);
-  console.log(facilities);
   for (let i = 0; i < facilities.length; i++) {
     const modelInputs = facilities[i].modelInputs;
-    let data = omit(
+    const data = omit(
       pick(modelInputs, valueKeys),
       "staffDeaths",
       "staffRecovered",
@@ -158,7 +180,7 @@ function getTotalIncarceratedValue(facilities: Facility[], value: string) {
     }
     result += sum(values(data));
   }
-  const incarceratedData = {
+  const incarceratedData: incarceratedData = {
     incarceratedData: result,
     hasData: hasData,
   };
@@ -172,13 +194,15 @@ function makeIncarceratedDeathsRow(
   if (hasDeathData) {
     return (
       <tr>
-        <TableCell>{formatThousands(incarceratedDeathsPerCapita)}</TableCell>
+        <TableNumberCell>
+          {formatThousands(incarceratedDeathsPerCapita)}
+        </TableNumberCell>
       </tr>
     );
   } else {
     return (
       <tr>
-        <TableCell>???</TableCell>
+        <TableNumberCell>???</TableNumberCell>
       </tr>
     );
   }
@@ -241,7 +265,6 @@ const LocaleSummaryTable: React.FC<{
       totalIncarceratedCases.incarceratedData,
       totalIncarceratedPopulation.incarceratedData,
     );
-    console.log(totalIncarceratedDeaths);
     incarceratedDeathsPerCapita = getPerCapita(
       totalIncarceratedDeaths.incarceratedData,
       totalIncarceratedPopulation.incarceratedData,
@@ -251,31 +274,38 @@ const LocaleSummaryTable: React.FC<{
 
   return (
     <PageContainer>
-      <HorizontalRule />
       <Column>
         <Table>
           <tbody>
+            <td />
+            <TableHeadingCell>
+              <TextContainer>
+                <Right>Cases </Right>
+                <Left>(per 100k)</Left>
+              </TextContainer>
+            </TableHeadingCell>
             <tr>
-              <td />
-              <TableHeadingCell>
-                Cases (per 100k)
-                <tr>
-                  <TableCell label>Incarcerated Cases</TableCell>
-                </tr>
-                <tr>
-                  <TableCell>
-                    {formatThousands(incarceratedCasesPerCapita)}
-                  </TableCell>
-                </tr>
-                <tr>
-                  <TableCell label>Overall State Cases</TableCell>
-                </tr>
-                <tr>
-                  <TableCell>
-                    {formatThousands(casesPerCapita)} {casesPerCapitaRank} of 50
-                  </TableCell>
-                </tr>
-              </TableHeadingCell>
+              <TableCell>Incarcerated Cases</TableCell>
+            </tr>
+            <tr>
+              <TableNumberCell>
+                {formatThousands(incarceratedCasesPerCapita)}
+              </TableNumberCell>
+            </tr>
+            <tr>
+              <TableCell>Overall State Cases</TableCell>
+            </tr>
+            <tr>
+              <TableCell>
+                <TextContainer>
+                  <Right>
+                    <TableNumberCell>
+                      {formatThousands(casesPerCapita)}
+                    </TableNumberCell>
+                  </Right>
+                  <Left>{casesPerCapitaRank} lowest of 50</Left>
+                </TextContainer>
+              </TableCell>
             </tr>
           </tbody>
         </Table>
@@ -283,32 +313,37 @@ const LocaleSummaryTable: React.FC<{
       <Column>
         <Table>
           <tbody>
+            <td />
             <tr>
-              <td />
               <TableHeadingCell>
-                Fatalities (per 100k)
-                <tr>
-                  <TableCell label>Incarcerated Fatalities</TableCell>
-                </tr>
-                {makeIncarceratedDeathsRow(
-                  hasDeathData,
-                  incarceratedDeathsPerCapita,
-                )}
-                {/* <tr>
-                  <TableCell>
-                    {formatThousands(incarceratedDeathsPerCapita)}
-                  </TableCell>
-                </tr> */}
-                <tr>
-                  <TableCell label>Overall State Fatalities</TableCell>
-                </tr>
-                <tr>
-                  <TableCell>
-                    {formatThousands(deathsPerCapita)} {deathsPerCapitaRank} of
-                    50
-                  </TableCell>
-                </tr>
+                <TextContainer>
+                  <Right>Fatalities </Right>
+                  <Left>(per 100k)</Left>
+                </TextContainer>
               </TableHeadingCell>
+            </tr>
+
+            <tr>
+              <TableCell>Incarcerated Fatalities</TableCell>
+            </tr>
+            {makeIncarceratedDeathsRow(
+              hasDeathData,
+              incarceratedDeathsPerCapita,
+            )}
+            <tr>
+              <TableCell>Overall State Fatalities</TableCell>
+            </tr>
+            <tr>
+              <TableCell>
+                <TextContainer>
+                  <Right>
+                    <TableNumberCell>
+                      {formatThousands(deathsPerCapita)}
+                    </TableNumberCell>
+                  </Right>
+                  <Left>{deathsPerCapitaRank} lowest of 50</Left>
+                </TextContainer>
+              </TableCell>
             </tr>
           </tbody>
         </Table>
