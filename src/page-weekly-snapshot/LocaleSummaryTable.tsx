@@ -1,11 +1,16 @@
 import { sum } from "d3-array";
-import { get, mapKeys, orderBy } from "lodash";
+import { get, keys, omit, orderBy, pick, values } from "lodash";
 import React from "react";
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
 import { Column, PageContainer } from "../design-system/PageColumn";
 import { useFacilities } from "../facilities-context";
+import {
+  caseBracketKeys,
+  deathBracketKeys,
+  incarceratedPopulationKeys,
+} from "../impact-dashboard/EpidemicModelContext";
 import { formatThousands } from "../impact-dashboard/ImpactProjectionTable";
 import { LocaleData, useLocaleDataState } from "../locale-data-context";
 import { Facility } from "../page-multi-facility/types";
@@ -63,12 +68,18 @@ type StateMetrics = {
   deathsPerCapita: number | undefined;
 };
 
-type incarceratedDeathData = {
-  incarceratedDeaths: number;
-  hasDeathData: boolean;
+type incarceratedData = {
+  incarceratedData: number;
+  hasData: boolean;
 };
 
 const POPULATION_SIZE = 100000;
+
+const VALUE_MAPPING = {
+  deaths: deathBracketKeys,
+  cases: caseBracketKeys,
+  population: incarceratedPopulationKeys,
+};
 
 function getPerCapita(
   numerator: number | undefined,
@@ -129,111 +140,29 @@ function getStateRank(
   return [-1, -1];
 }
 
-function getTotalIncarceratedPopulation(facilities: Facility[]) {
+function getTotalIncarceratedValue(facilities: Facility[], value: string) {
   let result = 0;
-  let hasPopulationData = true;
-  for (let i = 0; i < facilities.length; i++) {
-    const {
-      ageUnknownPopulation,
-      age0Population,
-      age20Population,
-      age45Population,
-      age55Population,
-      age65Population,
-      age75Population,
-      age85Population,
-    } = facilities[i].modelInputs;
-    let ageKnownCaseData = [
-      ageUnknownPopulation,
-      age0Population,
-      age20Population,
-      age45Population,
-      age55Population,
-      age65Population,
-      age75Population,
-      age85Population,
-    ];
-    ageKnownCaseData = ageKnownCaseData.filter((data) => data !== undefined);
-    // TODO: user has no case data
-    if (ageKnownCaseData.length === 0) {
-      hasPopulationData = false;
-    }
-    result += sum(ageKnownCaseData);
-  }
-  return result;
-}
-
-function getTotalIncarceratedCases(facilities: Facility[]) {
-  let result = 0;
-  let hasCaseData = true;
-  for (let i = 0; i < facilities.length; i++) {
-    const {
-      ageUnknownCases,
-      age0Cases,
-      age20Cases,
-      age45Cases,
-      age55Cases,
-      age65Cases,
-      age75Cases,
-      age85Cases,
-    } = facilities[i].modelInputs;
-    let ageKnownCaseData = [
-      ageUnknownCases,
-      age0Cases,
-      age20Cases,
-      age45Cases,
-      age55Cases,
-      age65Cases,
-      age75Cases,
-      age85Cases,
-    ];
-    ageKnownCaseData = ageKnownCaseData.filter((data) => data !== undefined);
-    // TODO: user has no case data
-    if (ageKnownCaseData.length === 0) {
-      hasCaseData = false;
-    }
-    result += sum(ageKnownCaseData);
-  }
-  return result;
-}
-
-function getTotalIncarceratedDeaths(facilities: Facility[]) {
-  let result = 0;
-  let deathData = false;
+  let hasData = false;
+  const valueKeys = get(VALUE_MAPPING, value);
   console.log(facilities);
   for (let i = 0; i < facilities.length; i++) {
-    const {
-      ageUnknownDeaths,
-      age0Deaths,
-      age20Deaths,
-      age45Deaths,
-      age55Deaths,
-      age65Deaths,
-      age75Deaths,
-      age85Deaths,
-    } = facilities[i].modelInputs;
-    let ageKnownDeathData = [
-      ageUnknownDeaths,
-      age0Deaths,
-      age20Deaths,
-      age45Deaths,
-      age55Deaths,
-      age65Deaths,
-      age75Deaths,
-      age85Deaths,
-    ];
-    ageKnownDeathData = ageKnownDeathData.filter((data) => data !== undefined);
-    // TODO: user has no case data
-    if (ageKnownDeathData.length > 0) {
-      deathData = true;
+    const modelInputs = facilities[i].modelInputs;
+    let data = omit(
+      pick(modelInputs, valueKeys),
+      "staffDeaths",
+      "staffRecovered",
+      "staffCases",
+    );
+    if (keys(data).length > 0) {
+      hasData = true;
     }
-    result += sum(ageKnownDeathData);
+    result += sum(values(data));
   }
-  const incarceratedDeathData = {
-    incarceratedDeaths: result,
-    hasDeathData: deathData,
+  const incarceratedData = {
+    incarceratedData: result,
+    hasData: hasData,
   };
-  return incarceratedDeathData;
+  return incarceratedData;
 }
 
 function makeIncarceratedDeathsRow(
@@ -296,21 +225,28 @@ const LocaleSummaryTable: React.FC<{
     deathsPerCapita = selectedStateDeathsRank?.[0];
     deathsPerCapitaRank = selectedStateDeathsRank?.[1];
 
-    const totalIncarceratedCases = getTotalIncarceratedCases(facilities);
-    const totalIncarceratedDeaths = getTotalIncarceratedDeaths(facilities);
-    const totalIncarceratedPopulation = getTotalIncarceratedPopulation(
+    const totalIncarceratedCases = getTotalIncarceratedValue(
       facilities,
+      "cases",
+    );
+    const totalIncarceratedDeaths = getTotalIncarceratedValue(
+      facilities,
+      "deaths",
+    );
+    const totalIncarceratedPopulation = getTotalIncarceratedValue(
+      facilities,
+      "population",
     );
     incarceratedCasesPerCapita = getPerCapita(
-      totalIncarceratedCases,
-      totalIncarceratedPopulation,
+      totalIncarceratedCases.incarceratedData,
+      totalIncarceratedPopulation.incarceratedData,
     );
     console.log(totalIncarceratedDeaths);
     incarceratedDeathsPerCapita = getPerCapita(
-      totalIncarceratedDeaths.incarceratedDeaths,
-      totalIncarceratedPopulation,
+      totalIncarceratedDeaths.incarceratedData,
+      totalIncarceratedPopulation.incarceratedData,
     );
-    hasDeathData = totalIncarceratedDeaths.hasDeathData;
+    hasDeathData = totalIncarceratedDeaths.hasData;
   }
 
   return (

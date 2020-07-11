@@ -349,7 +349,7 @@ const casesKeys: (keyof ModelInputsPopulationBrackets)[] = [
   "staffCases",
 ];
 
-const incarceratedPopulationKeys: (keyof ModelInputsPopulationBrackets)[] = [
+export const incarceratedPopulationKeys: (keyof ModelInputsPopulationBrackets)[] = [
   "age0Population",
   "age20Population",
   "age45Population",
