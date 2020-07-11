@@ -6,8 +6,8 @@ import { useFacilities } from "../facilities-context";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
 import { getFacilitiesRtDataById } from "../infection-model/rt";
 import { useLocaleDataState } from "../locale-data-context";
-import useScenario from "../scenario-context/useScenario";
 import FacilitySummaryRow from "./FacilitySummaryRow";
+import { useWeeklyReport } from "./weekly-report-context";
 
 const FacilitySummariesContainer = styled.div`
   font-size: 12px;
@@ -19,17 +19,23 @@ const FacilityRow = styled.div`
 `;
 
 const FacilitySummaries: React.FC = () => {
-  const { data: localeDataSource } = useLocaleDataState();
-  const [scenario] = useScenario();
+  const {
+    data: localeDataSource,
+    loading: localeLoading,
+  } = useLocaleDataState();
   const { state: facilitiesState } = useFacilities();
+  const {
+    state: { scenario, loading: scenarioLoading },
+  } = useWeeklyReport();
   const facilities = Object.values(facilitiesState.facilities);
   const rtData = getFacilitiesRtDataById(facilitiesState.rtData, facilities);
 
   return (
     <FacilitySummariesContainer>
-      {scenario.loading || facilitiesState.loading ? (
+      {scenarioLoading || localeLoading ? (
         <Loading />
       ) : (
+        scenario &&
         facilities.map((facility) => (
           <FacilityRow key={facility.id}>
             <EpidemicModelProvider

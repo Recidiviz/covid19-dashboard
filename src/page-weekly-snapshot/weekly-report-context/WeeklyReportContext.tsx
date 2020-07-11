@@ -1,13 +1,13 @@
 import React, { useEffect } from "react";
+
 import {
   getScenarioByStateName,
   getSharedBaselineScenarios,
 } from "../../database";
 import { Scenario } from "../../page-multi-facility/types";
+import useScenario from "../../scenario-context/useScenario";
 import * as actions from "./actions";
 import { weeklyReportReducer } from "./reducer";
-
-import useScenario from "../../scenario-context/useScenario"
 
 export interface WeeklyReportState {
   loading: boolean;
@@ -30,7 +30,7 @@ const WeeklyReportContext = React.createContext<
 export const WeeklyReportProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [,dispatchScenarioUpdate] = useScenario();
+  const [, dispatchScenarioUpdate] = useScenario();
   const [state, dispatch] = React.useReducer(weeklyReportReducer, {
     loading: false,
     stateName: null,

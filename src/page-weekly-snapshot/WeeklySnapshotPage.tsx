@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
 import FacilitySummaries from "./FacilitySummaries";
+import ImpactProjectionChart from "./ImpactProjectionChart";
 import LocaleSummary from "./LocaleSummary";
 
 const WeeklySnapshotContainer = styled.div``;
@@ -41,10 +42,14 @@ export default function WeeklySnapshotPage() {
       <div className="font-body min-h-screen tracking-normal w-full">
         <div className="max-w-screen-xl px-4 mx-auto">
           <Placeholder>Page Header</Placeholder>
-          <Placeholder>Year To Date Summary and Impact Report</Placeholder>
           <Placeholder>
             System Summary
             <LocaleSummary />
+          </Placeholder>
+          <Placeholder>
+            Year To Date Summary and Impact Report
+            <ImpactProjectionChart />
+            <HorizontalRule />
           </Placeholder>
           <Placeholder>
             Facility Projections

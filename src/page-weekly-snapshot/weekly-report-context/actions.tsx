@@ -9,7 +9,7 @@ export type WeeklyReportActions =
   | SharedScenariosAction
   | RequestActions
   | ScenarioAction
-  | StateNameAction
+  | StateNameAction;
 
 export type SharedScenariosAction = {
   type: typeof RECEIVE_SHARED_SCENARIOS;
@@ -20,7 +20,6 @@ export type ScenarioAction = {
   type: typeof RECEIVE_SCENARIO;
   payload: Scenario | null;
 };
-
 
 export type StateNameAction = {
   type: typeof UPDATE_STATE_NAME;
