@@ -61,21 +61,21 @@ const ProjectionContainer = styled.div`
   }
 `;
 
-const TableCell = styled.td<{ label?: boolean }>`
+const TableCell = styled.td<{ labelCell?: boolean }>`
   font-size: 13px;
   line-height: 200%;
-  text-align: "left"};
+  text-align: left;
   opacity: 0.7;
-  border-top: 1px solid  ${Colors.darkGray};
+  border-top: 1px solid ${Colors.darkGray};
   vertical-align: middle;
-  width: ${(props) => (props.label ? "200px" : "auto")};
+  width: ${(props) => (props.labelCell ? "200px" : "auto")};
 `;
 
 function makeTableRow(row: TableRow) {
   const { label, week1, week2, week3, overall } = row;
   return (
     <tr key={label}>
-      <TableCell label>{label}</TableCell>
+      <TableCell labelCell>{label}</TableCell>
       <TableCell>{formatThousands(week1)}</TableCell>
       <TableCell>{formatThousands(week2)}</TableCell>
       <TableCell>{formatThousands(week3)}</TableCell>

@@ -59,6 +59,8 @@ export const WeeklyReportProvider: React.FC<{ children: React.ReactNode }> = ({
         },
       );
     }
+    // we don't want to include dispatchScenarioUpdate
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.stateName, state.sharedScenarios]);
 
   return (
