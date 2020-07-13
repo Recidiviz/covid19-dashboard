@@ -34,12 +34,6 @@ type PerCapitaCountyCase = {
   casesIncreasePerCapita: number | undefined;
 };
 
-type StateMetrics = {
-  stateName: string;
-  casesPerCapita: number | undefined;
-  deathsPerCapita: number | undefined;
-};
-
 function getDay(nytData: NYTCountyRecord[] | NYTStateRecord[], day: number) {
   if (day === 1) {
     return minBy(nytData, (d: NYTCountyRecord | NYTStateRecord) => d.date);

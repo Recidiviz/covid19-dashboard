@@ -22,8 +22,10 @@ export const Table = styled.table`
   margin-top: 10px;
 `;
 
-const HorizontalRule = styled.hr`
+const HorizontalRule = styled.hr<{ width?: string; marginLeft?: string }>`
   border-color: ${Colors.opacityGray};
+  width: ${(props) => props.width || "100%"};
+  margin-left: ${(props) => props.marginLeft || "0"};
 `;
 
 const TableHeadingCell = styled.td`
@@ -36,12 +38,10 @@ const TableHeadingCell = styled.td`
 
 const Right = styled.div`
   text-align: right;
-  margin-bottom: -20px;
 `;
 
 const Left = styled.div`
   text-align: left;
-  margin-top: 20px;
 `;
 
 const TextContainer = styled.div`
@@ -49,7 +49,25 @@ const TextContainer = styled.div`
   display: flex;
   justify-content: space-between;
   margin-bottom: 10px;
-  flex-direction: bottom;
+`;
+
+const TextContainerRank = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  color: black;
+`;
+
+const RightRank = styled.div`
+  text-align: right;
+  font-size: 24px;
+  font-family: "Libre Baskerville";
+`;
+
+const LeftRank = styled.div`
+  text-align: left;
+  margin-top: 15px;
 `;
 
 const BorderDiv = styled.div`
@@ -65,13 +83,12 @@ const TableCell = styled.td<{ label?: boolean }>`
 `;
 
 const TableNumberCell = styled.td<{ label?: boolean }>`
-    font-size: 24px;
-    font-family: "Libre Baskerville";
-    line-height: 200%;
-    text-align: "left"};
-    vertical-align: middle;
-    width: ${(props) => (props.label ? "200px" : "auto")};
-    `;
+  font-size: 24px;
+  font-family: "Libre Baskerville";
+  line-height: 200%;
+  text-align: "left";
+  width: auto;
+`;
 
 type StateMetrics = {
   stateName: string;
@@ -205,15 +222,55 @@ function makeIncarceratedDataRow(
   }
 }
 
-// function makeTableColumns(
-//   heading: string,
-//   incarceratedData: number,
-//   stateData: number,
-//   stateRank: number,
-//   isDeathColumn: boolean
-// ) {
-
-// }
+function makeTableColumn(
+  heading: string,
+  incarceratedData: number,
+  stateData: number,
+  stateRank: number,
+  hasData: boolean,
+) {
+  const incarceratedDataRow = makeIncarceratedDataRow(
+    hasData,
+    incarceratedData,
+  );
+  return (
+    <>
+      <tr>
+        <TableHeadingCell>
+          <TextContainer>
+            <Right>{heading} </Right>
+            <Left>(per 100k)</Left>
+          </TextContainer>
+        </TableHeadingCell>
+      </tr>
+      <BorderDiv />
+      <tr>
+        <TableCell>
+          Incarcerated {heading}
+          <HorizontalRule />
+        </TableCell>
+      </tr>
+      {incarceratedDataRow}
+      <BorderDiv />
+      <tr>
+        <TableCell>
+          Overall State {heading}
+          <HorizontalRule />
+        </TableCell>
+      </tr>
+      <tr>
+        <TableCell>
+          <TextContainerRank>
+            <RightRank>{formatThousands(stateData)}</RightRank>
+            <LeftRank>
+              {formatOrdinal(stateRank)} lowest of {NUM_STATES}
+            </LeftRank>
+          </TextContainerRank>
+        </TableCell>
+      </tr>
+    </>
+  );
+}
 
 const LocaleSummaryTable: React.FC<{
   stateName: string | undefined;
@@ -234,9 +291,13 @@ const LocaleSummaryTable: React.FC<{
   let incarceratedCasesPerCapita = 0;
   let incarceratedDeathsPerCapita = 0;
 
+  let hasCaseData = true;
   let hasDeathData = true;
 
   const allStateMetrics = getAllStateData(localeData, stateNames);
+
+  // TODO: currently getting state name from the drop down but might
+  // need to get this some other way when/if that changes
   if (stateName) {
     const selectedStateCasesRank = getStateRank(
       allStateMetrics,
@@ -272,6 +333,7 @@ const LocaleSummaryTable: React.FC<{
       totalIncarceratedCases.incarceratedData,
       totalIncarceratedPopulation.incarceratedData,
     );
+    hasCaseData = totalIncarceratedCases.hasData;
     incarceratedDeathsPerCapita = getPerCapita(
       totalIncarceratedDeaths.incarceratedData,
       totalIncarceratedPopulation.incarceratedData,
@@ -280,102 +342,39 @@ const LocaleSummaryTable: React.FC<{
   }
 
   return (
-    <PageContainer>
-      <Column>
-        <Table>
-          <tbody>
-            <td />
-            <tr>
-              <TableHeadingCell>
-                <TextContainer>
-                  <Right>Cases </Right>
-                  <Left>(per 100k)</Left>
-                </TextContainer>
-              </TableHeadingCell>
-            </tr>
-            <BorderDiv />
-
-            <tr>
-              <TableCell>
-                Incarcerated Cases
-                <HorizontalRule />
-              </TableCell>
-            </tr>
-            <tr>
-              <TableNumberCell>
-                {formatThousands(incarceratedCasesPerCapita)}
-              </TableNumberCell>
-            </tr>
-            <BorderDiv />
-            <tr>
-              <TableCell>
-                Overall State Cases
-                <HorizontalRule />
-              </TableCell>
-            </tr>
-            <tr>
-              <TableCell>
-                <TextContainer>
-                  <Right>
-                    <TableNumberCell>
-                      {formatThousands(casesPerCapita)}
-                    </TableNumberCell>
-                  </Right>
-                  <Left>
-                    {formatOrdinal(casesPerCapitaRank)} lowest of {NUM_STATES}
-                  </Left>
-                </TextContainer>
-              </TableCell>
-            </tr>
-          </tbody>
-        </Table>
-      </Column>
-      <Column>
-        <Table>
-          <tbody>
-            <td />
-            <tr>
-              <TableHeadingCell>
-                <TextContainer>
-                  <Right>Fatalities </Right>
-                  <Left>(per 100k)</Left>
-                </TextContainer>
-              </TableHeadingCell>
-            </tr>
-            <BorderDiv />
-            <tr>
-              <TableCell>
-                Incarcerated Fatalities
-                <HorizontalRule />
-              </TableCell>
-            </tr>
-            {makeIncarceratedDataRow(hasDeathData, incarceratedDeathsPerCapita)}
-            <BorderDiv />
-
-            <tr>
-              <TableCell>
-                Overall State Fatalities
-                <HorizontalRule />
-              </TableCell>
-            </tr>
-            <tr>
-              <TableCell>
-                <TextContainer>
-                  <Right>
-                    <TableNumberCell>
-                      {formatThousands(deathsPerCapita)}
-                    </TableNumberCell>
-                  </Right>
-                  <Left>
-                    {formatOrdinal(deathsPerCapitaRank)} lowest of {NUM_STATES}
-                  </Left>
-                </TextContainer>
-              </TableCell>
-            </tr>
-          </tbody>
-        </Table>
-      </Column>
-    </PageContainer>
+    <>
+      <HorizontalRule width={"93%"} marginLeft={"20px"} />
+      <PageContainer>
+        <Column>
+          <Table>
+            <tbody>
+              <td />
+              {makeTableColumn(
+                "Cases",
+                incarceratedCasesPerCapita,
+                casesPerCapita,
+                casesPerCapitaRank,
+                hasCaseData,
+              )}
+            </tbody>
+          </Table>
+        </Column>
+        <Column>
+          <Table>
+            <tbody>
+              <td />
+              {makeTableColumn(
+                "Fatalities",
+                incarceratedDeathsPerCapita,
+                deathsPerCapita,
+                deathsPerCapitaRank,
+                hasDeathData,
+              )}
+            </tbody>
+          </Table>
+        </Column>
+      </PageContainer>
+    </>
   );
 };
 
