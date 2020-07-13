@@ -15,16 +15,15 @@ import { formatThousands } from "../impact-dashboard/ImpactProjectionTable";
 import { LocaleData, useLocaleDataState } from "../locale-data-context";
 import { Facility } from "../page-multi-facility/types";
 
-const HorizontalRule = styled.hr`
-  border-color: ${Colors.opacityGray};
-  margin: 10px 0;
-`;
-
 export const Table = styled.table`
   color: ${Colors.black};
   text-align: left;
   width: 100%;
   margin-top: 10px;
+`;
+
+const HorizontalRule = styled.hr`
+  border-color: ${Colors.opacityGray};
 `;
 
 const TableHeadingCell = styled.td`
@@ -37,44 +36,33 @@ const TableHeadingCell = styled.td`
 
 const Right = styled.div`
   text-align: right;
+  margin-bottom: -20px;
 `;
+
 const Left = styled.div`
   text-align: left;
+  margin-top: 20px;
 `;
 
 const TextContainer = styled.div`
   width: 100%;
   display: flex;
   justify-content: space-between;
+  margin-bottom: 10px;
+  flex-direction: bottom;
 `;
 
 const BorderDiv = styled.div`
   border-top: 2px solid ${Colors.black};
-  margin-right: 5px;
-`;
-
-const ProjectionSection = styled.div`
-  margin-top: 10px;
-  padding: 5px 0;
-`;
-
-const ProjectionContainer = styled.div`
-  .axis-title text,
-  .axis-label {
-    fill: ${Colors.black};
-    font-family: "Libre Franklin";
-  }
 `;
 
 const TableCell = styled.td<{ label?: boolean }>`
-    font-size: 13px;
-    line-height: 200%;
-    text-align: "left"};
-    opacity: 0.7;
-    border-top: 1px solid  ${Colors.darkGray};
-    vertical-align: middle;
-    width: ${(props) => (props.label ? "200px" : "auto")};
-    `;
+  font-size: 13px;
+  line-height: 200%;
+  text-align: "left";
+  opacity: 0.7;
+  width: ${(props) => (props.label ? "200px" : "auto")};
+`;
 
 const TableNumberCell = styled.td<{ label?: boolean }>`
     font-size: 24px;
@@ -145,6 +133,8 @@ function getAllStateData(localeData: LocaleData, stateNames: string[]) {
   return stateMetrics;
 }
 
+// TODO: code cleanup in this function
+
 function getStateRank(
   stateTotals: StateMetrics[],
   selectedState: string | undefined,
@@ -194,15 +184,15 @@ function getTotalIncarceratedValue(facilities: Facility[], value: string) {
   return incarceratedData;
 }
 
-function makeIncarceratedDeathsRow(
-  hasDeathData: boolean,
-  incarceratedDeathsPerCapita: number,
+function makeIncarceratedDataRow(
+  hasData: boolean,
+  incarceratedDataPerCapita: number,
 ) {
-  if (hasDeathData) {
+  if (hasData) {
     return (
       <tr>
         <TableNumberCell>
-          {formatThousands(incarceratedDeathsPerCapita)}
+          {formatThousands(incarceratedDataPerCapita)}
         </TableNumberCell>
       </tr>
     );
@@ -214,6 +204,16 @@ function makeIncarceratedDeathsRow(
     );
   }
 }
+
+// function makeTableColumns(
+//   heading: string,
+//   incarceratedData: number,
+//   stateData: number,
+//   stateRank: number,
+//   isDeathColumn: boolean
+// ) {
+
+// }
 
 const LocaleSummaryTable: React.FC<{
   stateName: string | undefined;
@@ -293,16 +293,25 @@ const LocaleSummaryTable: React.FC<{
                 </TextContainer>
               </TableHeadingCell>
             </tr>
+            <BorderDiv />
+
             <tr>
-              <TableCell>Incarcerated Cases</TableCell>
+              <TableCell>
+                Incarcerated Cases
+                <HorizontalRule />
+              </TableCell>
             </tr>
             <tr>
               <TableNumberCell>
                 {formatThousands(incarceratedCasesPerCapita)}
               </TableNumberCell>
             </tr>
+            <BorderDiv />
             <tr>
-              <TableCell>Overall State Cases</TableCell>
+              <TableCell>
+                Overall State Cases
+                <HorizontalRule />
+              </TableCell>
             </tr>
             <tr>
               <TableCell>
@@ -333,16 +342,21 @@ const LocaleSummaryTable: React.FC<{
                 </TextContainer>
               </TableHeadingCell>
             </tr>
+            <BorderDiv />
+            <tr>
+              <TableCell>
+                Incarcerated Fatalities
+                <HorizontalRule />
+              </TableCell>
+            </tr>
+            {makeIncarceratedDataRow(hasDeathData, incarceratedDeathsPerCapita)}
+            <BorderDiv />
 
             <tr>
-              <TableCell>Incarcerated Fatalities</TableCell>
-            </tr>
-            {makeIncarceratedDeathsRow(
-              hasDeathData,
-              incarceratedDeathsPerCapita,
-            )}
-            <tr>
-              <TableCell>Overall State Fatalities</TableCell>
+              <TableCell>
+                Overall State Fatalities
+                <HorizontalRule />
+              </TableCell>
             </tr>
             <tr>
               <TableCell>
