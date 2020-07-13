@@ -12,7 +12,6 @@ import { weeklyReportReducer } from "./reducer";
 export interface WeeklyReportState {
   loading: boolean;
   stateName: string | null;
-  scenario: Scenario | null;
   sharedScenarios: Scenario[];
 }
 
@@ -34,15 +33,8 @@ export const WeeklyReportProvider: React.FC<{ children: React.ReactNode }> = ({
   const [state, dispatch] = React.useReducer(weeklyReportReducer, {
     loading: false,
     stateName: null,
-    scenario: null,
     sharedScenarios: [],
   });
-
-  useEffect(() => {
-    if (state.scenario) {
-      dispatchScenarioUpdate(state.scenario);
-    }
-  }, [state.scenario, dispatchScenarioUpdate]);
 
   useEffect(() => {
     dispatch({ type: actions.REQUEST_SHARED_SCENARIOS });
@@ -61,10 +53,9 @@ export const WeeklyReportProvider: React.FC<{ children: React.ReactNode }> = ({
       dispatch({ type: actions.REQUEST_SCENARIO });
       getScenariosByStateName(state.sharedScenarios, state.stateName).then(
         (scenarios) => {
-          dispatch({
-            type: actions.RECEIVE_SCENARIO,
-            payload: scenarios[0] || null,
-          });
+          const scenario = scenarios[0];
+          dispatch({ type: actions.RECEIVE_SCENARIO });
+          dispatchScenarioUpdate(scenario);
         },
       );
     }

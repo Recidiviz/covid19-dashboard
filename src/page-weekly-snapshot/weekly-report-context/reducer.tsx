@@ -20,7 +20,6 @@ export function weeklyReportReducer(
     case actions.RECEIVE_SCENARIO:
       return Object.assign({}, state, {
         loading: false,
-        scenario: action.payload,
       });
     case actions.UPDATE_STATE_NAME:
       return Object.assign({}, state, {

@@ -18,7 +18,6 @@ export type SharedScenariosAction = {
 
 export type ScenarioAction = {
   type: typeof RECEIVE_SCENARIO;
-  payload: Scenario | null;
 };
 
 export type StateNameAction = {

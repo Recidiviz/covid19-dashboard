@@ -1,4 +1,4 @@
-import { size } from "lodash";
+import { isEmpty, size } from "lodash";
 import React, { useEffect } from "react";
 
 import { referenceFacilitiesProp } from "../database";
@@ -182,7 +182,6 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
                 );
               }
             }
-
             // dispatch facilities to state
             facilitiesActions.receiveFacilities(dispatch, facilities);
           } catch (error) {
@@ -192,6 +191,10 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
             console.error(error);
             facilitiesActions.receiveFacilitiesError(dispatch);
           }
+        } else {
+          // Clear facilities if there is no new scenarioId
+          dispatch({ type: facilitiesActions.CLEAR_FACILITIES });
+          dispatch({ type: facilitiesActions.CLEAR_REFERENCE_FACILITIES });
         }
       }
       initializeFacilities();
@@ -209,7 +212,7 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
   // update facilities when reference mapping changes
   useEffect(
     () => {
-      if (state.loading) return;
+      if (state.loading || isEmpty(facilityToReference)) return;
       facilitiesActions.receiveFacilities(
         dispatch,
         facilitiesActions.buildCompositeFacilities(

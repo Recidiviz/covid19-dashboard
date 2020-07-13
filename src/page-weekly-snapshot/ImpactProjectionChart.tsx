@@ -91,6 +91,10 @@ const ImpactProjectionChart: React.FC = () => {
   const facilities = Object.values(facilitiesState.facilities);
   const modelVersions = facilities.map((f) => f.modelVersions);
 
+  if (!scenarioLoading && !facilities.length) {
+    return <div>Missing scenario data for state: {stateName}</div>;
+  }
+
   const chartData = getChartData(modelVersions, localeDataSource);
 
   const frameProps = {

@@ -62,6 +62,9 @@ export function facilitiesReducer(
     case actions.CLEAR_REFERENCE_FACILITIES:
       return { ...state, referenceFacilities: {} };
 
+    case actions.CLEAR_FACILITIES:
+      return { ...state, facilities: {}, loading: false };
+
     default:
       return state;
   }
