@@ -17,6 +17,21 @@ import { LocaleData } from "../locale-data-context";
 import { ModelInputs } from "../page-multi-facility/types";
 import { combineFacilitiesProjectionData } from "../page-response-impact/responseChartData";
 
+export const today = () => dateFns.endOfToday();
+export const ninetyOneDaysAgo = () => dateFns.subDays(today(), 91);
+export const ninetyDaysAgo = () => dateFns.subDays(today(), 90);
+
+function addProjectionPadding(values: number[], numDays = 90): number[] {
+  return [...Array(numDays - values.length).fill(0), ...values];
+}
+
+/**
+ * Takes an ndarray and sums the values for all seir indexes except susceptible
+ * and exposed and returns the total number of cases per day
+ *
+ * @param curveData - { staff: [...], incarcerated: [...], shape: [90, 9], stride: [9, 1] }
+ * @returns cases - [0, 1, 2, 3...89]
+ */
 export function getCaseCount(curveData: ndarray<number>) {
   const cases = [];
   for (let day = 0; day < curveData.shape[0]; ++day) {
@@ -26,14 +41,15 @@ export function getCaseCount(curveData: ndarray<number>) {
   return cases;
 }
 
-export const today = () => dateFns.endOfToday();
-export const ninetyOneDaysAgo = () => dateFns.subDays(today(), 91);
-export const ninetyDaysAgo = () => dateFns.subDays(today(), 90);
-
-function addProjectionPadding(values: number[], numDays = 90): number[] {
-  return [...Array(numDays - values.length).fill(0), ...values];
-}
-
+/**
+ * Takes an array of facility model versions and returns the version to use
+ * for the curve chart projection. First, take the version from 90 days ago if
+ * it has cases. If it does not exist or there are 0 cases, look forward
+ * until there is a version with cases.
+ *
+ * @param modelInputs - An array of facility model inputs
+ * @returns versionForProjection - A facility's model inputs object
+ */
 export function getVersionForProjection(versions: ModelInputs[]) {
   const versionsWithCases = versions
     .sort(({ observedAt: a }, { observedAt: b }) => dateFns.compareAsc(a, b))
@@ -45,8 +61,6 @@ export function getVersionForProjection(versions: ModelInputs[]) {
 
   let versionForProjection: ModelInputs | undefined = version90DaysAgo;
 
-  // If the version from 90 days ago has 0 or no data, look forward for the next
-  // version with cases
   if (!version90DaysAgo) {
     const closestVersionWithCases = versionsWithCases.find((version) => {
       const date = dateFns.closestTo(
@@ -125,6 +139,19 @@ export function getProjectedData(epidemicModelInputs: EpidemicModelInputs) {
   };
 }
 
+/**
+ * Takes an array of modelVersions for multiple facilities and returns the
+ * total confirmed cases and total confirmed deaths summed across each
+ * facility for each day between today and 90 days ago.
+ *
+ * If a facility is missing a version for a date, then we use the data from
+ * the closest version to that date.
+ *
+ * @param modelVersions - An array of modelVersions for multiple facilities
+ * @returns actualData - An object of actualFatalities and actualCases, both arrays
+ * should have the same length as NUM_DAYS and their values are a sum of staff
+ * incarcerated data
+ */
 export function getActualDataForFacility(modelVersions: ModelInputs[]) {
   const datesInterval = dateFns.eachDayOfInterval({
     start: dateFns.addDays(ninetyDaysAgo(), 1),
@@ -154,6 +181,16 @@ export function getActualDataForFacility(modelVersions: ModelInputs[]) {
 
   return actualData;
 }
+/**
+ * Takes an array of modelVersions for multiple facilities and the locale data
+ * and finds the version to use for the projection. It adds the locale data to this
+ * version to create an EpidemicModelInputs object, which is passed to
+ * getProjectedData to calculate the curve data for its facility
+ *
+ * @param modelVersions - An array of modelVersions for multiple facilities
+ * @param localeDataSource - LocaleData from the LocaleDataContext
+ * @returns projectedData[] - An array of projectedData objects for each facility
+ */
 
 export function getFacilitiesProjectionData(
   modelVersions: ModelInputs[][],
@@ -177,6 +214,16 @@ export function getFacilitiesProjectionData(
 interface ProjectionChartData {
   [key: string]: number[];
 }
+/**
+ * Takes an array of modelVersions for multiple facilities and the locale data
+ * and returns the total projected and actual cases and fatalities for the past 90 days
+ * for every facility
+ *
+ * @param modelVersions - An array of modelVersions for multiple facilities
+ * @param localeDataSource - LocaleData from the LocaleDataContext
+ * @returns chartData - { projectedCases: [0..89], actualCases: [0..89],
+ * projectedFatalities: [0..89], projectedCases: [0..89] }
+ */
 
 export function getChartData(
   modelVersions: ModelInputs[][],
