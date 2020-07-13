@@ -26,9 +26,9 @@ export function getCaseCount(curveData: ndarray<number>) {
   return cases;
 }
 
-export const today = dateFns.endOfToday();
-export const ninetyOneDaysAgo = dateFns.subDays(today, 91);
-export const ninetyDaysAgo = dateFns.subDays(today, 90);
+export const today = () => dateFns.endOfToday();
+export const ninetyOneDaysAgo = () => dateFns.subDays(today(), 91);
+export const ninetyDaysAgo = () => dateFns.subDays(today(), 90);
 
 function addProjectionPadding(values: number[], numDays = 90): number[] {
   return [...Array(numDays - values.length).fill(0), ...values];
@@ -40,7 +40,7 @@ export function getVersionForProjection(versions: ModelInputs[]) {
     .filter((version) => totalConfirmedCases(version) > 0);
 
   const version90DaysAgo = versionsWithCases.find((v) =>
-    dateFns.isSameDay(v.observedAt, ninetyDaysAgo),
+    dateFns.isSameDay(v.observedAt, ninetyDaysAgo()),
   );
 
   let versionForProjection: ModelInputs | undefined = version90DaysAgo;
@@ -50,7 +50,7 @@ export function getVersionForProjection(versions: ModelInputs[]) {
   if (!version90DaysAgo) {
     const closestVersionWithCases = versionsWithCases.find((version) => {
       const date = dateFns.closestTo(
-        ninetyDaysAgo,
+        ninetyDaysAgo(),
         versionsWithCases.map((v) => v.observedAt),
       );
       return dateFns.isSameDay(version.observedAt, date);
@@ -67,10 +67,10 @@ export function getProjectedData(epidemicModelInputs: EpidemicModelInputs) {
 
   let numDaysAfterNinetyDays = 0;
 
-  if (dateFns.isAfter(epidemicModelInputs.observedAt, ninetyOneDaysAgo)) {
+  if (dateFns.isAfter(epidemicModelInputs.observedAt, ninetyOneDaysAgo())) {
     numDaysAfterNinetyDays = dateFns.differenceInCalendarDays(
       epidemicModelInputs.observedAt,
-      ninetyOneDaysAgo,
+      ninetyOneDaysAgo(),
     );
   }
 
@@ -100,8 +100,8 @@ export function getProjectedData(epidemicModelInputs: EpidemicModelInputs) {
 
 export function getActualDataForFacility(modelVersions: ModelInputs[]) {
   const datesInterval = dateFns.eachDayOfInterval({
-    start: dateFns.addDays(ninetyDaysAgo, 1),
-    end: today,
+    start: dateFns.addDays(ninetyDaysAgo(), 1),
+    end: today(),
   });
 
   const actualData: { [key: string]: number[] } = {

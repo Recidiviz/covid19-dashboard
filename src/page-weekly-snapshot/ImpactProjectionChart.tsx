@@ -102,7 +102,7 @@ const ImpactProjectionChart: React.FC = () => {
         return {
           index,
           count,
-          date: dateFns.addDays(ninetyDaysAgo, index),
+          date: dateFns.addDays(ninetyDaysAgo(), index),
         };
       }),
     })),
@@ -124,7 +124,7 @@ const ImpactProjectionChart: React.FC = () => {
       {
         orient: "bottom",
         label: "Date",
-        tickValues: [ninetyDaysAgo, today],
+        tickValues: [ninetyDaysAgo(), today()],
         tickFormat: (value: Date) => dateFns.format(value, "MM/dd"),
       },
       {
