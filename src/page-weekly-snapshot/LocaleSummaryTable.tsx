@@ -23,7 +23,7 @@ const Table = styled.table`
 `;
 
 const HorizontalRule = styled.hr<{ width?: string; marginLeft?: string }>`
-  border-color: ${Colors.opacityGray};
+  border-color: ${Colors.black};
   width: ${(props) => props.width || "100%"};
   margin-left: ${(props) => props.marginLeft || "0"};
 `;
