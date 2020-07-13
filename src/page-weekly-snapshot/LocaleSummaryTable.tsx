@@ -67,7 +67,7 @@ const RightRank = styled.div`
 
 const LeftRank = styled.div`
   text-align: left;
-  margin-top: 15px;
+  margin-top: 20px;
 `;
 
 const BorderDiv = styled.div`
@@ -149,8 +149,6 @@ function getAllStateData(localeData: LocaleData, stateNames: string[]) {
   }
   return stateMetrics;
 }
-
-// TODO: code cleanup in this function
 
 function getStateRank(
   stateTotals: StateMetrics[],
