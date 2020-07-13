@@ -18,7 +18,7 @@ import {
   NYTStateRecord,
   useNYTData,
 } from "./NYTDataProvider";
-import { useWeeklyReport } from "./weekly-report-context";
+import { UPDATE_STATE_NAME, useWeeklyReport } from "./weekly-report-context";
 
 const stateNamesFilter = (key: string) =>
   !["US Total", "US Federal Prisons"].includes(key);
@@ -109,7 +109,7 @@ export default function LocaleSummary() {
   const handleOnChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const stateName = event.target.value;
 
-    dispatch({ type: "UPDATE_STATE_NAME", payload: stateName });
+    dispatch({ type: UPDATE_STATE_NAME, payload: stateName });
 
     if (!nytLoading) {
       setSelectedState(data[stateName]);
