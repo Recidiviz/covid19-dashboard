@@ -19,8 +19,6 @@ export type ReferenceFacilityMapping = {
   [key in ReferenceFacility["id"]]: ReferenceFacility;
 };
 
-// Add in the missing death properties from reference facilities
-
 export interface FacilitiesState {
   loading: boolean;
   failed: boolean;

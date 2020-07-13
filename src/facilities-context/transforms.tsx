@@ -130,7 +130,7 @@ function mergeModelVersions({
     // fill any gaps with reference records:
     // don't overwrite any user records with actual data
     referenceFacility.covidCases.forEach(
-      ({ observedAt, popTestedPositive, staffTestedPositive }) => {
+      ({ observedAt, popDeaths, popTestedPositive, staffTestedPositive }) => {
         const existingRecord = combinedVersions.find((v) =>
           isSameDay(v.observedAt, observedAt),
         );
@@ -155,6 +155,7 @@ function mergeModelVersions({
         const newRecord = {
           isReference: true,
           observedAt,
+          ageUnknownDeaths: popDeaths,
           ageUnknownCases: popTestedPositive,
           ageUnknownPopulation: populationForDate(observedAt),
           facilityCapacity: capacityForDate(observedAt),
