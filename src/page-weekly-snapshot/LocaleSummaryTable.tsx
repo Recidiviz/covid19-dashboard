@@ -79,7 +79,6 @@ const TableCell = styled.td<{ label?: boolean }>`
   font-size: 11px;
   line-height: 200%;
   text-align: "left";
-  opacity: 0.7;
   width: ${(props) => (props.label ? "200px" : "auto")};
 `;
 
@@ -145,7 +144,7 @@ function getAllStateData(localeData: LocaleData, stateNames: string[]) {
 
 function getStateRank(
   stateTotals: StateMetrics[],
-  selectedState: string | undefined,
+  selectedStateName: string | undefined,
   filterValue: string,
 ) {
   const rankedStates = orderBy(
@@ -158,8 +157,8 @@ function getStateRank(
     const currState = rankedStates[i];
     const currStateDataPerCapita = get(currState, filterValue);
     if (
-      selectedState &&
-      currState.stateName === selectedState &&
+      selectedStateName &&
+      currState.stateName === selectedStateName &&
       currStateDataPerCapita
     ) {
       return [currStateDataPerCapita, i + 1];
@@ -289,8 +288,8 @@ const LocaleSummaryTable: React.FC<{
 
   const allStateMetrics = getAllStateData(localeData, stateNames);
 
-  // TODO: currently getting state name from the drop down but might
-  // need to get this some other way when/if that changes
+  // TODO: currently getting state name from the drop down
+  // will need to update whenever that changes
   if (stateName) {
     const selectedStateCasesRank = getStateRank(
       allStateMetrics,
