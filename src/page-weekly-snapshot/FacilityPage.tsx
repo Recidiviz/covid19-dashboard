@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import Colors, { MarkColors as markColors } from "../design-system/Colors";
 import Loading from "../design-system/Loading";
+import { Column, PageContainer } from "../design-system/PageColumn";
 import ChartArea from "../impact-dashboard/ChartArea";
 import { useEpidemicModelState } from "../impact-dashboard/EpidemicModelContext";
 import {
@@ -59,6 +60,11 @@ const ProjectionContainer = styled.div`
     fill: ${Colors.black};
     font-family: "Libre Franklin";
   }
+`;
+
+const HorizontalRule = styled.hr`
+  border-color: ${Colors.opacityGray};
+  margin: 10px 0;
 `;
 
 const TableCell = styled.td<{ label?: boolean }>`
@@ -119,6 +125,28 @@ const FacilityProjection: React.FC<ProjectionProps> = ({ projectionData }) => {
   );
 };
 
+function makeSummaryColumns() {
+  return (
+    <>
+      <Column>
+        {" "}
+        <BorderDiv />
+        Incarcerated Population
+      </Column>
+      <Column>
+        <BorderDiv /> Incarcerated Cases
+      </Column>
+      <Column>
+        <BorderDiv /> Staff Population
+      </Column>
+      <Column>
+        <BorderDiv />
+        Staff Cases
+      </Column>
+    </>
+  );
+}
+
 interface Props {
   facility: Facility;
   rtData: RtData | RtError | undefined;
@@ -138,6 +166,14 @@ const FacilityPage: React.FC<Props> = ({ facility, rtData }) => {
   const staffData = buildStaffData({ staff, showHospitalizedRow: false });
   return (
     <SnapshotPage header={facility.name}>
+      Facility Summary
+      <ProjectionSection>
+        <ProjectionContainer>
+          <HorizontalRule />
+          <PageContainer>{makeSummaryColumns()}</PageContainer>
+          <HorizontalRule />
+        </ProjectionContainer>
+      </ProjectionSection>
       Facility-Specific Projection
       <ProjectionSection>
         <ProjectionContainer>
