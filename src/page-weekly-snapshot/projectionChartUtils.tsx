@@ -60,9 +60,36 @@ export function getVersionForProjection(versions: ModelInputs[]) {
   return versionForProjection;
 }
 
+/**
+ * Takes a facility's EpidemicModelInputs and returns an object with the properties
+ * projectedFatalities and projectedCases that each are arrays of summed values for staff
+ * and incarcerated fatalities and cases over the past 90 days.
+ *
+ * The epidemicModelInputs should always have an observedAt property.
+ * If for some reason it doesn't, we return arrays of length 90 filled with zeros.
+ *
+ * If the observedAt property is between day 90 and day 0, we project the data
+ * from that date onward. If the date is past 90 days ago, then we project
+ * with that version for 90 days.
+ *
+ * For example, if 90 days ago is 6/1, and the version is from 6/10, then we
+ * calculate the number of days for the projection as (NUM_DAYS - the difference
+ * between in calendar days between 6/1 and 6/10), or 90 - 9.
+ *
+ * If the version is from 95 days ago, then we still project for 90 days and
+ * use this version as if it were 90 days ago.
+ *
+ * @param epidemicModelInputs - An object of a facility's model inputs with added locale defaults
+ * @returns projectedData - An object of projectedFatalities and projectedCases, both arrays
+ * should have the same length as NUM_DAYS and their values are a sum of staff
+ * incarcerated data
+ */
 export function getProjectedData(epidemicModelInputs: EpidemicModelInputs) {
-  if (!epidemicModelInputs || !epidemicModelInputs?.observedAt) {
-    throw `No version found with cases`;
+  if (!epidemicModelInputs?.observedAt) {
+    return {
+      projectedFatalities: addProjectionPadding([]),
+      projectedCases: addProjectionPadding([]),
+    };
   }
 
   let numDaysAfterNinetyDays = 0;
@@ -103,6 +130,7 @@ export function getActualDataForFacility(modelVersions: ModelInputs[]) {
     start: dateFns.addDays(ninetyDaysAgo(), 1),
     end: today(),
   });
+  const versionsDates = modelVersions.map((v) => v.observedAt);
 
   const actualData: { [key: string]: number[] } = {
     actualCases: [],
@@ -113,11 +141,12 @@ export function getActualDataForFacility(modelVersions: ModelInputs[]) {
     const existingVersion = modelVersions.find((version: any) => {
       return dateFns.isSameDay(version.observedAt, date);
     });
+    const closestVersionIndex = dateFns.closestIndexTo(date, versionsDates);
+    const versionForTotal =
+      existingVersion || modelVersions[closestVersionIndex];
 
-    const cases = existingVersion ? totalConfirmedCases(existingVersion) : 0;
-    const fatalities = existingVersion
-      ? totalConfirmedDeaths(existingVersion)
-      : 0;
+    const cases = totalConfirmedCases(versionForTotal);
+    const fatalities = totalConfirmedDeaths(versionForTotal);
 
     actualData.actualCases.push(cases);
     actualData.actualFatalities.push(fatalities);
