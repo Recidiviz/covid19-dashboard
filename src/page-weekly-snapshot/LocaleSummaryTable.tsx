@@ -36,39 +36,39 @@ const TableHeadingCell = styled.td`
   vertical-align: middle;
 `;
 
-const Right = styled.div`
+const RightHeading = styled.div`
   text-align: right;
 `;
 
-const Left = styled.div`
+const LeftHeading = styled.div`
   text-align: left;
 `;
 
-const TextContainer = styled.div`
+const TextContainerHeading = styled.div`
   width: 100%;
   display: flex;
   justify-content: space-between;
   margin-bottom: 10px;
 `;
 
-const TextContainerRank = styled.div`
+const TextContainer = styled.div`
   width: 100%;
-  margin-top: 15px;
+  margin: 15px 0 15px;
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
   color: ${Colors.black};
 `;
 
-const RightRank = styled.div`
+const Right = styled.div`
   text-align: right;
-  font-size: 24px;
-  font-family: "Libre Baskerville";
+  margin-bottom: -5px;
 `;
 
-const LeftRank = styled.div`
+const Left = styled.div`
   text-align: left;
-  margin-bottom: -5px;
+  font-size: 24px;
+  font-family: "Libre Baskerville";
 `;
 
 const BorderDiv = styled.div`
@@ -207,15 +207,17 @@ function makeIncarceratedDataRow(
   if (hasData) {
     return (
       <tr>
-        <TableNumberCell>
-          {formatThousands(incarceratedDataPerCapita)}
-        </TableNumberCell>
+        <TextContainer>
+          <Left>{formatThousands(incarceratedDataPerCapita)}</Left>
+        </TextContainer>
       </tr>
     );
   } else {
     return (
       <tr>
-        <TableNumberCell>???</TableNumberCell>
+        <TextContainer>
+          <Left>???</Left>
+        </TextContainer>
       </tr>
     );
   }
@@ -236,10 +238,10 @@ function makeTableColumn(
     <>
       <tr>
         <TableHeadingCell>
-          <TextContainer>
-            <Right>{heading} </Right>
-            <Left>(per 100k)</Left>
-          </TextContainer>
+          <TextContainerHeading>
+            <RightHeading>{heading} </RightHeading>
+            <LeftHeading>(per 100k)</LeftHeading>
+          </TextContainerHeading>
         </TableHeadingCell>
       </tr>
       <BorderDiv />
@@ -259,12 +261,12 @@ function makeTableColumn(
       </tr>
       <tr>
         <TableCell>
-          <TextContainerRank>
-            <RightRank>{formatThousands(stateData)}</RightRank>
-            <LeftRank>
+          <TextContainer>
+            <Left>{formatThousands(stateData)}</Left>
+            <Right>
               {formatOrdinal(stateRank)} lowest of {NUM_STATES}
-            </LeftRank>
-          </TextContainerRank>
+            </Right>
+          </TextContainer>
         </TableCell>
       </tr>
     </>
