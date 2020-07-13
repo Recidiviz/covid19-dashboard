@@ -298,10 +298,10 @@ export const getSharedBaselineScenarios = async (): Promise<Scenario[]> => {
   }
 };
 
-export const getScenarioByStateName = async (
+export const getScenariosByStateName = async (
   scenarios: Scenario[],
   stateName: string,
-) => {
+): Promise<Scenario[]> => {
   const db = await getDb();
 
   const results = await Promise.all(
@@ -315,7 +315,7 @@ export const getScenarioByStateName = async (
       return facilities.docs.length > 0 && scenario;
     }),
   );
-  return results.find((result) => result);
+  return results.filter((result): result is Scenario => !!result);
 };
 
 export const saveScenario = async (scenario: any): Promise<Scenario | null> => {

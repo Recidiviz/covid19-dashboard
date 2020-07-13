@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 
 import {
-  getScenarioByStateName,
+  getScenariosByStateName,
   getSharedBaselineScenarios,
 } from "../../database";
 import { Scenario } from "../../page-multi-facility/types";
@@ -59,11 +59,11 @@ export const WeeklyReportProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     if (state.stateName) {
       dispatch({ type: actions.REQUEST_SCENARIO });
-      getScenarioByStateName(state.sharedScenarios, state.stateName).then(
-        (scenario) => {
+      getScenariosByStateName(state.sharedScenarios, state.stateName).then(
+        (scenarios) => {
           dispatch({
             type: actions.RECEIVE_SCENARIO,
-            payload: scenario || null,
+            payload: scenarios[0] || null,
           });
         },
       );
