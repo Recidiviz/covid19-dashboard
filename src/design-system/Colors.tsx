@@ -40,7 +40,7 @@ const BaseColors = {
   slate: "#e9ebeb",
   lightGray: "#e1e3e3",
   white: "#fff",
-  black: "#000",
+  black: "#000000",
 };
 
 const Colors = {

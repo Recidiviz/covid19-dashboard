@@ -4,19 +4,31 @@ import React from "react";
 import { ResponsiveXYFrame } from "semiotic";
 import styled from "styled-components";
 
-import ChartTooltip from "../design-system/ChartTooltip";
 import ChartWrapper from "../design-system/ChartWrapper";
 import Colors from "../design-system/Colors";
-import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import Loading from "../design-system/Loading";
 import { useFacilities } from "../facilities-context";
 import { useLocaleDataState } from "../locale-data-context";
 import { getChartData, ninetyDaysAgo, today } from "./projectionChartUtils";
+import { HorizontalRule } from "./SnapshotPage";
 import { useWeeklyReport } from "./weekly-report-context";
 
-const ImpactProjectionContainer = styled.div``;
+const ImpactProjectionContainer = styled.div`
+  font-family: "Libre Franklin";
+  margin-bottom: 5vw;
+`;
+
+const ChartTitle = styled.h3`
+  font-size: 11px;
+  font-weight: bold;
+  line-height: 13px;
+  margin: 0 5vw;
+`;
+
 const CurveChartWrapper = styled(ChartWrapper)<{ chartHeight: number }>`
   height: ${(props) => props.chartHeight}px;
+  display: flex;
+  flex-flow: column;
 
   .threshold-annotation {
     .subject {
@@ -24,53 +36,44 @@ const CurveChartWrapper = styled(ChartWrapper)<{ chartHeight: number }>`
       stroke-linecap: round;
     }
   }
-`;
-const TooltipTitle = styled.div`
-  font-size: 9px;
-  font-weight: bold;
-  letter-spacing: 0.1em;
-  line-height: 1;
-  margin-bottom: 12px;
-  text-transform: uppercase;
+
+  .axis-title text,
+  .axis-label {
+    fill: ${Colors.black};
+    font-family: "Libre Franklin";
+  }
 `;
 
-const TooltipDatalist = styled.ul``;
-const TooltipDatum = styled.li`
-  opacity: 0.8;
+const LegendContainer = styled.div`
+  color: ${Colors.black};
+  display: flex;
+  flex-flow: row nowrap;
+  font-size: 11px;
+  font-weight: 500;
+  margin: 0 5vw;
+`;
+
+const LegendText = styled.div<{ legendColor: string }>`
+  display: inline-block;
+  line-height: 20px;
+  letter-spacing: -0.01em;
+  margin: 0 10px;
+
+  &::before {
+    background-color: ${(props) => props.legendColor};
+    border-radius: 50%;
+    content: " ";
+    display: inline-block;
+    height: 8px;
+    margin: 0 5px;
+    width: 8px;
+  }
 `;
 
 const formatThousands = format(",~g");
 
-interface TooltipProps {
-  count: number;
-  days: number;
-  parentLine: {
-    title: string;
-    [propName: string]: any;
-  };
-  [propName: string]: any;
-}
-
-const Tooltip: React.FC<TooltipProps> = ({
-  count,
-  date,
-  parentLine: { title },
-}) => {
-  return (
-    <ChartTooltip>
-      <TooltipTitle>{title}</TooltipTitle>
-      <TooltipDatalist>
-        <TooltipDatum>
-          <DateMMMMdyyyy date={date} />
-        </TooltipDatum>
-        <TooltipDatum>People: {formatThousands(count)}</TooltipDatum>
-      </TooltipDatalist>
-    </ChartTooltip>
-  );
-};
-
 const lineColors: { [key in string]: string } = {
-  projectedCases: Colors.opacityForest,
+  projectedCases: Colors.forest50,
   projectedFatalities: Colors.black50,
   actualCases: Colors.black,
   actualFatalities: Colors.tamarillo,
@@ -137,8 +140,6 @@ const ImpactProjectionChart: React.FC = () => {
         tickFormat: formatThousands,
       },
     ],
-    hoverAnnotation: true,
-    tooltipContent: Tooltip,
     pointStyle: { display: "none" },
   };
 
@@ -147,9 +148,30 @@ const ImpactProjectionChart: React.FC = () => {
       {!chartData || scenarioLoading || localeLoading ? (
         <Loading />
       ) : (
-        <CurveChartWrapper chartHeight={380}>
-          <ResponsiveXYFrame {...frameProps} />
-        </CurveChartWrapper>
+        <>
+          <ChartTitle>
+            Projection Assuming No Intervention vs. Actual Cumulative Cases
+          </ChartTitle>
+          <CurveChartWrapper chartHeight={400}>
+            <ResponsiveXYFrame {...frameProps} />
+          </CurveChartWrapper>
+          <HorizontalRule />
+          <LegendContainer>
+            <LegendText legendColor={lineColors.projectedCases}>
+              Projected cases w/o intervention
+            </LegendText>
+            <LegendText legendColor={lineColors.actualCases}>
+              Actual cases
+            </LegendText>
+            <LegendText legendColor={lineColors.projectedFatalities}>
+              Projected fatalities w/o intervention
+            </LegendText>
+            <LegendText legendColor={lineColors.actualFatalities}>
+              Actual fatalities
+            </LegendText>
+          </LegendContainer>
+          <HorizontalRule />
+        </>
       )}
     </ImpactProjectionContainer>
   );

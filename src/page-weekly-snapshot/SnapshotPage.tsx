@@ -13,7 +13,7 @@ const SnapshotPageContainer = styled.div`
   font-family: "Libre Franklin";
 `;
 
-const HorizontalRule = styled.hr`
+export const HorizontalRule = styled.hr`
   border-color: ${Colors.opacityGray};
   margin: 10px 0;
 `;
