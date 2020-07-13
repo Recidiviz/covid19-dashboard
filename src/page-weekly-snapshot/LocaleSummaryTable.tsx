@@ -53,6 +53,7 @@ const TextContainer = styled.div`
 
 const TextContainerRank = styled.div`
   width: 100%;
+  margin-top: 15px;
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
@@ -67,7 +68,7 @@ const RightRank = styled.div`
 
 const LeftRank = styled.div`
   text-align: left;
-  margin-top: 20px;
+  margin-bottom: -5px;
 `;
 
 const BorderDiv = styled.div`
@@ -75,7 +76,7 @@ const BorderDiv = styled.div`
 `;
 
 const TableCell = styled.td<{ label?: boolean }>`
-  font-size: 13px;
+  font-size: 11px;
   line-height: 200%;
   text-align: "left";
   opacity: 0.7;
