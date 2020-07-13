@@ -15,7 +15,7 @@ import { formatThousands } from "../impact-dashboard/ImpactProjectionTable";
 import { LocaleData, useLocaleDataState } from "../locale-data-context";
 import { Facility } from "../page-multi-facility/types";
 
-export const Table = styled.table`
+const Table = styled.table`
   color: ${Colors.black};
   text-align: left;
   width: 100%;
@@ -56,7 +56,7 @@ const TextContainerRank = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  color: black;
+  color: ${Colors.black};
 `;
 
 const RightRank = styled.div`
@@ -165,13 +165,13 @@ function getStateRank(
 
   for (let i = 0; i < rankedStates.length; i++) {
     const currState = rankedStates[i];
-    const currStateCasesPerCapita = get(currState, filterValue);
+    const currStateDataPerCapita = get(currState, filterValue);
     if (
       selectedState &&
       currState.stateName === selectedState &&
-      currStateCasesPerCapita
+      currStateDataPerCapita
     ) {
-      return [currStateCasesPerCapita, i + 1];
+      return [currStateDataPerCapita, i + 1];
     }
   }
   return [-1, -1];
