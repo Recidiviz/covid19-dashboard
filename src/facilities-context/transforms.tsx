@@ -155,7 +155,7 @@ function mergeModelVersions({
         const newRecord = {
           isReference: true,
           observedAt,
-          ageUnknownDeaths: popDeaths,
+          ageUnknownDeaths: popDeaths || 0,
           ageUnknownCases: popTestedPositive,
           ageUnknownPopulation: populationForDate(observedAt),
           facilityCapacity: capacityForDate(observedAt),

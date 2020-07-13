@@ -31,16 +31,17 @@ const removeNonsenseCases: SingleDayValidator = (modelInputs) => {
 const requirePopulation: SingleDayValidator = (modelInputs) => {
   const validInputs = modelInputs ? { ...modelInputs } : null;
   if (validInputs?.isReference) {
-    // cases without population should be removed
+    // cases and fatalities without population should be removed
     if (validInputs.ageUnknownPopulation === undefined) {
       delete validInputs.ageUnknownCases;
+      delete validInputs.ageUnknownDeaths;
       delete validInputs.ageUnknownPopulation;
     }
     if (validInputs.staffPopulation === undefined) {
       delete validInputs.staffCases;
       delete validInputs.staffPopulation;
     }
-    // if there are are now no cases at all, kill the record entirely
+    // if there are now no cases at all, kill the record entirely
     if (
       !has(validInputs, "ageUnknownCases") &&
       !has(validInputs, "staffCases")
