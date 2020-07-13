@@ -83,14 +83,6 @@ const TableCell = styled.td<{ label?: boolean }>`
   width: ${(props) => (props.label ? "200px" : "auto")};
 `;
 
-const TableNumberCell = styled.td<{ label?: boolean }>`
-  font-size: 24px;
-  font-family: "Libre Baskerville";
-  line-height: 200%;
-  text-align: "left";
-  width: auto;
-`;
-
 type StateMetrics = {
   stateName: string;
   casesPerCapita: number | undefined;
