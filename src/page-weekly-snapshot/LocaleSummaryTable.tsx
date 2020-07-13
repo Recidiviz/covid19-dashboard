@@ -36,10 +36,6 @@ const TableHeadingCell = styled.td`
   vertical-align: middle;
 `;
 
-const RightHeading = styled.div`
-  text-align: right;
-`;
-
 const LeftHeading = styled.div`
   text-align: left;
 `;
@@ -56,13 +52,12 @@ const TextContainer = styled.div`
   margin: 15px 0 15px;
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
+  align-items: baseline;
   color: ${Colors.black};
 `;
 
 const Right = styled.div`
   text-align: right;
-  margin-bottom: -5px;
 `;
 
 const Left = styled.div`
@@ -230,7 +225,7 @@ function makeTableColumn(
       <tr>
         <TableHeadingCell>
           <TextContainerHeading>
-            <RightHeading>{heading} </RightHeading>
+            <Right>{heading} </Right>
             <LeftHeading>(per 100k)</LeftHeading>
           </TextContainerHeading>
         </TableHeadingCell>
