@@ -6,12 +6,13 @@ import styled from "styled-components";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import InputSelect from "../design-system/InputSelect";
 import Loading from "../design-system/Loading";
-import { Column } from "../design-system/PageColumn";
+import { Column, PageContainer } from "../design-system/PageColumn";
 import {
   LocaleDataProvider,
   LocaleRecord,
   useLocaleDataState,
 } from "../locale-data-context";
+import LocaleSummaryTable from "./LocaleSummaryTable";
 import {
   NYTCountyRecord,
   NYTData,
@@ -137,6 +138,7 @@ export default function LocaleSummary() {
           "0.000 %",
         )};`;
       });
+
       setCountiesToWatch(countiesToWatch);
       setTotalBeds(totalBeds);
       setSevenDayDiffInCases(sevenDayDiffInCases);
@@ -147,47 +149,57 @@ export default function LocaleSummary() {
       {loading || nytLoading ? (
         <Loading />
       ) : (
-        <Column>
-          <InputSelect
-            label="State"
-            placeholder="Select a state"
-            onChange={handleOnChange}
-          >
-            <option value="">Select a state</option>
-            {stateNames.map((name) => (
-              <option key={name} value={name}>
-                {name}
-              </option>
-            ))}
-          </InputSelect>
-          {selectedState && (
-            <LocaleStats>
-              <LocaleStatsList>
-                <li>
-                  Latest Date:{" "}
-                  {daySeven?.date && <DateMMMMdyyyy date={daySeven.date} />}
-                </li>
-                <li>
-                  Number of cases in the state:{" "}
-                  {daySeven?.cases || daySeven?.cases === 0
-                    ? formatNumber(daySeven.cases)
-                    : "?"}
-                </li>
-                <li>
-                  Change in state cases since last week:{" "}
-                  {sevenDayDiffInCases || sevenDayDiffInCases === 0
-                    ? formatNumber(sevenDayDiffInCases)
-                    : "?"}
-                </li>
-                <li>
-                  Number of ICU and hospital beds in state:{" "}
-                  {totalBeds || totalBeds === 0 ? formatNumber(totalBeds) : "?"}
-                </li>
-                <li>Counties to watch: {countiesToWatch?.join(" ")}</li>
-              </LocaleStatsList>
-            </LocaleStats>
-          )}
-        </Column>
+        <PageContainer>
+          <Column>
+            <InputSelect
+              label="State"
+              placeholder="Select a state"
+              onChange={handleOnChange}
+            >
+              <option value="">Select a state</option>
+              {stateNames.map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
+            </InputSelect>
+            {selectedState && (
+              <LocaleStats>
+                <LocaleStatsList>
+                  <li>
+                    Latest Date:{" "}
+                    {daySeven?.date && <DateMMMMdyyyy date={daySeven.date} />}
+                  </li>
+                  <li>
+                    Number of cases in the state:{" "}
+                    {daySeven?.cases || daySeven?.cases === 0
+                      ? formatNumber(daySeven.cases)
+                      : "?"}
+                  </li>
+                  <li>
+                    Change in state cases since last week:{" "}
+                    {sevenDayDiffInCases || sevenDayDiffInCases === 0
+                      ? formatNumber(sevenDayDiffInCases)
+                      : "?"}
+                  </li>
+                  <li>
+                    Number of ICU and hospital beds in state:{" "}
+                    {totalBeds || totalBeds === 0
+                      ? formatNumber(totalBeds)
+                      : "?"}
+                  </li>
+                  <li>Counties to watch: {countiesToWatch?.join(" ")}</li>
+                </LocaleStatsList>
+              </LocaleStats>
+            )}
+          </Column>
+          <Column>
+            <LocaleSummaryTable
+              stateName={selectedState?.state[0].stateName}
+              stateNames={stateNames}
+            />
+          </Column>
+        </PageContainer>
       )}
     </LocaleDataProvider>
   );
