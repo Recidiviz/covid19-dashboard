@@ -25,6 +25,12 @@ function addProjectionPadding(values: number[], numDays = 90): number[] {
   return [...Array(numDays - values.length).fill(0), ...values];
 }
 
+const findVersionForDate = (versions: ModelInputs[], date: Date) => {
+  return versions.find((version: any) => {
+    return dateFns.isSameDay(version.observedAt, date);
+  });
+};
+
 /**
  * Takes an ndarray and sums the values for all seir indexes except susceptible
  * and exposed and returns the total number of cases per day
@@ -62,13 +68,14 @@ export function getVersionForProjection(versions: ModelInputs[]) {
   let versionForProjection: ModelInputs | undefined = version90DaysAgo;
 
   if (!version90DaysAgo) {
-    const closestVersionWithCases = versionsWithCases.find((version) => {
-      const date = dateFns.closestTo(
-        ninetyDaysAgo(),
-        versionsWithCases.map((v) => v.observedAt),
-      );
-      return dateFns.isSameDay(version.observedAt, date);
-    });
+    const closestDate = dateFns.closestTo(
+      ninetyDaysAgo(),
+      versionsWithCases.map((v) => v.observedAt),
+    );
+    const closestVersionWithCases = findVersionForDate(
+      versionsWithCases,
+      closestDate,
+    );
     versionForProjection = closestVersionWithCases;
   }
   return versionForProjection;
@@ -140,14 +147,40 @@ export function getProjectedData(epidemicModelInputs: EpidemicModelInputs) {
 }
 
 /**
- * Takes an array of modelVersions for multiple facilities and returns the
- * total confirmed cases and total confirmed deaths summed across each
- * facility for each day between today and 90 days ago.
+ * Takes an array of modelVersions for one facility and a date and returns the
+ * version closest to that date. If a previous version is available, it prefers
+ * that. If it's not available it takes the next closest version.
+ *
+ * @param modelVersions - An array of modelVersions for one facility
+ * @param date - The date to compare for finding the closest version
+ * @returns modelVersion - A facility's model version
+ */
+function findClosestVersionForDates(versions: ModelInputs[], date: Date) {
+  const sortedVersionDates = versions
+    .map((v) => v.observedAt)
+    .sort((a, b) => a.getTime() - b.getTime());
+
+  // filter to dates earlier than the date we need a version for
+  const closestPreviousDates = sortedVersionDates.filter((versionDate) => {
+    return dateFns.startOfDay(versionDate) <= dateFns.startOfDay(date);
+  });
+
+  // if there are previous dates, use the most recent one
+  // otherwise use the next forward looking date we have
+  const mostRecentDate = closestPreviousDates.length
+    ? closestPreviousDates[closestPreviousDates.length - 1]
+    : sortedVersionDates[0];
+  return findVersionForDate(versions, mostRecentDate);
+}
+
+/**
+ * Takes an array of modelVersions for one facility and returns the
+ * total confirmed cases and total confirmed deaths for each of the past 90 days.
  *
  * If a facility is missing a version for a date, then we use the data from
  * the closest version to that date.
  *
- * @param modelVersions - An array of modelVersions for multiple facilities
+ * @param modelVersions - An array of modelVersions for one facility
  * @returns actualData - An object of actualFatalities and actualCases, both arrays
  * should have the same length as NUM_DAYS and their values are a sum of staff
  * incarcerated data
@@ -157,7 +190,6 @@ export function getActualDataForFacility(modelVersions: ModelInputs[]) {
     start: dateFns.addDays(ninetyDaysAgo(), 1),
     end: today(),
   });
-  const versionsDates = modelVersions.map((v) => v.observedAt);
 
   const actualData: { [key: string]: number[] } = {
     actualCases: [],
@@ -165,15 +197,19 @@ export function getActualDataForFacility(modelVersions: ModelInputs[]) {
   };
 
   datesInterval.forEach((date) => {
-    const existingVersion = modelVersions.find((version: any) => {
-      return dateFns.isSameDay(version.observedAt, date);
-    });
-    const closestVersionIndex = dateFns.closestIndexTo(date, versionsDates);
-    const versionForTotal =
-      existingVersion || modelVersions[closestVersionIndex];
+    const existingVersion = findVersionForDate(modelVersions, date);
 
-    const cases = totalConfirmedCases(versionForTotal);
-    const fatalities = totalConfirmedDeaths(versionForTotal);
+    let closestVersion: ModelInputs | undefined;
+
+    if (!existingVersion) {
+      closestVersion = findClosestVersionForDates(modelVersions, date);
+    }
+
+    const versionForTotal = existingVersion || closestVersion;
+    const cases = versionForTotal ? totalConfirmedCases(versionForTotal) : 0;
+    const fatalities = versionForTotal
+      ? totalConfirmedDeaths(versionForTotal)
+      : 0;
 
     actualData.actualCases.push(cases);
     actualData.actualFatalities.push(fatalities);
