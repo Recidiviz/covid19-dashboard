@@ -1,3 +1,4 @@
+import { get } from "lodash";
 import React from "react";
 import styled from "styled-components";
 
@@ -23,6 +24,12 @@ import SnapshotPage from "./SnapshotPage";
 
 const DURATION = 21;
 
+const CHANGE_DIRECTION_MAPPING = {
+  positive: "↑ ",
+  negative: "↓ ",
+  same: "-- ",
+};
+
 const Heading = styled.div`
   font-weight: 700;
   line-height: 13px;
@@ -44,9 +51,9 @@ const TableHeadingCell = styled.td`
   vertical-align: middle;
 `;
 
-const BorderDiv = styled.div`
+const BorderDiv = styled.div<{ marginRight?: string }>`
   border-top: 2px solid ${Colors.darkGray};
-  margin-right: 5px;
+  margin-right: ${(props) => props.marginRight || "5px"};
   margin-bottom: 5px;
 `;
 
@@ -101,13 +108,15 @@ const Left = styled.div`
   font-family: "Libre Franklin";
   font-size: 11px;
 `;
-const Red = styled.div`
-  color: #cb2500;
-`;
 
 // TODO: use standard colors
-const Delta = styled.div<{ isPositive?: boolean }>`
-  color: ${(props) => (props.isPositive ? "#cb2500" : "#006c67")};
+const Delta = styled.div<{ changeDirection?: string }>`
+  color: ${(props) =>
+    props.changeDirection == "positive"
+      ? "#cb2500"
+      : props.changeDirection == "negative"
+      ? "#006c67"
+      : "#c8d3d3"};
 `;
 
 function makeTableRow(row: TableRow) {
@@ -158,33 +167,38 @@ const FacilityProjection: React.FC<ProjectionProps> = ({ projectionData }) => {
   );
 };
 
-function makeSummaryColumns(incarceratedData: TableRow[]) {
+function makeSummaryColumns(
+  incarceratedData: TableRow[],
+  rateOfChange: string,
+) {
   return (
     <>
       <Column>
-        <BorderDiv />
+        <BorderDiv marginRight={"0px"} />
         Incarcerated Population
         <HorizontalRule />
         <TextContainer>
           <Right>hi</Right>
           <DeltaContainer>
-            <Red>↑ </Red>
+            <Delta changeDirection={rateOfChange}>
+              {get(CHANGE_DIRECTION_MAPPING, rateOfChange)}{" "}
+            </Delta>
             <Left>there</Left>
           </DeltaContainer>
         </TextContainer>
       </Column>
       <Column>
-        <BorderDiv />
+        <BorderDiv marginRight={"0px"} />
         Incarcerated Cases
         <HorizontalRule />
       </Column>
       <Column>
-        <BorderDiv />
+        <BorderDiv marginRight={"0px"} />
         Staff Population
         <HorizontalRule />
       </Column>
       <Column>
-        <BorderDiv />
+        <BorderDiv marginRight={"0px"} />
         Staff Cases
         <HorizontalRule />
       </Column>
@@ -217,7 +231,9 @@ const FacilityPage: React.FC<Props> = ({ facility, rtData }) => {
       <ProjectionSection>
         <ProjectionContainer>
           <HorizontalRule />
-          <PageContainer>{makeSummaryColumns(incarceratedData)}</PageContainer>
+          <PageContainer>
+            {makeSummaryColumns(incarceratedData, "positive")}
+          </PageContainer>
           <HorizontalRule />
         </ProjectionContainer>
       </ProjectionSection>
