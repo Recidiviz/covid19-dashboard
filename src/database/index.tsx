@@ -303,16 +303,27 @@ export const getScenariosByStateName = async (
   stateName: string,
 ): Promise<Scenario[]> => {
   const db = await getDb();
-
   const results = await Promise.all(
     scenarios.map(async (scenario: Scenario) => {
-      const facilities = await db
+      const facilitiesWithStateName = await db
         .collection(scenariosCollectionId)
         .doc(scenario.id)
         .collection(facilitiesCollectionId)
         .where("modelInputs.stateName", "==", stateName)
         .get();
-      return facilities.docs.length > 0 && scenario;
+      // Since some of our facilities still have stateCode properties
+      // we need to check for both query results.
+      const facilitiesWithStateCode = await db
+        .collection(scenariosCollectionId)
+        .doc(scenario.id)
+        .collection(facilitiesCollectionId)
+        .where("modelInputs.stateCode", "==", stateName)
+        .get();
+      return (
+        (facilitiesWithStateName.docs.length > 0 ||
+          facilitiesWithStateCode.docs.length > 0) &&
+        scenario
+      );
     }),
   );
   return results.filter((result): result is Scenario => !!result);

@@ -191,7 +191,6 @@ export function getActualDataForFacility(modelVersions: ModelInputs[]) {
  * @param localeDataSource - LocaleData from the LocaleDataContext
  * @returns projectedData[] - An array of projectedData objects for each facility
  */
-
 export function getFacilitiesProjectionData(
   modelVersions: ModelInputs[][],
   localeDataSource: LocaleData,
@@ -214,6 +213,7 @@ export function getFacilitiesProjectionData(
 interface ProjectionChartData {
   [key: string]: number[];
 }
+
 /**
  * Takes an array of modelVersions for multiple facilities and the locale data
  * and returns the total projected and actual cases and fatalities for the past 90 days
@@ -224,7 +224,6 @@ interface ProjectionChartData {
  * @returns chartData - { projectedCases: [0..89], actualCases: [0..89],
  * projectedFatalities: [0..89], projectedCases: [0..89] }
  */
-
 export function getChartData(
   modelVersions: ModelInputs[][],
   localeDataSource: LocaleData,
