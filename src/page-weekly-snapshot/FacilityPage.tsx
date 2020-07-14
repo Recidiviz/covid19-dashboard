@@ -24,7 +24,7 @@ import SnapshotPage from "./SnapshotPage";
 
 const DURATION = 21;
 
-const CHANGE_DIRECTION_MAPPING = {
+const DELTA_DIRECTION_MAPPING = {
   positive: "↑ ",
   negative: "↓ ",
   same: "-- ",
@@ -181,7 +181,7 @@ function makeSummaryColumns(
           <Right>hi</Right>
           <DeltaContainer>
             <Delta deltaDirection={rateOfChange}>
-              {get(CHANGE_DIRECTION_MAPPING, rateOfChange)}{" "}
+              {get(DELTA_DIRECTION_MAPPING, rateOfChange)}
             </Delta>
             <Left>there</Left>
           </DeltaContainer>
