@@ -47,6 +47,7 @@ const TableHeadingCell = styled.td`
 const BorderDiv = styled.div`
   border-top: 2px solid ${Colors.darkGray};
   margin-right: 5px;
+  margin-bottom: 5px;
 `;
 
 const ProjectionSection = styled.div`
@@ -75,6 +76,38 @@ const TableCell = styled.td<{ label?: boolean }>`
   border-top: 1px solid  ${Colors.darkGray};
   vertical-align: middle;
   width: ${(props) => (props.label ? "200px" : "auto")};
+`;
+
+const TextContainer = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+`;
+
+const Right = styled.div`
+  text-align: right;
+  font-family: "Libre Baskerville";
+  font-size: 17px;
+`;
+
+const DeltaContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+`;
+
+const Left = styled.div`
+  text-align: left;
+  font-family: "Libre Franklin";
+  font-size: 11px;
+`;
+const Red = styled.div`
+  color: #cb2500;
+`;
+
+// TODO: use standard colors
+const Delta = styled.div<{ isPositive?: boolean }>`
+  color: ${(props) => (props.isPositive ? "#cb2500" : "#006c67")};
 `;
 
 function makeTableRow(row: TableRow) {
@@ -125,23 +158,35 @@ const FacilityProjection: React.FC<ProjectionProps> = ({ projectionData }) => {
   );
 };
 
-function makeSummaryColumns() {
+function makeSummaryColumns(incarceratedData: TableRow[]) {
   return (
     <>
       <Column>
-        {" "}
         <BorderDiv />
         Incarcerated Population
+        <HorizontalRule />
+        <TextContainer>
+          <Right>hi</Right>
+          <DeltaContainer>
+            <Red>↑ </Red>
+            <Left>there</Left>
+          </DeltaContainer>
+        </TextContainer>
       </Column>
       <Column>
-        <BorderDiv /> Incarcerated Cases
+        <BorderDiv />
+        Incarcerated Cases
+        <HorizontalRule />
       </Column>
       <Column>
-        <BorderDiv /> Staff Population
+        <BorderDiv />
+        Staff Population
+        <HorizontalRule />
       </Column>
       <Column>
         <BorderDiv />
         Staff Cases
+        <HorizontalRule />
       </Column>
     </>
   );
@@ -162,6 +207,8 @@ const FacilityPage: React.FC<Props> = ({ facility, rtData }) => {
   if (!projectionData) return <Loading />;
   const { incarcerated, staff } = projectionData;
 
+  console.log(facility);
+
   const incarceratedData = buildIncarceratedData(incarcerated);
   const staffData = buildStaffData({ staff, showHospitalizedRow: false });
   return (
@@ -170,7 +217,7 @@ const FacilityPage: React.FC<Props> = ({ facility, rtData }) => {
       <ProjectionSection>
         <ProjectionContainer>
           <HorizontalRule />
-          <PageContainer>{makeSummaryColumns()}</PageContainer>
+          <PageContainer>{makeSummaryColumns(incarceratedData)}</PageContainer>
           <HorizontalRule />
         </ProjectionContainer>
       </ProjectionSection>
