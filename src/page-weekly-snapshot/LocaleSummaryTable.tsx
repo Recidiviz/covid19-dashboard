@@ -79,16 +79,21 @@ const TableCell = styled.td<{ label?: boolean }>`
 
 type StateMetrics = {
   stateName: string;
-  casesPerCapita: number | undefined;
-  deathsPerCapita: number | undefined;
+  casesRate: number | undefined;
+  deathsRate: number | undefined;
 };
 
-type incarceratedData = {
+type IncarceratedData = {
   incarceratedData: number;
   hasData: boolean;
 };
 
-const POPULATION_SIZE = 100000;
+type StateRank = {
+  stateRate: number;
+  stateRank: number;
+};
+
+const RATE_UNIT = 100000;
 const NUM_STATES = 50;
 
 const VALUE_MAPPING = {
@@ -103,13 +108,13 @@ function formatOrdinal(value: number) {
   return value + (suffix[(rem - 20) % 10] || suffix[rem] || suffix[0]);
 }
 
-function getPerCapita(
+function getRate(
   numerator: number | undefined,
   denominator: number | undefined,
 ) {
   let result = 0;
   if (numerator && denominator) {
-    result = Math.round((numerator / denominator) * POPULATION_SIZE);
+    result = Math.round((numerator / denominator) * RATE_UNIT);
   }
   return result;
 }
@@ -125,12 +130,12 @@ function getAllStateData(localeData: LocaleData, stateNames: string[]) {
       const totalCases = localeDataStateTotal["reportedCases"];
       const totalPopulation = localeDataStateTotal["totalPopulation"];
       const totalDeaths = localeDataStateTotal["totalDeaths"];
-      const casesPerCapita = getPerCapita(totalCases, totalPopulation);
-      const deathsPerCapita = getPerCapita(totalDeaths, totalPopulation);
+      const casesRate = getRate(totalCases, totalPopulation);
+      const deathsRate = getRate(totalDeaths, totalPopulation);
       stateMetrics.push({
         stateName: stateNames[i],
-        casesPerCapita: casesPerCapita,
-        deathsPerCapita: deathsPerCapita,
+        casesRate: casesRate,
+        deathsRate: deathsRate,
       });
     }
   }
@@ -148,18 +153,27 @@ function getStateRank(
     ["asc"],
   );
 
+  let selectedStateRate = 0;
+  let selectedStateRank = 0;
+
   for (let i = 0; i < rankedStates.length; i++) {
     const currState = rankedStates[i];
-    const currStateDataPerCapita = get(currState, filterValue);
+    const currStateDataRate = get(currState, filterValue);
     if (
       selectedStateName &&
       currState.stateName === selectedStateName &&
-      currStateDataPerCapita
+      currStateDataRate
     ) {
-      return [currStateDataPerCapita, i + 1];
+      selectedStateRate = currStateDataRate;
+      selectedStateRank = i + 1;
     }
   }
-  return [-1, -1];
+
+  const stateRank: StateRank = {
+    stateRank: selectedStateRank,
+    stateRate: selectedStateRate,
+  };
+  return stateRank;
 }
 
 function getTotalIncarceratedValue(facilities: Facility[], value: string) {
@@ -179,7 +193,7 @@ function getTotalIncarceratedValue(facilities: Facility[], value: string) {
     }
     result += sum(values(data));
   }
-  const incarceratedData: incarceratedData = {
+  const incarceratedData: IncarceratedData = {
     incarceratedData: result,
     hasData: hasData,
   };
@@ -188,13 +202,13 @@ function getTotalIncarceratedValue(facilities: Facility[], value: string) {
 
 function makeIncarceratedDataRow(
   hasData: boolean,
-  incarceratedDataPerCapita: number,
+  incarceratedDataRate: number,
 ) {
   if (hasData) {
     return (
       <tr>
         <TextContainer>
-          <Left>{formatThousands(incarceratedDataPerCapita)}</Left>
+          <Left>{formatThousands(incarceratedDataRate)}</Left>
         </TextContainer>
       </tr>
     );
@@ -270,13 +284,14 @@ const LocaleSummaryTable: React.FC<{
   } = useFacilities();
   const facilities = Object.values(facilitiesState);
 
-  let casesPerCapita = 0;
-  let casesPerCapitaRank = 0;
-  let deathsPerCapita = 0;
-  let deathsPerCapitaRank = 0;
+  let casesRate = 0;
+  let casesRateRank = 0;
 
-  let incarceratedCasesPerCapita = 0;
-  let incarceratedDeathsPerCapita = 0;
+  let deathsRate = 0;
+  let deathsRateRank = 0;
+
+  let incarceratedCasesRate = 0;
+  let incarceratedDeathsRate = 0;
 
   let hasCaseData = true;
   let hasDeathData = true;
@@ -289,20 +304,20 @@ const LocaleSummaryTable: React.FC<{
     const selectedStateCasesRank = getStateRank(
       allStateMetrics,
       stateName,
-      "casesPerCapita",
+      "casesRate",
     );
 
-    casesPerCapita = selectedStateCasesRank?.[0];
-    casesPerCapitaRank = selectedStateCasesRank?.[1];
+    casesRate = selectedStateCasesRank.stateRate;
+    casesRateRank = selectedStateCasesRank.stateRank;
 
     const selectedStateDeathsRank = getStateRank(
       allStateMetrics,
       stateName,
-      "deathsPerCapita",
+      "deathsRate",
     );
 
-    deathsPerCapita = selectedStateDeathsRank?.[0];
-    deathsPerCapitaRank = selectedStateDeathsRank?.[1];
+    deathsRate = selectedStateDeathsRank.stateRate;
+    deathsRateRank = selectedStateDeathsRank.stateRank;
 
     const totalIncarceratedCases = getTotalIncarceratedValue(
       facilities,
@@ -316,12 +331,12 @@ const LocaleSummaryTable: React.FC<{
       facilities,
       "population",
     );
-    incarceratedCasesPerCapita = getPerCapita(
+    incarceratedCasesRate = getRate(
       totalIncarceratedCases.incarceratedData,
       totalIncarceratedPopulation.incarceratedData,
     );
     hasCaseData = totalIncarceratedCases.hasData;
-    incarceratedDeathsPerCapita = getPerCapita(
+    incarceratedDeathsRate = getRate(
       totalIncarceratedDeaths.incarceratedData,
       totalIncarceratedPopulation.incarceratedData,
     );
@@ -330,7 +345,7 @@ const LocaleSummaryTable: React.FC<{
 
   return (
     <>
-      <HorizontalRule width={"93%"} marginLeft={"20px"} />
+      <HorizontalRule width={"93%"} />
       <PageContainer>
         <Column>
           <Table>
@@ -338,9 +353,9 @@ const LocaleSummaryTable: React.FC<{
               <td />
               {makeTableColumn(
                 "Cases",
-                incarceratedCasesPerCapita,
-                casesPerCapita,
-                casesPerCapitaRank,
+                incarceratedCasesRate,
+                casesRate,
+                casesRateRank,
                 hasCaseData,
               )}
             </tbody>
@@ -352,9 +367,9 @@ const LocaleSummaryTable: React.FC<{
               <td />
               {makeTableColumn(
                 "Fatalities",
-                incarceratedDeathsPerCapita,
-                deathsPerCapita,
-                deathsPerCapitaRank,
+                incarceratedDeathsRate,
+                deathsRate,
+                deathsRateRank,
                 hasDeathData,
               )}
             </tbody>
