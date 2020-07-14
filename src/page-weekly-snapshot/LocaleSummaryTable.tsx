@@ -21,11 +21,10 @@ const Table = styled.table`
   width: 100%;
   margin-top: 10px;
 `;
-
-const HorizontalRule = styled.hr<{ width?: string; marginLeft?: string }>`
+const HorizontalRule = styled.hr`
   border-color: ${Colors.black};
-  width: ${(props) => props.width || "100%"};
-  margin-left: ${(props) => props.marginLeft || "0"};
+  width: 100%;
+  margin-bottom: 10px;
 `;
 
 const TableHeadingCell = styled.td`
@@ -238,6 +237,7 @@ function makeTableColumn(
     <>
       <tr>
         <TableHeadingCell>
+          <HorizontalRule />
           <TextContainerHeading>
             <Right>{heading} </Right>
             <LeftHeading>(per 100k)</LeftHeading>
@@ -345,7 +345,6 @@ const LocaleSummaryTable: React.FC<{
 
   return (
     <>
-      <HorizontalRule width={"93%"} />
       <PageContainer>
         <Column>
           <Table>
