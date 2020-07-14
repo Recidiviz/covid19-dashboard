@@ -110,11 +110,11 @@ const Left = styled.div`
 `;
 
 // TODO: use standard colors
-const Delta = styled.div<{ changeDirection?: string }>`
+const Delta = styled.div<{ deltaDirection?: string }>`
   color: ${(props) =>
-    props.changeDirection == "positive"
+    props.deltaDirection == "positive"
       ? "#cb2500"
-      : props.changeDirection == "negative"
+      : props.deltaDirection == "negative"
       ? "#006c67"
       : "#c8d3d3"};
 `;
@@ -180,7 +180,7 @@ function makeSummaryColumns(
         <TextContainer>
           <Right>hi</Right>
           <DeltaContainer>
-            <Delta changeDirection={rateOfChange}>
+            <Delta deltaDirection={rateOfChange}>
               {get(CHANGE_DIRECTION_MAPPING, rateOfChange)}{" "}
             </Delta>
             <Left>there</Left>
