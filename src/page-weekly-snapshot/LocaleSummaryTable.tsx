@@ -298,8 +298,8 @@ const LocaleSummaryTable: React.FC<{
 
   const allStateMetrics = getAllStateData(localeData, stateNames);
 
-  // TODO: currently getting state name from the drop down
-  // will need to update whenever that changes
+  // TODO (per 644): currently getting state name from the drop down;
+  // may need to update this depending on how the logic 644 is implemented
   if (stateName) {
     const selectedStateCasesRank = getStateRank(
       allStateMetrics,
