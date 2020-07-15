@@ -238,7 +238,7 @@ function buildStaffFacilitySummaryData(facility: Facility) {
         "deaths",
       );
       const mostRecentStaffPopulation = getTotalStaffValues(
-        facility.modelInputs,
+        mostRecentData,
         "population",
       );
 
@@ -332,7 +332,7 @@ function buildIncarceratedFacilitySummaryData(facility: Facility) {
         "deaths",
       );
       const mostRecentIncarceratedPopulation = getTotalIncarceratedValues(
-        facility.modelInputs,
+        mostRecentData,
         "population",
       );
 

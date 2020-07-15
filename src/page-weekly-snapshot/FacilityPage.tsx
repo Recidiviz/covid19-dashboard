@@ -3,7 +3,6 @@ import styled from "styled-components";
 
 import Colors, { MarkColors as markColors } from "../design-system/Colors";
 import Loading from "../design-system/Loading";
-import { PageContainer } from "../design-system/PageColumn";
 import ChartArea from "../impact-dashboard/ChartArea";
 import { useEpidemicModelState } from "../impact-dashboard/EpidemicModelContext";
 import {
