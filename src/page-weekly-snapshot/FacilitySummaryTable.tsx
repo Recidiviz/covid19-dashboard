@@ -290,14 +290,6 @@ function buildIncarceratedFacilitySummaryData(facility: Facility) {
   const incarceratedActiveCases =
     incarceratedCases - incarceratedRecoveredCases - incarceratedDeaths;
 
-  console.log(
-    facility.name,
-    incarceratedActiveCases,
-    incarceratedRecoveredCases,
-    incarceratedDeaths,
-    incarceratedPopulation,
-  );
-
   let incarceratedCasesDelta = {
     delta: 0,
     deltaDirection: "same",
@@ -340,14 +332,6 @@ function buildIncarceratedFacilitySummaryData(facility: Facility) {
         mostRecentIncarceratedCases -
         mostRecentIncarceratedRecoveredCases -
         mostRecentIncarceratedDeaths;
-
-      console.log(
-        facility.name,
-        mostRecentIncarceratedActiveCases,
-        mostRecentIncarceratedRecoveredCases,
-        mostRecentIncarceratedDeaths,
-        mostRecentIncarceratedPopulation,
-      );
 
       incarceratedCasesDelta = getDelta(
         mostRecentIncarceratedActiveCases,
