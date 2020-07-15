@@ -1,4 +1,13 @@
-import { get, omit, pick, sum, values } from "lodash";
+import {
+  get,
+  omit,
+  omitBy,
+  pick,
+  pickBy,
+  startsWith,
+  sum,
+  values,
+} from "lodash";
 import React from "react";
 import styled from "styled-components";
 
@@ -137,14 +146,20 @@ function makeSummaryColumns(facilitySummaryData: FacilitySummaryData) {
         )}
       </Column>
       <Column>
-        <BorderDiv marginRight={"0px"} />
-        Staff Population
-        <HorizontalRule />
+        {makeSummaryRow(
+          "Staff Population",
+          facilitySummaryData.staffData.staffPopulation,
+          facilitySummaryData.staffData.staffPopulationDeltaDirection,
+          facilitySummaryData.staffData.staffPopulationDelta,
+        )}
       </Column>
       <Column>
-        <BorderDiv marginRight={"0px"} />
-        Staff Cases
-        <HorizontalRule />
+        {makeSummaryRow(
+          "Staff Cases",
+          facilitySummaryData.staffData.staffCases,
+          facilitySummaryData.staffData.staffCasesDeltaDirection,
+          facilitySummaryData.staffData.staffCasesDelta,
+        )}
       </Column>
     </>
   );
@@ -163,6 +178,15 @@ function getTotalIncarceratedValues(modelInputs: ModelInputs, value: string) {
   return result;
 }
 
+function getTotalStaffValues(modelInputs: ModelInputs, value: string) {
+  let result = 0;
+  const valueKeys = get(VALUE_MAPPING, value);
+  const allData = pick(modelInputs, valueKeys);
+  const data = pickBy(allData, (value, key) => key.startsWith("staff"));
+  result += sum(values(data));
+  return result;
+}
+
 function getDelta(earlierData: number, currentData: number) {
   const delta = currentData - earlierData;
   const deltaDirection =
@@ -172,6 +196,83 @@ function getDelta(earlierData: number, currentData: number) {
     deltaDirection: deltaDirection,
   };
   return deltaData;
+}
+
+function buildStaffFacilitySummaryData(facility: Facility) {
+  const hasEarlierData = facility.modelVersions.length > 1;
+  const staffCases = getTotalStaffValues(facility.modelInputs, "cases");
+
+  const staffRecoveredCases = getTotalStaffValues(
+    facility.modelInputs,
+    "recovered",
+  );
+
+  const staffDeaths = getTotalStaffValues(facility.modelInputs, "deaths");
+
+  const staffPopulation = getTotalStaffValues(
+    facility.modelInputs,
+    "population",
+  );
+
+  const staffActiveCases = staffCases - staffRecoveredCases - staffDeaths;
+
+  let staffCasesDelta = {
+    delta: 0,
+    deltaDirection: "same",
+  } as DeltaData;
+
+  let staffPopulationDelta = {
+    delta: 0,
+    deltaDirection: "same",
+  } as DeltaData;
+
+  if (hasEarlierData) {
+    const currentDate = facility.updatedAt;
+    const mostRecentDate = findMostRecentDate(
+      currentDate,
+      facility.modelVersions,
+    );
+    const mostRecentData = findMatchingDay({
+      date: mostRecentDate,
+      facilityModelVersions: facility.modelVersions,
+    });
+    if (mostRecentData) {
+      const mostRecentStaffCases = getTotalStaffValues(mostRecentData, "cases");
+      const mostRecentStaffRecoveredCases = getTotalStaffValues(
+        mostRecentData,
+        "recovered",
+      );
+      const mostRecentStaffDeaths = getTotalStaffValues(
+        mostRecentData,
+        "deaths",
+      );
+      const mostRecentStaffPopulation = getTotalStaffValues(
+        facility.modelInputs,
+        "population",
+      );
+
+      const mostRecentStaffActiveCases =
+        mostRecentStaffCases -
+        mostRecentStaffRecoveredCases -
+        mostRecentStaffDeaths;
+
+      staffCasesDelta = getDelta(mostRecentStaffActiveCases, staffActiveCases);
+
+      staffPopulationDelta = getDelta(
+        mostRecentStaffPopulation,
+        staffPopulation,
+      );
+    }
+  }
+  const staffFacilitySummaryData: StaffFacilitySummaryData = {
+    staffPopulation: staffPopulation,
+    staffPopulationDelta: staffPopulationDelta.delta,
+    staffPopulationDeltaDirection: staffPopulationDelta.deltaDirection,
+    staffCases: staffActiveCases,
+    staffCasesDelta: staffCasesDelta.delta,
+    staffCasesDeltaDirection: staffCasesDelta.deltaDirection,
+  };
+  return staffFacilitySummaryData;
 }
 
 function buildIncarceratedFacilitySummaryData(facility: Facility) {
@@ -203,8 +304,10 @@ function buildIncarceratedFacilitySummaryData(facility: Facility) {
     deltaDirection: "same",
   } as DeltaData;
 
-  let incarceratedPopulationDelta = 0;
-  let incarceratedPopulationDeltaDirection = "same";
+  let incarceratedPopulationDelta = {
+    delta: 0,
+    deltaDirection: "same",
+  } as DeltaData;
 
   if (hasEarlierData) {
     const currentDate = facility.updatedAt;
@@ -238,25 +341,23 @@ function buildIncarceratedFacilitySummaryData(facility: Facility) {
         mostRecentIncarceratedCases -
         mostRecentIncarceratedRecoveredCases -
         mostRecentIncarceratedDeaths;
+
       incarceratedCasesDelta = getDelta(
         mostRecentIncarceratedActiveCases,
         incarceratedActiveCases,
       );
 
-      incarceratedPopulationDelta =
-        mostRecentIncarceratedPopulation - incarceratedPopulation;
-      incarceratedPopulationDeltaDirection =
-        incarceratedPopulationDelta > 0
-          ? "positive"
-          : incarceratedPopulationDelta < 0
-          ? "negative"
-          : "same";
+      incarceratedPopulationDelta = getDelta(
+        mostRecentIncarceratedPopulation,
+        incarceratedPopulation,
+      );
     }
   }
   const incarceratedFacilitySummaryData: IncarceratedFacilitySummaryData = {
     incarceratedPopulation: incarceratedPopulation,
-    incarceratedPopulationDelta: incarceratedPopulationDelta,
-    incarceratedPopulationDeltaDirection: incarceratedPopulationDeltaDirection,
+    incarceratedPopulationDelta: incarceratedPopulationDelta.delta,
+    incarceratedPopulationDeltaDirection:
+      incarceratedPopulationDelta.deltaDirection,
     incarceratedCases: incarceratedActiveCases,
     incarceratedCasesDelta: incarceratedCasesDelta.delta,
     incarceratedCasesDeltaDirection: incarceratedCasesDelta.deltaDirection,
@@ -271,9 +372,11 @@ const FacilitySummaryTable: React.FC<{
     facility,
   );
 
+  const staffSummaryData = buildStaffFacilitySummaryData(facility);
+
   const facilitySummaryData = {
     incarceratedData: incarceratedSummaryData,
-    staffData: {},
+    staffData: staffSummaryData,
   } as FacilitySummaryData;
 
   return (
