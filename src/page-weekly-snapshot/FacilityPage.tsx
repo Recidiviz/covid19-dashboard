@@ -1,12 +1,22 @@
-import { get } from "lodash";
+import { get, omit, pick, sum, values } from "lodash";
 import React from "react";
 import styled from "styled-components";
 
 import Colors, { MarkColors as markColors } from "../design-system/Colors";
 import Loading from "../design-system/Loading";
 import { Column, PageContainer } from "../design-system/PageColumn";
+import {
+  findMatchingDay,
+  findMostRecentDate,
+} from "../hooks/useAddCasesInputs";
 import ChartArea from "../impact-dashboard/ChartArea";
 import { useEpidemicModelState } from "../impact-dashboard/EpidemicModelContext";
+import {
+  caseBracketKeys,
+  deathBracketKeys,
+  incarceratedPopulationKeys,
+  recoveredBracketKeys,
+} from "../impact-dashboard/EpidemicModelContext";
 import {
   formatThousands,
   TableRow,
@@ -19,15 +29,22 @@ import { CurveData } from "../infection-model";
 import { RtData, RtError } from "../infection-model/rt";
 import { initialPublicCurveToggles } from "../page-multi-facility/curveToggles";
 import { useProjectionData } from "../page-multi-facility/projectionCurveHooks";
-import { Facility } from "../page-multi-facility/types";
+import { Facility, ModelInputs } from "../page-multi-facility/types";
 import SnapshotPage from "./SnapshotPage";
+
+const VALUE_MAPPING = {
+  cases: caseBracketKeys,
+  deaths: deathBracketKeys,
+  population: incarceratedPopulationKeys,
+  recovered: recoveredBracketKeys,
+};
 
 const DURATION = 21;
 
 const DELTA_DIRECTION_MAPPING = {
   positive: "↑ ",
   negative: "↓ ",
-  same: "-- ",
+  same: "↑ ",
 };
 
 const Heading = styled.div`
@@ -156,6 +173,12 @@ interface ProjectionProps {
   projectionData: CurveData | undefined;
 }
 
+interface FacilitySummaryData {
+  incarceratedCases: number;
+  incarceratedCasesDelta: number;
+  incarceratedCasesDeltaDirection: string;
+}
+
 const FacilityProjection: React.FC<ProjectionProps> = ({ projectionData }) => {
   return (
     <ChartArea
@@ -167,30 +190,43 @@ const FacilityProjection: React.FC<ProjectionProps> = ({ projectionData }) => {
   );
 };
 
-function makeSummaryColumns(
-  incarceratedData: TableRow[],
-  rateOfChange: string,
+function makeSummaryRow(
+  heading: string,
+  total: number,
+  deltaDirection: string,
+  delta: number,
 ) {
   return (
     <>
+      <BorderDiv marginRight={"0px"} />
+      {heading}
+      <HorizontalRule />
+      <TextContainer>
+        <Right>{formatThousands(total)}</Right>
+        <DeltaContainer>
+          <Delta deltaDirection={deltaDirection}>
+            {get(DELTA_DIRECTION_MAPPING, deltaDirection)}
+          </Delta>
+          <Left>{formatThousands(delta)}</Left>
+        </DeltaContainer>
+      </TextContainer>
+    </>
+  );
+}
+
+function makeSummaryColumns(facilitySummaryData: FacilitySummaryData) {
+  return (
+    <>
       <Column>
-        <BorderDiv marginRight={"0px"} />
-        Incarcerated Population
-        <HorizontalRule />
-        <TextContainer>
-          <Right>hi</Right>
-          <DeltaContainer>
-            <Delta deltaDirection={rateOfChange}>
-              {get(DELTA_DIRECTION_MAPPING, rateOfChange)}
-            </Delta>
-            <Left>there</Left>
-          </DeltaContainer>
-        </TextContainer>
+        {makeSummaryRow("Incarcerated Population", 15687, "positive", 25)}
       </Column>
       <Column>
-        <BorderDiv marginRight={"0px"} />
-        Incarcerated Cases
-        <HorizontalRule />
+        {makeSummaryRow(
+          "Incarcerated Cases",
+          facilitySummaryData.incarceratedCases,
+          facilitySummaryData.incarceratedCasesDeltaDirection,
+          facilitySummaryData.incarceratedCasesDelta,
+        )}
       </Column>
       <Column>
         <BorderDiv marginRight={"0px"} />
@@ -204,6 +240,26 @@ function makeSummaryColumns(
       </Column>
     </>
   );
+}
+
+// function getMostRecentTotalIncarceratedValues(facility: Facility, value: string) {
+
+// }
+
+function getTotalIncarceratedValues(modelInputs: ModelInputs, value: string) {
+  let result = 0;
+  const valueKeys = get(VALUE_MAPPING, value);
+  const data = omit(
+    pick(modelInputs, valueKeys),
+    "staffDeaths",
+    "staffRecovered",
+    "staffCases",
+  );
+  // if (keys(data).length > 0) {
+  //   hasData = true;
+  // }
+  result += sum(values(data));
+  return result;
 }
 
 interface Props {
@@ -220,11 +276,68 @@ const FacilityPage: React.FC<Props> = ({ facility, rtData }) => {
   );
   if (!projectionData) return <Loading />;
   const { incarcerated, staff } = projectionData;
-
-  console.log(facility);
-
   const incarceratedData = buildIncarceratedData(incarcerated);
   const staffData = buildStaffData({ staff, showHospitalizedRow: false });
+  const hasEarlierData = facility.modelVersions.length > 1;
+
+  const incarceratedCases = getTotalIncarceratedValues(
+    facility.modelInputs,
+    "cases",
+  );
+  const incarceratedRecoveredCases = getTotalIncarceratedValues(
+    facility.modelInputs,
+    "recovered",
+  );
+  const incarceratedDeaths = getTotalIncarceratedValues(
+    facility.modelInputs,
+    "deaths",
+  );
+  const incarceratedActiveCases =
+    incarceratedCases - incarceratedRecoveredCases - incarceratedDeaths;
+
+  let delta = 0;
+  let deltaDirection = "same";
+
+  if (hasEarlierData) {
+    const currentDate = facility.updatedAt;
+    const mostRecentDate = findMostRecentDate(
+      currentDate,
+      facility.modelVersions,
+    );
+    const mostRecentData = findMatchingDay({
+      date: mostRecentDate,
+      facilityModelVersions: facility.modelVersions,
+    });
+    if (mostRecentData) {
+      console.log(facility.modelInputs);
+      console.log(mostRecentData);
+      const mostRecentIncarceratedCases = getTotalIncarceratedValues(
+        mostRecentData,
+        "cases",
+      );
+      const mostRecentIncarceratedRecoveredCases = getTotalIncarceratedValues(
+        mostRecentData,
+        "recovered",
+      );
+      const mostRecentIncarceratedDeaths = getTotalIncarceratedValues(
+        mostRecentData,
+        "deaths",
+      );
+      const mostRecentIncarceratedActiveCases =
+        mostRecentIncarceratedCases -
+        mostRecentIncarceratedRecoveredCases -
+        mostRecentIncarceratedDeaths;
+      console.log(incarceratedActiveCases, mostRecentIncarceratedActiveCases);
+      delta = mostRecentIncarceratedActiveCases - incarceratedActiveCases;
+      deltaDirection = delta > 0 ? "positive" : delta < 0 ? "negative" : "same";
+    }
+  }
+  const facilitySummaryData: FacilitySummaryData = {
+    incarceratedCases: incarceratedActiveCases,
+    incarceratedCasesDelta: delta,
+    incarceratedCasesDeltaDirection: deltaDirection,
+  };
+
   return (
     <SnapshotPage header={facility.name}>
       Facility Summary
@@ -232,7 +345,7 @@ const FacilityPage: React.FC<Props> = ({ facility, rtData }) => {
         <ProjectionContainer>
           <HorizontalRule />
           <PageContainer>
-            {makeSummaryColumns(incarceratedData, "positive")}
+            {makeSummaryColumns(facilitySummaryData)}
           </PageContainer>
           <HorizontalRule />
         </ProjectionContainer>
