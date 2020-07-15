@@ -22,7 +22,6 @@ export function findMostRecentDate(
   facilityModelVersions: ModelInputs[] | undefined,
 ) {
   let mostRecentDate = observedAtDate;
-  console.log(mostRecentDate);
   if (facilityModelVersions) {
     // create array of dates with observed data at a given facility
     const facilityObservedAtDates = facilityModelVersions.map(
@@ -34,7 +33,6 @@ export function findMostRecentDate(
     const earlierDates = facilityObservedAtDates?.filter(function (date) {
       return startOfDay(date) < startOfDay(observedAtDate);
     });
-    console.log(earlierDates);
     // if there is data for prior dates, use the most recent one, otherwise use
     // the next forward-looking date that we have for the facility
     if (earlierDates && earlierDates.length > 0) {

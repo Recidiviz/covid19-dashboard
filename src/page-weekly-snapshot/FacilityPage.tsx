@@ -150,9 +150,7 @@ const FacilityPage: React.FC<Props> = ({ facility, rtData }) => {
       <ProjectionSection>
         <ProjectionContainer>
           <HorizontalRule />
-          <PageContainer>
-            <FacilitySummaryTable facility={facility} />
-          </PageContainer>
+          <FacilitySummaryTable facility={facility} />
           <HorizontalRule />
         </ProjectionContainer>
       </ProjectionSection>

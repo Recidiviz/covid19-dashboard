@@ -64,7 +64,7 @@ const Delta = styled.div<{ deltaDirection?: string }>`
       : "#c8d3d3"};
 `;
 
-interface FacilitySummaryData {
+interface IncarceratedFacilitySummaryData {
   incarceratedPopulation: number;
   incarceratedPopulationDelta: number;
   incarceratedPopulationDeltaDirection: string;
@@ -72,6 +72,26 @@ interface FacilitySummaryData {
   incarceratedCasesDelta: number;
   incarceratedCasesDeltaDirection: string;
 }
+
+interface StaffFacilitySummaryData {
+  staffPopulation: number;
+  staffPopulationDelta: number;
+  staffPopulationDeltaDirection: string;
+  staffCases: number;
+  staffCasesDelta: number;
+  staffCasesDeltaDirection: string;
+}
+
+interface FacilitySummaryData {
+  incarceratedData: IncarceratedFacilitySummaryData;
+  staffData: StaffFacilitySummaryData;
+}
+
+interface DeltaData {
+  delta: number;
+  deltaDirection: string;
+}
+
 function makeSummaryRow(
   heading: string,
   total: number,
@@ -100,14 +120,20 @@ function makeSummaryColumns(facilitySummaryData: FacilitySummaryData) {
   return (
     <>
       <Column>
-        {makeSummaryRow("Incarcerated Population", 15687, "positive", 25)}
+        {makeSummaryRow(
+          "Incarcerated Population",
+          facilitySummaryData.incarceratedData.incarceratedPopulation,
+          facilitySummaryData.incarceratedData
+            .incarceratedPopulationDeltaDirection,
+          facilitySummaryData.incarceratedData.incarceratedPopulationDelta,
+        )}
       </Column>
       <Column>
         {makeSummaryRow(
           "Incarcerated Cases",
-          facilitySummaryData.incarceratedCases,
-          facilitySummaryData.incarceratedCasesDeltaDirection,
-          facilitySummaryData.incarceratedCasesDelta,
+          facilitySummaryData.incarceratedData.incarceratedCases,
+          facilitySummaryData.incarceratedData.incarceratedCasesDeltaDirection,
+          facilitySummaryData.incarceratedData.incarceratedCasesDelta,
         )}
       </Column>
       <Column>
@@ -137,7 +163,18 @@ function getTotalIncarceratedValues(modelInputs: ModelInputs, value: string) {
   return result;
 }
 
-function buildFacilitySummaryData(facility: Facility) {
+function getDelta(earlierData: number, currentData: number) {
+  const delta = currentData - earlierData;
+  const deltaDirection =
+    delta > 0 ? "positive" : delta < 0 ? "negative" : "same";
+  const deltaData: DeltaData = {
+    delta: Math.abs(delta),
+    deltaDirection: deltaDirection,
+  };
+  return deltaData;
+}
+
+function buildIncarceratedFacilitySummaryData(facility: Facility) {
   const hasEarlierData = facility.modelVersions.length > 1;
 
   const incarceratedCases = getTotalIncarceratedValues(
@@ -161,8 +198,13 @@ function buildFacilitySummaryData(facility: Facility) {
   const incarceratedActiveCases =
     incarceratedCases - incarceratedRecoveredCases - incarceratedDeaths;
 
-  let delta = 0;
-  let deltaDirection = "same";
+  let incarceratedCasesDelta = {
+    delta: 0,
+    deltaDirection: "same",
+  } as DeltaData;
+
+  let incarceratedPopulationDelta = 0;
+  let incarceratedPopulationDeltaDirection = "same";
 
   if (hasEarlierData) {
     const currentDate = facility.updatedAt;
@@ -187,32 +229,56 @@ function buildFacilitySummaryData(facility: Facility) {
         mostRecentData,
         "deaths",
       );
+      const mostRecentIncarceratedPopulation = getTotalIncarceratedValues(
+        facility.modelInputs,
+        "population",
+      );
+
       const mostRecentIncarceratedActiveCases =
         mostRecentIncarceratedCases -
         mostRecentIncarceratedRecoveredCases -
         mostRecentIncarceratedDeaths;
-      console.log(incarceratedActiveCases, mostRecentIncarceratedActiveCases);
-      delta = mostRecentIncarceratedActiveCases - incarceratedActiveCases;
-      deltaDirection = delta > 0 ? "positive" : delta < 0 ? "negative" : "same";
+      incarceratedCasesDelta = getDelta(
+        mostRecentIncarceratedActiveCases,
+        incarceratedActiveCases,
+      );
+
+      incarceratedPopulationDelta =
+        mostRecentIncarceratedPopulation - incarceratedPopulation;
+      incarceratedPopulationDeltaDirection =
+        incarceratedPopulationDelta > 0
+          ? "positive"
+          : incarceratedPopulationDelta < 0
+          ? "negative"
+          : "same";
     }
   }
-  const facilitySummaryData: FacilitySummaryData = {
+  const incarceratedFacilitySummaryData: IncarceratedFacilitySummaryData = {
     incarceratedPopulation: incarceratedPopulation,
-    incarceratedPopulationDelta: 0,
-    incarceratedPopulationDeltaDirection: "same",
+    incarceratedPopulationDelta: incarceratedPopulationDelta,
+    incarceratedPopulationDeltaDirection: incarceratedPopulationDeltaDirection,
     incarceratedCases: incarceratedActiveCases,
-    incarceratedCasesDelta: delta,
-    incarceratedCasesDeltaDirection: deltaDirection,
+    incarceratedCasesDelta: incarceratedCasesDelta.delta,
+    incarceratedCasesDeltaDirection: incarceratedCasesDelta.deltaDirection,
   };
-  return facilitySummaryData;
+  return incarceratedFacilitySummaryData;
 }
 
 const FacilitySummaryTable: React.FC<{
   facility: Facility;
 }> = ({ facility }) => {
-  const facilitySummaryData = buildFacilitySummaryData(facility);
+  const incarceratedSummaryData = buildIncarceratedFacilitySummaryData(
+    facility,
+  );
 
-  return <>{makeSummaryColumns(facilitySummaryData)}</>;
+  const facilitySummaryData = {
+    incarceratedData: incarceratedSummaryData,
+    staffData: {},
+  } as FacilitySummaryData;
+
+  return (
+    <PageContainer>{makeSummaryColumns(facilitySummaryData)}</PageContainer>
+  );
 };
 
 export default FacilitySummaryTable;
