@@ -1,13 +1,4 @@
-import {
-  get,
-  omit,
-  omitBy,
-  pick,
-  pickBy,
-  startsWith,
-  sum,
-  values,
-} from "lodash";
+import { get, omit, pick, pickBy, sum, values } from "lodash";
 import React from "react";
 import styled from "styled-components";
 
@@ -19,7 +10,7 @@ import {
 import {
   caseBracketKeys,
   deathBracketKeys,
-  incarceratedPopulationKeys,
+  populationKeys,
   recoveredBracketKeys,
 } from "../impact-dashboard/EpidemicModelContext";
 import { formatThousands } from "../impact-dashboard/ImpactProjectionTable";
@@ -29,7 +20,7 @@ import { BorderDiv, HorizontalRule } from "./FacilityPage";
 const VALUE_MAPPING = {
   cases: caseBracketKeys,
   deaths: deathBracketKeys,
-  population: incarceratedPopulationKeys,
+  population: populationKeys,
   recovered: recoveredBracketKeys,
 };
 
@@ -299,6 +290,14 @@ function buildIncarceratedFacilitySummaryData(facility: Facility) {
   const incarceratedActiveCases =
     incarceratedCases - incarceratedRecoveredCases - incarceratedDeaths;
 
+  console.log(
+    facility.name,
+    incarceratedActiveCases,
+    incarceratedRecoveredCases,
+    incarceratedDeaths,
+    incarceratedPopulation,
+  );
+
   let incarceratedCasesDelta = {
     delta: 0,
     deltaDirection: "same",
@@ -341,6 +340,14 @@ function buildIncarceratedFacilitySummaryData(facility: Facility) {
         mostRecentIncarceratedCases -
         mostRecentIncarceratedRecoveredCases -
         mostRecentIncarceratedDeaths;
+
+      console.log(
+        facility.name,
+        mostRecentIncarceratedActiveCases,
+        mostRecentIncarceratedRecoveredCases,
+        mostRecentIncarceratedDeaths,
+        mostRecentIncarceratedPopulation,
+      );
 
       incarceratedCasesDelta = getDelta(
         mostRecentIncarceratedActiveCases,
