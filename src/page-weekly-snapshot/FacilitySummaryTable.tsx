@@ -115,69 +115,64 @@ function makeSummaryRow(total: number, deltaDirection: string, delta: number) {
 
 function makeSummaryColumns(facilitySummaryData: FacilitySummaryData) {
   return (
-    <>
-      <tr>
-        <td>
-          {makeSummaryRow(
-            facilitySummaryData.incarceratedData.incarceratedPopulation,
-            facilitySummaryData.incarceratedData
-              .incarceratedPopulationDeltaDirection,
-            facilitySummaryData.incarceratedData.incarceratedPopulationDelta,
-          )}
-        </td>
-        <td>
-          {makeSummaryRow(
-            facilitySummaryData.incarceratedData.incarceratedCases,
-            facilitySummaryData.incarceratedData
-              .incarceratedCasesDeltaDirection,
-            facilitySummaryData.incarceratedData.incarceratedCasesDelta,
-          )}
-        </td>
-        <td>
-          {makeSummaryRow(
-            facilitySummaryData.staffData.staffPopulation,
-            facilitySummaryData.staffData.staffPopulationDeltaDirection,
-            facilitySummaryData.staffData.staffPopulationDelta,
-          )}
-        </td>
-        <td>
-          {makeSummaryRow(
-            facilitySummaryData.staffData.staffCases,
-            facilitySummaryData.staffData.staffCasesDeltaDirection,
-            facilitySummaryData.staffData.staffCasesDelta,
-          )}
-        </td>
-      </tr>
-    </>
+    <tr>
+      <td>
+        {makeSummaryRow(
+          facilitySummaryData.incarceratedData.incarceratedPopulation,
+          facilitySummaryData.incarceratedData
+            .incarceratedPopulationDeltaDirection,
+          facilitySummaryData.incarceratedData.incarceratedPopulationDelta,
+        )}
+      </td>
+      <td>
+        {makeSummaryRow(
+          facilitySummaryData.incarceratedData.incarceratedCases,
+          facilitySummaryData.incarceratedData.incarceratedCasesDeltaDirection,
+          facilitySummaryData.incarceratedData.incarceratedCasesDelta,
+        )}
+      </td>
+      <td>
+        {makeSummaryRow(
+          facilitySummaryData.staffData.staffPopulation,
+          facilitySummaryData.staffData.staffPopulationDeltaDirection,
+          facilitySummaryData.staffData.staffPopulationDelta,
+        )}
+      </td>
+      <td>
+        {makeSummaryRow(
+          facilitySummaryData.staffData.staffCases,
+          facilitySummaryData.staffData.staffCasesDeltaDirection,
+          facilitySummaryData.staffData.staffCasesDelta,
+        )}
+      </td>
+    </tr>
   );
 }
 
 function makeTableHeadings() {
   return (
-    <>
-      <tr>
-        <TableHeading>
-          <BorderDiv marginRight={COLUMN_SPACING} />
-          Incarcerated population
-          <HorizontalRule marginRight={COLUMN_SPACING} />
-        </TableHeading>
-        <TableHeading>
-          <BorderDiv marginRight={COLUMN_SPACING} />
-          Incarcerated cases
-          <HorizontalRule marginRight={COLUMN_SPACING} />
-        </TableHeading>
-        <TableHeading>
-          <BorderDiv marginRight={COLUMN_SPACING} />
-          Staff population
-          <HorizontalRule marginRight={COLUMN_SPACING} />
-        </TableHeading>
-        <TableHeading>
-          <BorderDiv marginRight={COLUMN_SPACING} />
-          Staff cases
-          <HorizontalRule marginRight={COLUMN_SPACING} />
-        </TableHeading>
-      </tr>
-    </>
+    <tr>
+      <TableHeading>
+        <BorderDiv marginRight={COLUMN_SPACING} />
+        Incarcerated population
+        <HorizontalRule marginRight={COLUMN_SPACING} />
+      </TableHeading>
+      <TableHeading>
+        <BorderDiv marginRight={COLUMN_SPACING} />
+        Incarcerated cases
+        <HorizontalRule marginRight={COLUMN_SPACING} />
+      </TableHeading>
+      <TableHeading>
+        <BorderDiv marginRight={COLUMN_SPACING} />
+        Staff population
+        <HorizontalRule marginRight={COLUMN_SPACING} />
+      </TableHeading>
+      <TableHeading>
+        <BorderDiv marginRight={COLUMN_SPACING} />
+        Staff cases
+        <HorizontalRule marginRight={COLUMN_SPACING} />
+      </TableHeading>
+    </tr>
   );
 }
 
