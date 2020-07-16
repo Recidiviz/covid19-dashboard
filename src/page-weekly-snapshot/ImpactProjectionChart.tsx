@@ -135,12 +135,18 @@ const ImpactProjectionChart: React.FC = () => {
     size: [450, 450],
     yExtent: { extent: [0], includeAnnotations: false },
     margin: { left: 60, bottom: 60, right: 60, top: 10 },
-    lineStyle: ({ key }: { key: string }) => ({
-      stroke: lineColors[key],
-      strokeWidth: 2,
-      fill: lineColors[key],
-      fillOpacity: 1,
-    }),
+    lineStyle: ({ key }: { key: string }) => {
+      const baseStyle = {
+        stroke: lineColors[key],
+        strokeWidth: 2,
+        fill: lineColors[key],
+        fillOpacity: 1,
+      };
+      if (key === "projectedCases" || key === "projectedFatalities") {
+        return { ...baseStyle, strokeDasharray: "5px" };
+      }
+      return baseStyle;
+    },
     axes: [
       {
         orient: "bottom",
