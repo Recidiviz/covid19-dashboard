@@ -1,7 +1,8 @@
-import { get, omit, pick, pickBy, sum, values } from "lodash";
+import { get, omit, pick, pickBy, startsWith, sum, values } from "lodash";
 import React from "react";
 import styled from "styled-components";
 
+import Colors from "../design-system/Colors";
 import { Column, PageContainer } from "../design-system/PageColumn";
 import {
   findMatchingDay,
@@ -58,10 +59,10 @@ const Left = styled.div`
 const Delta = styled.div<{ deltaDirection?: string }>`
   color: ${(props) =>
     props.deltaDirection == "positive"
-      ? "#cb2500"
+      ? Colors.red
       : props.deltaDirection == "negative"
-      ? "#006c67"
-      : "#c8d3d3"};
+      ? Colors.green
+      : Colors.gray};
 `;
 
 interface IncarceratedFacilitySummaryData {
@@ -159,12 +160,8 @@ function makeSummaryColumns(facilitySummaryData: FacilitySummaryData) {
 function getTotalIncarceratedValues(modelInputs: ModelInputs, value: string) {
   let result = 0;
   const valueKeys = get(VALUE_MAPPING, value);
-  const data = omit(
-    pick(modelInputs, valueKeys),
-    "staffDeaths",
-    "staffRecovered",
-    "staffCases",
-  );
+  const allData = pick(modelInputs, valueKeys);
+  const data = pickBy(allData, (value, key) => key.startsWith("age"));
   result += sum(values(data));
   return result;
 }
@@ -222,6 +219,7 @@ function buildStaffFacilitySummaryData(facility: Facility) {
     const mostRecentDate = findMostRecentDate(
       currentDate,
       facility.modelVersions,
+      false,
     );
     const mostRecentData = findMatchingDay({
       date: mostRecentDate,
@@ -305,6 +303,7 @@ function buildIncarceratedFacilitySummaryData(facility: Facility) {
     const mostRecentDate = findMostRecentDate(
       currentDate,
       facility.modelVersions,
+      false,
     );
     const mostRecentData = findMatchingDay({
       date: mostRecentDate,
