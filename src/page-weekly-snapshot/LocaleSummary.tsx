@@ -19,6 +19,7 @@ import {
   NYTStateRecord,
   useNYTData,
 } from "./NYTDataProvider";
+import { UPDATE_STATE_NAME, useWeeklyReport } from "./weekly-report-context";
 
 const stateNamesFilter = (key: string) =>
   !["US Total", "US Federal Prisons"].includes(key);
@@ -94,6 +95,7 @@ function getCountyIncreasePerCapita(
 }
 
 export default function LocaleSummary() {
+  const { dispatch } = useWeeklyReport();
   const { data, loading: nytLoading } = useNYTData();
   const [selectedState, setSelectedState] = useState<NYTData | undefined>();
   const [sevenDayDiffInCases, setSevenDayDiffInCases] = useState<
@@ -107,6 +109,9 @@ export default function LocaleSummary() {
   const stateNames = Array.from(localeData.keys()).filter(stateNamesFilter);
   const handleOnChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const stateName = event.target.value;
+
+    dispatch({ type: UPDATE_STATE_NAME, payload: stateName });
+
     if (!nytLoading) {
       setSelectedState(data[stateName]);
     }

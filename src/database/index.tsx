@@ -273,6 +273,62 @@ export const getScenarios = async (): Promise<Scenario[]> => {
   }
 };
 
+export const getSharedBaselineScenarios = async (): Promise<Scenario[]> => {
+  try {
+    const db = await getDb();
+
+    const results = await db
+      .collection(scenariosCollectionId)
+      .where(`roles.${currentUserId()}`, "in", ["viewer"])
+      .where("baseline", "==", true)
+      .get();
+
+    const sharedBaselineScenarios = results.docs.map((doc) => {
+      return buildScenario(doc);
+    });
+
+    return sharedBaselineScenarios;
+  } catch (error) {
+    console.error(
+      `Encountered error while attempting to retrieve shared scenarios:`,
+    );
+    console.error(error);
+
+    return [];
+  }
+};
+
+export const getScenariosByStateName = async (
+  scenarios: Scenario[],
+  stateName: string,
+): Promise<Scenario[]> => {
+  const db = await getDb();
+  const results = await Promise.all(
+    scenarios.map(async (scenario: Scenario) => {
+      const facilitiesWithStateName = await db
+        .collection(scenariosCollectionId)
+        .doc(scenario.id)
+        .collection(facilitiesCollectionId)
+        .where("modelInputs.stateName", "==", stateName)
+        .get();
+      // Since some of our facilities still have stateCode properties
+      // we need to check for both query results.
+      const facilitiesWithStateCode = await db
+        .collection(scenariosCollectionId)
+        .doc(scenario.id)
+        .collection(facilitiesCollectionId)
+        .where("modelInputs.stateCode", "==", stateName)
+        .get();
+      return (
+        (facilitiesWithStateName.docs.length > 0 ||
+          facilitiesWithStateCode.docs.length > 0) &&
+        scenario
+      );
+    }),
+  );
+  return results.filter((result): result is Scenario => !!result);
+};
+
 export const saveScenario = async (scenario: any): Promise<Scenario | null> => {
   try {
     const db = await getDb();

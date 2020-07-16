@@ -20,6 +20,7 @@ const BaseColors = {
   orange: "#e76f00",
   red: "#ff464a",
   darkRed: "#cb2500",
+  tamarillo: "#910D12",
   burgundy: "#943300",
   lightBlue: "#33b6ff",
   teal: "#25b894",
@@ -39,11 +40,12 @@ const BaseColors = {
   slate: "#e9ebeb",
   lightGray: "#e1e3e3",
   white: "#fff",
-  black: "#000",
+  black: "#000000",
 };
 
 const Colors = {
   ...BaseColors,
+  black50: hexAlpha(BaseColors.black, 0.5),
   opacityForest: hexAlpha(BaseColors.forest, 0.7),
   opacityGray: hexAlpha(BaseColors.forestGray, 0.2),
   forest50: hexAlpha(BaseColors.forest, 0.5),

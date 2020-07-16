@@ -4,6 +4,7 @@ import {
   ReferenceFacilityMapping,
 } from "../FacilitiesContext";
 import {
+  CLEAR_FACILITIES,
   CREATE_OR_UPDATE_FACILITY,
   DESELECT_FACILITY,
   RECEIVE_FACILITIES,
@@ -33,7 +34,7 @@ export type FacilitiesActions =
   | REQUEST_ACTIONS
   | ERROR_ACTIONS
   | RECEIVE_REFERENCE_FACILITIES_ACTION
-  | CLEAR_REFERENCE_FACILITIES_ACTION
+  | CLEAR_ACTIONS
   | DESELECT_FACILITY_ACTION;
 
 export type FACILITY_ACTION = {
@@ -73,6 +74,6 @@ export type RECEIVE_REFERENCE_FACILITIES_ACTION = {
   payload: ReferenceFacilityMapping;
 };
 
-export type CLEAR_REFERENCE_FACILITIES_ACTION = {
-  type: typeof CLEAR_REFERENCE_FACILITIES;
+export type CLEAR_ACTIONS = {
+  type: typeof CLEAR_REFERENCE_FACILITIES | typeof CLEAR_FACILITIES;
 };

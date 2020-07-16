@@ -5,6 +5,7 @@ import AuthWall from "../auth/AuthWall";
 import useAdminUser from "../hooks/useAdminUser";
 import WeeklySnapshotPage from "../page-weekly-snapshot";
 import { NYTDataProvider } from "../page-weekly-snapshot/NYTDataProvider";
+import { WeeklyReportProvider } from "../page-weekly-snapshot/weekly-report-context";
 import PageInfo from "../site-metadata/PageInfo";
 
 const GlobalStyleWhite = createGlobalStyle`
@@ -25,9 +26,11 @@ export default () => {
           <PageInfo title="Generate State-level Weekly Snapshot" />
           <GlobalStyleWhite />
           <AuthWall>
-            <NYTDataProvider>
-              <WeeklySnapshotPage />
-            </NYTDataProvider>
+            <WeeklyReportProvider>
+              <NYTDataProvider>
+                <WeeklySnapshotPage />
+              </NYTDataProvider>
+            </WeeklyReportProvider>
           </AuthWall>
         </>
       ) : (
