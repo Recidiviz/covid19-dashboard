@@ -47,7 +47,7 @@ const TableHeadingCell = styled.td`
 export const BorderDiv = styled.div<{ marginRight?: string }>`
   border-top: 1px solid ${Colors.black};
   margin-right: ${(props) => props.marginRight || "5px"};
-  margin-bottom: 5px;
+  margin-bottom: 10px;
 `;
 
 const ProjectionSection = styled.div`
@@ -63,9 +63,10 @@ const ProjectionContainer = styled.div`
   }
 `;
 
-export const HorizontalRule = styled.hr`
+export const HorizontalRule = styled.hr<{ marginRight?: string }>`
   border-color: ${Colors.opacityGray};
-  margin: 10px 0;
+  margin-top: 10px;
+  margin-right: ${(props) => props.marginRight || "0px"};
 `;
 
 const TableCell = styled.td<{ label?: boolean }>`

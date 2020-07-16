@@ -1,9 +1,8 @@
-import { get, omit, pick, pickBy, startsWith, sum, values } from "lodash";
+import { get, pick, pickBy, sum, values } from "lodash";
 import React from "react";
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
-import { Column, PageContainer } from "../design-system/PageColumn";
 import {
   findMatchingDay,
   findMostRecentDate,
@@ -16,7 +15,7 @@ import {
 } from "../impact-dashboard/EpidemicModelContext";
 import { formatThousands } from "../impact-dashboard/ImpactProjectionTable";
 import { Facility, ModelInputs } from "../page-multi-facility/types";
-import { BorderDiv, HorizontalRule } from "./FacilityPage";
+import { BorderDiv, HorizontalRule, Table } from "./FacilityPage";
 
 const VALUE_MAPPING = {
   cases: caseBracketKeys,
@@ -31,11 +30,14 @@ const DELTA_DIRECTION_MAPPING = {
   same: "↑ ",
 };
 
+const COLUMN_SPACING = "20px";
+
 const TextContainer = styled.div`
   width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: baseline;
+  padding-top: 10px;
 `;
 
 const Right = styled.div`
@@ -53,6 +55,7 @@ const Left = styled.div`
   text-align: left;
   font-family: "Libre Franklin";
   font-size: 11px;
+  margin-right: ${COLUMN_SPACING};
 `;
 
 const Delta = styled.div<{ deltaDirection?: string }>`
@@ -92,66 +95,84 @@ interface DeltaData {
   deltaDirection: string;
 }
 
-function makeSummaryRow(
-  heading: string,
-  total: number,
-  deltaDirection: string,
-  delta: number,
-) {
+function makeSummaryRow(total: number, deltaDirection: string, delta: number) {
   return (
-    <>
-      <BorderDiv marginRight={"0px"} />
-      {heading}
-      <HorizontalRule />
-      <TextContainer>
-        <Right>{formatThousands(total)}</Right>
-        <DeltaContainer>
-          <Delta deltaDirection={deltaDirection}>
-            {get(DELTA_DIRECTION_MAPPING, deltaDirection)}
-          </Delta>
-          <Left>{formatThousands(delta)}</Left>
-        </DeltaContainer>
-      </TextContainer>
-    </>
+    <TextContainer>
+      <Right>{formatThousands(total)}</Right>
+      <DeltaContainer>
+        <Delta deltaDirection={deltaDirection}>
+          {get(DELTA_DIRECTION_MAPPING, deltaDirection)}
+        </Delta>
+        <Left>{formatThousands(delta)}</Left>
+      </DeltaContainer>
+    </TextContainer>
   );
 }
 
 function makeSummaryColumns(facilitySummaryData: FacilitySummaryData) {
   return (
     <>
-      <Column>
-        {makeSummaryRow(
-          "Incarcerated Population",
-          facilitySummaryData.incarceratedData.incarceratedPopulation,
-          facilitySummaryData.incarceratedData
-            .incarceratedPopulationDeltaDirection,
-          facilitySummaryData.incarceratedData.incarceratedPopulationDelta,
-        )}
-      </Column>
-      <Column>
-        {makeSummaryRow(
-          "Incarcerated Cases",
-          facilitySummaryData.incarceratedData.incarceratedCases,
-          facilitySummaryData.incarceratedData.incarceratedCasesDeltaDirection,
-          facilitySummaryData.incarceratedData.incarceratedCasesDelta,
-        )}
-      </Column>
-      <Column>
-        {makeSummaryRow(
-          "Staff Population",
-          facilitySummaryData.staffData.staffPopulation,
-          facilitySummaryData.staffData.staffPopulationDeltaDirection,
-          facilitySummaryData.staffData.staffPopulationDelta,
-        )}
-      </Column>
-      <Column>
-        {makeSummaryRow(
-          "Staff Cases",
-          facilitySummaryData.staffData.staffCases,
-          facilitySummaryData.staffData.staffCasesDeltaDirection,
-          facilitySummaryData.staffData.staffCasesDelta,
-        )}
-      </Column>
+      <tr>
+        <td>
+          {makeSummaryRow(
+            facilitySummaryData.incarceratedData.incarceratedPopulation,
+            facilitySummaryData.incarceratedData
+              .incarceratedPopulationDeltaDirection,
+            facilitySummaryData.incarceratedData.incarceratedPopulationDelta,
+          )}
+        </td>
+        <td>
+          {makeSummaryRow(
+            facilitySummaryData.incarceratedData.incarceratedCases,
+            facilitySummaryData.incarceratedData
+              .incarceratedCasesDeltaDirection,
+            facilitySummaryData.incarceratedData.incarceratedCasesDelta,
+          )}
+        </td>
+        <td>
+          {makeSummaryRow(
+            facilitySummaryData.staffData.staffPopulation,
+            facilitySummaryData.staffData.staffPopulationDeltaDirection,
+            facilitySummaryData.staffData.staffPopulationDelta,
+          )}
+        </td>
+        <td>
+          {makeSummaryRow(
+            facilitySummaryData.staffData.staffCases,
+            facilitySummaryData.staffData.staffCasesDeltaDirection,
+            facilitySummaryData.staffData.staffCasesDelta,
+          )}
+        </td>
+      </tr>
+    </>
+  );
+}
+
+function makeTableHeadings() {
+  return (
+    <>
+      <tr>
+        <th>
+          <BorderDiv marginRight={COLUMN_SPACING} />
+          Incarcerated population
+          <HorizontalRule marginRight={COLUMN_SPACING} />
+        </th>
+        <th>
+          <BorderDiv marginRight={COLUMN_SPACING} />
+          Incarcerated cases
+          <HorizontalRule marginRight={COLUMN_SPACING} />
+        </th>
+        <th>
+          <BorderDiv marginRight={COLUMN_SPACING} />
+          Staff population
+          <HorizontalRule marginRight={COLUMN_SPACING} />
+        </th>
+        <th>
+          <BorderDiv marginRight={COLUMN_SPACING} />
+          Staff cases
+          <HorizontalRule marginRight={COLUMN_SPACING} />
+        </th>
+      </tr>
     </>
   );
 }
@@ -364,7 +385,10 @@ const FacilitySummaryTable: React.FC<{
   } as FacilitySummaryData;
 
   return (
-    <PageContainer>{makeSummaryColumns(facilitySummaryData)}</PageContainer>
+    <Table>
+      <thead>{makeTableHeadings()}</thead>
+      <tbody>{makeSummaryColumns(facilitySummaryData)}</tbody>
+    </Table>
   );
 };
 
