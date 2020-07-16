@@ -187,9 +187,9 @@ function getActiveCases(
   deaths: number,
 ) {
   if (totalCases <= recoveredCases + deaths) {
-    return totalCases - recoveredCases - deaths;
+    return totalCases;
   }
-  return totalCases;
+  return totalCases - recoveredCases - deaths;
 }
 
 function getTotalValues(
