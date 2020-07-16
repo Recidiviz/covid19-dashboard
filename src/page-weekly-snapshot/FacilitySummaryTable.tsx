@@ -181,6 +181,17 @@ function makeTableHeadings() {
   );
 }
 
+function getActiveCases(
+  totalCases: number,
+  recoveredCases: number,
+  deaths: number,
+) {
+  if (totalCases <= recoveredCases + deaths) {
+    return totalCases - recoveredCases - deaths;
+  }
+  return totalCases;
+}
+
 function getTotalValues(
   modelInputs: ModelInputs,
   value: string,
@@ -227,7 +238,11 @@ function buildStaffFacilitySummaryData(
     "staff",
   );
 
-  const staffActiveCases = staffCases - staffRecoveredCases - staffDeaths;
+  const staffActiveCases = getActiveCases(
+    staffCases,
+    staffRecoveredCases,
+    staffDeaths,
+  );
 
   let staffCasesDelta = {
     delta: 0,
@@ -262,10 +277,11 @@ function buildStaffFacilitySummaryData(
       "staff",
     );
 
-    const mostRecentStaffActiveCases =
-      mostRecentStaffCases -
-      mostRecentStaffRecoveredCases -
-      mostRecentStaffDeaths;
+    const mostRecentStaffActiveCases = getActiveCases(
+      mostRecentStaffCases,
+      mostRecentStaffRecoveredCases,
+      mostRecentStaffDeaths,
+    );
 
     staffCasesDelta = getDelta(mostRecentStaffActiveCases, staffActiveCases);
 
@@ -299,8 +315,11 @@ function buildIncarceratedFacilitySummaryData(
     "population",
   );
 
-  const incarceratedActiveCases =
-    incarceratedCases - incarceratedRecoveredCases - incarceratedDeaths;
+  const incarceratedActiveCases = getActiveCases(
+    incarceratedCases,
+    incarceratedRecoveredCases,
+    incarceratedDeaths,
+  );
 
   let incarceratedCasesDelta = {
     delta: 0,
@@ -327,10 +346,11 @@ function buildIncarceratedFacilitySummaryData(
       "population",
     );
 
-    const mostRecentIncarceratedActiveCases =
-      mostRecentIncarceratedCases -
-      mostRecentIncarceratedRecoveredCases -
-      mostRecentIncarceratedDeaths;
+    const mostRecentIncarceratedActiveCases = getActiveCases(
+      mostRecentIncarceratedCases,
+      mostRecentIncarceratedRecoveredCases,
+      mostRecentIncarceratedDeaths,
+    );
 
     incarceratedCasesDelta = getDelta(
       mostRecentIncarceratedActiveCases,
