@@ -58,6 +58,10 @@ const Left = styled.div`
   margin-right: ${COLUMN_SPACING};
 `;
 
+const TableHeading = styled.th`
+  width 25%;
+`;
+
 const Delta = styled.div<{ deltaDirection?: string }>`
   color: ${(props) =>
     props.deltaDirection == "positive"
@@ -152,26 +156,26 @@ function makeTableHeadings() {
   return (
     <>
       <tr>
-        <th>
+        <TableHeading>
           <BorderDiv marginRight={COLUMN_SPACING} />
           Incarcerated population
           <HorizontalRule marginRight={COLUMN_SPACING} />
-        </th>
-        <th>
+        </TableHeading>
+        <TableHeading>
           <BorderDiv marginRight={COLUMN_SPACING} />
           Incarcerated cases
           <HorizontalRule marginRight={COLUMN_SPACING} />
-        </th>
-        <th>
+        </TableHeading>
+        <TableHeading>
           <BorderDiv marginRight={COLUMN_SPACING} />
           Staff population
           <HorizontalRule marginRight={COLUMN_SPACING} />
-        </th>
-        <th>
+        </TableHeading>
+        <TableHeading>
           <BorderDiv marginRight={COLUMN_SPACING} />
           Staff cases
           <HorizontalRule marginRight={COLUMN_SPACING} />
-        </th>
+        </TableHeading>
       </tr>
     </>
   );
