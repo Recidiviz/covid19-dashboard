@@ -109,9 +109,9 @@ const ImpactProjectionChart: React.FC = () => {
 
   const chartData = getChartData(modelVersions, localeDataSource);
   const projectedCasesToday =
-    chartData.projectedCases[chartData.projectedCases.length - 5];
+    chartData.projectedCases[chartData.projectedCases.length - 1];
   const actualCasesToday =
-    chartData.actualCases[chartData.actualCases.length - 5];
+    chartData.actualCases[chartData.actualCases.length - 1];
   const actualCasesDay90 = chartData.actualCases[0];
 
   const frameProps = {
@@ -164,7 +164,7 @@ const ImpactProjectionChart: React.FC = () => {
       layout: {
         type: "bump",
         orient: "left",
-        padding: 5,
+        padding: 10,
         lineHeight: 5,
       },
     },
@@ -199,10 +199,8 @@ const ImpactProjectionChart: React.FC = () => {
         disable: ["connector"],
         date: dateFns.subDays(today(), 10),
         count: projectedCasesToday,
-        leftRight: "left",
-        radius: 0,
-        height: 0,
         note: {
+          padding: -30,
           label: `${formatThousands(
             projectedCasesToday,
           )} cases originally projected assuming no intervention`,
