@@ -18,10 +18,10 @@ import { ModelInputs } from "../page-multi-facility/types";
 import { combineFacilitiesProjectionData } from "../page-response-impact/responseChartData";
 
 export const today = () => dateFns.endOfToday();
-export const ninetyDaysAgo = () => dateFns.subDays(today(), 90);
+export const ninetyDaysAgo = () => dateFns.subDays(today(), NUM_DAYS);
 
-function addProjectionPadding(values: number[], numDays = 90): number[] {
-  return [...Array(numDays - values.length).fill(0), ...values];
+function addProjectionPadding(values: number[], numDays = NUM_DAYS): number[] {
+  return [...Array(numDays - values.length + 1).fill(0), ...values];
 }
 
 const findVersionForDate = (versions: ModelInputs[], date: Date) => {
@@ -193,7 +193,7 @@ function findClosestVersionForDates(versions: ModelInputs[], date: Date) {
  */
 export function getActualDataForFacility(modelVersions: ModelInputs[]) {
   const datesInterval = dateFns.eachDayOfInterval({
-    start: dateFns.addDays(ninetyDaysAgo(), 1),
+    start: ninetyDaysAgo(),
     end: today(),
   });
 

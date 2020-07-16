@@ -30,11 +30,20 @@ const CurveChartWrapper = styled(ChartWrapper)<{ chartHeight: number }>`
   display: flex;
   flex-flow: column;
 
-  .threshold-annotation {
-    .subject {
-      stroke-dasharray: 1 3;
-      stroke-linecap: round;
-    }
+  .annotation-note-title {
+    color: ${Colors.black};
+    font-family: "Libre Baskerville";
+    font-size: 40px;
+    line-height: 40px;
+    text-align: right;
+  }
+
+  .annotation-note-label {
+    font-family: "Libre Franklin";
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 12px;
+    text-align: right;
   }
 
   .axis-title text,
@@ -99,9 +108,14 @@ const ImpactProjectionChart: React.FC = () => {
   }
 
   const chartData = getChartData(modelVersions, localeDataSource);
+  const projectedCasesToday =
+    chartData.projectedCases[chartData.projectedCases.length - 5];
+  const actualCasesToday =
+    chartData.actualCases[chartData.actualCases.length - 5];
+  const actualCasesDay90 = chartData.actualCases[0];
 
   const frameProps = {
-    showLinePoints: true,
+    showLinePoints: false,
     lines: Object.entries(chartData).map(([bucket, values]) => ({
       title: bucket,
       key: bucket,
@@ -140,12 +154,60 @@ const ImpactProjectionChart: React.FC = () => {
         tickFormat: formatThousands,
       },
     ],
-    pointStyle: { display: "none" },
+    annotationSettings: {
+      layout: {
+        type: "bump",
+        orient: "left",
+        padding: 5,
+        lineHeight: 5,
+      },
+    },
+    annotations: [
+      {
+        type: "react-annotation",
+        color: Colors.black,
+        disable: ["connector"],
+        date: dateFns.subDays(today(), 20),
+        count: actualCasesToday,
+        note: {
+          title: "Today",
+          label: `${formatThousands(actualCasesToday)} actual cumulative cases`,
+          wrapSplitter: (label: string) => label,
+          orientation: "topBottom",
+          align: "top",
+        },
+      },
+      {
+        type: "react-annotation",
+        color: Colors.black,
+        disable: ["connector"],
+        date: ninetyDaysAgo(),
+        count: actualCasesDay90,
+        note: {
+          label: "Date of first recorded case",
+        },
+      },
+      {
+        type: "react-annotation",
+        color: Colors.black,
+        disable: ["connector"],
+        date: dateFns.subDays(today(), 10),
+        count: projectedCasesToday,
+        leftRight: "left",
+        radius: 0,
+        height: 0,
+        note: {
+          label: `${formatThousands(
+            projectedCasesToday,
+          )} cases originally projected assuming no intervention`,
+        },
+      },
+    ],
   };
 
   return (
     <ImpactProjectionContainer>
-      {!chartData || scenarioLoading || localeLoading ? (
+      {scenarioLoading || localeLoading ? (
         <Loading />
       ) : (
         <>
