@@ -55,7 +55,6 @@ const Left = styled.div`
   font-size: 11px;
 `;
 
-// TODO: use standard colors
 const Delta = styled.div<{ deltaDirection?: string }>`
   color: ${(props) =>
     props.deltaDirection == "positive"
@@ -157,20 +156,17 @@ function makeSummaryColumns(facilitySummaryData: FacilitySummaryData) {
   );
 }
 
-function getTotalIncarceratedValues(modelInputs: ModelInputs, value: string) {
+function getTotalValues(
+  modelInputs: ModelInputs,
+  value: string,
+  startsWithFilter = "age",
+) {
   let result = 0;
   const valueKeys = get(VALUE_MAPPING, value);
   const allData = pick(modelInputs, valueKeys);
-  const data = pickBy(allData, (value, key) => key.startsWith("age"));
-  result += sum(values(data));
-  return result;
-}
-
-function getTotalStaffValues(modelInputs: ModelInputs, value: string) {
-  let result = 0;
-  const valueKeys = get(VALUE_MAPPING, value);
-  const allData = pick(modelInputs, valueKeys);
-  const data = pickBy(allData, (value, key) => key.startsWith("staff"));
+  const data = pickBy(allData, (value, key) =>
+    key.startsWith(startsWithFilter),
+  );
   result += sum(values(data));
   return result;
 }
@@ -186,20 +182,24 @@ function getDelta(earlierData: number, currentData: number) {
   return deltaData;
 }
 
-function buildStaffFacilitySummaryData(facility: Facility) {
-  const hasEarlierData = facility.modelVersions.length > 1;
-  const staffCases = getTotalStaffValues(facility.modelInputs, "cases");
+function buildStaffFacilitySummaryData(
+  facility: Facility,
+  mostRecentData: ModelInputs | undefined,
+) {
+  const staffCases = getTotalValues(facility.modelInputs, "cases", "staff");
 
-  const staffRecoveredCases = getTotalStaffValues(
+  const staffRecoveredCases = getTotalValues(
     facility.modelInputs,
     "recovered",
+    "staff",
   );
 
-  const staffDeaths = getTotalStaffValues(facility.modelInputs, "deaths");
+  const staffDeaths = getTotalValues(facility.modelInputs, "deaths", "staff");
 
-  const staffPopulation = getTotalStaffValues(
+  const staffPopulation = getTotalValues(
     facility.modelInputs,
     "population",
+    "staff",
   );
 
   const staffActiveCases = staffCases - staffRecoveredCases - staffDeaths;
@@ -214,45 +214,39 @@ function buildStaffFacilitySummaryData(facility: Facility) {
     deltaDirection: "same",
   } as DeltaData;
 
-  if (hasEarlierData) {
-    const currentDate = facility.updatedAt;
-    const mostRecentDate = findMostRecentDate(
-      currentDate,
-      facility.modelVersions,
-      false,
+  if (mostRecentData) {
+    const mostRecentStaffCases = getTotalValues(
+      mostRecentData,
+      "cases",
+      "staff",
     );
-    const mostRecentData = findMatchingDay({
-      date: mostRecentDate,
-      facilityModelVersions: facility.modelVersions,
-    });
-    if (mostRecentData) {
-      const mostRecentStaffCases = getTotalStaffValues(mostRecentData, "cases");
-      const mostRecentStaffRecoveredCases = getTotalStaffValues(
-        mostRecentData,
-        "recovered",
-      );
-      const mostRecentStaffDeaths = getTotalStaffValues(
-        mostRecentData,
-        "deaths",
-      );
-      const mostRecentStaffPopulation = getTotalStaffValues(
-        mostRecentData,
-        "population",
-      );
 
-      const mostRecentStaffActiveCases =
-        mostRecentStaffCases -
-        mostRecentStaffRecoveredCases -
-        mostRecentStaffDeaths;
+    const mostRecentStaffRecoveredCases = getTotalValues(
+      mostRecentData,
+      "recovered",
+      "staff",
+    );
+    const mostRecentStaffDeaths = getTotalValues(
+      mostRecentData,
+      "deaths",
+      "staff",
+    );
+    const mostRecentStaffPopulation = getTotalValues(
+      mostRecentData,
+      "population",
+      "staff",
+    );
 
-      staffCasesDelta = getDelta(mostRecentStaffActiveCases, staffActiveCases);
+    const mostRecentStaffActiveCases =
+      mostRecentStaffCases -
+      mostRecentStaffRecoveredCases -
+      mostRecentStaffDeaths;
 
-      staffPopulationDelta = getDelta(
-        mostRecentStaffPopulation,
-        staffPopulation,
-      );
-    }
+    staffCasesDelta = getDelta(mostRecentStaffActiveCases, staffActiveCases);
+
+    staffPopulationDelta = getDelta(mostRecentStaffPopulation, staffPopulation);
   }
+
   const staffFacilitySummaryData: StaffFacilitySummaryData = {
     staffPopulation: staffPopulation,
     staffPopulationDelta: staffPopulationDelta.delta,
@@ -264,23 +258,18 @@ function buildStaffFacilitySummaryData(facility: Facility) {
   return staffFacilitySummaryData;
 }
 
-function buildIncarceratedFacilitySummaryData(facility: Facility) {
-  const hasEarlierData = facility.modelVersions.length > 1;
-
-  const incarceratedCases = getTotalIncarceratedValues(
-    facility.modelInputs,
-    "cases",
-  );
-  const incarceratedRecoveredCases = getTotalIncarceratedValues(
+function buildIncarceratedFacilitySummaryData(
+  facility: Facility,
+  mostRecentData: ModelInputs | undefined,
+) {
+  const incarceratedCases = getTotalValues(facility.modelInputs, "cases");
+  const incarceratedRecoveredCases = getTotalValues(
     facility.modelInputs,
     "recovered",
   );
-  const incarceratedDeaths = getTotalIncarceratedValues(
-    facility.modelInputs,
-    "deaths",
-  );
+  const incarceratedDeaths = getTotalValues(facility.modelInputs, "deaths");
 
-  const incarceratedPopulation = getTotalIncarceratedValues(
+  const incarceratedPopulation = getTotalValues(
     facility.modelInputs,
     "population",
   );
@@ -298,50 +287,35 @@ function buildIncarceratedFacilitySummaryData(facility: Facility) {
     deltaDirection: "same",
   } as DeltaData;
 
-  if (hasEarlierData) {
-    const currentDate = facility.updatedAt;
-    const mostRecentDate = findMostRecentDate(
-      currentDate,
-      facility.modelVersions,
-      false,
+  if (mostRecentData) {
+    const mostRecentIncarceratedCases = getTotalValues(mostRecentData, "cases");
+    const mostRecentIncarceratedRecoveredCases = getTotalValues(
+      mostRecentData,
+      "recovered",
     );
-    const mostRecentData = findMatchingDay({
-      date: mostRecentDate,
-      facilityModelVersions: facility.modelVersions,
-    });
-    if (mostRecentData) {
-      const mostRecentIncarceratedCases = getTotalIncarceratedValues(
-        mostRecentData,
-        "cases",
-      );
-      const mostRecentIncarceratedRecoveredCases = getTotalIncarceratedValues(
-        mostRecentData,
-        "recovered",
-      );
-      const mostRecentIncarceratedDeaths = getTotalIncarceratedValues(
-        mostRecentData,
-        "deaths",
-      );
-      const mostRecentIncarceratedPopulation = getTotalIncarceratedValues(
-        mostRecentData,
-        "population",
-      );
+    const mostRecentIncarceratedDeaths = getTotalValues(
+      mostRecentData,
+      "deaths",
+    );
+    const mostRecentIncarceratedPopulation = getTotalValues(
+      mostRecentData,
+      "population",
+    );
 
-      const mostRecentIncarceratedActiveCases =
-        mostRecentIncarceratedCases -
-        mostRecentIncarceratedRecoveredCases -
-        mostRecentIncarceratedDeaths;
+    const mostRecentIncarceratedActiveCases =
+      mostRecentIncarceratedCases -
+      mostRecentIncarceratedRecoveredCases -
+      mostRecentIncarceratedDeaths;
 
-      incarceratedCasesDelta = getDelta(
-        mostRecentIncarceratedActiveCases,
-        incarceratedActiveCases,
-      );
+    incarceratedCasesDelta = getDelta(
+      mostRecentIncarceratedActiveCases,
+      incarceratedActiveCases,
+    );
 
-      incarceratedPopulationDelta = getDelta(
-        mostRecentIncarceratedPopulation,
-        incarceratedPopulation,
-      );
-    }
+    incarceratedPopulationDelta = getDelta(
+      mostRecentIncarceratedPopulation,
+      incarceratedPopulation,
+    );
   }
   const incarceratedFacilitySummaryData: IncarceratedFacilitySummaryData = {
     incarceratedPopulation: incarceratedPopulation,
@@ -358,11 +332,31 @@ function buildIncarceratedFacilitySummaryData(facility: Facility) {
 const FacilitySummaryTable: React.FC<{
   facility: Facility;
 }> = ({ facility }) => {
+  const hasEarlierData = facility.modelVersions.length > 1;
+  let mostRecentData = undefined;
+
+  if (hasEarlierData) {
+    const currentDate = facility.updatedAt;
+    const mostRecentDate = findMostRecentDate(
+      currentDate,
+      facility.modelVersions,
+      false,
+    );
+    mostRecentData = findMatchingDay({
+      date: mostRecentDate,
+      facilityModelVersions: facility.modelVersions,
+    });
+  }
+
   const incarceratedSummaryData = buildIncarceratedFacilitySummaryData(
     facility,
+    mostRecentData,
   );
 
-  const staffSummaryData = buildStaffFacilitySummaryData(facility);
+  const staffSummaryData = buildStaffFacilitySummaryData(
+    facility,
+    mostRecentData,
+  );
 
   const facilitySummaryData = {
     incarceratedData: incarceratedSummaryData,
