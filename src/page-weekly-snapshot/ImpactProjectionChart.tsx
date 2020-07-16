@@ -89,10 +89,7 @@ const lineColors: { [key in string]: string } = {
 };
 
 const ImpactProjectionChart: React.FC = () => {
-  const {
-    data: localeDataSource,
-    loading: localeLoading,
-  } = useLocaleDataState();
+  const { data: localeDataSource } = useLocaleDataState();
   const { state: facilitiesState } = useFacilities();
   const {
     state: { stateName, loading: scenarioLoading },
@@ -103,7 +100,7 @@ const ImpactProjectionChart: React.FC = () => {
   const facilities = Object.values(facilitiesState.facilities);
   const modelVersions = facilities.map((f) => f.modelVersions);
 
-  if (!scenarioLoading && !facilities.length) {
+  if (!scenarioLoading && !facilitiesState.loading && !facilities.length) {
     return <div>Missing scenario data for state: {stateName}</div>;
   }
 
@@ -211,7 +208,7 @@ const ImpactProjectionChart: React.FC = () => {
 
   return (
     <ImpactProjectionContainer>
-      {scenarioLoading || localeLoading ? (
+      {scenarioLoading || facilitiesState.loading ? (
         <Loading />
       ) : (
         <>
