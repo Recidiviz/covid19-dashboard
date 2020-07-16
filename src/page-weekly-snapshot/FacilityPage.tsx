@@ -27,7 +27,7 @@ const Heading = styled.div`
   font-weight: 700;
   line-height: 13px;
   border-top: 1px solid ${Colors.darkGray};
-  padding: 5px 0;
+  padding: 10px 0;
 `;
 
 export const Table = styled.table`
@@ -45,7 +45,7 @@ const TableHeadingCell = styled.td`
 `;
 
 export const BorderDiv = styled.div<{ marginRight?: string }>`
-  border-top: 2px solid ${Colors.darkGray};
+  border-top: 1px solid ${Colors.black};
   margin-right: ${(props) => props.marginRight || "5px"};
   margin-bottom: 5px;
 `;
@@ -104,18 +104,10 @@ function makeHeadingRow() {
   return (
     <tr>
       <td />
-      <TableHeadingCell>
-        <BorderDiv>Week 1</BorderDiv>
-      </TableHeadingCell>
-      <TableHeadingCell>
-        <BorderDiv>Week 2</BorderDiv>
-      </TableHeadingCell>
-      <TableHeadingCell>
-        <BorderDiv>Week 3</BorderDiv>
-      </TableHeadingCell>
-      <TableHeadingCell>
-        <BorderDiv>Overall</BorderDiv>
-      </TableHeadingCell>
+      <TableHeadingCell>Week 1</TableHeadingCell>
+      <TableHeadingCell>Week 2</TableHeadingCell>
+      <TableHeadingCell>Week 3</TableHeadingCell>
+      <TableHeadingCell>Overall</TableHeadingCell>
     </tr>
   );
 }
@@ -145,10 +137,9 @@ const FacilityPage: React.FC<Props> = ({ facility, rtData }) => {
 
   return (
     <SnapshotPage header={facility.name}>
-      Facility Summary
       <ProjectionSection>
         <ProjectionContainer>
-          <HorizontalRule />
+          <Heading>Facility Summary</Heading>
           <FacilitySummaryTable facility={facility} />
           <HorizontalRule />
         </ProjectionContainer>
@@ -160,6 +151,7 @@ const FacilityPage: React.FC<Props> = ({ facility, rtData }) => {
         </ProjectionContainer>
 
         <Heading>Incarcerated Population Projection</Heading>
+        <BorderDiv />
         <Table>
           <tbody>
             {makeHeadingRow()}
@@ -169,6 +161,7 @@ const FacilityPage: React.FC<Props> = ({ facility, rtData }) => {
       </ProjectionSection>
       <ProjectionSection>
         <Heading>Staff Projection</Heading>
+        <BorderDiv />
         <Table>
           <tbody>
             {makeHeadingRow()}
