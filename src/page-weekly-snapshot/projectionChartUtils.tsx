@@ -18,7 +18,6 @@ import { ModelInputs } from "../page-multi-facility/types";
 import { combineFacilitiesProjectionData } from "../page-response-impact/responseChartData";
 
 export const today = () => dateFns.endOfToday();
-export const ninetyOneDaysAgo = () => dateFns.subDays(today(), 91);
 export const ninetyDaysAgo = () => dateFns.subDays(today(), 90);
 
 function addProjectionPadding(values: number[], numDays = 90): number[] {
@@ -106,23 +105,30 @@ export function getVersionForProjection(versions: ModelInputs[]) {
  * incarcerated data
  */
 export function getProjectedData(epidemicModelInputs: EpidemicModelInputs) {
+  const zeroProjection = {
+    projectedFatalities: addProjectionPadding([]),
+    projectedCases: addProjectionPadding([]),
+  };
+
   if (!epidemicModelInputs?.observedAt) {
-    return {
-      projectedFatalities: addProjectionPadding([]),
-      projectedCases: addProjectionPadding([]),
-    };
+    return zeroProjection;
   }
 
   let numDaysAfterNinetyDays = 0;
 
-  if (dateFns.isAfter(epidemicModelInputs.observedAt, ninetyOneDaysAgo())) {
+  if (dateFns.isAfter(epidemicModelInputs.observedAt, ninetyDaysAgo())) {
     numDaysAfterNinetyDays = dateFns.differenceInCalendarDays(
       epidemicModelInputs.observedAt,
-      ninetyOneDaysAgo(),
+      ninetyDaysAgo(),
     );
   }
 
   const projectionNumDays = NUM_DAYS - numDaysAfterNinetyDays;
+
+  if (projectionNumDays <= 0) {
+    return zeroProjection;
+  }
+
   const curveInputs = curveInputsFromUserInputs(epidemicModelInputs);
   const curveData = calculateCurves(curveInputs, projectionNumDays);
 
@@ -293,6 +299,5 @@ export function getChartData(
       }
     });
   });
-
   return chartData;
 }
