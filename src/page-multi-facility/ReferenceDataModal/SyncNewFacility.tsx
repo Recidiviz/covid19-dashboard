@@ -1,3 +1,4 @@
+import { navigate } from "gatsby";
 import { findKey, isEmpty } from "lodash";
 import React, { useState } from "react";
 
@@ -42,7 +43,11 @@ const SyncNewFacility: React.FC<Props> = ({ facilityId, onClose }) => {
     mappedReferenceFacilities,
     referenceFacilities,
   );
-  if (!facilityId || isEmpty(unmappedReferenceFacilities)) return null;
+
+  if (!facilityId || isEmpty(unmappedReferenceFacilities)) {
+    navigate("/");
+    return null;
+  }
 
   return (
     <ReferenceDataModal
