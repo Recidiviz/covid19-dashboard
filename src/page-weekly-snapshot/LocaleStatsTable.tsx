@@ -222,7 +222,7 @@ function makeTableColumn(
   );
 }
 
-const LocaleSummaryTable: React.FC<{
+const LocaleStatsTable: React.FC<{
   stateName: string | undefined;
   stateNames: string[];
 }> = ({ stateName, stateNames }) => {
@@ -328,4 +328,4 @@ const LocaleSummaryTable: React.FC<{
   );
 };
 
-export default LocaleSummaryTable;
+export default LocaleStatsTable;

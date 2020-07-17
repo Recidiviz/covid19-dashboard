@@ -12,7 +12,7 @@ import {
   LocaleRecord,
   useLocaleDataState,
 } from "../locale-data-context";
-import LocaleSummaryTable from "./LocaleSummaryTable";
+import LocaleStatsTable from "./LocaleStatsTable";
 import {
   NYTCountyRecord,
   NYTData,
@@ -199,7 +199,7 @@ export default function LocaleSummary() {
             )}
           </Column>
           <Column>
-            <LocaleSummaryTable
+            <LocaleStatsTable
               stateName={selectedState?.state[0].stateName}
               stateNames={stateNames}
             />

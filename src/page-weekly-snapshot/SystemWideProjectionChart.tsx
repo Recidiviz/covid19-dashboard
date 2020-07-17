@@ -2,6 +2,18 @@ import React from "react";
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
+// import {
+//   BorderDiv,
+//   HorizontalRule,
+//   Left,
+//   LeftHeading,
+//   Right,
+//   Table,
+//   TableCell,
+//   TableHeadingCell,
+//   TextContainer,
+//   TextContainerHeading,
+// } from "./shared";
 
 const SystemWideProjectionChartContainer = styled.div`
   font-size: 12px;

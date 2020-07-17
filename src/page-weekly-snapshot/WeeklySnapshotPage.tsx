@@ -29,6 +29,7 @@ const WeeklySnapshotPage: React.FC = () => {
               </SnapshotPage>
               <SnapshotPage header="System Snapshot" subheader>
                 <SystemWideProjectionChart />
+                <LocaleSummary />
               </SnapshotPage>
               <FacilitySummaries />
             </WeeklySnapshotContainer>
