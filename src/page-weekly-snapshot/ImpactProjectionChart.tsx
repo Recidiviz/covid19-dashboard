@@ -9,7 +9,8 @@ import Colors from "../design-system/Colors";
 import Loading from "../design-system/Loading";
 import { useFacilities } from "../facilities-context";
 import { useLocaleDataState } from "../locale-data-context";
-import { getChartData, ninetyDaysAgo, today } from "./projectionChartUtils";
+import ImpactToDateTable from "./ImpactToDateTable";
+import * as chartUtils from "./projectionChartUtils";
 import { HorizontalRule } from "./SnapshotPage";
 import { useWeeklyReport } from "./weekly-report-context";
 
@@ -103,8 +104,7 @@ const ImpactProjectionChart: React.FC = () => {
   if (!scenarioLoading && !facilitiesState.loading && !facilities.length) {
     return <div>Missing scenario data for state: {stateName}</div>;
   }
-
-  const chartData = getChartData(modelVersions, localeDataSource);
+  const chartData = chartUtils.getChartData(modelVersions, localeDataSource);
   const projectedCasesToday =
     chartData.projectedCases[chartData.projectedCases.length - 1];
   const actualCasesToday =
@@ -120,7 +120,7 @@ const ImpactProjectionChart: React.FC = () => {
         return {
           index,
           count,
-          date: dateFns.addDays(ninetyDaysAgo(), index),
+          date: dateFns.addDays(chartUtils.ninetyDaysAgo(), index),
         };
       }),
     })),
@@ -148,7 +148,7 @@ const ImpactProjectionChart: React.FC = () => {
       {
         orient: "bottom",
         label: "Date",
-        tickValues: [ninetyDaysAgo(), today()],
+        tickValues: [chartUtils.ninetyDaysAgo(), chartUtils.today()],
         tickFormat: (value: Date) => dateFns.format(value, "MM/dd"),
       },
       {
@@ -170,7 +170,7 @@ const ImpactProjectionChart: React.FC = () => {
         type: "react-annotation",
         color: Colors.black,
         disable: ["connector"],
-        date: dateFns.subDays(today(), 20),
+        date: dateFns.subDays(chartUtils.today(), 20),
         count: actualCasesToday,
         note: {
           title: "Today",
@@ -184,7 +184,7 @@ const ImpactProjectionChart: React.FC = () => {
         type: "react-annotation",
         color: Colors.black,
         disable: ["connector"],
-        date: ninetyDaysAgo(),
+        date: chartUtils.ninetyDaysAgo(),
         count: actualCasesDay90,
         note: {
           label: "Date of first recorded case",
@@ -194,7 +194,7 @@ const ImpactProjectionChart: React.FC = () => {
         type: "react-annotation",
         color: Colors.black,
         disable: ["connector"],
-        date: dateFns.subDays(today(), 10),
+        date: dateFns.subDays(chartUtils.today(), 10),
         count: projectedCasesToday,
         note: {
           padding: -30,
@@ -212,6 +212,7 @@ const ImpactProjectionChart: React.FC = () => {
         <Loading />
       ) : (
         <>
+          <ImpactToDateTable />
           <ChartTitle>
             Projection Assuming No Intervention vs. Actual Cumulative Cases
           </ChartTitle>
