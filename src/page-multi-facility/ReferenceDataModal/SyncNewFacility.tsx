@@ -44,7 +44,9 @@ const SyncNewFacility: React.FC<Props> = ({ facilityId, onClose }) => {
     referenceFacilities,
   );
 
-  if (!facilityId || isEmpty(unmappedReferenceFacilities)) {
+  if (!facilityId) {
+    return null;
+  } else if (facilityId && isEmpty(unmappedReferenceFacilities)) {
     navigate("/");
     return null;
   }
