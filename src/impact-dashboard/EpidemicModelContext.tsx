@@ -223,6 +223,7 @@ export function getLocaleDefaults(
   dataSource: LocaleData,
   stateName = "US Total",
   countyName = "Total",
+  rateOfSpreadFactor = RateOfSpread.high,
 ) {
   return {
     // metadata
@@ -244,7 +245,7 @@ export function getLocaleDefaults(
     totalJailPopulation:
       dataSource.get(stateName)?.get(countyName)?.totalJailPopulation || 0,
     // user input defaults
-    rateOfSpreadFactor: RateOfSpread.high,
+    rateOfSpreadFactor,
     facilityDormitoryPct: 0.15,
     populationTurnover: 0,
   };

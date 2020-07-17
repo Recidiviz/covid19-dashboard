@@ -46,7 +46,7 @@ export function countEverHospitalizedForDay(data: ndarray, day: number) {
 }
 
 // row = day and col = SEIR bucket
-function countCasesForDay(data: ndarray, day: number): number {
+export function countCasesForDay(data: ndarray, day: number): number {
   const row = getAllValues(getRowView(data, day));
   const notCases = [seirIndex.susceptible, seirIndex.exposed];
   return Math.round(sum(row.filter((d, i) => !notCases.includes(i))));
