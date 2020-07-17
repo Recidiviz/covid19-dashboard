@@ -16,6 +16,7 @@ import {
 import { formatThousands } from "../impact-dashboard/ImpactProjectionTable";
 import { Facility, ModelInputs } from "../page-multi-facility/types";
 import { BorderDiv, HorizontalRule, Table } from "./FacilityPage";
+import { COLUMN_SPACING, TableHeading } from "./shared/index";
 
 const VALUE_MAPPING = {
   cases: caseBracketKeys,
@@ -29,8 +30,6 @@ const DELTA_DIRECTION_MAPPING = {
   negative: "↓ ",
   same: "↑ ",
 };
-
-const COLUMN_SPACING = "20px";
 
 const TextContainer = styled.div`
   width: 100%;
@@ -56,10 +55,6 @@ const Left = styled.div`
   font-family: "Libre Franklin";
   font-size: 11px;
   margin-right: ${COLUMN_SPACING};
-`;
-
-const TableHeading = styled.th`
-  width 25%;
 `;
 
 const Delta = styled.div<{ deltaDirection?: string }>`

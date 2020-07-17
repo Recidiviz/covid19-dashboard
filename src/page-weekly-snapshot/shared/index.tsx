@@ -2,6 +2,12 @@ import styled from "styled-components";
 
 import Colors from "../../design-system/Colors";
 
+export const COLUMN_SPACING = "20px";
+
+export const TableHeading = styled.th`
+  width 25%;
+`;
+
 export const Table = styled.table`
   color: ${Colors.black};
   text-align: left;
@@ -54,8 +60,9 @@ export const Left = styled.div`
   font-family: "Libre Baskerville";
 `;
 
-export const BorderDiv = styled.div`
-  border-top: 2px solid ${Colors.black};
+export const BorderDiv = styled.div<{ marginRight?: string }>`
+  border-top: 1px solid ${Colors.black};
+  margin-right: ${(props) => props.marginRight || "5px"};
 `;
 
 export const TableCell = styled.td<{ label?: boolean }>`
@@ -63,4 +70,11 @@ export const TableCell = styled.td<{ label?: boolean }>`
   line-height: 200%;
   text-align: "left";
   width: ${(props) => (props.label ? "200px" : "auto")};
+`;
+
+export const Heading = styled.div`
+  font-weight: 700;
+  line-height: 13px;
+  border-top: 1px solid ${Colors.darkGray};
+  padding: 10px 0;
 `;

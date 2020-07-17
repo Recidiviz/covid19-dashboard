@@ -6,6 +6,7 @@ import { useLocaleDataState } from "../locale-data-context";
 import FacilitySummaries from "./FacilitySummaries";
 import ImpactProjectionChart from "./ImpactProjectionChart";
 import LocaleSummary from "./LocaleSummary";
+import LocaleSummaryTable from "./LocaleSummaryTable";
 import SnapshotPage from "./SnapshotPage";
 import SystemWideProjectionChart from "./SystemWideProjectionChart";
 
@@ -29,7 +30,7 @@ const WeeklySnapshotPage: React.FC = () => {
               </SnapshotPage>
               <SnapshotPage header="System Snapshot" subheader>
                 <SystemWideProjectionChart />
-                <LocaleSummary />
+                <LocaleSummaryTable />
               </SnapshotPage>
               <FacilitySummaries />
             </WeeklySnapshotContainer>
