@@ -361,7 +361,7 @@ export const incarceratedPopulationKeys: (keyof ModelInputsPopulationBrackets)[]
   "ageUnknownPopulation",
 ];
 
-const populationKeys: (keyof ModelInputsPopulationBrackets)[] = [
+export const populationKeys: (keyof ModelInputsPopulationBrackets)[] = [
   ...incarceratedPopulationKeys,
   "staffPopulation",
 ];
