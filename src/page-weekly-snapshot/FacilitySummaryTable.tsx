@@ -16,7 +16,16 @@ import {
 import { formatThousands } from "../impact-dashboard/ImpactProjectionTable";
 import { Facility, ModelInputs } from "../page-multi-facility/types";
 import { BorderDiv, HorizontalRule, Table } from "./FacilityPage";
-import { COLUMN_SPACING, TableHeading } from "./shared/index";
+import {
+  COLUMN_SPACING,
+  Delta,
+  DELTA_DIRECTION_MAPPING,
+  DeltaContainer,
+  Left,
+  Right,
+  TableHeading,
+  TextContainer,
+} from "./shared/index";
 
 const VALUE_MAPPING = {
   cases: caseBracketKeys,
@@ -24,47 +33,6 @@ const VALUE_MAPPING = {
   population: populationKeys,
   recovered: recoveredBracketKeys,
 };
-
-const DELTA_DIRECTION_MAPPING = {
-  positive: "↑ ",
-  negative: "↓ ",
-  same: "↑ ",
-};
-
-const TextContainer = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  padding-top: 10px;
-`;
-
-const Right = styled.div`
-  text-align: right;
-  font-family: "Libre Baskerville";
-  font-size: 17px;
-`;
-
-const DeltaContainer = styled.div`
-  display: flex;
-  justify-content: flex-end;
-`;
-
-const Left = styled.div`
-  text-align: left;
-  font-family: "Libre Franklin";
-  font-size: 11px;
-  margin-right: ${COLUMN_SPACING};
-`;
-
-const Delta = styled.div<{ deltaDirection?: string }>`
-  color: ${(props) =>
-    props.deltaDirection == "positive"
-      ? Colors.red
-      : props.deltaDirection == "negative"
-      ? Colors.green
-      : Colors.gray};
-`;
 
 interface IncarceratedFacilitySummaryData {
   incarceratedPopulation: number;
@@ -97,12 +65,12 @@ interface DeltaData {
 function makeSummaryRow(total: number, deltaDirection: string, delta: number) {
   return (
     <TextContainer>
-      <Right>{formatThousands(total)}</Right>
+      <Left>{formatThousands(total)}</Left>
       <DeltaContainer>
         <Delta deltaDirection={deltaDirection}>
           {get(DELTA_DIRECTION_MAPPING, deltaDirection)}
         </Delta>
-        <Left>{formatThousands(delta)}</Left>
+        <Right marginRight={COLUMN_SPACING}>{formatThousands(delta)}</Right>
       </DeltaContainer>
     </TextContainer>
   );

@@ -4,6 +4,12 @@ import Colors from "../../design-system/Colors";
 
 export const COLUMN_SPACING = "20px";
 
+export const DELTA_DIRECTION_MAPPING = {
+  positive: "↑ ",
+  negative: "↓ ",
+  same: "↑ ",
+};
+
 export const TableHeading = styled.th`
   width 25%;
 `;
@@ -51,14 +57,16 @@ export const TextContainer = styled.div`
   color: ${Colors.black};
 `;
 
-export const Right = styled.div`
+export const Right = styled.div<{ marginRight?: string }>`
   text-align: right;
+  margin-right: ${(props) => props.marginRight || "0px"};
 `;
 
-export const Left = styled.div`
+export const Left = styled.div<{ marginRight?: string }>`
   text-align: left;
   font-size: 24px;
   font-family: "Libre Baskerville";
+  margin-right: ${(props) => props.marginRight || "0px"};
 `;
 
 export const BorderDiv = styled.div<{ marginRight?: string }>`
@@ -78,4 +86,18 @@ export const Heading = styled.div`
   line-height: 13px;
   border-top: 1px solid ${Colors.darkGray};
   padding: 10px 0;
+`;
+
+export const DeltaContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+`;
+
+export const Delta = styled.div<{ deltaDirection?: string }>`
+  color: ${(props) =>
+    props.deltaDirection == "positive"
+      ? Colors.red
+      : props.deltaDirection == "negative"
+      ? Colors.green
+      : Colors.gray};
 `;

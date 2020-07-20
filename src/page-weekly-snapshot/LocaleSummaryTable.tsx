@@ -60,6 +60,13 @@ const LocaleSummaryTable: React.FC<{}> = ({}) => {
                 <HorizontalRule marginRight={COLUMN_SPACING} />
               </TableHeading>
             </tr>
+            <td>
+              <TextContainer>
+                <Left>1.20 </Left>
+                <Right>+0.20 since last week</Right>
+              </TextContainer>
+            </td>
+            <td>54654</td>
           </Table>
           <br />
           <tr>
@@ -80,6 +87,13 @@ const LocaleSummaryTable: React.FC<{}> = ({}) => {
             </TextContainerHeading>
             <HorizontalRule />
           </tr>
+          <tr>
+            <TextContainerHeading>
+              <Left>hello12345</Left>
+              <Right>+ 18%</Right>
+            </TextContainerHeading>
+            <HorizontalRule />
+          </tr>
 
           <br />
           <tr>
@@ -91,6 +105,12 @@ const LocaleSummaryTable: React.FC<{}> = ({}) => {
               </BorderDiv>
               <HorizontalRule />
             </TableHeading>
+          </tr>
+          <tr>
+            <TextContainerHeading>
+              <Left>FMC Rochester </Left>
+            </TextContainerHeading>
+            <HorizontalRule />
           </tr>
         </Column>
       </PageContainer>
