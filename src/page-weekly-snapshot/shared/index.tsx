@@ -10,6 +10,26 @@ export const DELTA_DIRECTION_MAPPING = {
   same: "↑ ",
 };
 
+export const Delta = styled.div<{ deltaDirection?: string }>`
+  color: ${(props) =>
+    props.deltaDirection == "positive"
+      ? Colors.red
+      : props.deltaDirection == "negative"
+      ? Colors.green
+      : Colors.gray};
+`;
+
+export const DeltaColor = styled.div<{ delta: number }>`
+  color: ${(props) =>
+    props.delta <= 0.9
+      ? Colors.green
+      : 0.9 < props.delta && props.delta <= 1.1
+      ? Colors.yellow
+      : 1.1 < props.delta && props.delta <= 1.4
+      ? Colors.orange
+      : Colors.red};
+`;
+
 export const TableHeading = styled.th`
   width 25%;
 `;
@@ -62,11 +82,12 @@ export const Right = styled.div<{ marginRight?: string }>`
   margin-right: ${(props) => props.marginRight || "0px"};
 `;
 
-export const Left = styled.div<{ marginRight?: string }>`
+export const Left = styled.div<{ marginRight?: string; color?: string }>`
   text-align: left;
   font-size: 24px;
   font-family: "Libre Baskerville";
   margin-right: ${(props) => props.marginRight || "0px"};
+  color: ${(props) => props.color || "${Colors.black}"};
 `;
 
 export const BorderDiv = styled.div<{ marginRight?: string }>`
@@ -91,13 +112,4 @@ export const Heading = styled.div`
 export const DeltaContainer = styled.div`
   display: flex;
   justify-content: flex-end;
-`;
-
-export const Delta = styled.div<{ deltaDirection?: string }>`
-  color: ${(props) =>
-    props.deltaDirection == "positive"
-      ? Colors.red
-      : props.deltaDirection == "negative"
-      ? Colors.green
-      : Colors.gray};
 `;

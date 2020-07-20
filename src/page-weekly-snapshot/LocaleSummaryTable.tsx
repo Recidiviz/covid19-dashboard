@@ -6,6 +6,7 @@ import { useLocaleDataState } from "../locale-data-context";
 import {
   BorderDiv,
   COLUMN_SPACING,
+  DeltaColor,
   Heading,
   HorizontalRule,
   Left,
@@ -62,11 +63,20 @@ const LocaleSummaryTable: React.FC<{}> = ({}) => {
             </tr>
             <td>
               <TextContainer>
-                <Left>1.20 </Left>
-                <Right>+0.20 since last week</Right>
+                <DeltaColor delta={1.2}>
+                  <Left>1.20 </Left>
+                </DeltaColor>
+                <Right marginRight={COLUMN_SPACING}>
+                  +0.20 since last week
+                </Right>
               </TextContainer>
             </td>
-            <td>54654</td>
+            <td>
+              <TextContainer>
+                <Left>3 of 14 </Left>
+                <Right marginRight={COLUMN_SPACING}>-2 since last week</Right>
+              </TextContainer>
+            </td>
           </Table>
           <br />
           <tr>
