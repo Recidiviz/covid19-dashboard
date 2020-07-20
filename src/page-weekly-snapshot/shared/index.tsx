@@ -3,6 +3,7 @@ import styled from "styled-components";
 import Colors from "../../design-system/Colors";
 
 export const COLUMN_SPACING = "20px";
+export const TOP_BOTTOM_MARGIN = "10px";
 
 export const DELTA_DIRECTION_MAPPING = {
   positive: "↑ ",
@@ -56,7 +57,8 @@ export const TableHeadingCell = styled.td`
   vertical-align: middle;
 `;
 
-export const LeftHeading = styled.div`
+export const LeftHeading = styled.div<{ marginTop?: string }>`
+  margin-top: ${(props) => props.marginTop || "10px"};
   text-align: left;
 `;
 
@@ -77,8 +79,9 @@ export const TextContainer = styled.div`
   color: ${Colors.black};
 `;
 
-export const Right = styled.div<{ marginRight?: string }>`
+export const Right = styled.div<{ marginRight?: string; marginTop?: string }>`
   text-align: right;
+  margin-top: ${(props) => props.marginTop || "0px"};
   margin-right: ${(props) => props.marginRight || "0px"};
 `;
 

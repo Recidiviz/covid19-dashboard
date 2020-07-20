@@ -227,7 +227,7 @@ const LocaleSummaryTable: React.FC<{}> = () => {
             <TableHeading>
               <BorderDiv>
                 <TextContainerHeading>
-                  <LeftHeading>Counties to watch</LeftHeading>
+                  <LeftHeading marginTop={"0px"}>Counties to watch</LeftHeading>
                   <Right>Change in cases per 100k since last week</Right>
                 </TextContainerHeading>
               </BorderDiv>

@@ -189,7 +189,7 @@ function makeTableColumn(
           <HorizontalRule />
           <TextContainerHeading>
             <Right>{heading} </Right>
-            <LeftHeading>(per 100k)</LeftHeading>
+            <LeftHeading marginTop={"0px"}>(per 100k)</LeftHeading>
           </TextContainerHeading>
         </TableHeadingCell>
       </tr>

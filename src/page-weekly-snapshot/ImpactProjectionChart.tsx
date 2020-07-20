@@ -11,7 +11,7 @@ import { useFacilities } from "../facilities-context";
 import { useLocaleDataState } from "../locale-data-context";
 import ImpactToDateTable from "./ImpactToDateTable";
 import * as chartUtils from "./projectionChartUtils";
-import { HorizontalRule } from "./SnapshotPage";
+import { HorizontalRule } from "./shared/index";
 import { useWeeklyReport } from "./weekly-report-context";
 
 const ImpactProjectionContainer = styled.div`
