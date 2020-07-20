@@ -1,4 +1,5 @@
 import { maxBy, minBy, orderBy } from "lodash";
+import numeral from "numeral";
 import React, { useEffect, useState } from "react";
 
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
@@ -104,6 +105,30 @@ function getCountyIncreasePerCapita(
   return countyCasesIncreasePerCapita;
 }
 
+function makeCountyRow(caseIncreasePerCapita: PerCapitaCountyCase) {
+  let num = numeral(caseIncreasePerCapita.casesIncreasePerCapita).format(
+    "0.000%",
+  );
+  let direction = "+";
+  if (
+    caseIncreasePerCapita?.casesIncreasePerCapita &&
+    caseIncreasePerCapita?.casesIncreasePerCapita < 0
+  ) {
+    direction = "-";
+  }
+  return (
+    <tr>
+      <TextContainerHeading>
+        <Left>{caseIncreasePerCapita.name} </Left>
+        <Right>
+          {direction} {num}
+        </Right>
+      </TextContainerHeading>
+      <HorizontalRule />
+    </tr>
+  );
+}
+
 const LocaleSummaryTable: React.FC<{}> = () => {
   const { data: localeDataSource } = useLocaleDataState();
   const { state: facilitiesState } = useFacilities();
@@ -114,46 +139,6 @@ const LocaleSummaryTable: React.FC<{}> = () => {
   const { data, loading: nytLoading } = useNYTData();
   const { data: localeData, loading } = useLocaleDataState();
 
-  // const [selectedState, setSelectedState] = useState<NYTData | undefined>();
-  // const [sevenDayDiffInCases, setSevenDayDiffInCases] = useState<
-  //   number | undefined
-  // >();
-  // const [countiesToWatch, setCountiesToWatch] = useState<string[] | undefined>(
-  //   [],
-  // );
-  // const [totalBeds, setTotalBeds] = useState<number | undefined>();
-  // const { data: localeData, loading } = useLocaleDataState();
-  // const stateNames = Array.from(localeData.keys()).filter(stateNamesFilter);
-
-  // const dayOne = getDay(selectedState?.state || [], 1);
-  // const daySeven = getDay(selectedState?.state || [], 7);
-
-  // if (dayOne?.stateName && daySeven?.stateName && selectedState) {
-  //   const stateLocaleData = localeData?.get(dayOne.stateName);
-  //   const totalLocaleData = stateLocaleData?.get("Total");
-  //   const sevenDayDiffInCases = daySeven.cases - dayOne.cases;
-  //   const totalBeds =
-  //     totalLocaleData && totalLocaleData.icuBeds + totalLocaleData.hospitalBeds;
-
-  //   const perCapitaCountyCases = getCountyIncreasePerCapita(
-  //     selectedState.counties,
-  //     stateLocaleData,
-  //   );
-  //   const highestFourCounties = orderBy(
-  //     perCapitaCountyCases.filter((c) => !!c.casesIncreasePerCapita),
-  //     ["casesIncreasePerCapita"],
-  //     ["desc"],
-  //   ).slice(0, 4);
-  //   const countiesToWatch = highestFourCounties.map((county) => {
-  //     return `${county.name}, ${numeral(county.casesIncreasePerCapita).format(
-  //       "0.000 %",
-  //     )};`;
-  //   });
-
-  //   setCountiesToWatch(countiesToWatch);
-  //   setTotalBeds(totalBeds);
-  //   setSevenDayDiffInCases(sevenDayDiffInCases);
-  // }
   if (!stateName) return null;
 
   // const stateNames = Array.from(localeData.keys()).filter(stateNamesFilter);
@@ -162,30 +147,25 @@ const LocaleSummaryTable: React.FC<{}> = () => {
   const dayOne = getDay(stateData.state || [], 1);
   const daySeven = getDay(stateData.state || [], 7);
   let sevenDayDiffInCases = 0;
-  let perCapitaCountyCases = 0;
-  let countiesToWatch: string[] = [];
+  let perCapitaCountyCases: PerCapitaCountyCase[] = [];
+  let highestFourCounties: PerCapitaCountyCase[] = [];
 
   if (dayOne?.stateName && daySeven?.stateName) {
     const stateLocaleData = localeData?.get(dayOne.stateName);
     const totalLocaleData = stateLocaleData?.get("Total");
-    const sevenDayDiffInCases = daySeven.cases - dayOne.cases;
+    sevenDayDiffInCases = daySeven.cases - dayOne.cases;
     const totalBeds =
       totalLocaleData && totalLocaleData.icuBeds + totalLocaleData.hospitalBeds;
 
-    const perCapitaCountyCases = getCountyIncreasePerCapita(
+    perCapitaCountyCases = getCountyIncreasePerCapita(
       stateData.counties,
       stateLocaleData,
     );
-    const highestFourCounties = orderBy(
+    highestFourCounties = orderBy(
       perCapitaCountyCases.filter((c) => !!c.casesIncreasePerCapita),
       ["casesIncreasePerCapita"],
       ["desc"],
     ).slice(0, 4);
-    const countiesToWatch = highestFourCounties.map((county) => {
-      return `${county.name}, ${numeral(county.casesIncreasePerCapita).format(
-        "0.000 %",
-      )};`;
-    });
   }
 
   const facilities = Object.values(facilitiesState.facilities);
@@ -201,8 +181,12 @@ const LocaleSummaryTable: React.FC<{}> = () => {
     <>
       <Heading>Locale Summary</Heading>
       <PageContainer>
-        <BorderDiv />
-        <Column />
+        <BorderDiv marginRight={"-20px"} />
+        <Column>
+          <Table>
+            <BorderDiv />
+          </Table>
+        </Column>
         <Column>
           <Table>
             <tr>
@@ -250,21 +234,7 @@ const LocaleSummaryTable: React.FC<{}> = () => {
               <HorizontalRule />
             </TableHeading>
           </tr>
-          <tr>
-            <TextContainerHeading>
-              <Left>hello123</Left>
-              <Right>+ 20%</Right>
-            </TextContainerHeading>
-            <HorizontalRule />
-          </tr>
-          <tr>
-            <TextContainerHeading>
-              <Left>hello12345</Left>
-              <Right>+ 18%</Right>
-            </TextContainerHeading>
-            <HorizontalRule />
-          </tr>
-
+          {highestFourCounties.map((row) => makeCountyRow(row))}
           <br />
           <tr>
             <TableHeading>
@@ -275,12 +245,6 @@ const LocaleSummaryTable: React.FC<{}> = () => {
               </BorderDiv>
               <HorizontalRule />
             </TableHeading>
-          </tr>
-          <tr>
-            <TextContainerHeading>
-              <Left>FMC Rochester </Left>
-            </TextContainerHeading>
-            <HorizontalRule />
           </tr>
         </Column>
       </PageContainer>
