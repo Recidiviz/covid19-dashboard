@@ -16,10 +16,10 @@ export const Table = styled.table`
   table-layout: fixed;
 `;
 
-export const HorizontalRule = styled.hr`
+export const HorizontalRule = styled.hr<{ marginRight?: string }>`
   border-color: ${Colors.opacityGray};
-  width: 100%;
-  margin-bottom: 10px;
+  margin-top: 10px;
+  margin-right: ${(props) => props.marginRight || "0px"};
 `;
 
 export const TableHeadingCell = styled.td`
@@ -38,6 +38,7 @@ export const TextContainerHeading = styled.div`
   width: 100%;
   display: flex;
   justify-content: space-between;
+  margin-top: 10px;
   margin-bottom: 10px;
 `;
 

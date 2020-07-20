@@ -39,23 +39,59 @@ const LocaleSummaryTable: React.FC<{}> = ({}) => {
   return (
     <>
       <Heading>Locale Summary</Heading>
-      <BorderDiv />
       <PageContainer>
-        <Column>wfjoiw</Column>
+        <BorderDiv />
+        <Column />
         <Column>
           <Table>
             <tr>
               <TableHeading>
                 <BorderDiv marginRight={COLUMN_SPACING} />
-                Incarcerated population
+                <TextContainerHeading>
+                  State rate of spread
+                </TextContainerHeading>
+                <HorizontalRule marginRight={COLUMN_SPACING} />
               </TableHeading>
               <TableHeading>
                 <BorderDiv marginRight={COLUMN_SPACING} />
-                Incarcerated cases
+                <TextContainerHeading>
+                  Facilities with rate of spread > 1
+                </TextContainerHeading>
+                <HorizontalRule marginRight={COLUMN_SPACING} />
               </TableHeading>
             </tr>
-            <BorderDiv />
           </Table>
+          <br />
+          <tr>
+            <TableHeading>
+              <BorderDiv>
+                <TextContainerHeading>
+                  <LeftHeading>Counties to watch</LeftHeading>
+                  <Right>Change in cases per 100k since last week</Right>
+                </TextContainerHeading>
+              </BorderDiv>
+              <HorizontalRule />
+            </TableHeading>
+          </tr>
+          <tr>
+            <TextContainerHeading>
+              <Left>hello123</Left>
+              <Right>+ 20%</Right>
+            </TextContainerHeading>
+            <HorizontalRule />
+          </tr>
+
+          <br />
+          <tr>
+            <TableHeading>
+              <BorderDiv>
+                <TextContainerHeading>
+                  <LeftHeading>Facilities in counties to watch</LeftHeading>
+                </TextContainerHeading>
+              </BorderDiv>
+              <HorizontalRule />
+            </TableHeading>
+          </tr>
         </Column>
       </PageContainer>
     </>
