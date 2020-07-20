@@ -497,9 +497,9 @@ const getUserDocument = async (
     .where(key, "==", value)
     .get();
 
-  if (userResult.docs.length > 1) {
-    throw new Error(`Multiple users found matching ${key} ${value}`);
-  }
+  // if (userResult.docs.length > 1) {
+  //   throw new Error(`Multiple users found matching ${key} ${value}`);
+  // }
 
   return userResult.docs[0];
 };

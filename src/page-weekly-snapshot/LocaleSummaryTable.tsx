@@ -104,39 +104,68 @@ function getCountyIncreasePerCapita(
   return countyCasesIncreasePerCapita;
 }
 
-const LocaleSummaryTable: React.FC<{}> = ({}) => {
+const LocaleSummaryTable: React.FC<{}> = () => {
   const { data: localeDataSource } = useLocaleDataState();
   const { state: facilitiesState } = useFacilities();
   const {
     state: { stateName, loading: scenarioLoading },
   } = useWeeklyReport();
 
-  const { dispatch } = useWeeklyReport();
   const { data, loading: nytLoading } = useNYTData();
-  const [selectedState, setSelectedState] = useState<NYTData | undefined>();
-  const [sevenDayDiffInCases, setSevenDayDiffInCases] = useState<
-    number | undefined
-  >();
-  const [countiesToWatch, setCountiesToWatch] = useState<string[] | undefined>(
-    [],
-  );
-  const [totalBeds, setTotalBeds] = useState<number | undefined>();
   const { data: localeData, loading } = useLocaleDataState();
-  const stateNames = Array.from(localeData.keys()).filter(stateNamesFilter);
-  const handleOnChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const stateName = event.target.value;
 
-    dispatch({ type: UPDATE_STATE_NAME, payload: stateName });
+  // const [selectedState, setSelectedState] = useState<NYTData | undefined>();
+  // const [sevenDayDiffInCases, setSevenDayDiffInCases] = useState<
+  //   number | undefined
+  // >();
+  // const [countiesToWatch, setCountiesToWatch] = useState<string[] | undefined>(
+  //   [],
+  // );
+  // const [totalBeds, setTotalBeds] = useState<number | undefined>();
+  // const { data: localeData, loading } = useLocaleDataState();
+  // const stateNames = Array.from(localeData.keys()).filter(stateNamesFilter);
 
-    if (!nytLoading) {
-      setSelectedState(data[stateName]);
-    }
-  };
+  // const dayOne = getDay(selectedState?.state || [], 1);
+  // const daySeven = getDay(selectedState?.state || [], 7);
 
-  const dayOne = getDay(selectedState?.state || [], 1);
-  const daySeven = getDay(selectedState?.state || [], 7);
+  // if (dayOne?.stateName && daySeven?.stateName && selectedState) {
+  //   const stateLocaleData = localeData?.get(dayOne.stateName);
+  //   const totalLocaleData = stateLocaleData?.get("Total");
+  //   const sevenDayDiffInCases = daySeven.cases - dayOne.cases;
+  //   const totalBeds =
+  //     totalLocaleData && totalLocaleData.icuBeds + totalLocaleData.hospitalBeds;
 
-  if (dayOne?.stateName && daySeven?.stateName && selectedState) {
+  //   const perCapitaCountyCases = getCountyIncreasePerCapita(
+  //     selectedState.counties,
+  //     stateLocaleData,
+  //   );
+  //   const highestFourCounties = orderBy(
+  //     perCapitaCountyCases.filter((c) => !!c.casesIncreasePerCapita),
+  //     ["casesIncreasePerCapita"],
+  //     ["desc"],
+  //   ).slice(0, 4);
+  //   const countiesToWatch = highestFourCounties.map((county) => {
+  //     return `${county.name}, ${numeral(county.casesIncreasePerCapita).format(
+  //       "0.000 %",
+  //     )};`;
+  //   });
+
+  //   setCountiesToWatch(countiesToWatch);
+  //   setTotalBeds(totalBeds);
+  //   setSevenDayDiffInCases(sevenDayDiffInCases);
+  // }
+  if (!stateName) return null;
+
+  // const stateNames = Array.from(localeData.keys()).filter(stateNamesFilter);
+
+  const stateData = data[stateName];
+  const dayOne = getDay(stateData.state || [], 1);
+  const daySeven = getDay(stateData.state || [], 7);
+  let sevenDayDiffInCases = 0;
+  let perCapitaCountyCases = 0;
+  let countiesToWatch: string[] = [];
+
+  if (dayOne?.stateName && daySeven?.stateName) {
     const stateLocaleData = localeData?.get(dayOne.stateName);
     const totalLocaleData = stateLocaleData?.get("Total");
     const sevenDayDiffInCases = daySeven.cases - dayOne.cases;
@@ -144,7 +173,7 @@ const LocaleSummaryTable: React.FC<{}> = ({}) => {
       totalLocaleData && totalLocaleData.icuBeds + totalLocaleData.hospitalBeds;
 
     const perCapitaCountyCases = getCountyIncreasePerCapita(
-      selectedState.counties,
+      stateData.counties,
       stateLocaleData,
     );
     const highestFourCounties = orderBy(
@@ -157,12 +186,7 @@ const LocaleSummaryTable: React.FC<{}> = ({}) => {
         "0.000 %",
       )};`;
     });
-
-    setCountiesToWatch(countiesToWatch);
-    setTotalBeds(totalBeds);
-    setSevenDayDiffInCases(sevenDayDiffInCases);
   }
-  if (!stateName) return null;
 
   const facilities = Object.values(facilitiesState.facilities);
   const modelVersions = facilities.map((f) => f.modelVersions);
@@ -171,7 +195,7 @@ const LocaleSummaryTable: React.FC<{}> = ({}) => {
     return <div>Missing scenario data for state: {stateName}</div>;
   }
 
-  console.log(selectedState, dayOne, daySeven);
+  console.log(stateData);
 
   return (
     <>
