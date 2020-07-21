@@ -1,52 +1,31 @@
-import { differenceInWeeks, isThisWeek, startOfToday } from "date-fns";
-import { get, maxBy, minBy, orderBy } from "lodash";
+import { maxBy, minBy, orderBy } from "lodash";
 import numeral from "numeral";
-import React, { useEffect, useState } from "react";
+import React from "react";
 
-import { DateMMMMdyyyy } from "../design-system/DateFormats";
-import InputSelect from "../design-system/InputSelect";
-import Loading from "../design-system/Loading";
 import { Column, PageContainer } from "../design-system/PageColumn";
 import { useFacilities } from "../facilities-context";
 import {
   getFacilitiesRtDataById,
-  getNewestRt,
-  getRtDataForFacility,
   isRtData,
   RtData,
   RtRecord,
 } from "../infection-model/rt";
-import {
-  LocaleDataProvider,
-  LocaleRecord,
-  useLocaleDataState,
-} from "../locale-data-context";
-import { Facility } from "../page-multi-facility/types";
+import { LocaleRecord, useLocaleDataState } from "../locale-data-context";
 import {
   numFacilitiesWithRtGreaterThan1PrevWeek,
   numFacilitiesWithRtGreaterThan1ThisWeek,
 } from "../page-response-impact/rtStatistics";
-import facility from "../pages/facility";
-import LocaleStatsTable from "./LocaleStatsTable";
-import {
-  NYTCountyRecord,
-  NYTData,
-  NYTStateRecord,
-  useNYTData,
-} from "./NYTDataProvider";
+import { NYTCountyRecord, NYTStateRecord, useNYTData } from "./NYTDataProvider";
 import {
   BorderDiv,
   COLUMN_SPACING,
-  DeltaColor,
   Heading,
   HorizontalRule,
   Left,
   LeftHeading,
   Right,
   Table,
-  TableCell,
   TableHeading,
-  TableHeadingCell,
   TextContainer,
   TextContainerHeading,
   TOP_BOTTOM_MARGIN,
@@ -58,11 +37,15 @@ type PerCapitaCountyCase = {
   casesIncreasePerCapita: number | undefined;
 };
 
-type FacilityRtIncrease = {
-  numFacilitiesThisWeek: number;
-  numFacilitiesLastWeek: number;
-  totalNumFacilities: number;
-};
+function getDirection(
+  numFacilitiesLastWeek: number,
+  numFacilitiesThisWeek: number,
+) {
+  if (numFacilitiesLastWeek <= numFacilitiesThisWeek) {
+    return "+";
+  }
+  return "-";
+}
 
 function getDay(nytData: NYTCountyRecord[] | NYTStateRecord[], day: number) {
   if (day === 1) {
@@ -149,42 +132,6 @@ function makeCountyRow(caseIncreasePerCapita: PerCapitaCountyCase) {
   );
 }
 
-async function getNumFacilitiesRt(facilities: Facility[]) {
-  console.log("HERE");
-  let numThisWeek = 0;
-  let numLastWeek = 0;
-  for (let i = 0; i < facilities.length; i++) {
-    const facilityRtData = await getRtDataForFacility(facilities[i]);
-    console.log(facilityRtData);
-    if (isRtData(facilityRtData)) {
-      const mostRecentRt = getNewestRt(facilityRtData.Rt);
-      const allRtData = facilityRtData.Rt;
-      console.log(mostRecentRt);
-      if (
-        mostRecentRt &&
-        mostRecentRt.value > 0.01 &&
-        isThisWeek(mostRecentRt.date)
-      ) {
-        numThisWeek += 1;
-      }
-      if (
-        allRtData.length > 1 &&
-        allRtData[allRtData.length - 2]?.value > 1 &&
-        differenceInWeeks(allRtData[allRtData.length - 2]?.date, startOfToday())
-      ) {
-        numLastWeek += 1;
-      }
-    }
-  }
-  const facilityRtIncrease: FacilityRtIncrease = {
-    numFacilitiesThisWeek: numThisWeek,
-    numFacilitiesLastWeek: numLastWeek,
-    totalNumFacilities: facilities.length,
-  };
-  console.log(facilityRtIncrease);
-  return facilityRtIncrease;
-}
-
 const LocaleSummaryTable: React.FC<{}> = () => {
   const { data: localeDataSource } = useLocaleDataState();
   const { state: facilitiesState } = useFacilities();
@@ -212,20 +159,6 @@ const LocaleSummaryTable: React.FC<{}> = () => {
     );
   }
 
-  const modelVersions = facilities.map((f) => f.modelVersions);
-
-  // useEffect(() => {
-  //   // let mounted = true;
-  //   // async function fetchFacility() {
-  //   //   const facilitiesX = await getNumFacilitiesRt(facilities);
-  //   //   setFacilityRtIncrease(facilitiesX);
-  //   // }
-  //   // fetchFacility();
-  //   // return () => {
-  //   //   mounted = false;
-  //   // };
-  // }, []);
-
   const { data, loading: nytLoading } = useNYTData();
   const { data: localeData, loading } = useLocaleDataState();
 
@@ -241,7 +174,6 @@ const LocaleSummaryTable: React.FC<{}> = () => {
 
   if (dayOne?.stateName && daySeven?.stateName) {
     const stateLocaleData = localeData?.get(dayOne.stateName);
-    const totalLocaleData = stateLocaleData?.get("Total");
     sevenDayDiffInCases = daySeven.cases - dayOne.cases;
 
     perCapitaCountyCases = getCountyIncreasePerCapita(
@@ -289,9 +221,7 @@ const LocaleSummaryTable: React.FC<{}> = () => {
             </tr>
             <td>
               <TextContainer>
-                {/* <DeltaColor delta={1.2}> */}
                 <Left />
-                {/* </DeltaColor> */}
                 <Right marginRight={COLUMN_SPACING}>since last week</Right>
               </TextContainer>
             </td>
@@ -301,7 +231,8 @@ const LocaleSummaryTable: React.FC<{}> = () => {
                   {numFacilitiesThisWeek} of {totalNumFacilities}{" "}
                 </Left>
                 <Right marginRight={COLUMN_SPACING}>
-                  -{numFacilitiesLastWeek} since last week
+                  {getDirection(numFacilitiesLastWeek, numFacilitiesThisWeek)}
+                  {numFacilitiesLastWeek} since last week
                 </Right>
               </TextContainer>
             </td>

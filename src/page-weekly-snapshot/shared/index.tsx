@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import { createBrotliDecompress } from "zlib";
 
 import Colors from "../../design-system/Colors";
 
