@@ -57,6 +57,22 @@ export const TableHeadingCell = styled.td`
   vertical-align: middle;
 `;
 
+export const RankContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  height: 100%;
+  align-items: baseline;
+`;
+
+export const RankText = styled.td`
+  font-family: "Libre Franklin";
+  font-size: 11px;
+  margin-right: 10px;
+  align-items: baseline;
+`;
+
 export const LeftHeading = styled.div<{ marginTop?: string }>`
   margin-top: ${(props) => props.marginTop || "10px"};
   text-align: left;

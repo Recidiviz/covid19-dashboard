@@ -23,12 +23,13 @@ import {
   HorizontalRule,
   Left,
   LeftHeading,
+  RankContainer,
+  RankText,
   Right,
   Table,
   TableHeading,
   TextContainer,
   TextContainerHeading,
-  TOP_BOTTOM_MARGIN,
 } from "./shared";
 import { useWeeklyReport } from "./weekly-report-context";
 
@@ -108,7 +109,8 @@ function getCountyIncreasePerCapita(
 
 function makeCountyRow(
   caseIncreasePerCapita: PerCapitaCountyCase,
-  facilitiesCounties: (string | undefined)[],
+  facilitiesCounties: string[],
+  index: number,
 ) {
   let num = numeral(caseIncreasePerCapita.casesIncreasePerCapita).format(
     "0.000%",
@@ -121,13 +123,17 @@ function makeCountyRow(
     direction = "-";
   }
   let name = caseIncreasePerCapita.name;
+  console.log(name, facilitiesCounties);
   if (facilitiesCounties.includes(name)) {
     name += "***";
   }
   return (
     <tr>
       <TextContainerHeading>
-        <Left>{name} </Left>
+        <RankContainer>
+          <RankText>{index + 1}</RankText>
+          <Left>{name}</Left>
+        </RankContainer>
         <Right>
           {direction} {num}
         </Right>
@@ -154,13 +160,21 @@ const LocaleSummaryTable: React.FC<{}> = () => {
   } = useWeeklyReport();
 
   const facilities = Object.values(facilitiesState.facilities);
-  let facilitiesCounties: (string | undefined)[] = [];
+  let facilitiesCounties: string[] = [];
 
   for (let i = 0; i < facilities.length; i++) {
     const modelInputs = facilities[i].modelInputs;
-    facilitiesCounties = Object.values(pick(modelInputs, "countyName"));
+    const data = Object.values(pick(modelInputs, "countyName"));
+    for (let j = 0; j < data.length; j++) {
+      const currData = data[j];
+      if (currData !== undefined) {
+        facilitiesCounties.push(currData);
+        facilitiesCounties.push("Windsor");
+      }
+    }
   }
-  facilitiesCounties.push("undefined");
+  console.log(facilitiesCounties);
+  // facilitiesCounties.push("undefined");
 
   const rtData = getFacilitiesRtDataById(facilitiesState.rtData, facilities);
   const totalNumFacilities = facilities.length;
@@ -188,14 +202,12 @@ const LocaleSummaryTable: React.FC<{}> = () => {
   const stateData = data[stateName];
   const dayOne = getDay(stateData.state || [], 1);
   const daySeven = getDay(stateData.state || [], 7);
-  let sevenDayDiffInCases = 0;
   let perCapitaCountyCases: PerCapitaCountyCase[] = [];
   let highestFourCounties: PerCapitaCountyCase[] = [];
   let highestCountiesFacilities = "";
 
   if (dayOne?.stateName && daySeven?.stateName) {
     const stateLocaleData = localeData?.get(dayOne.stateName);
-    sevenDayDiffInCases = daySeven.cases - dayOne.cases;
 
     perCapitaCountyCases = getCountyIncreasePerCapita(
       stateData.counties,
@@ -213,13 +225,13 @@ const LocaleSummaryTable: React.FC<{}> = () => {
 
     countiesToWatch.push("undefined");
 
-    console.log(countiesToWatch);
-
     for (let i = 0; i < facilities.length; i++) {
       const modelInputs = facilities[i].modelInputs;
-      facilitiesCounties = Object.values(pick(modelInputs, "countyName"));
-      for (let j = 0; j < facilitiesCounties.length; j++) {
-        const currCounty = facilitiesCounties[j];
+      const facilitiesCountiesX = Object.values(
+        pick(modelInputs, "countyName"),
+      );
+      for (let j = 0; j < facilitiesCountiesX.length; j++) {
+        const currCounty = facilitiesCountiesX[j];
         if (currCounty && countiesToWatch.includes(currCounty)) {
           highestCountiesFacilities += facilities[i].name + ", ";
         }
@@ -287,15 +299,17 @@ const LocaleSummaryTable: React.FC<{}> = () => {
               <HorizontalRule />
             </TableHeading>
           </tr>
-          {highestFourCounties.map((row) =>
-            makeCountyRow(row, facilitiesCounties),
+          {highestFourCounties.map((row, index) =>
+            makeCountyRow(row, facilitiesCounties, index),
           )}
           <br />
           <tr>
             <TableHeading>
               <BorderDiv>
                 <TextContainer>
-                  <LeftHeading>Facilities in counties to watch</LeftHeading>
+                  <LeftHeading marginTop={"0px"}>
+                    Facilities in counties to watch
+                  </LeftHeading>
                 </TextContainer>
               </BorderDiv>
               <HorizontalRule />
