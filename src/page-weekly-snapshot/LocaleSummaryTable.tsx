@@ -1,4 +1,5 @@
-import { maxBy, minBy, orderBy } from "lodash";
+import { differenceInWeeks, isThisWeek, startOfToday } from "date-fns";
+import { get, maxBy, minBy, orderBy } from "lodash";
 import numeral from "numeral";
 import React, { useEffect, useState } from "react";
 
@@ -7,11 +8,19 @@ import InputSelect from "../design-system/InputSelect";
 import Loading from "../design-system/Loading";
 import { Column, PageContainer } from "../design-system/PageColumn";
 import { useFacilities } from "../facilities-context";
+import { userFacility } from "../facilities-context/__fixtures__";
+import {
+  getNewestRt,
+  getRtDataForFacility,
+  isRtData,
+} from "../infection-model/rt";
 import {
   LocaleDataProvider,
   LocaleRecord,
   useLocaleDataState,
 } from "../locale-data-context";
+import { Facility } from "../page-multi-facility/types";
+import facility from "../pages/facility";
 import LocaleStatsTable from "./LocaleStatsTable";
 import {
   NYTCountyRecord,
@@ -34,6 +43,7 @@ import {
   TableHeadingCell,
   TextContainer,
   TextContainerHeading,
+  TOP_BOTTOM_MARGIN,
 } from "./shared";
 import { UPDATE_STATE_NAME, useWeeklyReport } from "./weekly-report-context";
 
@@ -44,6 +54,12 @@ const formatNumber = (number: number) => numeral(number).format("0,0");
 type PerCapitaCountyCase = {
   name: string;
   casesIncreasePerCapita: number | undefined;
+};
+
+type FacilityRtIncrease = {
+  numFacilitiesThisWeek: number;
+  numFacilitiesLastWeek: number;
+  totalNumFacilities: number;
 };
 
 function getDay(nytData: NYTCountyRecord[] | NYTStateRecord[], day: number) {
@@ -119,7 +135,9 @@ function makeCountyRow(caseIncreasePerCapita: PerCapitaCountyCase) {
   return (
     <tr>
       <TextContainerHeading>
-        <Left>{caseIncreasePerCapita.name} </Left>
+        <Left marginTop={TOP_BOTTOM_MARGIN} marginBottom={TOP_BOTTOM_MARGIN}>
+          {caseIncreasePerCapita.name}{" "}
+        </Left>
         <Right>
           {direction} {num}
         </Right>
@@ -129,19 +147,71 @@ function makeCountyRow(caseIncreasePerCapita: PerCapitaCountyCase) {
   );
 }
 
+async function getNumFacilitiesRt(facilities: Facility[]) {
+  console.log("HERE");
+  let numThisWeek = 0;
+  let numLastWeek = 0;
+  for (let i = 0; i < facilities.length; i++) {
+    const facilityRtData = await getRtDataForFacility(facilities[i]);
+    console.log(facilityRtData);
+    if (isRtData(facilityRtData)) {
+      const mostRecentRt = getNewestRt(facilityRtData.Rt);
+      const allRtData = facilityRtData.Rt;
+      console.log(mostRecentRt);
+      if (
+        mostRecentRt &&
+        mostRecentRt.value > 0.01 &&
+        isThisWeek(mostRecentRt.date)
+      ) {
+        numThisWeek += 1;
+      }
+      if (
+        allRtData.length > 1 &&
+        allRtData[allRtData.length - 2]?.value > 1 &&
+        differenceInWeeks(allRtData[allRtData.length - 2]?.date, startOfToday())
+      ) {
+        numLastWeek += 1;
+      }
+    }
+  }
+  const facilityRtIncrease: FacilityRtIncrease = {
+    numFacilitiesThisWeek: numThisWeek,
+    numFacilitiesLastWeek: numLastWeek,
+    totalNumFacilities: facilities.length,
+  };
+  console.log(facilityRtIncrease);
+  return facilityRtIncrease;
+}
+
 const LocaleSummaryTable: React.FC<{}> = () => {
+  const [facilityRtIncrease, setFacilityRtIncrease] = useState<
+    FacilityRtIncrease | undefined
+  >();
   const { data: localeDataSource } = useLocaleDataState();
   const { state: facilitiesState } = useFacilities();
   const {
     state: { stateName, loading: scenarioLoading },
   } = useWeeklyReport();
 
+  const facilities = Object.values(facilitiesState.facilities);
+  const modelVersions = facilities.map((f) => f.modelVersions);
+
+  useEffect(() => {
+    let mounted = true;
+    async function fetchFacility() {
+      const facilitiesX = await getNumFacilitiesRt(facilities);
+      setFacilityRtIncrease(facilitiesX);
+    }
+    fetchFacility();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   const { data, loading: nytLoading } = useNYTData();
   const { data: localeData, loading } = useLocaleDataState();
 
   if (!stateName) return null;
-
-  // const stateNames = Array.from(localeData.keys()).filter(stateNamesFilter);
 
   const stateData = data[stateName];
   const dayOne = getDay(stateData.state || [], 1);
@@ -149,13 +219,12 @@ const LocaleSummaryTable: React.FC<{}> = () => {
   let sevenDayDiffInCases = 0;
   let perCapitaCountyCases: PerCapitaCountyCase[] = [];
   let highestFourCounties: PerCapitaCountyCase[] = [];
+  let facilitiesInHighestCounties = "";
 
   if (dayOne?.stateName && daySeven?.stateName) {
     const stateLocaleData = localeData?.get(dayOne.stateName);
     const totalLocaleData = stateLocaleData?.get("Total");
     sevenDayDiffInCases = daySeven.cases - dayOne.cases;
-    const totalBeds =
-      totalLocaleData && totalLocaleData.icuBeds + totalLocaleData.hospitalBeds;
 
     perCapitaCountyCases = getCountyIncreasePerCapita(
       stateData.counties,
@@ -168,14 +237,9 @@ const LocaleSummaryTable: React.FC<{}> = () => {
     ).slice(0, 4);
   }
 
-  const facilities = Object.values(facilitiesState.facilities);
-  const modelVersions = facilities.map((f) => f.modelVersions);
-
   if (!scenarioLoading && !facilitiesState.loading && !facilities.length) {
     return <div>Missing scenario data for state: {stateName}</div>;
   }
-
-  console.log(stateData);
 
   return (
     <>
@@ -207,12 +271,10 @@ const LocaleSummaryTable: React.FC<{}> = () => {
             </tr>
             <td>
               <TextContainer>
-                <DeltaColor delta={1.2}>
-                  <Left>1.20 </Left>
-                </DeltaColor>
-                <Right marginRight={COLUMN_SPACING}>
-                  +0.20 since last week
-                </Right>
+                {/* <DeltaColor delta={1.2}> */}
+                <Left />
+                {/* </DeltaColor> */}
+                <Right marginRight={COLUMN_SPACING}>since last week</Right>
               </TextContainer>
             </td>
             <td>
@@ -222,7 +284,6 @@ const LocaleSummaryTable: React.FC<{}> = () => {
               </TextContainer>
             </td>
           </Table>
-          <br />
           <tr>
             <TableHeading>
               <BorderDiv>

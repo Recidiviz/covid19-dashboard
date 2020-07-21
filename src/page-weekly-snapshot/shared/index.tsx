@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { createBrotliDecompress } from "zlib";
 
 import Colors from "../../design-system/Colors";
 
@@ -68,6 +69,7 @@ export const TextContainerHeading = styled.div`
   justify-content: space-between;
   margin-top: 10px;
   margin-bottom: 10px;
+  align-items: baseline;
 `;
 
 export const TextContainer = styled.div`
@@ -85,12 +87,19 @@ export const Right = styled.div<{ marginRight?: string; marginTop?: string }>`
   margin-right: ${(props) => props.marginRight || "0px"};
 `;
 
-export const Left = styled.div<{ marginRight?: string; color?: string }>`
+export const Left = styled.div<{
+  marginRight?: string;
+  marginTop?: string;
+  marginBottom?: string;
+  color?: string;
+}>`
   text-align: left;
   font-size: 24px;
   font-family: "Libre Baskerville";
   margin-right: ${(props) => props.marginRight || "0px"};
-  color: ${(props) => props.color || "${Colors.black}"};
+  margin-top: ${(props) => props.marginTop || "0px"};
+  margin-bottom: ${(props) => props.marginBottom || "0px"};
+  color: ${Colors.black};
 `;
 
 export const BorderDiv = styled.div<{ marginRight?: string }>`
