@@ -154,12 +154,10 @@ function makeCountyRow(
     "0.000%",
   );
   let direction = "+";
-  if (
-    caseIncreasePerCapita?.casesIncreasePerCapita &&
-    caseIncreasePerCapita?.casesIncreasePerCapita < 0
-  ) {
-    direction = "-";
+  if (caseIncreasePerCapita?.casesIncreasePerCapita) {
+    direction = caseIncreasePerCapita?.casesIncreasePerCapita > 0 ? "+" : "-";
   }
+
   let name = caseIncreasePerCapita.name;
   if (facilitiesCounties.includes(name)) {
     name += "***";

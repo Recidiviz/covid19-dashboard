@@ -16,9 +16,6 @@ import { referenceFacilitiesProp } from ".";
 import { FacilityDocUpdate } from "./types";
 
 const timestampToDate = (timestamp: firebase.firestore.Timestamp): Date => {
-  if (timestamp === null) {
-    return new Date();
-  }
   return timestamp.toDate();
 };
 
@@ -104,7 +101,7 @@ export const buildScenario = (
   scenario.updatedAt = timestampToDate(documentData.updatedAt);
   scenario.referenceDataObservedAt = documentData.referenceDataObservedAt
     ? timestampToDate(documentData.referenceDataObservedAt)
-    : timestampToDate(documentData.createdAt); // undefined;
+    : undefined;
   scenario.baselinePopulations = documentData.hasOwnProperty(
     "baselinePopulations",
   )

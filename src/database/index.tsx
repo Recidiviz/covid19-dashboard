@@ -279,8 +279,7 @@ export const getSharedBaselineScenarios = async (): Promise<Scenario[]> => {
 
     const results = await db
       .collection(scenariosCollectionId)
-      // TODO: for testing; remove this change
-      .where(`roles.${currentUserId()}`, "in", ["owner", "viewer"])
+      .where(`roles.${currentUserId()}`, "in", ["viewer"])
       .where("baseline", "==", true)
       .get();
 
@@ -497,9 +496,9 @@ const getUserDocument = async (
     .where(key, "==", value)
     .get();
 
-  // if (userResult.docs.length > 1) {
-  //   throw new Error(`Multiple users found matching ${key} ${value}`);
-  // }
+  if (userResult.docs.length > 1) {
+    throw new Error(`Multiple users found matching ${key} ${value}`);
+  }
 
   return userResult.docs[0];
 };
