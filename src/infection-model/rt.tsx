@@ -154,7 +154,9 @@ export const getPrevWeekRt = (rtRecords: RtRecord[]) => {
   const today = new Date();
   return maxBy(
     rtRecords.filter(
-      (record) => differenceInCalendarDays(today, record.date) <= 7,
+      (record) =>
+        differenceInCalendarDays(today, record.date) <= 7 &&
+        record.date != today,
     ),
     "date",
   );
