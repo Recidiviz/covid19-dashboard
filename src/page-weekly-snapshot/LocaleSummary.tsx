@@ -4,7 +4,7 @@ import InputSelect from "../design-system/InputSelect";
 import Loading from "../design-system/Loading";
 import { Column, PageContainer } from "../design-system/PageColumn";
 import { LocaleDataProvider, useLocaleDataState } from "../locale-data-context";
-import LocaleStatsTable from "./LocaleStatsTable";
+import LocaleSummaryTable from "./LocaleSummaryTable";
 import { NYTData, useNYTData } from "./NYTDataProvider";
 import { UPDATE_STATE_NAME, useWeeklyReport } from "./weekly-report-context";
 
@@ -48,7 +48,7 @@ export default function LocaleSummary() {
             </InputSelect>
           </Column>
           <Column>
-            <LocaleStatsTable
+            <LocaleSummaryTable
               stateName={selectedState?.state[0].stateName}
               stateNames={stateNames}
             />

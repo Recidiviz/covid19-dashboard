@@ -1,326 +1,329 @@
-import { sum } from "d3-array";
-import { get, keys, omit, orderBy, pick, values } from "lodash";
+import { maxBy, minBy, orderBy, pick } from "lodash";
+import numeral from "numeral";
 import React from "react";
 
 import { Column, PageContainer } from "../design-system/PageColumn";
 import { useFacilities } from "../facilities-context";
 import {
-  caseBracketKeys,
-  deathBracketKeys,
-  incarceratedPopulationKeys,
-} from "../impact-dashboard/EpidemicModelContext";
-import { formatThousands } from "../impact-dashboard/ImpactProjectionTable";
-import { LocaleData, useLocaleDataState } from "../locale-data-context";
+  getFacilitiesRtDataById,
+  isRtData,
+  RtData,
+  RtRecord,
+} from "../infection-model/rt";
+import { LocaleRecord, useLocaleDataState } from "../locale-data-context";
 import { Facility } from "../page-multi-facility/types";
 import {
+  numFacilitiesWithRtGreaterThan1PrevWeek,
+  numFacilitiesWithRtGreaterThan1ThisWeek,
+} from "../page-response-impact/rtStatistics";
+import { NYTCountyRecord, NYTStateRecord, useNYTData } from "./NYTDataProvider";
+import {
   BorderDiv,
+  COLUMN_SPACING,
+  Heading,
   HorizontalRule,
   Left,
   LeftHeading,
+  RankContainer,
+  RankText,
   Right,
   Table,
-  TableCell,
-  TableHeadingCell,
+  TableHeading,
   TextContainer,
+  TextContainerHeading,
 } from "./shared";
+import { useWeeklyReport } from "./weekly-report-context";
 
-type StateMetrics = {
-  stateName: string;
-  casesRate: number | undefined;
-  deathsRate: number | undefined;
+type PerCapitaCountyCase = {
+  name: string;
+  casesIncreasePerCapita: number | undefined;
 };
 
-type IncarceratedData = {
-  incarceratedData: number;
-  hasData: boolean;
-};
-
-type StateRank = {
-  stateRate: number;
-  stateRank: number;
-};
-
-const RATE_UNIT = 100000;
-const NUM_STATES = 50;
-
-const VALUE_MAPPING = {
-  deaths: deathBracketKeys,
-  cases: caseBracketKeys,
-  population: incarceratedPopulationKeys,
-};
-
-function formatOrdinal(value: number) {
-  let suffix = ["th", "st", "nd", "rd"],
-    rem = value % 100;
-  return value + (suffix[(rem - 20) % 10] || suffix[rem] || suffix[0]);
+function getDirection(
+  numFacilitiesLastWeek: number,
+  numFacilitiesThisWeek: number,
+) {
+  if (numFacilitiesLastWeek <= numFacilitiesThisWeek) {
+    return "+";
+  }
+  return "-";
 }
 
-function getRate(
-  numerator: number | undefined,
-  denominator: number | undefined,
-) {
-  let result = 0;
-  if (numerator && denominator) {
-    result = Math.round((numerator / denominator) * RATE_UNIT);
+function getDay(nytData: NYTCountyRecord[] | NYTStateRecord[], day: number) {
+  if (day === 1) {
+    return minBy(nytData, (d: NYTCountyRecord | NYTStateRecord) => d.date);
+  } else {
+    return maxBy(nytData, (d: NYTCountyRecord | NYTStateRecord) => d.date);
   }
+}
+
+function getCountyDataByName(counties: NYTCountyRecord[]) {
+  const dataByCounty: { [countyName: string]: NYTCountyRecord[] } = {};
+
+  counties.forEach((data: NYTCountyRecord) => {
+    if (dataByCounty[data.county]) {
+      dataByCounty[data.county] = [...dataByCounty[data.county], data];
+    } else {
+      dataByCounty[data.county] = [data];
+    }
+  });
+
+  return dataByCounty;
+}
+
+function calculatePerCapitaIncrease(
+  daySevenCases: number | undefined,
+  dayOneCases: number | undefined,
+  countyPopulation: number | undefined,
+) {
+  if (
+    (!daySevenCases && daySevenCases !== 0) ||
+    (!dayOneCases && dayOneCases !== 0) ||
+    !countyPopulation
+  )
+    return;
+  return (daySevenCases - dayOneCases) / countyPopulation;
+}
+
+function getCountyIncreasePerCapita(
+  counties: NYTCountyRecord[],
+  stateLocaleData: Map<string, LocaleRecord> | undefined,
+) {
+  const dataByCounty = getCountyDataByName(counties);
+  const countyCasesIncreasePerCapita: PerCapitaCountyCase[] = [];
+
+  for (const countyName in dataByCounty) {
+    const dayOne = getDay(dataByCounty[countyName], 1);
+    const daySeven = getDay(dataByCounty[countyName], 7);
+    const countyPopulation = stateLocaleData?.get(countyName)?.totalPopulation;
+    countyCasesIncreasePerCapita.push({
+      name: countyName,
+      casesIncreasePerCapita: calculatePerCapitaIncrease(
+        daySeven?.cases,
+        dayOne?.cases,
+        countyPopulation,
+      ),
+    });
+  }
+  return countyCasesIncreasePerCapita;
+}
+
+function getFacilitiesInCountiesToWatch(
+  facilities: Facility[],
+  countiesToWatch: string[],
+) {
+  let result = "";
+  for (let i = 0; i < facilities.length; i++) {
+    const modelInputs = facilities[i].modelInputs;
+    const facilitiesCountiesX = Object.values(pick(modelInputs, "countyName"));
+    for (let j = 0; j < facilitiesCountiesX.length; j++) {
+      const currCounty = facilitiesCountiesX[j];
+      if (currCounty && countiesToWatch.includes(currCounty)) {
+        result += facilities[i].name + ", ";
+      }
+    }
+  }
+  result = result.slice(0, -2);
   return result;
 }
 
-function getAllStateData(localeData: LocaleData, stateNames: string[]) {
-  const stateMetrics: StateMetrics[] = [];
-  // D.C. isn't a state!
-  stateNames = stateNames.filter((item) => item !== "District of Columbia");
-
-  for (let i = 0; i < stateNames.length; i++) {
-    const localeDataStateTotal = localeData?.get(stateNames[i])?.get("Total");
-    if (localeDataStateTotal) {
-      const totalCases = localeDataStateTotal["reportedCases"];
-      const totalPopulation = localeDataStateTotal["totalPopulation"];
-      const totalDeaths = localeDataStateTotal["totalDeaths"];
-      const casesRate = getRate(totalCases, totalPopulation);
-      const deathsRate = getRate(totalDeaths, totalPopulation);
-      stateMetrics.push({
-        stateName: stateNames[i],
-        casesRate: casesRate,
-        deathsRate: deathsRate,
-      });
-    }
-  }
-  return stateMetrics;
-}
-
-function getStateRank(
-  stateTotals: StateMetrics[],
-  selectedStateName: string | undefined,
-  filterValue: string,
-) {
-  const rankedStates = orderBy(
-    stateTotals.filter((c) => !!get(c, filterValue)),
-    [filterValue],
-    ["asc"],
-  );
-
-  let selectedStateRate = 0;
-  let selectedStateRank = 0;
-
-  for (let i = 0; i < rankedStates.length; i++) {
-    const currState = rankedStates[i];
-    const currStateDataRate = get(currState, filterValue);
-    if (
-      selectedStateName &&
-      currState.stateName === selectedStateName &&
-      currStateDataRate
-    ) {
-      selectedStateRate = currStateDataRate;
-      selectedStateRank = i + 1;
-    }
-  }
-
-  const stateRank: StateRank = {
-    stateRank: selectedStateRank,
-    stateRate: selectedStateRate,
-  };
-  return stateRank;
-}
-
-function getTotalIncarceratedValue(facilities: Facility[], value: string) {
-  let result = 0;
-  let hasData = false;
-  const valueKeys = get(VALUE_MAPPING, value);
+function getFacilitiesCounties(facilities: Facility[]) {
+  let facilitiesCounties: string[] = [];
   for (let i = 0; i < facilities.length; i++) {
     const modelInputs = facilities[i].modelInputs;
-    const data = omit(
-      pick(modelInputs, valueKeys),
-      "staffDeaths",
-      "staffRecovered",
-      "staffCases",
-    );
-    if (keys(data).length > 0) {
-      hasData = true;
+    const counties = Object.values(pick(modelInputs, "countyName"));
+    for (let j = 0; j < counties.length; j++) {
+      const currCounty = counties[j];
+      if (
+        currCounty !== undefined &&
+        !facilitiesCounties.includes(currCounty)
+      ) {
+        facilitiesCounties.push(currCounty);
+      }
     }
-    result += sum(values(data));
   }
-  const incarceratedData: IncarceratedData = {
-    incarceratedData: result,
-    hasData: hasData,
-  };
-  return incarceratedData;
+  return facilitiesCounties;
 }
 
-function makeIncarceratedDataRow(
-  hasData: boolean,
-  incarceratedDataRate: number,
+function makeCountyRow(
+  caseIncreasePerCapita: PerCapitaCountyCase,
+  facilitiesCounties: string[],
+  index: number,
 ) {
-  if (hasData) {
-    return (
-      <tr>
-        <TextContainer>
-          <Left>{formatThousands(incarceratedDataRate)}</Left>
-        </TextContainer>
-      </tr>
-    );
-  } else {
-    return (
-      <tr>
-        <TextContainer>
-          <Left>???</Left>
-        </TextContainer>
-      </tr>
-    );
-  }
-}
-
-function makeTableColumn(
-  heading: string,
-  incarceratedData: number,
-  stateData: number,
-  stateRank: number,
-  hasData: boolean,
-) {
-  const incarceratedDataRow = makeIncarceratedDataRow(
-    hasData,
-    incarceratedData,
+  let num = numeral(caseIncreasePerCapita.casesIncreasePerCapita).format(
+    "0.000%",
   );
+  let direction = "+";
+  if (caseIncreasePerCapita?.casesIncreasePerCapita) {
+    direction = caseIncreasePerCapita?.casesIncreasePerCapita > 0 ? "+" : "-";
+  }
+
+  let name = caseIncreasePerCapita.name;
+  if (facilitiesCounties.includes(name)) {
+    name += "***";
+  }
   return (
-    <>
-      <tr>
-        <TableHeadingCell>
-          <HorizontalRule />
-          <TextContainer>
-            <Right>{heading} </Right>
-            <LeftHeading marginTop={"0px"}>(per 100k)</LeftHeading>
-          </TextContainer>
-        </TableHeadingCell>
-      </tr>
-      <BorderDiv />
-      <tr>
-        <TableCell>
-          Incarcerated {heading}
-          <HorizontalRule />
-        </TableCell>
-      </tr>
-      {incarceratedDataRow}
-      <BorderDiv />
-      <tr>
-        <TableCell>
-          Overall State {heading}
-          <HorizontalRule />
-        </TableCell>
-      </tr>
-      <tr>
-        <TableCell>
-          <TextContainer>
-            <Left>{formatThousands(stateData)}</Left>
-            <Right>
-              {formatOrdinal(stateRank)} lowest of {NUM_STATES}
-            </Right>
-          </TextContainer>
-        </TableCell>
-      </tr>
-    </>
+    <tr>
+      <TextContainerHeading>
+        <RankContainer>
+          <RankText>{index + 1}</RankText>
+          <Left>{name}</Left>
+        </RankContainer>
+        <Right>
+          {direction} {num}
+        </Right>
+      </TextContainerHeading>
+      <HorizontalRule />
+    </tr>
   );
 }
 
-const LocaleStatsTable: React.FC<{
-  stateName: string | undefined;
-  stateNames: string[];
-}> = ({ stateName, stateNames }) => {
-  const localeState = useLocaleDataState();
-  const localeData = localeState.data;
+function makeFacilitiesToWatchRow(highestCountiesFacilities: string) {
+  return (
+    <tr>
+      <TextContainerHeading>
+        <Left>{highestCountiesFacilities}</Left>
+      </TextContainerHeading>
+    </tr>
+  );
+}
+
+function makeTableHeading(heading: string) {
+  return (
+    <TableHeading>
+      <BorderDiv marginRight={COLUMN_SPACING} />
+      <TextContainer>{heading}</TextContainer>
+      <HorizontalRule marginRight={COLUMN_SPACING} />
+    </TableHeading>
+  );
+}
+
+function makeTableSubheading(leftHeading: string, rightHeading: string) {
+  return (
+    <TableHeading>
+      <BorderDiv>
+        <TextContainer>
+          <LeftHeading marginTop={"0px"}>{leftHeading}</LeftHeading>
+          <Right>{rightHeading}</Right>
+        </TextContainer>
+      </BorderDiv>
+      <HorizontalRule />
+    </TableHeading>
+  );
+}
+
+const LocaleStatsTable: React.FC<{}> = () => {
+  const { state: facilitiesState } = useFacilities();
   const {
-    state: { facilities: facilitiesState },
-  } = useFacilities();
-  const facilities = Object.values(facilitiesState);
+    state: { stateName, loading: scenarioLoading },
+  } = useWeeklyReport();
 
-  let casesRate = 0;
-  let casesRateRank = 0;
+  const facilities = Object.values(facilitiesState.facilities);
+  const facilitiesCounties = getFacilitiesCounties(facilities);
 
-  let deathsRate = 0;
-  let deathsRateRank = 0;
+  const rtData = getFacilitiesRtDataById(facilitiesState.rtData, facilities);
+  const totalNumFacilities = facilities.length;
+  let numFacilitiesLastWeek = 0;
+  let numFacilitiesThisWeek = 0;
 
-  let incarceratedCasesRate = 0;
-  let incarceratedDeathsRate = 0;
-
-  let hasCaseData = true;
-  let hasDeathData = true;
-
-  const allStateMetrics = getAllStateData(localeData, stateNames);
-
-  // TODO (per 644): currently getting state name from the drop down;
-  // may need to update this depending on how the logic 644 is implemented
-  if (stateName) {
-    const selectedStateCasesRank = getStateRank(
-      allStateMetrics,
-      stateName,
-      "casesRate",
+  if (rtData) {
+    const rtDataValues = Object.values(rtData);
+    const facilitiesRtRecords: RtRecord[][] = rtDataValues
+      .filter(isRtData)
+      .map((rtData: RtData) => rtData.Rt);
+    numFacilitiesThisWeek = numFacilitiesWithRtGreaterThan1ThisWeek(
+      facilitiesRtRecords,
     );
-
-    casesRate = selectedStateCasesRank.stateRate;
-    casesRateRank = selectedStateCasesRank.stateRank;
-
-    const selectedStateDeathsRank = getStateRank(
-      allStateMetrics,
-      stateName,
-      "deathsRate",
+    numFacilitiesLastWeek = numFacilitiesWithRtGreaterThan1PrevWeek(
+      facilitiesRtRecords,
     );
+  }
 
-    deathsRate = selectedStateDeathsRank.stateRate;
-    deathsRateRank = selectedStateDeathsRank.stateRank;
+  const { data } = useNYTData();
+  const { data: localeData } = useLocaleDataState();
 
-    const totalIncarceratedCases = getTotalIncarceratedValue(
+  if (!stateName) return null;
+
+  const stateData = data[stateName];
+  const dayOne = getDay(stateData.state || [], 1);
+  const daySeven = getDay(stateData.state || [], 7);
+  let perCapitaCountyCases: PerCapitaCountyCase[] = [];
+  let highestFourCounties: PerCapitaCountyCase[] = [];
+  let highestCountiesFacilities = "";
+
+  if (dayOne?.stateName && daySeven?.stateName) {
+    const stateLocaleData = localeData?.get(dayOne.stateName);
+
+    perCapitaCountyCases = getCountyIncreasePerCapita(
+      stateData.counties,
+      stateLocaleData,
+    );
+    highestFourCounties = orderBy(
+      perCapitaCountyCases.filter((c) => !!c.casesIncreasePerCapita),
+      ["casesIncreasePerCapita"],
+      ["desc"],
+    ).slice(0, 4);
+
+    const countiesToWatch = highestFourCounties.map((county) => {
+      return county.name;
+    });
+
+    highestCountiesFacilities = getFacilitiesInCountiesToWatch(
       facilities,
-      "cases",
+      countiesToWatch,
     );
-    const totalIncarceratedDeaths = getTotalIncarceratedValue(
-      facilities,
-      "deaths",
-    );
-    const totalIncarceratedPopulation = getTotalIncarceratedValue(
-      facilities,
-      "population",
-    );
-    incarceratedCasesRate = getRate(
-      totalIncarceratedCases.incarceratedData,
-      totalIncarceratedPopulation.incarceratedData,
-    );
-    hasCaseData = totalIncarceratedCases.hasData;
-    incarceratedDeathsRate = getRate(
-      totalIncarceratedDeaths.incarceratedData,
-      totalIncarceratedPopulation.incarceratedData,
-    );
-    hasDeathData = totalIncarceratedDeaths.hasData;
+  }
+
+  if (!scenarioLoading && !facilitiesState.loading && !facilities.length) {
+    return <div>Missing scenario data for state: {stateName}</div>;
   }
 
   return (
     <>
+      <Heading>Locale Summary</Heading>
       <PageContainer>
+        <BorderDiv marginRight={"-20px"} />
         <Column>
           <Table>
-            <tbody>
-              <td />
-              {makeTableColumn(
-                "Cases",
-                incarceratedCasesRate,
-                casesRate,
-                casesRateRank,
-                hasCaseData,
-              )}
-            </tbody>
+            <BorderDiv />
           </Table>
         </Column>
         <Column>
           <Table>
-            <tbody>
-              <td />
-              {makeTableColumn(
-                "Fatalities",
-                incarceratedDeathsRate,
-                deathsRate,
-                deathsRateRank,
-                hasDeathData,
-              )}
-            </tbody>
+            <tr>
+              {makeTableHeading("State rate of spread")}
+              {makeTableHeading("Facilities with rate of spread > 1")}
+            </tr>
+            <td>
+              <TextContainer>
+                <Left />
+                <Right marginRight={COLUMN_SPACING}>since last week</Right>
+              </TextContainer>
+            </td>
+            <td>
+              <TextContainer>
+                <Left>
+                  {numFacilitiesThisWeek} of {totalNumFacilities}{" "}
+                </Left>
+                <Right marginRight={COLUMN_SPACING}>
+                  {getDirection(numFacilitiesLastWeek, numFacilitiesThisWeek)}
+                  {numFacilitiesLastWeek} since last week
+                </Right>
+              </TextContainer>
+            </td>
           </Table>
+          <tr>
+            {makeTableSubheading(
+              "Counties to watch",
+              "Change in cases per 100k since last week",
+            )}
+          </tr>
+          {highestFourCounties.map((row, index) =>
+            makeCountyRow(row, facilitiesCounties, index),
+          )}
+          <br />
+          <tr>{makeTableSubheading("Facilities in counties to watch", "")}</tr>
+          {makeFacilitiesToWatchRow(highestCountiesFacilities)}
         </Column>
       </PageContainer>
     </>
