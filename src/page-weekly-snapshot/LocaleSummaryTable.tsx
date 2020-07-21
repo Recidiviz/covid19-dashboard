@@ -1,4 +1,4 @@
-import { maxBy, minBy, orderBy } from "lodash";
+import { maxBy, minBy, orderBy, pick } from "lodash";
 import numeral from "numeral";
 import React from "react";
 
@@ -106,7 +106,10 @@ function getCountyIncreasePerCapita(
   return countyCasesIncreasePerCapita;
 }
 
-function makeCountyRow(caseIncreasePerCapita: PerCapitaCountyCase) {
+function makeCountyRow(
+  caseIncreasePerCapita: PerCapitaCountyCase,
+  facilitiesCounties: (string | undefined)[],
+) {
   let num = numeral(caseIncreasePerCapita.casesIncreasePerCapita).format(
     "0.000%",
   );
@@ -117,11 +120,15 @@ function makeCountyRow(caseIncreasePerCapita: PerCapitaCountyCase) {
   ) {
     direction = "-";
   }
+  let name = caseIncreasePerCapita.name;
+  if (facilitiesCounties.includes(name)) {
+    name += "***";
+  }
   return (
     <tr>
       <TextContainerHeading>
         <Left marginTop={TOP_BOTTOM_MARGIN} marginBottom={TOP_BOTTOM_MARGIN}>
-          {caseIncreasePerCapita.name}{" "}
+          {name}{" "}
         </Left>
         <Right>
           {direction} {num}
@@ -133,15 +140,20 @@ function makeCountyRow(caseIncreasePerCapita: PerCapitaCountyCase) {
 }
 
 const LocaleSummaryTable: React.FC<{}> = () => {
-  const { data: localeDataSource } = useLocaleDataState();
   const { state: facilitiesState } = useFacilities();
   const {
     state: { stateName, loading: scenarioLoading },
   } = useWeeklyReport();
 
   const facilities = Object.values(facilitiesState.facilities);
-  const rtData = getFacilitiesRtDataById(facilitiesState.rtData, facilities);
+  let facilitiesCounties: (string | undefined)[] = [];
 
+  for (let i = 0; i < facilities.length; i++) {
+    const modelInputs = facilities[i].modelInputs;
+    facilitiesCounties = Object.values(pick(modelInputs, "countyName"));
+  }
+
+  const rtData = getFacilitiesRtDataById(facilitiesState.rtData, facilities);
   const totalNumFacilities = facilities.length;
   let numFacilitiesLastWeek = 0;
   let numFacilitiesThisWeek = 0;
@@ -159,8 +171,8 @@ const LocaleSummaryTable: React.FC<{}> = () => {
     );
   }
 
-  const { data, loading: nytLoading } = useNYTData();
-  const { data: localeData, loading } = useLocaleDataState();
+  const { data } = useNYTData();
+  const { data: localeData } = useLocaleDataState();
 
   if (!stateName) return null;
 
@@ -248,7 +260,9 @@ const LocaleSummaryTable: React.FC<{}> = () => {
               <HorizontalRule />
             </TableHeading>
           </tr>
-          {highestFourCounties.map((row) => makeCountyRow(row))}
+          {highestFourCounties.map((row) =>
+            makeCountyRow(row, facilitiesCounties),
+          )}
           <br />
           <tr>
             <TableHeading>
