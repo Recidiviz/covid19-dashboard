@@ -20,17 +20,6 @@ export const Delta = styled.div<{ deltaDirection?: string }>`
       : Colors.gray};
 `;
 
-export const DeltaColor = styled.div<{ delta: number }>`
-  color: ${(props) =>
-    props.delta <= 0.9
-      ? Colors.green
-      : 0.9 < props.delta && props.delta <= 1.1
-      ? Colors.yellow
-      : 1.1 < props.delta && props.delta <= 1.4
-      ? Colors.orange
-      : Colors.red};
-`;
-
 export const TableHeading = styled.th`
   width 25%;
 `;
@@ -74,7 +63,7 @@ export const RankText = styled.td`
 `;
 
 export const LeftHeading = styled.div<{ marginTop?: string }>`
-  margin-top: ${(props) => props.marginTop || "10px"};
+  margin-top: ${(props) => props.marginTop || TOP_BOTTOM_MARGIN};
   text-align: left;
 `;
 
@@ -82,8 +71,8 @@ export const TextContainerHeading = styled.div`
   width: 100%;
   display: flex;
   justify-content: space-between;
-  margin-top: 10px;
-  margin-bottom: 10px;
+  margin-top: ${TOP_BOTTOM_MARGIN};
+  margin-bottom: ${TOP_BOTTOM_MARGIN};
   align-items: baseline;
   line-height: 40px;
 `;

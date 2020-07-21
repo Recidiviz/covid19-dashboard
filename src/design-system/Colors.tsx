@@ -41,7 +41,6 @@ const BaseColors = {
   lightGray: "#e1e3e3",
   white: "#fff",
   black: "#000000",
-  yellow: "#ee8F00",
 };
 
 const Colors = {
