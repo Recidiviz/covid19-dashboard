@@ -1,33 +1,15 @@
-import { maxBy, minBy, orderBy } from "lodash";
-import numeral from "numeral";
-import React, { useEffect, useState } from "react";
-import styled from "styled-components";
+import React, { useState } from "react";
 
-import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import InputSelect from "../design-system/InputSelect";
 import Loading from "../design-system/Loading";
 import { Column, PageContainer } from "../design-system/PageColumn";
-import {
-  LocaleDataProvider,
-  LocaleRecord,
-  useLocaleDataState,
-} from "../locale-data-context";
+import { LocaleDataProvider, useLocaleDataState } from "../locale-data-context";
 import LocaleStatsTable from "./LocaleStatsTable";
-import {
-  NYTCountyRecord,
-  NYTData,
-  NYTStateRecord,
-  useNYTData,
-} from "./NYTDataProvider";
+import { NYTData, useNYTData } from "./NYTDataProvider";
 import { UPDATE_STATE_NAME, useWeeklyReport } from "./weekly-report-context";
 
 const stateNamesFilter = (key: string) =>
   !["US Total", "US Federal Prisons"].includes(key);
-
-const LocaleStats = styled.div`
-  display: flex;
-`;
-const LocaleStatsList = styled.ul``;
 
 export default function LocaleSummary() {
   const { dispatch } = useWeeklyReport();

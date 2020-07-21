@@ -1,8 +1,6 @@
 import { get, pick, pickBy, sum, values } from "lodash";
 import React from "react";
-import styled from "styled-components";
 
-import Colors from "../design-system/Colors";
 import {
   findMatchingDay,
   findMostRecentDate,

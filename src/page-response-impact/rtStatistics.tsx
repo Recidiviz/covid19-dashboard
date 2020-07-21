@@ -1,4 +1,4 @@
-import { differenceInWeeks, isThisWeek, startOfToday } from "date-fns";
+import { isThisWeek } from "date-fns";
 import { mean } from "lodash";
 
 import {

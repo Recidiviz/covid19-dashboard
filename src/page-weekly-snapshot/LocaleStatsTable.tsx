@@ -22,7 +22,6 @@ import {
   TableCell,
   TableHeadingCell,
   TextContainer,
-  TextContainerHeading,
 } from "./shared";
 
 type StateMetrics = {
