@@ -1,6 +1,12 @@
+import { differenceInWeeks, isThisWeek, startOfToday } from "date-fns";
 import { mean } from "lodash";
 
-import { getNewestRt, getOldestRt, RtRecord } from "../infection-model/rt";
+import {
+  getNewestRt,
+  getOldestRt,
+  getPrevWeekRt,
+  RtRecord,
+} from "../infection-model/rt";
 
 export function numFacilitiesWithRtLessThan1(
   facilitiesRtRecords: RtRecord[][],
@@ -9,6 +15,29 @@ export function numFacilitiesWithRtLessThan1(
     return getNewestRt(rtRecords)?.value;
   });
   return latestRtValues.filter((v) => v !== undefined && v < 1).length;
+}
+
+export function numFacilitiesWithRtGreaterThan1ThisWeek(
+  facilitiesRtRecords: RtRecord[][],
+) {
+  const rtValuesThisWeek = facilitiesRtRecords.filter((rtRecords) => {
+    const newestRt = getNewestRt(rtRecords);
+    return newestRt && isThisWeek(newestRt.date);
+  });
+
+  const latestRtValues = rtValuesThisWeek.map((rtRecords) => {
+    return getNewestRt(rtRecords)?.value;
+  });
+  return latestRtValues.filter((date, v) => v !== undefined && v > 1).length;
+}
+
+export function numFacilitiesWithRtGreaterThan1PrevWeek(
+  facilitiesRtRecords: RtRecord[][],
+) {
+  const latestRtValues = facilitiesRtRecords.map((rtRecords) => {
+    return getPrevWeekRt(rtRecords)?.value;
+  });
+  return latestRtValues.filter((date, v) => v !== undefined && v > 1).length;
 }
 
 export function averageRtReductionAcrossFacilities(

@@ -8,11 +8,13 @@ import InputSelect from "../design-system/InputSelect";
 import Loading from "../design-system/Loading";
 import { Column, PageContainer } from "../design-system/PageColumn";
 import { useFacilities } from "../facilities-context";
-import { userFacility } from "../facilities-context/__fixtures__";
 import {
+  getFacilitiesRtDataById,
   getNewestRt,
   getRtDataForFacility,
   isRtData,
+  RtData,
+  RtRecord,
 } from "../infection-model/rt";
 import {
   LocaleDataProvider,
@@ -20,6 +22,10 @@ import {
   useLocaleDataState,
 } from "../locale-data-context";
 import { Facility } from "../page-multi-facility/types";
+import {
+  numFacilitiesWithRtGreaterThan1PrevWeek,
+  numFacilitiesWithRtGreaterThan1ThisWeek,
+} from "../page-response-impact/rtStatistics";
 import facility from "../pages/facility";
 import LocaleStatsTable from "./LocaleStatsTable";
 import {
@@ -45,11 +51,7 @@ import {
   TextContainerHeading,
   TOP_BOTTOM_MARGIN,
 } from "./shared";
-import { UPDATE_STATE_NAME, useWeeklyReport } from "./weekly-report-context";
-
-const stateNamesFilter = (key: string) =>
-  !["US Total", "US Federal Prisons"].includes(key);
-const formatNumber = (number: number) => numeral(number).format("0,0");
+import { useWeeklyReport } from "./weekly-report-context";
 
 type PerCapitaCountyCase = {
   name: string;
@@ -184,9 +186,6 @@ async function getNumFacilitiesRt(facilities: Facility[]) {
 }
 
 const LocaleSummaryTable: React.FC<{}> = () => {
-  const [facilityRtIncrease, setFacilityRtIncrease] = useState<
-    FacilityRtIncrease | undefined
-  >();
   const { data: localeDataSource } = useLocaleDataState();
   const { state: facilitiesState } = useFacilities();
   const {
@@ -194,19 +193,38 @@ const LocaleSummaryTable: React.FC<{}> = () => {
   } = useWeeklyReport();
 
   const facilities = Object.values(facilitiesState.facilities);
+  const rtData = getFacilitiesRtDataById(facilitiesState.rtData, facilities);
+
+  const totalNumFacilities = facilities.length;
+  let numFacilitiesLastWeek = 0;
+  let numFacilitiesThisWeek = 0;
+
+  if (rtData) {
+    const rtDataValues = Object.values(rtData);
+    const facilitiesRtRecords: RtRecord[][] = rtDataValues
+      .filter(isRtData)
+      .map((rtData: RtData) => rtData.Rt);
+    numFacilitiesThisWeek = numFacilitiesWithRtGreaterThan1ThisWeek(
+      facilitiesRtRecords,
+    );
+    numFacilitiesLastWeek = numFacilitiesWithRtGreaterThan1PrevWeek(
+      facilitiesRtRecords,
+    );
+  }
+
   const modelVersions = facilities.map((f) => f.modelVersions);
 
-  useEffect(() => {
-    let mounted = true;
-    async function fetchFacility() {
-      const facilitiesX = await getNumFacilitiesRt(facilities);
-      setFacilityRtIncrease(facilitiesX);
-    }
-    fetchFacility();
-    return () => {
-      mounted = false;
-    };
-  }, []);
+  // useEffect(() => {
+  //   // let mounted = true;
+  //   // async function fetchFacility() {
+  //   //   const facilitiesX = await getNumFacilitiesRt(facilities);
+  //   //   setFacilityRtIncrease(facilitiesX);
+  //   // }
+  //   // fetchFacility();
+  //   // return () => {
+  //   //   mounted = false;
+  //   // };
+  // }, []);
 
   const { data, loading: nytLoading } = useNYTData();
   const { data: localeData, loading } = useLocaleDataState();
@@ -279,8 +297,12 @@ const LocaleSummaryTable: React.FC<{}> = () => {
             </td>
             <td>
               <TextContainer>
-                <Left>3 of 14 </Left>
-                <Right marginRight={COLUMN_SPACING}>-2 since last week</Right>
+                <Left>
+                  {numFacilitiesThisWeek} of {totalNumFacilities}{" "}
+                </Left>
+                <Right marginRight={COLUMN_SPACING}>
+                  -{numFacilitiesLastWeek} since last week
+                </Right>
               </TextContainer>
             </td>
           </Table>

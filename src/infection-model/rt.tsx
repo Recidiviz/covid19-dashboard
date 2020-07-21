@@ -150,6 +150,16 @@ export const getDaysAgoRt = (rtRecords: RtRecord[], daysAgo: number) => {
   );
 };
 
+export const getPrevWeekRt = (rtRecords: RtRecord[]) => {
+  const today = new Date();
+  return maxBy(
+    rtRecords.filter(
+      (record) => differenceInCalendarDays(today, record.date) <= 7,
+    ),
+    "date",
+  );
+};
+
 export const rtSpreadType = (rtValue: number | RtError | undefined) => {
   if (isRtError(rtValue) || rtValue === undefined) {
     return RateOfSpreadType.Missing;
