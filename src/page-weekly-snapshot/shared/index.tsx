@@ -69,6 +69,7 @@ export const TextContainerHeading = styled.div`
   margin-top: 10px;
   margin-bottom: 10px;
   align-items: baseline;
+  line-height: 40px;
 `;
 
 export const TextContainer = styled.div`

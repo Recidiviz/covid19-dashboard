@@ -127,14 +127,22 @@ function makeCountyRow(
   return (
     <tr>
       <TextContainerHeading>
-        <Left marginTop={TOP_BOTTOM_MARGIN} marginBottom={TOP_BOTTOM_MARGIN}>
-          {name}{" "}
-        </Left>
+        <Left>{name} </Left>
         <Right>
           {direction} {num}
         </Right>
       </TextContainerHeading>
       <HorizontalRule />
+    </tr>
+  );
+}
+
+function makeFacilitiesToWatchRow(highestCountiesFacilities: string) {
+  return (
+    <tr>
+      <TextContainerHeading>
+        <Left>{highestCountiesFacilities}</Left>
+      </TextContainerHeading>
     </tr>
   );
 }
@@ -152,6 +160,7 @@ const LocaleSummaryTable: React.FC<{}> = () => {
     const modelInputs = facilities[i].modelInputs;
     facilitiesCounties = Object.values(pick(modelInputs, "countyName"));
   }
+  facilitiesCounties.push("undefined");
 
   const rtData = getFacilitiesRtDataById(facilitiesState.rtData, facilities);
   const totalNumFacilities = facilities.length;
@@ -182,7 +191,7 @@ const LocaleSummaryTable: React.FC<{}> = () => {
   let sevenDayDiffInCases = 0;
   let perCapitaCountyCases: PerCapitaCountyCase[] = [];
   let highestFourCounties: PerCapitaCountyCase[] = [];
-  let facilitiesInHighestCounties = "";
+  let highestCountiesFacilities = "";
 
   if (dayOne?.stateName && daySeven?.stateName) {
     const stateLocaleData = localeData?.get(dayOne.stateName);
@@ -197,6 +206,26 @@ const LocaleSummaryTable: React.FC<{}> = () => {
       ["casesIncreasePerCapita"],
       ["desc"],
     ).slice(0, 4);
+
+    const countiesToWatch = highestFourCounties.map((county) => {
+      return county.name;
+    });
+
+    countiesToWatch.push("undefined");
+
+    console.log(countiesToWatch);
+
+    for (let i = 0; i < facilities.length; i++) {
+      const modelInputs = facilities[i].modelInputs;
+      facilitiesCounties = Object.values(pick(modelInputs, "countyName"));
+      for (let j = 0; j < facilitiesCounties.length; j++) {
+        const currCounty = facilitiesCounties[j];
+        if (currCounty && countiesToWatch.includes(currCounty)) {
+          highestCountiesFacilities += facilities[i].name + ", ";
+        }
+      }
+    }
+    highestCountiesFacilities = highestCountiesFacilities.slice(0, -2);
   }
 
   if (!scenarioLoading && !facilitiesState.loading && !facilities.length) {
@@ -218,16 +247,14 @@ const LocaleSummaryTable: React.FC<{}> = () => {
             <tr>
               <TableHeading>
                 <BorderDiv marginRight={COLUMN_SPACING} />
-                <TextContainerHeading>
-                  State rate of spread
-                </TextContainerHeading>
+                <TextContainer>State rate of spread</TextContainer>
                 <HorizontalRule marginRight={COLUMN_SPACING} />
               </TableHeading>
               <TableHeading>
                 <BorderDiv marginRight={COLUMN_SPACING} />
-                <TextContainerHeading>
+                <TextContainer>
                   Facilities with rate of spread > 1
-                </TextContainerHeading>
+                </TextContainer>
                 <HorizontalRule marginRight={COLUMN_SPACING} />
               </TableHeading>
             </tr>
@@ -252,10 +279,10 @@ const LocaleSummaryTable: React.FC<{}> = () => {
           <tr>
             <TableHeading>
               <BorderDiv>
-                <TextContainerHeading>
+                <TextContainer>
                   <LeftHeading marginTop={"0px"}>Counties to watch</LeftHeading>
                   <Right>Change in cases per 100k since last week</Right>
-                </TextContainerHeading>
+                </TextContainer>
               </BorderDiv>
               <HorizontalRule />
             </TableHeading>
@@ -267,11 +294,12 @@ const LocaleSummaryTable: React.FC<{}> = () => {
           <tr>
             <TableHeading>
               <BorderDiv>
-                <TextContainerHeading>
+                <TextContainer>
                   <LeftHeading>Facilities in counties to watch</LeftHeading>
-                </TextContainerHeading>
+                </TextContainer>
               </BorderDiv>
               <HorizontalRule />
+              {makeFacilitiesToWatchRow(highestCountiesFacilities)}
             </TableHeading>
           </tr>
         </Column>

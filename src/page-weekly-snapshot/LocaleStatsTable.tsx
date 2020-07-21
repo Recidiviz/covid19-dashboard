@@ -187,10 +187,10 @@ function makeTableColumn(
       <tr>
         <TableHeadingCell>
           <HorizontalRule />
-          <TextContainerHeading>
+          <TextContainer>
             <Right>{heading} </Right>
             <LeftHeading marginTop={"0px"}>(per 100k)</LeftHeading>
-          </TextContainerHeading>
+          </TextContainer>
         </TableHeadingCell>
       </tr>
       <BorderDiv />
