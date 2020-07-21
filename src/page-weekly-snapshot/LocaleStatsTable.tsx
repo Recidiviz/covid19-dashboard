@@ -43,10 +43,7 @@ function getDirection(
   numFacilitiesLastWeek: number,
   numFacilitiesThisWeek: number,
 ) {
-  if (numFacilitiesLastWeek <= numFacilitiesThisWeek) {
-    return "+";
-  }
-  return "-";
+  return numFacilitiesLastWeek <= numFacilitiesThisWeek ? "+" : "-";
 }
 
 function getDay(nytData: NYTCountyRecord[] | NYTStateRecord[], day: number) {
@@ -115,9 +112,9 @@ function getFacilitiesInCountiesToWatch(
   let result = "";
   for (let i = 0; i < facilities.length; i++) {
     const modelInputs = facilities[i].modelInputs;
-    const facilitiesCountiesX = Object.values(pick(modelInputs, "countyName"));
-    for (let j = 0; j < facilitiesCountiesX.length; j++) {
-      const currCounty = facilitiesCountiesX[j];
+    const facilityCounties = Object.values(pick(modelInputs, "countyName"));
+    for (let j = 0; j < facilityCounties.length; j++) {
+      const currCounty = facilityCounties[j];
       if (currCounty && countiesToWatch.includes(currCounty)) {
         result += facilities[i].name + ", ";
       }
@@ -131,13 +128,10 @@ function getFacilitiesCounties(facilities: Facility[]) {
   let facilitiesCounties: string[] = [];
   for (let i = 0; i < facilities.length; i++) {
     const modelInputs = facilities[i].modelInputs;
-    const counties = Object.values(pick(modelInputs, "countyName"));
-    for (let j = 0; j < counties.length; j++) {
-      const currCounty = counties[j];
-      if (
-        currCounty !== undefined &&
-        !facilitiesCounties.includes(currCounty)
-      ) {
+    const facilityCounties = Object.values(pick(modelInputs, "countyName"));
+    for (let j = 0; j < facilityCounties.length; j++) {
+      const currCounty = facilityCounties[j];
+      if (currCounty && !facilitiesCounties.includes(currCounty)) {
         facilitiesCounties.push(currCounty);
       }
     }
@@ -150,9 +144,10 @@ function makeCountyRow(
   facilitiesCounties: string[],
   index: number,
 ) {
-  let num = numeral(caseIncreasePerCapita.casesIncreasePerCapita).format(
+  const num = numeral(caseIncreasePerCapita.casesIncreasePerCapita).format(
     "0.000%",
   );
+
   let direction = "+";
   if (caseIncreasePerCapita?.casesIncreasePerCapita) {
     direction = caseIncreasePerCapita?.casesIncreasePerCapita > 0 ? "+" : "-";
@@ -162,6 +157,7 @@ function makeCountyRow(
   if (facilitiesCounties.includes(name)) {
     name += "***";
   }
+
   return (
     <tr>
       <TextContainerHeading>
