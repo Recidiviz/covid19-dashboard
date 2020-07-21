@@ -11,6 +11,7 @@ import {
   RtRecord,
 } from "../infection-model/rt";
 import { LocaleRecord, useLocaleDataState } from "../locale-data-context";
+import { Facility } from "../page-multi-facility/types";
 import {
   numFacilitiesWithRtGreaterThan1PrevWeek,
   numFacilitiesWithRtGreaterThan1ThisWeek,
@@ -107,6 +108,43 @@ function getCountyIncreasePerCapita(
   return countyCasesIncreasePerCapita;
 }
 
+function getFacilitiesInCountiesToWatch(
+  facilities: Facility[],
+  countiesToWatch: string[],
+) {
+  let result = "";
+  for (let i = 0; i < facilities.length; i++) {
+    const modelInputs = facilities[i].modelInputs;
+    const facilitiesCountiesX = Object.values(pick(modelInputs, "countyName"));
+    for (let j = 0; j < facilitiesCountiesX.length; j++) {
+      const currCounty = facilitiesCountiesX[j];
+      if (currCounty && countiesToWatch.includes(currCounty)) {
+        result += facilities[i].name + ", ";
+      }
+    }
+  }
+  result = result.slice(0, -2);
+  return result;
+}
+
+function getFacilitiesCounties(facilities: Facility[]) {
+  let facilitiesCounties: string[] = [];
+  for (let i = 0; i < facilities.length; i++) {
+    const modelInputs = facilities[i].modelInputs;
+    const counties = Object.values(pick(modelInputs, "countyName"));
+    for (let j = 0; j < counties.length; j++) {
+      const currCounty = counties[j];
+      if (
+        currCounty !== undefined &&
+        !facilitiesCounties.includes(currCounty)
+      ) {
+        facilitiesCounties.push(currCounty);
+      }
+    }
+  }
+  return facilitiesCounties;
+}
+
 function makeCountyRow(
   caseIncreasePerCapita: PerCapitaCountyCase,
   facilitiesCounties: string[],
@@ -123,7 +161,6 @@ function makeCountyRow(
     direction = "-";
   }
   let name = caseIncreasePerCapita.name;
-  console.log(name, facilitiesCounties);
   if (facilitiesCounties.includes(name)) {
     name += "***";
   }
@@ -153,6 +190,30 @@ function makeFacilitiesToWatchRow(highestCountiesFacilities: string) {
   );
 }
 
+function makeTableHeading(heading: string) {
+  return (
+    <TableHeading>
+      <BorderDiv marginRight={COLUMN_SPACING} />
+      <TextContainer>{heading}</TextContainer>
+      <HorizontalRule marginRight={COLUMN_SPACING} />
+    </TableHeading>
+  );
+}
+
+function makeTableSubheading(leftHeading: string, rightHeading: string) {
+  return (
+    <TableHeading>
+      <BorderDiv>
+        <TextContainer>
+          <LeftHeading marginTop={"0px"}>{leftHeading}</LeftHeading>
+          <Right>{rightHeading}</Right>
+        </TextContainer>
+      </BorderDiv>
+      <HorizontalRule />
+    </TableHeading>
+  );
+}
+
 const LocaleSummaryTable: React.FC<{}> = () => {
   const { state: facilitiesState } = useFacilities();
   const {
@@ -160,21 +221,7 @@ const LocaleSummaryTable: React.FC<{}> = () => {
   } = useWeeklyReport();
 
   const facilities = Object.values(facilitiesState.facilities);
-  let facilitiesCounties: string[] = [];
-
-  for (let i = 0; i < facilities.length; i++) {
-    const modelInputs = facilities[i].modelInputs;
-    const data = Object.values(pick(modelInputs, "countyName"));
-    for (let j = 0; j < data.length; j++) {
-      const currData = data[j];
-      if (currData !== undefined) {
-        facilitiesCounties.push(currData);
-        facilitiesCounties.push("Windsor");
-      }
-    }
-  }
-  console.log(facilitiesCounties);
-  // facilitiesCounties.push("undefined");
+  const facilitiesCounties = getFacilitiesCounties(facilities);
 
   const rtData = getFacilitiesRtDataById(facilitiesState.rtData, facilities);
   const totalNumFacilities = facilities.length;
@@ -223,21 +270,10 @@ const LocaleSummaryTable: React.FC<{}> = () => {
       return county.name;
     });
 
-    countiesToWatch.push("undefined");
-
-    for (let i = 0; i < facilities.length; i++) {
-      const modelInputs = facilities[i].modelInputs;
-      const facilitiesCountiesX = Object.values(
-        pick(modelInputs, "countyName"),
-      );
-      for (let j = 0; j < facilitiesCountiesX.length; j++) {
-        const currCounty = facilitiesCountiesX[j];
-        if (currCounty && countiesToWatch.includes(currCounty)) {
-          highestCountiesFacilities += facilities[i].name + ", ";
-        }
-      }
-    }
-    highestCountiesFacilities = highestCountiesFacilities.slice(0, -2);
+    highestCountiesFacilities = getFacilitiesInCountiesToWatch(
+      facilities,
+      countiesToWatch,
+    );
   }
 
   if (!scenarioLoading && !facilitiesState.loading && !facilities.length) {
@@ -257,18 +293,8 @@ const LocaleSummaryTable: React.FC<{}> = () => {
         <Column>
           <Table>
             <tr>
-              <TableHeading>
-                <BorderDiv marginRight={COLUMN_SPACING} />
-                <TextContainer>State rate of spread</TextContainer>
-                <HorizontalRule marginRight={COLUMN_SPACING} />
-              </TableHeading>
-              <TableHeading>
-                <BorderDiv marginRight={COLUMN_SPACING} />
-                <TextContainer>
-                  Facilities with rate of spread > 1
-                </TextContainer>
-                <HorizontalRule marginRight={COLUMN_SPACING} />
-              </TableHeading>
+              {makeTableHeading("State rate of spread")}
+              {makeTableHeading("Facilities with rate of spread > 1")}
             </tr>
             <td>
               <TextContainer>
@@ -289,33 +315,17 @@ const LocaleSummaryTable: React.FC<{}> = () => {
             </td>
           </Table>
           <tr>
-            <TableHeading>
-              <BorderDiv>
-                <TextContainer>
-                  <LeftHeading marginTop={"0px"}>Counties to watch</LeftHeading>
-                  <Right>Change in cases per 100k since last week</Right>
-                </TextContainer>
-              </BorderDiv>
-              <HorizontalRule />
-            </TableHeading>
+            {makeTableSubheading(
+              "Counties to watch",
+              "Change in cases per 100k since last week",
+            )}
           </tr>
           {highestFourCounties.map((row, index) =>
             makeCountyRow(row, facilitiesCounties, index),
           )}
           <br />
-          <tr>
-            <TableHeading>
-              <BorderDiv>
-                <TextContainer>
-                  <LeftHeading marginTop={"0px"}>
-                    Facilities in counties to watch
-                  </LeftHeading>
-                </TextContainer>
-              </BorderDiv>
-              <HorizontalRule />
-              {makeFacilitiesToWatchRow(highestCountiesFacilities)}
-            </TableHeading>
-          </tr>
+          <tr>{makeTableSubheading("Facilities in counties to watch", "")}</tr>
+          {makeFacilitiesToWatchRow(highestCountiesFacilities)}
         </Column>
       </PageContainer>
     </>
