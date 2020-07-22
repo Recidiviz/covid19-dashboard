@@ -109,39 +109,27 @@ function getFacilitiesInCountiesToWatch(
   facilities: Facility[],
   countiesToWatch: string[],
 ) {
-  let result = "";
+  const result: string[] = [];
   for (let i = 0; i < facilities.length; i++) {
     const modelInputs = facilities[i].modelInputs;
-    const facilityCounties = Object.values(pick(modelInputs, "countyName"));
-    for (let j = 0; j < facilityCounties.length; j++) {
-      const currCounty = facilityCounties[j];
-      if (currCounty && countiesToWatch.includes(currCounty)) {
-        result += facilities[i].name + ", ";
-      }
+    const currCounty = modelInputs.countyName;
+    if (currCounty && countiesToWatch.includes(currCounty)) {
+      result.push(facilities[i].name);
     }
   }
-  result = result.slice(0, -2);
-  return result;
+  return result.join(", ");
 }
 
 function getFacilitiesCounties(facilities: Facility[]) {
-  let facilitiesCounties: string[] = [];
-  for (let i = 0; i < facilities.length; i++) {
-    const modelInputs = facilities[i].modelInputs;
-    const facilityCounties = Object.values(pick(modelInputs, "countyName"));
-    for (let j = 0; j < facilityCounties.length; j++) {
-      const currCounty = facilityCounties[j];
-      if (currCounty && !facilitiesCounties.includes(currCounty)) {
-        facilitiesCounties.push(currCounty);
-      }
-    }
-  }
+  const facilitiesCounties = new Set(
+    facilities.map((facility) => facility.modelInputs.countyName),
+  );
   return facilitiesCounties;
 }
 
 function makeCountyRow(
   caseIncreasePerCapita: PerCapitaCountyCase,
-  facilitiesCounties: string[],
+  facilitiesCounties: Set<string | undefined>,
   index: number,
 ) {
   const num = numeral(caseIncreasePerCapita.casesIncreasePerCapita).format(
@@ -154,7 +142,7 @@ function makeCountyRow(
   }
 
   let name = caseIncreasePerCapita.name;
-  if (facilitiesCounties.includes(name)) {
+  if (facilitiesCounties.has(name)) {
     name += "***";
   }
 
