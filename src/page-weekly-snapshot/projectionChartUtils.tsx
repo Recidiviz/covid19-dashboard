@@ -6,7 +6,10 @@ import {
   getLocaleDefaults,
   RateOfSpread,
   totalConfirmedCases,
-  totalConfirmedDeaths,
+  totalIncarceratedConfirmedCases,
+  totalIncarceratedConfirmedDeaths,
+  totalStaffConfirmedCases,
+  totalStaffConfirmedDeaths,
 } from "../impact-dashboard/EpidemicModelContext";
 import { countCasesForDay } from "../impact-dashboard/ImpactProjectionTableContainer";
 import { NUM_DAYS } from "../infection-model";
@@ -15,7 +18,6 @@ import { getAllValues, getColView } from "../infection-model/matrixUtils";
 import { seirIndex } from "../infection-model/seir";
 import { LocaleData } from "../locale-data-context";
 import { ModelInputs } from "../page-multi-facility/types";
-import { combineFacilitiesProjectionData } from "../page-response-impact/responseChartData";
 
 export const today = () => dateFns.endOfToday();
 export const ninetyDaysAgo = () => dateFns.subDays(today(), NUM_DAYS);
@@ -82,8 +84,8 @@ export function getVersionForProjection(versions: ModelInputs[]) {
 
 /**
  * Takes a facility's EpidemicModelInputs and returns an object with the properties
- * projectedFatalities and projectedCases that each are arrays of summed values for staff
- * and incarcerated fatalities and cases over the past 90 days.
+ * for projected staff and incarcerated cases and fatalities. Each property is an
+ * array of values for 90 days.
  *
  * The epidemicModelInputs should always have an observedAt property.
  * If for some reason it doesn't, we return arrays of length 90 filled with zeros.
@@ -100,19 +102,18 @@ export function getVersionForProjection(versions: ModelInputs[]) {
  * use this version as if it were 90 days ago.
  *
  * @param epidemicModelInputs - An object of a facility's model inputs with added locale defaults
- * @returns projectedData - An object of projectedFatalities and projectedCases, both arrays
- * should have the same length as NUM_DAYS and their values are a sum of staff
- * incarcerated data
+ * @returns projectedData - An object of projected staff/incarcerated cases/fatalities, both arrays
+ * should have the same length as NUM_DAYS
  */
 export function getProjectedData(epidemicModelInputs: EpidemicModelInputs) {
   const zeroProjection = {
-    projectedFatalities: addProjectionPadding([]),
-    projectedCases: addProjectionPadding([]),
+    projectedStaffFatalities: addProjectionPadding([]),
+    projectedIncarceratedFatalities: addProjectionPadding([]),
+    projectedStaffCases: addProjectionPadding([]),
+    projectedIncarceratedCases: addProjectionPadding([]),
   };
 
-  if (!epidemicModelInputs?.observedAt) {
-    return zeroProjection;
-  }
+  if (!epidemicModelInputs?.observedAt) return zeroProjection;
 
   let numDaysAfterNinetyDays = 0;
 
@@ -125,30 +126,24 @@ export function getProjectedData(epidemicModelInputs: EpidemicModelInputs) {
 
   const projectionNumDays = NUM_DAYS - numDaysAfterNinetyDays;
 
-  if (projectionNumDays <= 0) {
-    return zeroProjection;
-  }
+  if (projectionNumDays <= 0) return zeroProjection;
 
   const curveInputs = curveInputsFromUserInputs(epidemicModelInputs);
   const curveData = calculateCurves(curveInputs, projectionNumDays);
 
-  if (!curveData) {
-    return {
-      projectedFatalities: addProjectionPadding([]),
-      projectedCases: addProjectionPadding([]),
-    };
-  }
-
-  const summedProjectionData = combineFacilitiesProjectionData(
-    [curveData],
-    projectionNumDays,
-  );
+  if (!curveData) return zeroProjection;
 
   return {
-    projectedFatalities: addProjectionPadding(
-      getAllValues(getColView(summedProjectionData, seirIndex.fatalities)),
+    projectedStaffFatalities: addProjectionPadding(
+      getAllValues(getColView(curveData.staff, seirIndex.fatalities)),
     ),
-    projectedCases: addProjectionPadding(getCaseCount(summedProjectionData)),
+    projectedIncarceratedFatalities: addProjectionPadding(
+      getAllValues(getColView(curveData.incarcerated, seirIndex.fatalities)),
+    ),
+    projectedStaffCases: addProjectionPadding(getCaseCount(curveData.staff)),
+    projectedIncarceratedCases: addProjectionPadding(
+      getCaseCount(curveData.incarcerated),
+    ),
   };
 }
 
@@ -181,25 +176,25 @@ function findClosestVersionForDates(versions: ModelInputs[], date: Date) {
 
 /**
  * Takes an array of modelVersions for one facility and returns the
- * total confirmed cases and total confirmed deaths for each of the past 90 days.
+ * staff and incarcerated cases and deaths for each of the past 90 days.
  *
  * If a facility is missing a version for a date, then we use the data from
  * the closest version to that date.
  *
  * @param modelVersions - An array of modelVersions for one facility
- * @returns actualData - An object of actualFatalities and actualCases, both arrays
- * should have the same length as NUM_DAYS and their values are a sum of staff
- * incarcerated data
+ * @returns actualData - An object of staff/incarcerated cases/fatalities 90 day arrays
  */
-export function getActualDataForFacility(modelVersions: ModelInputs[]) {
+export function getFacilitiesData(modelVersions: ModelInputs[]) {
   const datesInterval = dateFns.eachDayOfInterval({
     start: ninetyDaysAgo(),
     end: today(),
   });
 
-  const actualData: { [key: string]: number[] } = {
-    actualCases: [],
-    actualFatalities: [],
+  const actualData: FacilitiesData = {
+    staffCases: [],
+    incarceratedCases: [],
+    staffFatalities: [],
+    incarceratedFatalities: [],
   };
 
   datesInterval.forEach((date) => {
@@ -212,13 +207,25 @@ export function getActualDataForFacility(modelVersions: ModelInputs[]) {
     }
 
     const versionForTotal = existingVersion || closestVersion;
-    const cases = versionForTotal ? totalConfirmedCases(versionForTotal) : 0;
-    const fatalities = versionForTotal
-      ? totalConfirmedDeaths(versionForTotal)
-      : 0;
 
-    actualData.actualCases.push(cases);
-    actualData.actualFatalities.push(fatalities);
+    let incarceratedCases = 0;
+    let incarceratedFatalities = 0;
+    let staffCases = 0;
+    let staffFatalities = 0;
+
+    if (versionForTotal) {
+      incarceratedCases = totalIncarceratedConfirmedCases(versionForTotal);
+      staffCases = totalStaffConfirmedCases(versionForTotal);
+      incarceratedFatalities = totalIncarceratedConfirmedDeaths(
+        versionForTotal,
+      );
+      staffFatalities = totalStaffConfirmedDeaths(versionForTotal);
+    }
+
+    actualData.staffCases.push(staffCases);
+    actualData.staffFatalities.push(staffFatalities);
+    actualData.incarceratedCases.push(incarceratedCases);
+    actualData.incarceratedFatalities.push(incarceratedFatalities);
   });
 
   return actualData;
@@ -252,8 +259,39 @@ export function getFacilitiesProjectionData(
   });
 }
 
-interface ProjectionChartData {
+interface ProjectionData {
   [key: string]: number[];
+  projectedStaffCases: number[];
+  projectedIncarceratedCases: number[];
+  projectedIncarceratedFatalities: number[];
+  projectedStaffFatalities: number[];
+}
+
+interface FacilitiesData {
+  [key: string]: number[];
+  staffCases: number[];
+  staffFatalities: number[];
+  incarceratedCases: number[];
+  incarceratedFatalities: number[];
+}
+
+interface ChartData {
+  [key: string]: number[];
+  cases: number[];
+  fatalities: number[];
+  projectedCases: number[];
+  projectedFatalities: number[];
+}
+
+export interface TableData {
+  staffCasesToday: number;
+  staffFatalitiesToday: number;
+  incarceratedCasesToday: number;
+  incarceratedFatalitiesToday: number;
+  projectedStaffCasesToday: number;
+  projectedStaffFatalitiesToday: number;
+  projectedIncarceratedCasesToday: number;
+  projectedIncarceratedFatalitiesToday: number;
 }
 
 /**
@@ -266,38 +304,81 @@ interface ProjectionChartData {
  * @returns chartData - { projectedCases: [0..89], actualCases: [0..89],
  * projectedFatalities: [0..89], projectedCases: [0..89] }
  */
-export function getChartData(
+export function getChartAndTableData(
   modelVersions: ModelInputs[][],
   localeDataSource: LocaleData,
 ) {
-  const facilitiesActualData: ProjectionChartData[] = modelVersions.map(
-    getActualDataForFacility,
-  );
-  const facilitiesProjectionData: ProjectionChartData[] = getFacilitiesProjectionData(
+  const facilitiesData: FacilitiesData[] = modelVersions.map(getFacilitiesData);
+  const projectionData: ProjectionData[] = getFacilitiesProjectionData(
     modelVersions,
     localeDataSource,
   );
-  const chartData: ProjectionChartData = {
-    projectedFatalities: [],
-    projectedCases: [],
-    actualFatalities: [],
-    actualCases: [],
+
+  const chartData: ChartData = {
+    projectedCases: addProjectionPadding([]),
+    projectedFatalities: addProjectionPadding([]),
+    cases: addProjectionPadding([]),
+    fatalities: addProjectionPadding([]),
   };
 
-  const actualAndProjectedData = [
-    ...facilitiesProjectionData,
-    ...facilitiesActualData,
-  ];
+  const tableData: TableData = {
+    staffCasesToday: 0,
+    staffFatalitiesToday: 0,
+    incarceratedCasesToday: 0,
+    incarceratedFatalitiesToday: 0,
+    projectedStaffCasesToday: 0,
+    projectedStaffFatalitiesToday: 0,
+    projectedIncarceratedCasesToday: 0,
+    projectedIncarceratedFatalitiesToday: 0,
+  };
 
-  // Sum actual/projected cases and fatalities per day across all facilities
-  actualAndProjectedData.forEach((facilityData) => {
-    Object.keys(chartData).forEach((bucket) => {
-      if (facilityData[bucket]) {
-        facilityData[bucket].forEach((value: number, index: number) => {
-          chartData[bucket][index] = (chartData[bucket][index] || 0) + value;
-        });
+  console.log({ chartData, tableData, facilitiesData, projectionData });
+
+  for (let index = 0; index <= NUM_DAYS; index++) {
+    facilitiesData.forEach((facilityData) => {
+      // Sum the values across all facilities for today's index
+      if (index === NUM_DAYS) {
+        tableData.staffCasesToday += facilityData.staffCases[index];
+        tableData.staffFatalitiesToday += facilityData.staffFatalities[index];
+        tableData.incarceratedCasesToday +=
+          facilityData.incarceratedCases[index];
+        tableData.incarceratedFatalitiesToday +=
+          facilityData.incarceratedFatalities[index];
       }
+
+      // Sum staff+incarcerated across all facilities
+      chartData.cases[index] +=
+        facilityData.staffCases[index] + facilityData.incarceratedCases[index];
+      chartData.fatalities[index] +=
+        facilityData.staffFatalities[index] +
+        facilityData.incarceratedFatalities[index];
     });
-  });
-  return chartData;
+
+    projectionData.forEach((projection) => {
+      // Sum the values across all facilities for today's index
+      if (index === NUM_DAYS) {
+        tableData.projectedStaffCasesToday +=
+          projection.projectedStaffCases[index];
+        tableData.projectedStaffFatalitiesToday +=
+          projection.projectedStaffFatalities[index];
+        tableData.projectedIncarceratedCasesToday +=
+          projection.projectedIncarceratedCases[index];
+        tableData.projectedIncarceratedFatalitiesToday +=
+          projection.projectedIncarceratedFatalities[index];
+      }
+
+      // Sum staff+incarcerated across all facilities
+      chartData.projectedCases[index] +=
+        projection.projectedStaffCases[index] +
+        projection.projectedIncarceratedCases[index];
+      chartData.projectedFatalities[index] +=
+        projection.projectedStaffFatalities[index] +
+        projection.projectedIncarceratedFatalities[index];
+    });
+  }
+
+  return {
+    chartData,
+    tableData,
+  };
 }
