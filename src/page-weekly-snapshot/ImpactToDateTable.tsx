@@ -1,6 +1,8 @@
+import numeral from "numeral";
 import React from "react";
 import styled from "styled-components";
 
+import { TableData } from "./projectionChartUtils";
 import {
   BorderDiv,
   HorizontalRule,
@@ -21,7 +23,25 @@ const ImpactStatContainer = styled.div`
   margin-right: 3vw;
 `;
 
-export default function ImpactToDateTable({}) {
+const formatValue = (n: number) => numeral(n).format("0,0");
+
+const ImpactToDateTable: React.FC<TableData> = ({
+  staffCasesToday,
+  staffFatalitiesToday,
+  incarceratedCasesToday,
+  incarceratedFatalitiesToday,
+  projectedStaffCasesToday,
+  projectedStaffFatalitiesToday,
+  projectedIncarceratedCasesToday,
+  projectedIncarceratedFatalitiesToday,
+}) => {
+  const incarceratedLivesSaved =
+    projectedIncarceratedFatalitiesToday - incarceratedFatalitiesToday;
+  const staffLivesSaved = projectedStaffFatalitiesToday - staffFatalitiesToday;
+  const incarceratedCasesPrevented =
+    projectedIncarceratedCasesToday - incarceratedCasesToday;
+  const staffCasesPrevented = projectedStaffCasesToday - staffCasesToday;
+
   return (
     <ImpactToDateTableContainer>
       <HorizontalRule />
@@ -43,7 +63,7 @@ export default function ImpactToDateTable({}) {
                 Incarcerated lives saved
                 <HorizontalRule />
                 <TextContainer>
-                  <Left>4</Left>
+                  <Left>{formatValue(incarceratedLivesSaved)}</Left>
                 </TextContainer>
               </ImpactStatContainer>
             </TableCell>
@@ -53,7 +73,7 @@ export default function ImpactToDateTable({}) {
                 Staff lives saved
                 <HorizontalRule />
                 <TextContainer>
-                  <Left>4</Left>
+                  <Left>{formatValue(staffLivesSaved)}</Left>
                 </TextContainer>
               </ImpactStatContainer>
             </TableCell>
@@ -63,7 +83,7 @@ export default function ImpactToDateTable({}) {
                 Incarcerated cases prevented
                 <HorizontalRule />
                 <TextContainer>
-                  <Left>4</Left>
+                  <Left>{formatValue(incarceratedCasesPrevented)}</Left>
                 </TextContainer>
               </ImpactStatContainer>
             </TableCell>
@@ -72,7 +92,7 @@ export default function ImpactToDateTable({}) {
               Staff cases prevented
               <HorizontalRule />
               <TextContainer>
-                <Left>4</Left>
+                <Left>{formatValue(staffCasesPrevented)}</Left>
               </TextContainer>
             </TableCell>
           </tr>
@@ -81,4 +101,6 @@ export default function ImpactToDateTable({}) {
       <HorizontalRule />
     </ImpactToDateTableContainer>
   );
-}
+};
+
+export default ImpactToDateTable;

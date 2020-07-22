@@ -104,12 +104,15 @@ const ImpactProjectionChart: React.FC = () => {
   if (!scenarioLoading && !facilitiesState.loading && !facilities.length) {
     return <div>Missing scenario data for state: {stateName}</div>;
   }
-  const chartData = chartUtils.getChartData(modelVersions, localeDataSource);
+  const { chartData, tableData } = chartUtils.getChartAndTableData(
+    modelVersions,
+    localeDataSource,
+  );
+
   const projectedCasesToday =
     chartData.projectedCases[chartData.projectedCases.length - 1];
-  const actualCasesToday =
-    chartData.actualCases[chartData.actualCases.length - 1];
-  const actualCasesDay90 = chartData.actualCases[0];
+  const actualCasesToday = chartData.cases[chartData.cases.length - 1];
+  const actualCasesDay90 = chartData.cases[0];
 
   const frameProps = {
     showLinePoints: false,
@@ -212,7 +215,7 @@ const ImpactProjectionChart: React.FC = () => {
         <Loading />
       ) : (
         <>
-          <ImpactToDateTable />
+          <ImpactToDateTable {...tableData} />
           <ChartTitle>
             Projection Assuming No Intervention vs. Actual Cumulative Cases
           </ChartTitle>
