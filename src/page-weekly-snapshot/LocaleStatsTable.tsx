@@ -1,4 +1,4 @@
-import { maxBy, minBy, orderBy, pick } from "lodash";
+import { maxBy, minBy, orderBy } from "lodash";
 import numeral from "numeral";
 import React from "react";
 
