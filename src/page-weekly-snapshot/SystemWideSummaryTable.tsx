@@ -17,6 +17,7 @@ import {
   makeTableHeadings,
   StaffFacilitySummaryData,
 } from "./shared/utils";
+import { useWeeklyReport } from "./weekly-report-context/WeeklyReportContext";
 
 function getDeltaDirection(delta: number) {
   if (delta < 0) {
@@ -161,8 +162,18 @@ function getSystemWideSummaryStaffData(facilities: Facility[]) {
 
 const SystemWideSummaryTable: React.FC<{}> = () => {
   const { state: facilitiesState } = useFacilities();
+  const {
+    state: { stateName, loading: scenarioLoading },
+  } = useWeeklyReport();
+
+  if (!stateName) return null;
 
   const facilities = Object.values(facilitiesState.facilities);
+
+  if (!scenarioLoading && !facilitiesState.loading && !facilities.length) {
+    return <div>Missing scenario data for state: {stateName}</div>;
+  }
+
   const systemWideSummaryIncarceratedData = getSystemWideSummaryIncarceratedData(
     facilities,
   );
