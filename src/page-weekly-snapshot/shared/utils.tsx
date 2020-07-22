@@ -25,6 +25,20 @@ export interface IncarceratedFacilitySummaryData {
   incarceratedCasesDeltaDirection: string;
 }
 
+export interface StaffFacilitySummaryData {
+  staffPopulation: number;
+  staffPopulationDelta: number;
+  staffPopulationDeltaDirection: string;
+  staffCases: number;
+  staffCasesDelta: number;
+  staffCasesDeltaDirection: string;
+}
+
+export interface FacilitySummaryData {
+  incarceratedData: IncarceratedFacilitySummaryData;
+  staffData: StaffFacilitySummaryData;
+}
+
 export interface DeltaData {
   delta: number;
   deltaDirection: string;
@@ -174,4 +188,85 @@ export function buildIncarceratedFacilitySummaryData(
     incarceratedCasesDeltaDirection: incarceratedCasesDelta.deltaDirection,
   };
   return incarceratedFacilitySummaryData;
+}
+
+export function buildStaffFacilitySummaryData(
+  facility: Facility,
+  mostRecentData: ModelInputs | undefined,
+) {
+  const staffCases = getTotalValues(facility.modelInputs, "cases", "staff");
+
+  const staffRecoveredCases = getTotalValues(
+    facility.modelInputs,
+    "recovered",
+    "staff",
+  );
+
+  const staffDeaths = getTotalValues(facility.modelInputs, "deaths", "staff");
+
+  const staffPopulation = getTotalValues(
+    facility.modelInputs,
+    "population",
+    "staff",
+  );
+
+  const staffActiveCases = getActiveCases(
+    staffCases,
+    staffRecoveredCases,
+    staffDeaths,
+  );
+
+  let staffCasesDelta = {
+    delta: 0,
+    deltaDirection: "same",
+  } as DeltaData;
+
+  let staffPopulationDelta = {
+    delta: 0,
+    deltaDirection: "same",
+  } as DeltaData;
+
+  if (mostRecentData) {
+    const mostRecentStaffCases = getTotalValues(
+      mostRecentData,
+      "cases",
+      "staff",
+    );
+
+    const mostRecentStaffRecoveredCases = getTotalValues(
+      mostRecentData,
+      "recovered",
+      "staff",
+    );
+    const mostRecentStaffDeaths = getTotalValues(
+      mostRecentData,
+      "deaths",
+      "staff",
+    );
+    const mostRecentStaffPopulation = getTotalValues(
+      mostRecentData,
+      "population",
+      "staff",
+    );
+
+    const mostRecentStaffActiveCases = getActiveCases(
+      mostRecentStaffCases,
+      mostRecentStaffRecoveredCases,
+      mostRecentStaffDeaths,
+    );
+
+    staffCasesDelta = getDelta(mostRecentStaffActiveCases, staffActiveCases);
+
+    staffPopulationDelta = getDelta(mostRecentStaffPopulation, staffPopulation);
+  }
+
+  const staffFacilitySummaryData: StaffFacilitySummaryData = {
+    staffPopulation: staffPopulation,
+    staffPopulationDelta: staffPopulationDelta.delta,
+    staffPopulationDeltaDirection: staffPopulationDelta.deltaDirection,
+    staffCases: staffActiveCases,
+    staffCasesDelta: staffCasesDelta.delta,
+    staffCasesDeltaDirection: staffCasesDelta.deltaDirection,
+  };
+  return staffFacilitySummaryData;
 }
