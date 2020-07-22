@@ -2,10 +2,8 @@ import React from "react";
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
-import { useFacilities } from "../facilities-context";
 import { Heading } from "./shared/index";
 import SystemWideSummaryTable from "./SystemWideSummaryTable";
-import { useWeeklyReport } from "./weekly-report-context";
 
 const SystemWideProjectionChartContainer = styled.div`
   font-size: 12px;
