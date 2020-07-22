@@ -21,9 +21,9 @@ import {
   DeltaContainer,
   Left,
   Right,
-  TableHeading,
   TextContainer,
 } from "./shared/index";
+import { makeTableHeadings } from "./shared/utils";
 
 const VALUE_MAPPING = {
   cases: caseBracketKeys,
@@ -106,33 +106,6 @@ function makeSummaryColumns(facilitySummaryData: FacilitySummaryData) {
           facilitySummaryData.staffData.staffCasesDelta,
         )}
       </td>
-    </tr>
-  );
-}
-
-function makeTableHeadings() {
-  return (
-    <tr>
-      <TableHeading>
-        <BorderDiv marginRight={COLUMN_SPACING} />
-        Incarcerated population
-        <HorizontalRule marginRight={COLUMN_SPACING} />
-      </TableHeading>
-      <TableHeading>
-        <BorderDiv marginRight={COLUMN_SPACING} />
-        Incarcerated cases
-        <HorizontalRule marginRight={COLUMN_SPACING} />
-      </TableHeading>
-      <TableHeading>
-        <BorderDiv marginRight={COLUMN_SPACING} />
-        Staff population
-        <HorizontalRule marginRight={COLUMN_SPACING} />
-      </TableHeading>
-      <TableHeading>
-        <BorderDiv marginRight={COLUMN_SPACING} />
-        Staff cases
-        <HorizontalRule marginRight={COLUMN_SPACING} />
-      </TableHeading>
     </tr>
   );
 }
@@ -255,7 +228,7 @@ function buildStaffFacilitySummaryData(
   return staffFacilitySummaryData;
 }
 
-function buildIncarceratedFacilitySummaryData(
+export function buildIncarceratedFacilitySummaryData(
   facility: Facility,
   mostRecentData: ModelInputs | undefined,
 ) {

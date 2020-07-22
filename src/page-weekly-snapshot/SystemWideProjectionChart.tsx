@@ -2,6 +2,10 @@ import React from "react";
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
+import { useFacilities } from "../facilities-context";
+import { Heading } from "./shared/index";
+import SystemWideSummaryTable from "./SystemWideSummaryTable";
+import { useWeeklyReport } from "./weekly-report-context";
 
 const SystemWideProjectionChartContainer = styled.div`
   font-size: 12px;
@@ -25,10 +29,11 @@ export const ChartHeader = styled.h3`
 const SystemWideProjectionChart: React.FC = () => {
   return (
     <SystemWideProjectionChartContainer>
+      <SystemWideSummaryTable />
       <CurveChartContainer>
-        <ChartHeader>
+        <Heading>
           System-Wide Projection for Facilities with Active Cases
-        </ChartHeader>
+        </Heading>
       </CurveChartContainer>
     </SystemWideProjectionChartContainer>
   );
