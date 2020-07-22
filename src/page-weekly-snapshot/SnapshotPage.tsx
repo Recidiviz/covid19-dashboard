@@ -1,7 +1,12 @@
 import React from "react";
 import styled from "styled-components";
 
-import Colors from "../design-system/Colors";
+import {
+  HorizontalRule,
+  LeftHeading,
+  Right,
+  TOP_BOTTOM_MARGIN,
+} from "./shared/index";
 
 const SnapshotPageContainer = styled.div`
   min-height: 500px;
@@ -13,11 +18,6 @@ const SnapshotPageContainer = styled.div`
   font-family: "Libre Franklin";
 `;
 
-export const HorizontalRule = styled.hr`
-  border-color: ${Colors.opacityGray};
-  margin: 10px 0;
-`;
-
 const PageWidthContainer = styled.div`
   width: 100%;
   display: flex;
@@ -25,14 +25,6 @@ const PageWidthContainer = styled.div`
   font-family: Libre Franklin;
   font-size: 11px;
   line-height: 14px;
-`;
-
-const FooterLeft = styled.div`
-  text-align: left;
-`;
-
-const FooterRight = styled.div`
-  text-align: right;
 `;
 
 export const PageHeader = styled.div`
@@ -80,8 +72,10 @@ const SnapshotPage: React.FC<Props> = ({ header, subheader, children }) => {
       <Body>{children}</Body>
       <HorizontalRule />
       <PageWidthContainer>
-        <FooterLeft>Log in to update data: model.recividiz.org</FooterLeft>
-        <FooterRight>Questions and feedback: covid@recidiviz.org</FooterRight>
+        <LeftHeading>Log in to update data: model.recividiz.org</LeftHeading>
+        <Right marginTop={TOP_BOTTOM_MARGIN}>
+          Questions and feedback: covid@recidiviz.org
+        </Right>
       </PageWidthContainer>
       <HorizontalRule />
     </SnapshotPageContainer>

@@ -5,6 +5,7 @@ import Loading from "../design-system/Loading";
 import { useLocaleDataState } from "../locale-data-context";
 import FacilitySummaries from "./FacilitySummaries";
 import ImpactProjectionChart from "./ImpactProjectionChart";
+import LocaleStatsTable from "./LocaleStatsTable";
 import LocaleSummary from "./LocaleSummary";
 import SnapshotPage from "./SnapshotPage";
 import SystemWideProjectionChart from "./SystemWideProjectionChart";
@@ -29,6 +30,7 @@ const WeeklySnapshotPage: React.FC = () => {
               </SnapshotPage>
               <SnapshotPage header="System Snapshot" subheader>
                 <SystemWideProjectionChart />
+                <LocaleStatsTable />
               </SnapshotPage>
               <FacilitySummaries />
             </WeeklySnapshotContainer>

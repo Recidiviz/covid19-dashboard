@@ -14,6 +14,7 @@ import { LocaleData, useLocaleDataState } from "../locale-data-context";
 import { Facility } from "../page-multi-facility/types";
 import {
   BorderDiv,
+  COLUMN_SPACING,
   HorizontalRule,
   Left,
   LeftHeading,
@@ -22,7 +23,6 @@ import {
   TableCell,
   TableHeadingCell,
   TextContainer,
-  TextContainerHeading,
 } from "./shared";
 
 type StateMetrics = {
@@ -187,10 +187,10 @@ function makeTableColumn(
       <tr>
         <TableHeadingCell>
           <HorizontalRule />
-          <TextContainerHeading>
+          <TextContainer>
             <Right>{heading} </Right>
-            <LeftHeading>(per 100k)</LeftHeading>
-          </TextContainerHeading>
+            <LeftHeading marginTop={"0px"}>(per 100k)</LeftHeading>
+          </TextContainer>
         </TableHeadingCell>
       </tr>
       <BorderDiv />
