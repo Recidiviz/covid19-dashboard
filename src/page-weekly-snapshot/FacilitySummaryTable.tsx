@@ -21,58 +21,9 @@ import {
   buildIncarceratedFacilitySummaryData,
   buildStaffFacilitySummaryData,
   FacilitySummaryData,
+  makeSummaryColumns,
   makeTableHeadings,
 } from "./shared/utils";
-
-function makeSummaryRow(total: number, deltaDirection: string, delta: number) {
-  return (
-    <TextContainer>
-      <Left>{formatThousands(total)}</Left>
-      <DeltaContainer>
-        <Delta deltaDirection={deltaDirection}>
-          {get(DELTA_DIRECTION_MAPPING, deltaDirection)}
-        </Delta>
-        <Right marginRight={COLUMN_SPACING}>{formatThousands(delta)}</Right>
-      </DeltaContainer>
-    </TextContainer>
-  );
-}
-
-function makeSummaryColumns(facilitySummaryData: FacilitySummaryData) {
-  return (
-    <tr>
-      <td>
-        {makeSummaryRow(
-          facilitySummaryData.incarceratedData.incarceratedPopulation,
-          facilitySummaryData.incarceratedData
-            .incarceratedPopulationDeltaDirection,
-          facilitySummaryData.incarceratedData.incarceratedPopulationDelta,
-        )}
-      </td>
-      <td>
-        {makeSummaryRow(
-          facilitySummaryData.incarceratedData.incarceratedCases,
-          facilitySummaryData.incarceratedData.incarceratedCasesDeltaDirection,
-          facilitySummaryData.incarceratedData.incarceratedCasesDelta,
-        )}
-      </td>
-      <td>
-        {makeSummaryRow(
-          facilitySummaryData.staffData.staffPopulation,
-          facilitySummaryData.staffData.staffPopulationDeltaDirection,
-          facilitySummaryData.staffData.staffPopulationDelta,
-        )}
-      </td>
-      <td>
-        {makeSummaryRow(
-          facilitySummaryData.staffData.staffCases,
-          facilitySummaryData.staffData.staffCasesDeltaDirection,
-          facilitySummaryData.staffData.staffCasesDelta,
-        )}
-      </td>
-    </tr>
-  );
-}
 
 const FacilitySummaryTable: React.FC<{
   facility: Facility;
