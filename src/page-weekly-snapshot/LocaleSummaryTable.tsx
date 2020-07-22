@@ -1,9 +1,7 @@
 import { sum } from "d3-array";
 import { get, keys, omit, orderBy, pick, values } from "lodash";
 import React from "react";
-import styled from "styled-components";
 
-import Colors from "../design-system/Colors";
 import { Column, PageContainer } from "../design-system/PageColumn";
 import { useFacilities } from "../facilities-context";
 import {
@@ -14,67 +12,18 @@ import {
 import { formatThousands } from "../impact-dashboard/ImpactProjectionTable";
 import { LocaleData, useLocaleDataState } from "../locale-data-context";
 import { Facility } from "../page-multi-facility/types";
-
-const Table = styled.table`
-  color: ${Colors.black};
-  text-align: left;
-  width: 100%;
-  margin-top: 10px;
-`;
-const HorizontalRule = styled.hr`
-  border-color: ${Colors.black};
-  width: 100%;
-  margin-bottom: 10px;
-`;
-
-const TableHeadingCell = styled.td`
-  font-family: "Libre Franklin";
-  font-weight: bold;
-  font-size: 11px;
-  line-height: 13px;
-  vertical-align: middle;
-`;
-
-const LeftHeading = styled.div`
-  text-align: left;
-`;
-
-const TextContainerHeading = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-`;
-
-const TextContainer = styled.div`
-  width: 100%;
-  margin: 15px 0 15px;
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  color: ${Colors.black};
-`;
-
-const Right = styled.div`
-  text-align: right;
-`;
-
-const Left = styled.div`
-  text-align: left;
-  font-size: 24px;
-  font-family: "Libre Baskerville";
-`;
-
-const BorderDiv = styled.div`
-  border-top: 2px solid ${Colors.black};
-`;
-
-const TableCell = styled.td<{ label?: boolean }>`
-  font-size: 11px;
-  line-height: 200%;
-  text-align: "left";
-  width: ${(props) => (props.label ? "200px" : "auto")};
-`;
+import {
+  BorderDiv,
+  HorizontalRule,
+  Left,
+  LeftHeading,
+  Right,
+  Table,
+  TableCell,
+  TableHeadingCell,
+  TextContainer,
+  TextContainerHeading,
+} from "./shared";
 
 type StateMetrics = {
   stateName: string;
