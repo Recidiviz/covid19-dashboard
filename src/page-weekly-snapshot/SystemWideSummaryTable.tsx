@@ -1,4 +1,3 @@
-import { get, pick, pickBy, sum, values } from "lodash";
 import React from "react";
 
 import { useFacilities } from "../facilities-context/FacilitiesContext";
@@ -19,15 +18,33 @@ import {
   StaffFacilitySummaryData,
 } from "./shared/utils";
 
+function getDeltaDirection(delta: number) {
+  if (delta < 0) {
+    return "negative";
+  } else if (delta > 0) {
+    return "positive";
+  }
+  return "same";
+}
+
+function addDelta(delta: number, deltaDirection: string) {
+  if (deltaDirection == "negative") {
+    delta *= -1;
+  }
+  return delta;
+}
+
 function getSystemWideSummaryIncarceratedData(facilities: Facility[]) {
   let systemWideSummaryIncarceratedData: IncarceratedFacilitySummaryData = {
     incarceratedPopulation: 0,
     incarceratedPopulationDelta: 0,
-    incarceratedPopulationDeltaDirection: "",
+    incarceratedPopulationDeltaDirection: "same",
     incarceratedCases: 0,
     incarceratedCasesDelta: 0,
-    incarceratedCasesDeltaDirection: "",
+    incarceratedCasesDeltaDirection: "same",
   };
+
+  let incarceratedPopulationSystemWideDelta = 0;
 
   for (let i = 0; i < facilities.length; i++) {
     const facility = facilities[i];
@@ -41,34 +58,34 @@ function getSystemWideSummaryIncarceratedData(facilities: Facility[]) {
         facility.modelVersions,
         false,
       );
+
       mostRecentData = findMatchingDay({
         date: mostRecentDate,
         facilityModelVersions: facility.modelVersions,
       });
     }
+
     const incarceratedData = buildIncarceratedFacilitySummaryData(
       facility,
-      facility.modelInputs,
+      mostRecentData,
     );
-    console.log(incarceratedData);
 
     systemWideSummaryIncarceratedData.incarceratedPopulation +=
       incarceratedData.incarceratedPopulation;
-    // if (incarceratedData.incarceratedPopulationDeltaDirection == "negative") {
-    //     systemWideSummaryIncarceratedData.incarceratedPopulationDelta -= incarceratedData.incarceratedPopulationDelta;
-    // }
-    // else {
-    //     systemWideSummaryIncarceratedData.incarceratedPopulationDelta += incarceratedData.incarceratedPopulationDelta;
-    // }
+    incarceratedPopulationSystemWideDelta += addDelta(
+      incarceratedData.incarceratedPopulationDelta,
+      incarceratedData.incarceratedPopulationDeltaDirection,
+    );
+
     systemWideSummaryIncarceratedData.incarceratedCases +=
       incarceratedData.incarceratedCases;
-    // if (incarceratedData.incarceratedCasesDeltaDirection == "negative") {
-    //     systemWideSummaryIncarceratedData.incarceratedCasesDelta -= incarceratedData.incarceratedCasesDelta;
-    // }
-    // else {
-    //     systemWideSummaryIncarceratedData.incarceratedCasesDelta += incarceratedData.incarceratedCasesDelta;
-    // }
   }
+  systemWideSummaryIncarceratedData.incarceratedPopulationDeltaDirection = getDeltaDirection(
+    incarceratedPopulationSystemWideDelta,
+  );
+  systemWideSummaryIncarceratedData.incarceratedPopulationDelta = Math.abs(
+    incarceratedPopulationSystemWideDelta,
+  );
   return systemWideSummaryIncarceratedData;
 }
 
@@ -76,10 +93,10 @@ function getSystemWideSummaryStaffData(facilities: Facility[]) {
   let systemWideSummaryStaffData: StaffFacilitySummaryData = {
     staffPopulation: 0,
     staffPopulationDelta: 0,
-    staffPopulationDeltaDirection: "",
+    staffPopulationDeltaDirection: "same",
     staffCases: 0,
     staffCasesDelta: 0,
-    staffCasesDeltaDirection: "",
+    staffCasesDeltaDirection: "same",
   };
 
   for (let i = 0; i < facilities.length; i++) {
@@ -99,26 +116,10 @@ function getSystemWideSummaryStaffData(facilities: Facility[]) {
         facilityModelVersions: facility.modelVersions,
       });
     }
-    const staffData = buildStaffFacilitySummaryData(
-      facility,
-      facility.modelInputs,
-    );
-    console.log(staffData);
+    const staffData = buildStaffFacilitySummaryData(facility, mostRecentData);
 
     systemWideSummaryStaffData.staffPopulation += staffData.staffPopulation;
-    // if (staffData.staffPopulationDeltaDirection == "negative") {
-    //     systemWideSummaryStaffData.staffPopulationDelta -= staffData.staffPopulationDelta;
-    // }
-    // else {
-    //     systemWideSummaryStaffData.staffPopulationDelta += staffData.staffPopulationDelta;
-    // }
     systemWideSummaryStaffData.staffCases += staffData.staffCases;
-    // if (staffData.staffCasesDeltaDirection == "negative") {
-    //     systemWideSummaryStaffData.staffCasesDelta -= staffData.staffCasesDelta;
-    // }
-    // else {
-    //     systemWideSummaryStaffData.staffCasesDelta += staffData.staffCasesDelta;
-    // }
   }
   return systemWideSummaryStaffData;
 }

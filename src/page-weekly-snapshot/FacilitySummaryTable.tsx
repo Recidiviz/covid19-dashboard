@@ -5,18 +5,8 @@ import {
   findMatchingDay,
   findMostRecentDate,
 } from "../hooks/useAddCasesInputs";
-import { formatThousands } from "../impact-dashboard/ImpactProjectionTable";
 import { Facility } from "../page-multi-facility/types";
 import { Table } from "./FacilityPage";
-import {
-  COLUMN_SPACING,
-  Delta,
-  DELTA_DIRECTION_MAPPING,
-  DeltaContainer,
-  Left,
-  Right,
-  TextContainer,
-} from "./shared/index";
 import {
   buildIncarceratedFacilitySummaryData,
   buildStaffFacilitySummaryData,
