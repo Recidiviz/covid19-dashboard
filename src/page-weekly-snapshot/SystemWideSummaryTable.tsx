@@ -45,6 +45,7 @@ function getSystemWideSummaryIncarceratedData(facilities: Facility[]) {
   };
 
   let incarceratedPopulationSystemWideDelta = 0;
+  let incarceratedCasesSystemWideDelta = 0;
 
   for (let i = 0; i < facilities.length; i++) {
     const facility = facilities[i];
@@ -79,12 +80,22 @@ function getSystemWideSummaryIncarceratedData(facilities: Facility[]) {
 
     systemWideSummaryIncarceratedData.incarceratedCases +=
       incarceratedData.incarceratedCases;
+    incarceratedCasesSystemWideDelta += addDelta(
+      incarceratedData.incarceratedCasesDelta,
+      incarceratedData.incarceratedCasesDeltaDirection,
+    );
   }
   systemWideSummaryIncarceratedData.incarceratedPopulationDeltaDirection = getDeltaDirection(
     incarceratedPopulationSystemWideDelta,
   );
   systemWideSummaryIncarceratedData.incarceratedPopulationDelta = Math.abs(
     incarceratedPopulationSystemWideDelta,
+  );
+  systemWideSummaryIncarceratedData.incarceratedCasesDeltaDirection = getDeltaDirection(
+    incarceratedCasesSystemWideDelta,
+  );
+  systemWideSummaryIncarceratedData.incarceratedCasesDelta = Math.abs(
+    incarceratedCasesSystemWideDelta,
   );
   return systemWideSummaryIncarceratedData;
 }
@@ -98,6 +109,9 @@ function getSystemWideSummaryStaffData(facilities: Facility[]) {
     staffCasesDelta: 0,
     staffCasesDeltaDirection: "same",
   };
+
+  let staffPopulationSystemWideDelta = 0;
+  let staffCasesSystemWideDelta = 0;
 
   for (let i = 0; i < facilities.length; i++) {
     const facility = facilities[i];
@@ -119,8 +133,29 @@ function getSystemWideSummaryStaffData(facilities: Facility[]) {
     const staffData = buildStaffFacilitySummaryData(facility, mostRecentData);
 
     systemWideSummaryStaffData.staffPopulation += staffData.staffPopulation;
+    staffPopulationSystemWideDelta += addDelta(
+      staffData.staffPopulationDelta,
+      staffData.staffPopulationDeltaDirection,
+    );
+
     systemWideSummaryStaffData.staffCases += staffData.staffCases;
+    staffCasesSystemWideDelta += addDelta(
+      staffData.staffCasesDelta,
+      staffData.staffCasesDeltaDirection,
+    );
   }
+  systemWideSummaryStaffData.staffPopulationDeltaDirection = getDeltaDirection(
+    staffPopulationSystemWideDelta,
+  );
+  systemWideSummaryStaffData.staffPopulationDelta = Math.abs(
+    staffPopulationSystemWideDelta,
+  );
+  systemWideSummaryStaffData.staffCasesDeltaDirection = getDeltaDirection(
+    staffCasesSystemWideDelta,
+  );
+  systemWideSummaryStaffData.staffCasesDelta = Math.abs(
+    staffCasesSystemWideDelta,
+  );
   return systemWideSummaryStaffData;
 }
 
