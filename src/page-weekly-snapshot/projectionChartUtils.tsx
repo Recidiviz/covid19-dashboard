@@ -332,10 +332,15 @@ export function getChartAndTableData(
     projectedIncarceratedFatalitiesToday: 0,
   };
 
-  console.log({ chartData, tableData, facilitiesData, projectionData });
-
   for (let index = 0; index <= NUM_DAYS; index++) {
     facilitiesData.forEach((facilityData) => {
+      // Sum staff+incarcerated across all facilities
+      chartData.cases[index] +=
+        facilityData.staffCases[index] + facilityData.incarceratedCases[index];
+      chartData.fatalities[index] +=
+        facilityData.staffFatalities[index] +
+        facilityData.incarceratedFatalities[index];
+
       // Sum the values across all facilities for today's index
       if (index === NUM_DAYS) {
         tableData.staffCasesToday += facilityData.staffCases[index];
@@ -345,16 +350,17 @@ export function getChartAndTableData(
         tableData.incarceratedFatalitiesToday +=
           facilityData.incarceratedFatalities[index];
       }
-
-      // Sum staff+incarcerated across all facilities
-      chartData.cases[index] +=
-        facilityData.staffCases[index] + facilityData.incarceratedCases[index];
-      chartData.fatalities[index] +=
-        facilityData.staffFatalities[index] +
-        facilityData.incarceratedFatalities[index];
     });
 
     projectionData.forEach((projection) => {
+      // Sum staff+incarcerated across all facilities
+      chartData.projectedCases[index] +=
+        projection.projectedStaffCases[index] +
+        projection.projectedIncarceratedCases[index];
+      chartData.projectedFatalities[index] +=
+        projection.projectedStaffFatalities[index] +
+        projection.projectedIncarceratedFatalities[index];
+
       // Sum the values across all facilities for today's index
       if (index === NUM_DAYS) {
         tableData.projectedStaffCasesToday +=
@@ -366,14 +372,6 @@ export function getChartAndTableData(
         tableData.projectedIncarceratedFatalitiesToday +=
           projection.projectedIncarceratedFatalities[index];
       }
-
-      // Sum staff+incarcerated across all facilities
-      chartData.projectedCases[index] +=
-        projection.projectedStaffCases[index] +
-        projection.projectedIncarceratedCases[index];
-      chartData.projectedFatalities[index] +=
-        projection.projectedStaffFatalities[index] +
-        projection.projectedIncarceratedFatalities[index];
     });
   }
 
