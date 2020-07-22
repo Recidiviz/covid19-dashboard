@@ -32,6 +32,11 @@ export const Table = styled.table`
   table-layout: fixed;
 `;
 
+export const BorderDiv = styled.div<{ marginRight?: string }>`
+  border-top: 1px solid ${Colors.black};
+  margin-right: ${(props) => props.marginRight || "0px"};
+`;
+
 export const HorizontalRule = styled.hr<{ marginRight?: string }>`
   border-color: ${Colors.opacityGray};
   margin-top: 10px;
@@ -67,7 +72,10 @@ export const LeftHeading = styled.div<{ marginTop?: string }>`
   text-align: left;
 `;
 
-export const TextContainerHeading = styled.div`
+export const TextContainerHeading = styled.div<{
+  marginTop?: string;
+  marginBottom?: string;
+}>`
   width: 100%;
   display: flex;
   justify-content: space-between;
@@ -105,11 +113,6 @@ export const Left = styled.div<{
   margin-top: ${(props) => props.marginTop || "0px"};
   margin-bottom: ${(props) => props.marginBottom || "0px"};
   color: ${Colors.black};
-`;
-
-export const BorderDiv = styled.div<{ marginRight?: string }>`
-  border-top: 1px solid ${Colors.black};
-  margin-right: ${(props) => props.marginRight || "5px"};
 `;
 
 export const TableCell = styled.td<{ label?: boolean }>`

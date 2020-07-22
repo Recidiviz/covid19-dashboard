@@ -85,7 +85,9 @@ export const recoveredBracketKeys: Array<
   "staffRecovered",
 ];
 
-export const deathBracketKeys: Array<keyof ModelInputsPopulationBrackets> = [
+export const incarceratedDeathsKeys: Array<
+  keyof ModelInputsPopulationBrackets
+> = [
   "age0Deaths",
   "age20Deaths",
   "age45Deaths",
@@ -94,7 +96,13 @@ export const deathBracketKeys: Array<keyof ModelInputsPopulationBrackets> = [
   "age75Deaths",
   "age85Deaths",
   "ageUnknownDeaths",
-  "staffDeaths",
+];
+
+export const staffDeathsKey = "staffDeaths";
+
+export const deathBracketKeys: Array<keyof ModelInputsPopulationBrackets> = [
+  ...incarceratedDeathsKeys,
+  staffDeathsKey,
 ];
 
 interface ModelInputsPersistent extends ModelInputsPopulationBrackets {
@@ -345,9 +353,12 @@ const incarceratedCasesKeys: (keyof ModelInputsPopulationBrackets)[] = [
   "age85Cases",
   "ageUnknownCases",
 ];
+
+const staffCasesKey = "staffCases";
+
 const casesKeys: (keyof ModelInputsPopulationBrackets)[] = [
   ...incarceratedCasesKeys,
-  "staffCases",
+  staffCasesKey,
 ];
 
 export const incarceratedPopulationKeys: (keyof ModelInputsPopulationBrackets)[] = [
@@ -384,10 +395,28 @@ export function totalConfirmedDeaths(
   return sum(Object.values(pick(brackets, deathBracketKeys)));
 }
 
+export function totalStaffConfirmedDeaths(
+  brackets: ModelInputsPopulationBrackets,
+): number {
+  return sum(Object.values(pick(brackets, staffDeathsKey)));
+}
+
+export function totalIncarceratedConfirmedDeaths(
+  brackets: ModelInputsPopulationBrackets,
+): number {
+  return sum(Object.values(pick(brackets, incarceratedDeathsKeys)));
+}
+
 export function totalIncarceratedConfirmedCases(
   brackets: ModelInputsPopulationBrackets,
 ): number {
   return sum(Object.values(pick(brackets, incarceratedCasesKeys)));
+}
+
+export function totalStaffConfirmedCases(
+  brackets: ModelInputsPopulationBrackets,
+): number {
+  return sum(Object.values(pick(brackets, staffCasesKey)));
 }
 
 export function totalIncarceratedPopulation(
