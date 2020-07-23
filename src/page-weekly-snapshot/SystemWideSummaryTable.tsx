@@ -36,7 +36,7 @@ function addDelta(delta: number, deltaDirection: string) {
 }
 
 function getSystemWideSummaryIncarceratedData(facilities: Facility[]) {
-  let systemWideSummaryIncarceratedData: IncarceratedFacilitySummaryData = {
+  const systemWideSummaryIncarceratedData: IncarceratedFacilitySummaryData = {
     incarceratedPopulation: 0,
     incarceratedPopulationDelta: 0,
     incarceratedPopulationDeltaDirection: "same",
@@ -102,7 +102,7 @@ function getSystemWideSummaryIncarceratedData(facilities: Facility[]) {
 }
 
 function getSystemWideSummaryStaffData(facilities: Facility[]) {
-  let systemWideSummaryStaffData: StaffFacilitySummaryData = {
+  const systemWideSummaryStaffData: StaffFacilitySummaryData = {
     staffPopulation: 0,
     staffPopulationDelta: 0,
     staffPopulationDeltaDirection: "same",
