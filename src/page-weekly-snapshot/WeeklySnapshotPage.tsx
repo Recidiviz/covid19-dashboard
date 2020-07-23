@@ -15,6 +15,8 @@ import {
   LeftHeading,
   Right,
   STATE_CODE_MAPPING,
+  TextContainer,
+  TextContainerHeading,
 } from "./shared";
 import SnapshotPage from "./SnapshotPage";
 import SystemWideProjectionChart from "./SystemWideProjectionChart";
@@ -52,13 +54,15 @@ const WeeklySnapshotPage: React.FC = () => {
               >
                 <br />
                 <BorderDiv />
-                <LeftHeading>
-                  {stateName} / {todayFormatted} / Year-to-date projected impact
-                  on the incarcerated and staff
-                </LeftHeading>
-                <Right>
-                  DOCR data as of: xx/xx/xx Community cases as of: xx/xx/xx
-                </Right>
+                <TextContainer>
+                  <LeftHeading marginTop={"0px"}>
+                    {stateName} / {todayFormatted} / Year-to-date projected
+                    impact on the incarcerated and staff
+                  </LeftHeading>
+                  <Right>
+                    DOCR data as of: xx/xx/xx Community cases as of: xx/xx/xx
+                  </Right>
+                </TextContainer>
                 <HorizontalRule />
                 <LocaleSummary />
                 <ImpactProjectionChart />
