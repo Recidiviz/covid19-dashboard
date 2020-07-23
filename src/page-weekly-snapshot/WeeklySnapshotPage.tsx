@@ -1,4 +1,5 @@
 import { format, startOfToday } from "date-fns";
+import { get } from "lodash";
 import React from "react";
 import styled from "styled-components";
 
@@ -8,7 +9,12 @@ import FacilitySummaries from "./FacilitySummaries";
 import ImpactProjectionChart from "./ImpactProjectionChart";
 import LocaleStatsTable from "./LocaleStatsTable";
 import LocaleSummary from "./LocaleSummary";
-import { BorderDiv, HorizontalRule, LeftHeading } from "./shared";
+import {
+  BorderDiv,
+  HorizontalRule,
+  LeftHeading,
+  STATE_CODE_MAPPING,
+} from "./shared";
 import SnapshotPage from "./SnapshotPage";
 import SystemWideProjectionChart from "./SystemWideProjectionChart";
 import { useWeeklyReport } from "./weekly-report-context/WeeklyReportContext";
@@ -23,6 +29,13 @@ const WeeklySnapshotPage: React.FC = () => {
   } = useWeeklyReport();
   const today = startOfToday();
   const todayFormatted = format(today, "LLLL dd, yyyy");
+  let stateImage = undefined;
+  if (stateName) {
+    const stateCode = get(STATE_CODE_MAPPING, stateName);
+    stateImage = require("../../public/state-svg-defs-master/SVG/" +
+      stateCode +
+      ".svg");
+  }
   return (
     <WeeklySnapshotPageDiv>
       <div className="font-body min-h-screen tracking-normal w-full">
@@ -31,7 +44,11 @@ const WeeklySnapshotPage: React.FC = () => {
             <Loading />
           ) : (
             <WeeklySnapshotContainer>
-              <SnapshotPage header="COVID-19 Report" subheader>
+              <SnapshotPage
+                image={stateImage}
+                header="COVID-19 Report"
+                subheader
+              >
                 <br />
                 <BorderDiv />
                 <LeftHeading>

@@ -5,6 +5,7 @@ import {
   Emphasize,
   HorizontalRule,
   LeftHeading,
+  Logo,
   PageHeader,
   PageSubheader,
   PageWidthContainer,
@@ -17,12 +18,19 @@ interface Props {
   header: string;
   subheader?: boolean | undefined;
   children: React.ReactNode;
+  image?: any;
 }
 
-const SnapshotPage: React.FC<Props> = ({ header, subheader, children }) => {
+const SnapshotPage: React.FC<Props> = ({
+  header,
+  subheader,
+  children,
+  image,
+}) => {
   return (
     <SnapshotPageContainer>
       <PageWidthContainer>
+        {image && <Logo src={image} />}
         <PageHeader>{header}</PageHeader>
         {subheader && (
           <PageSubheader>
