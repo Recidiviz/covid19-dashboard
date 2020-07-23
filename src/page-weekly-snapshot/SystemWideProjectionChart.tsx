@@ -8,7 +8,8 @@ import Colors from "../design-system/Colors";
 import { useFacilities } from "../facilities-context";
 import { useLocaleDataState } from "../locale-data-context";
 import * as chartUtils from "./projectionChartUtils";
-import { HorizontalRule, LegendContainer, LegendText } from "./shared";
+import { Heading, HorizontalRule, LegendContainer, LegendText } from "./shared";
+import SystemWideSummaryTable from "./SystemWideSummaryTable";
 import { useWeeklyReport } from "./weekly-report-context";
 
 const SystemWideProjectionChartContainer = styled.div`
@@ -155,6 +156,7 @@ const SystemWideProjectionChart: React.FC = () => {
 
   return (
     <SystemWideProjectionChartContainer>
+      <SystemWideSummaryTable />
       <CurveChartContainer>
         <HorizontalRule />
         <HeaderContainer>

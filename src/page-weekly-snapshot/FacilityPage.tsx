@@ -19,16 +19,10 @@ import { initialPublicCurveToggles } from "../page-multi-facility/curveToggles";
 import { useProjectionData } from "../page-multi-facility/projectionCurveHooks";
 import { Facility } from "../page-multi-facility/types";
 import FacilitySummaryTable from "./FacilitySummaryTable";
+import { Heading } from "./shared/index";
 import SnapshotPage from "./SnapshotPage";
 
 const DURATION = 21;
-
-const Heading = styled.div`
-  font-weight: 700;
-  line-height: 13px;
-  border-top: 1px solid ${Colors.darkGray};
-  padding: 10px 0;
-`;
 
 export const Table = styled.table`
   color: ${Colors.black};
