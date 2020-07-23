@@ -51,7 +51,6 @@ export const STATE_CODE_MAPPING = {
   "Oklahoma": "OK",
   "Oregon": "OR",
   "Pennsylvania": "PA",
-  "Puerto Rico": "PR",
   "Rhode Island": "RI",
   "South Carolina": "SC",
   "South Dakota": "SD",
@@ -233,8 +232,26 @@ export const Body = styled.div`
   flex-grow: 1;
 `;
 
-export const Logo = styled.img`
-  width: 30px;
-  height: 30px;
-  margin: 15px;
+export const Image = styled.img`
+  display: block;
+  width: 50px;
+  height: 50px;
+  -moz-border-radius: 40px;
+  -webkit-border-radius: 40px;
+  border: 1px solid black;
+  padding: 5px;
+  margin-top: 10px;
+  margin-bottom: -10px;
+`;
+
+export const ImageContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: baseline;
+`;
+
+export const ImageLeft = styled.div`
+  margin-right: 20px;
 `;

@@ -4,8 +4,10 @@ import {
   Body,
   Emphasize,
   HorizontalRule,
+  Image,
+  ImageContainer,
+  ImageLeft,
   LeftHeading,
-  Logo,
   PageHeader,
   PageSubheader,
   PageWidthContainer,
@@ -30,8 +32,11 @@ const SnapshotPage: React.FC<Props> = ({
   return (
     <SnapshotPageContainer>
       <PageWidthContainer>
-        {image && <Logo src={image} />}
-        <PageHeader>{header}</PageHeader>
+        <ImageContainer>
+          <ImageLeft>{image && <Image src={image} />}</ImageLeft>
+          <PageHeader>{header}</PageHeader>
+        </ImageContainer>
+
         {subheader && (
           <PageSubheader>
             Weekly snapshot provided by <Emphasize>recidiviz</Emphasize>

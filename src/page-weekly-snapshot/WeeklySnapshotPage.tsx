@@ -13,6 +13,7 @@ import {
   BorderDiv,
   HorizontalRule,
   LeftHeading,
+  Right,
   STATE_CODE_MAPPING,
 } from "./shared";
 import SnapshotPage from "./SnapshotPage";
@@ -30,7 +31,7 @@ const WeeklySnapshotPage: React.FC = () => {
   const today = startOfToday();
   const todayFormatted = format(today, "LLLL dd, yyyy");
   let stateImage = undefined;
-  if (stateName) {
+  if (stateName && get(STATE_CODE_MAPPING, stateName)) {
     const stateCode = get(STATE_CODE_MAPPING, stateName);
     stateImage = require("../../public/state-svg-defs-master/SVG/" +
       stateCode +
@@ -55,6 +56,9 @@ const WeeklySnapshotPage: React.FC = () => {
                   {stateName} / {todayFormatted} / Year-to-date projected impact
                   on the incarcerated and staff
                 </LeftHeading>
+                <Right>
+                  DOCR data as of: xx/xx/xx Community cases as of: xx/xx/xx
+                </Right>
                 <HorizontalRule />
                 <LocaleSummary />
                 <ImpactProjectionChart />
