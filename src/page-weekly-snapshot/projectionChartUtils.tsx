@@ -1,7 +1,6 @@
 import * as dateFns from "date-fns";
 import ndarray from "ndarray";
 
-import Colors from "../design-system/Colors";
 import {
   EpidemicModelInputs,
   getLocaleDefaults,
@@ -12,7 +11,10 @@ import {
   totalStaffConfirmedCases,
   totalStaffConfirmedDeaths,
 } from "../impact-dashboard/EpidemicModelContext";
-import { countActiveCasesForDay,countCasesForDay } from "../impact-dashboard/ImpactProjectionTableContainer";
+import {
+  countActiveCasesForDay,
+  countCasesForDay,
+} from "../impact-dashboard/ImpactProjectionTableContainer";
 import { NUM_DAYS } from "../infection-model";
 import { calculateCurves, curveInputsFromUserInputs } from "../infection-model";
 import { getAllValues, getColView } from "../infection-model/matrixUtils";
@@ -27,12 +29,12 @@ const SEVEN_DAY_PROJECTION = 7;
 type ProjectedCases = {
   projectedStaffCases: number[];
   projectedIncarceratedCases: number[];
-}
+};
 
 type ProjectedCasesAndFatalities = ProjectedCases & {
   projectedIncarceratedFatalities: number[];
   projectedStaffFatalities: number[];
-}
+};
 
 interface FacilitiesData {
   [key: string]: number[];
@@ -70,6 +72,14 @@ const findVersionForDate = (versions: ModelInputs[], date: Date) => {
     return dateFns.isSameDay(version.observedAt, date);
   });
 };
+
+function calculateCurveData(
+  epidemicModelInputs: EpidemicModelInputs,
+  projectionNumDays: number,
+) {
+  const curveInputs = curveInputsFromUserInputs(epidemicModelInputs);
+  return calculateCurves(curveInputs, projectionNumDays);
+}
 
 /**
  * Takes an ndarray and sums the values for all seir indexes except susceptible
@@ -117,7 +127,9 @@ export function getVersionForProjection(versions: ModelInputs[], date: Date) {
     .sort(({ observedAt: a }, { observedAt: b }) => dateFns.compareAsc(a, b))
     .filter((version) => totalConfirmedCases(version) > 0);
 
-  let versionForProjection: ModelInputs | undefined = versionsWithCases.find((v) =>
+  let versionForProjection:
+    | ModelInputs
+    | undefined = versionsWithCases.find((v) =>
     dateFns.isSameDay(v.observedAt, date),
   );
 
@@ -158,7 +170,9 @@ export function getVersionForProjection(versions: ModelInputs[], date: Date) {
  * @returns projectedData - An object of projected staff/incarcerated cases/fatalities, both arrays
  * should have the same length as NUM_DAYS
  */
-export function get90DaysAgoProjection(epidemicModelInputs: EpidemicModelInputs): ProjectedCasesAndFatalities {
+export function get90DaysAgoProjection(
+  epidemicModelInputs: EpidemicModelInputs,
+): ProjectedCasesAndFatalities {
   const zeroProjection = {
     projectedStaffFatalities: addProjectionPadding([]),
     projectedIncarceratedFatalities: addProjectionPadding([]),
@@ -197,11 +211,6 @@ export function get90DaysAgoProjection(epidemicModelInputs: EpidemicModelInputs)
       getCaseCount(curveData.incarcerated),
     ),
   };
-}
-
-function calculateCurveData(epidemicModelInputs: EpidemicModelInputs, projectionNumDays: number) {
-  const curveInputs = curveInputsFromUserInputs(epidemicModelInputs);
-  return calculateCurves(curveInputs, projectionNumDays);
 }
 
 /**
@@ -305,8 +314,10 @@ export function getFacilitiesProjectionData(
   modelVersions: ModelInputs[][],
   localeDataSource: LocaleData,
   date: Date,
-  projectionFn: ((v: EpidemicModelInputs) => ProjectedCasesAndFatalities) | ((v: EpidemicModelInputs) => ProjectedCases),
-): (ProjectedCasesAndFatalities[] | ProjectedCases[]) {
+  projectionFn:
+    | ((v: EpidemicModelInputs) => ProjectedCasesAndFatalities)
+    | ((v: EpidemicModelInputs) => ProjectedCases),
+): ProjectedCasesAndFatalities[] | ProjectedCases[] {
   return modelVersions.map((versions) => {
     const versionForProjection = getVersionForProjection(versions, date);
     const epidemicModelInputs = {
@@ -341,7 +352,7 @@ export function getImpactChartAndTableData(
     modelVersions,
     localeDataSource,
     ninetyDaysAgo(),
-    get90DaysAgoProjection
+    get90DaysAgoProjection,
   ) as ProjectedCasesAndFatalities[];
 
   const chartData: ChartData = {
@@ -419,13 +430,18 @@ export function getImpactChartAndTableData(
  * @returns projectedCases - Array of projected staff/incarcerated cases a facility
  *
  */
-function get7DayProjection(epidemicModelInputs: EpidemicModelInputs): ProjectedCases {
-  const curveData = calculateCurveData(epidemicModelInputs, SEVEN_DAY_PROJECTION)
+function get7DayProjection(
+  epidemicModelInputs: EpidemicModelInputs,
+): ProjectedCases {
+  const curveData = calculateCurveData(
+    epidemicModelInputs,
+    SEVEN_DAY_PROJECTION,
+  );
 
   const zeroProjection = {
     projectedStaffCases: Array(SEVEN_DAY_PROJECTION).fill(0),
     projectedIncarceratedCases: Array(SEVEN_DAY_PROJECTION).fill(0),
-  }
+  };
 
   if (!curveData) return zeroProjection;
 
@@ -452,16 +468,18 @@ export function get7DayProjectionChartData(
     modelVersions,
     localeDataSource,
     today(),
-    get7DayProjection
+    get7DayProjection,
   );
 
-  let totalActiveCases = Array(SEVEN_DAY_PROJECTION).fill(0)
+  let totalActiveCases = Array(SEVEN_DAY_PROJECTION).fill(0);
 
   for (let index = 0; index < SEVEN_DAY_PROJECTION; index++) {
     facilitiesProjections.forEach((facility) => {
-      totalActiveCases[index] += (facility.projectedIncarceratedCases[index] + facility.projectedStaffCases[index])
-    })
+      totalActiveCases[index] +=
+        facility.projectedIncarceratedCases[index] +
+        facility.projectedStaffCases[index];
+    });
   }
 
-  return totalActiveCases
+  return totalActiveCases;
 }

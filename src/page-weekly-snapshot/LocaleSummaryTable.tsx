@@ -14,7 +14,6 @@ import { LocaleData, useLocaleDataState } from "../locale-data-context";
 import { Facility } from "../page-multi-facility/types";
 import {
   BorderDiv,
-  COLUMN_SPACING,
   HorizontalRule,
   Left,
   LeftHeading,
