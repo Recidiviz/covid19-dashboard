@@ -279,7 +279,8 @@ export const getSharedBaselineScenarios = async (): Promise<Scenario[]> => {
 
     const results = await db
       .collection(scenariosCollectionId)
-      .where(`roles.${currentUserId()}`, "in", ["viewer"])
+      // TODO: remove, for testing only
+      .where(`roles.${currentUserId()}`, "in", ["owner", "viewer"])
       .where("baseline", "==", true)
       .get();
 

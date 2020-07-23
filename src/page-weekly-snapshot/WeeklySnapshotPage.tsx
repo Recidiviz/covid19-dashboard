@@ -1,3 +1,4 @@
+import { format, startOfToday } from "date-fns";
 import React from "react";
 import styled from "styled-components";
 
@@ -7,14 +8,21 @@ import FacilitySummaries from "./FacilitySummaries";
 import ImpactProjectionChart from "./ImpactProjectionChart";
 import LocaleStatsTable from "./LocaleStatsTable";
 import LocaleSummary from "./LocaleSummary";
+import { BorderDiv, HorizontalRule, LeftHeading } from "./shared";
 import SnapshotPage from "./SnapshotPage";
 import SystemWideProjectionChart from "./SystemWideProjectionChart";
+import { useWeeklyReport } from "./weekly-report-context/WeeklyReportContext";
 
 const WeeklySnapshotPageDiv = styled.div``;
 const WeeklySnapshotContainer = styled.div``;
 
 const WeeklySnapshotPage: React.FC = () => {
   const localeState = useLocaleDataState();
+  const {
+    state: { stateName },
+  } = useWeeklyReport();
+  const today = startOfToday();
+  const todayFormatted = format(today, "LLLL dd, yyyy");
   return (
     <WeeklySnapshotPageDiv>
       <div className="font-body min-h-screen tracking-normal w-full">
@@ -24,7 +32,13 @@ const WeeklySnapshotPage: React.FC = () => {
           ) : (
             <WeeklySnapshotContainer>
               <SnapshotPage header="COVID-19 Report" subheader>
-                YTD Summary and impact report
+                <br />
+                <BorderDiv />
+                <LeftHeading>
+                  {stateName} / {todayFormatted} / Year-to-date projected impact
+                  on the incarcerated and staff
+                </LeftHeading>
+                <HorizontalRule />
                 <LocaleSummary />
                 <ImpactProjectionChart />
               </SnapshotPage>
