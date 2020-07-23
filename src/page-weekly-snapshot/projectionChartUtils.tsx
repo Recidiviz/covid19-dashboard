@@ -1,6 +1,7 @@
 import * as dateFns from "date-fns";
 import ndarray from "ndarray";
 
+import Colors from "../design-system/Colors";
 import {
   EpidemicModelInputs,
   getLocaleDefaults,
@@ -11,7 +12,7 @@ import {
   totalStaffConfirmedCases,
   totalStaffConfirmedDeaths,
 } from "../impact-dashboard/EpidemicModelContext";
-import { countCasesForDay } from "../impact-dashboard/ImpactProjectionTableContainer";
+import { countActiveCasesForDay,countCasesForDay } from "../impact-dashboard/ImpactProjectionTableContainer";
 import { NUM_DAYS } from "../infection-model";
 import { calculateCurves, curveInputsFromUserInputs } from "../infection-model";
 import { getAllValues, getColView } from "../infection-model/matrixUtils";
@@ -21,6 +22,44 @@ import { ModelInputs } from "../page-multi-facility/types";
 
 export const today = () => dateFns.endOfToday();
 export const ninetyDaysAgo = () => dateFns.subDays(today(), NUM_DAYS);
+const SEVEN_DAY_PROJECTION = 7;
+
+type ProjectedCases = {
+  projectedStaffCases: number[];
+  projectedIncarceratedCases: number[];
+}
+
+type ProjectedCasesAndFatalities = ProjectedCases & {
+  projectedIncarceratedFatalities: number[];
+  projectedStaffFatalities: number[];
+}
+
+interface FacilitiesData {
+  [key: string]: number[];
+  staffCases: number[];
+  staffFatalities: number[];
+  incarceratedCases: number[];
+  incarceratedFatalities: number[];
+}
+
+interface ChartData {
+  [key: string]: number[];
+  cases: number[];
+  fatalities: number[];
+  projectedCases: number[];
+  projectedFatalities: number[];
+}
+
+export interface TableData {
+  staffCasesToday: number;
+  staffFatalitiesToday: number;
+  incarceratedCasesToday: number;
+  incarceratedFatalitiesToday: number;
+  projectedStaffCasesToday: number;
+  projectedStaffFatalitiesToday: number;
+  projectedIncarceratedCasesToday: number;
+  projectedIncarceratedFatalitiesToday: number;
+}
 
 function addProjectionPadding(values: number[], numDays = NUM_DAYS): number[] {
   return [...Array(numDays - values.length + 1).fill(0), ...values];
@@ -49,28 +88,42 @@ export function getCaseCount(curveData: ndarray<number>) {
 }
 
 /**
- * Takes an array of facility model versions and returns the version to use
- * for the curve chart projection. First, take the version from 90 days ago if
- * it has cases. If it does not exist or there are 0 cases, look forward
- * until there is a version with cases.
+ * Takes an ndarray and sums the values for active cases per day, which include
+ * infectious, mild, severe, hospitalized values.
+ *
+ * @param curveData - { staff: [...], incarcerated: [...], shape: [90, 9], stride: [9, 1] }
+ * @returns cases - [0, 1, 2, 3...89]
+ */
+export function getActiveCaseCount(curveData: ndarray<number>) {
+  const cases = [];
+  for (let day = 0; day < curveData.shape[0]; ++day) {
+    const caseCountForDay = countActiveCasesForDay(curveData, day);
+    cases.push(caseCountForDay);
+  }
+  return cases;
+}
+
+/**
+ * Takes an array of facility model versions and a date and returns the version to use
+ * for the curve chart projection. If a version isn't found for the given date,
+ * find the closest version to that date with cases.
  *
  * @param modelInputs - An array of facility model inputs
+ * @param date - The date you want a version for, or a version closest to that date
  * @returns versionForProjection - A facility's model inputs object
  */
-export function getVersionForProjection(versions: ModelInputs[]) {
+export function getVersionForProjection(versions: ModelInputs[], date: Date) {
   const versionsWithCases = versions
     .sort(({ observedAt: a }, { observedAt: b }) => dateFns.compareAsc(a, b))
     .filter((version) => totalConfirmedCases(version) > 0);
 
-  const version90DaysAgo = versionsWithCases.find((v) =>
-    dateFns.isSameDay(v.observedAt, ninetyDaysAgo()),
+  let versionForProjection: ModelInputs | undefined = versionsWithCases.find((v) =>
+    dateFns.isSameDay(v.observedAt, date),
   );
 
-  let versionForProjection: ModelInputs | undefined = version90DaysAgo;
-
-  if (!version90DaysAgo) {
+  if (!versionForProjection) {
     const closestDate = dateFns.closestTo(
-      ninetyDaysAgo(),
+      date,
       versionsWithCases.map((v) => v.observedAt),
     );
     const closestVersionWithCases = findVersionForDate(
@@ -105,7 +158,7 @@ export function getVersionForProjection(versions: ModelInputs[]) {
  * @returns projectedData - An object of projected staff/incarcerated cases/fatalities, both arrays
  * should have the same length as NUM_DAYS
  */
-export function getProjectedData(epidemicModelInputs: EpidemicModelInputs) {
+export function get90DaysAgoProjection(epidemicModelInputs: EpidemicModelInputs): ProjectedCasesAndFatalities {
   const zeroProjection = {
     projectedStaffFatalities: addProjectionPadding([]),
     projectedIncarceratedFatalities: addProjectionPadding([]),
@@ -128,8 +181,7 @@ export function getProjectedData(epidemicModelInputs: EpidemicModelInputs) {
 
   if (projectionNumDays <= 0) return zeroProjection;
 
-  const curveInputs = curveInputsFromUserInputs(epidemicModelInputs);
-  const curveData = calculateCurves(curveInputs, projectionNumDays);
+  const curveData = calculateCurveData(epidemicModelInputs, projectionNumDays);
 
   if (!curveData) return zeroProjection;
 
@@ -145,6 +197,11 @@ export function getProjectedData(epidemicModelInputs: EpidemicModelInputs) {
       getCaseCount(curveData.incarcerated),
     ),
   };
+}
+
+function calculateCurveData(epidemicModelInputs: EpidemicModelInputs, projectionNumDays: number) {
+  const curveInputs = curveInputsFromUserInputs(epidemicModelInputs);
+  return calculateCurves(curveInputs, projectionNumDays);
 }
 
 /**
@@ -230,22 +287,28 @@ export function getFacilitiesData(modelVersions: ModelInputs[]) {
 
   return actualData;
 }
+
 /**
  * Takes an array of modelVersions for multiple facilities and the locale data
  * and finds the version to use for the projection. It adds the locale data to this
  * version to create an EpidemicModelInputs object, which is passed to
- * getProjectedData to calculate the curve data for its facility
+ * get90DaysAgoProjection to calculate the curve data for its facility
  *
  * @param modelVersions - An array of modelVersions for multiple facilities
  * @param localeDataSource - LocaleData from the LocaleDataContext
- * @returns projectedData[] - An array of projectedData objects for each facility
+ * @param date - The date used to find the version for the projection's starting point
+ * @param projectionFn - The function for generating the projection per each facility's input
+ * @returns projectionData[] - An array of projectedData objects for each facility,
+ * either ProjectedCasesAndFatalities or ProjectedCases
  */
 export function getFacilitiesProjectionData(
   modelVersions: ModelInputs[][],
   localeDataSource: LocaleData,
-) {
+  date: Date,
+  projectionFn: ((v: EpidemicModelInputs) => ProjectedCasesAndFatalities) | ((v: EpidemicModelInputs) => ProjectedCases),
+): (ProjectedCasesAndFatalities[] | ProjectedCases[]) {
   return modelVersions.map((versions) => {
-    const versionForProjection = getVersionForProjection(versions);
+    const versionForProjection = getVersionForProjection(versions, date);
     const epidemicModelInputs = {
       ...versionForProjection,
       ...getLocaleDefaults(
@@ -255,43 +318,8 @@ export function getFacilitiesProjectionData(
         RateOfSpread.moderate,
       ),
     };
-    return getProjectedData(epidemicModelInputs);
+    return projectionFn(epidemicModelInputs);
   });
-}
-
-interface ProjectionData {
-  [key: string]: number[];
-  projectedStaffCases: number[];
-  projectedIncarceratedCases: number[];
-  projectedIncarceratedFatalities: number[];
-  projectedStaffFatalities: number[];
-}
-
-interface FacilitiesData {
-  [key: string]: number[];
-  staffCases: number[];
-  staffFatalities: number[];
-  incarceratedCases: number[];
-  incarceratedFatalities: number[];
-}
-
-interface ChartData {
-  [key: string]: number[];
-  cases: number[];
-  fatalities: number[];
-  projectedCases: number[];
-  projectedFatalities: number[];
-}
-
-export interface TableData {
-  staffCasesToday: number;
-  staffFatalitiesToday: number;
-  incarceratedCasesToday: number;
-  incarceratedFatalitiesToday: number;
-  projectedStaffCasesToday: number;
-  projectedStaffFatalitiesToday: number;
-  projectedIncarceratedCasesToday: number;
-  projectedIncarceratedFatalitiesToday: number;
 }
 
 /**
@@ -301,18 +329,20 @@ export interface TableData {
  *
  * @param modelVersions - An array of modelVersions for multiple facilities
  * @param localeDataSource - LocaleData from the LocaleDataContext
- * @returns chartData - { projectedCases: [0..89], actualCases: [0..89],
- * projectedFatalities: [0..89], projectedCases: [0..89] }
+ * @returns tableData, chartData - { projectedCases: [0..89], cases: [0..89],
+ * fatalities: [0..89], projectedCases: [0..89] }
  */
-export function getChartAndTableData(
+export function getImpactChartAndTableData(
   modelVersions: ModelInputs[][],
   localeDataSource: LocaleData,
 ) {
   const facilitiesData: FacilitiesData[] = modelVersions.map(getFacilitiesData);
-  const projectionData: ProjectionData[] = getFacilitiesProjectionData(
+  const projectionData = getFacilitiesProjectionData(
     modelVersions,
     localeDataSource,
-  );
+    ninetyDaysAgo(),
+    get90DaysAgoProjection
+  ) as ProjectedCasesAndFatalities[];
 
   const chartData: ChartData = {
     projectedCases: addProjectionPadding([]),
@@ -379,4 +409,59 @@ export function getChartAndTableData(
     chartData,
     tableData,
   };
+}
+
+/**
+ * Takes modelVersions for one facility and returns the 7 day projection for
+ * for staff and incarcerated active cases
+ *
+ * @param modelVersions - An array of modelVersions for multiple facilities
+ * @returns projectedCases - Array of projected staff/incarcerated cases a facility
+ *
+ */
+function get7DayProjection(epidemicModelInputs: EpidemicModelInputs): ProjectedCases {
+  const curveData = calculateCurveData(epidemicModelInputs, SEVEN_DAY_PROJECTION)
+
+  const zeroProjection = {
+    projectedStaffCases: Array(SEVEN_DAY_PROJECTION).fill(0),
+    projectedIncarceratedCases: Array(SEVEN_DAY_PROJECTION).fill(0),
+  }
+
+  if (!curveData) return zeroProjection;
+
+  return {
+    projectedStaffCases: getActiveCaseCount(curveData.staff),
+    projectedIncarceratedCases: getActiveCaseCount(curveData.incarcerated),
+  };
+}
+
+/**
+ * Takes an array of modelVersions for multiple facilities and the locale data
+ * and returns the total projected active cases for the next 7 days
+ *
+ * @param modelVersions - An array of modelVersions for multiple facilities
+ * @param localeDataSource - LocaleData from the LocaleDataContext
+ * @returns totalActiveCases - Array of 7 values for active cases
+ *
+ */
+export function get7DayProjectionChartData(
+  modelVersions: ModelInputs[][],
+  localeDataSource: LocaleData,
+) {
+  const facilitiesProjections: ProjectedCases[] = getFacilitiesProjectionData(
+    modelVersions,
+    localeDataSource,
+    today(),
+    get7DayProjection
+  );
+
+  let totalActiveCases = Array(SEVEN_DAY_PROJECTION).fill(0)
+
+  for (let index = 0; index < SEVEN_DAY_PROJECTION; index++) {
+    facilitiesProjections.forEach((facility) => {
+      totalActiveCases[index] += (facility.projectedIncarceratedCases[index] + facility.projectedStaffCases[index])
+    })
+  }
+
+  return totalActiveCases
 }
