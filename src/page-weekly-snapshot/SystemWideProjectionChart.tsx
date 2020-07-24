@@ -8,7 +8,7 @@ import Colors from "../design-system/Colors";
 import { useFacilities } from "../facilities-context";
 import { useLocaleDataState } from "../locale-data-context";
 import * as chartUtils from "./projectionChartUtils";
-import { Heading, HorizontalRule, LegendContainer, LegendText } from "./shared";
+import { HorizontalRule, LegendContainer, LegendText } from "./shared";
 import SystemWideSummaryTable from "./SystemWideSummaryTable";
 import { useWeeklyReport } from "./weekly-report-context";
 
@@ -134,7 +134,7 @@ const SystemWideProjectionChart: React.FC = () => {
     annotationSettings: {
       layout: {
         type: "bump",
-        padding: 0,
+        padding: -20,
       },
     },
     annotations: [
@@ -142,11 +142,10 @@ const SystemWideProjectionChart: React.FC = () => {
         return {
           type: "react-annotation",
           disable: ["connector"],
-          label: data.cases,
           note: {
             label: `${data.cases}`,
             orientation: "topBottom",
-            align: "top",
+            align: "middle",
           },
           ...data,
         };
@@ -164,10 +163,12 @@ const SystemWideProjectionChart: React.FC = () => {
             System-Wide Projection for Facilities with Active Cases
           </ChartHeader>
           <LegendContainer>
-            <LegendText legendColor={Colors.black}>
+            <LegendText legendColor={legendColors.projected}>
               Pessimistic Scenario
             </LegendText>
-            <LegendText legendColor={Colors.tamarillo}>Cases Today</LegendText>
+            <LegendText legendColor={legendColors.today}>
+              Cases Today
+            </LegendText>
           </LegendContainer>
         </HeaderContainer>
         <HorizontalRule />
