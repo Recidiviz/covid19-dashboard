@@ -20,7 +20,7 @@ interface Props {
   header: string;
   subheader?: boolean | undefined;
   children: React.ReactNode;
-  image?: any;
+  image?: string;
 }
 
 const SnapshotPage: React.FC<Props> = ({
@@ -29,6 +29,7 @@ const SnapshotPage: React.FC<Props> = ({
   children,
   image,
 }) => {
+  console.log(image);
   return (
     <SnapshotPageContainer>
       <PageWidthContainer>

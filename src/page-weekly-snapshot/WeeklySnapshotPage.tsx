@@ -25,6 +25,8 @@ import SnapshotPage from "./SnapshotPage";
 import SystemWideProjectionChart from "./SystemWideProjectionChart";
 import { useWeeklyReport } from "./weekly-report-context/WeeklyReportContext";
 
+const IMAGE_FORMAT = ".svg";
+
 const WeeklySnapshotPageDiv = styled.div``;
 const WeeklySnapshotContainer = styled.div``;
 
@@ -59,7 +61,6 @@ function getMostRecentDOCRDate(facilities: Facility[]) {
 function getMostRecentNYTDate(
   nytData: NYTCountyRecord[] | NYTStateRecord[] | undefined,
 ) {
-  console.log(nytData);
   const mostRecentRecord = maxBy(
     nytData,
     (d: NYTCountyRecord | NYTStateRecord) => d.date,
@@ -99,9 +100,9 @@ const WeeklySnapshotPage: React.FC = () => {
   let stateImage = undefined;
   if (stateName && get(STATE_CODE_MAPPING, stateName)) {
     const stateCode = get(STATE_CODE_MAPPING, stateName);
-    stateImage = require("../../public/state-svg-defs-master/SVG/" +
+    stateImage = stateImage = require("../design-system/state-svg-defs-master/SVG/" +
       stateCode +
-      ".svg");
+      IMAGE_FORMAT);
   }
   return (
     <WeeklySnapshotPageDiv>
