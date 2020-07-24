@@ -29,7 +29,6 @@ const SnapshotPage: React.FC<Props> = ({
   children,
   image,
 }) => {
-  console.log(image);
   return (
     <SnapshotPageContainer>
       <PageWidthContainer>
@@ -37,7 +36,6 @@ const SnapshotPage: React.FC<Props> = ({
           <ImageLeft>{image && <Image src={image} />}</ImageLeft>
           <PageHeader>{header}</PageHeader>
         </ImageContainer>
-
         {subheader && (
           <PageSubheader>
             Weekly snapshot provided by <Emphasize>recidiviz</Emphasize>

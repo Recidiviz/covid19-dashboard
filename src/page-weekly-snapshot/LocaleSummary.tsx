@@ -52,7 +52,6 @@ export default function LocaleSummary() {
             This page shows where your Corrections system stands compared to
             your state overall and how your interventions have flattened the
             curve in your facilities.
-            {/* TODO: there's probably a better way to do this... */}
             <br />
             <br />
             The subsequent page(s) project the spread of COVID-19 in your
