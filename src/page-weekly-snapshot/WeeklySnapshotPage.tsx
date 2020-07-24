@@ -25,8 +25,6 @@ import SnapshotPage from "./SnapshotPage";
 import SystemWideProjectionChart from "./SystemWideProjectionChart";
 import { useWeeklyReport } from "./weekly-report-context/WeeklyReportContext";
 
-const IMAGE_FORMAT = ".svg";
-
 const WeeklySnapshotPageDiv = styled.div``;
 const WeeklySnapshotContainer = styled.div``;
 
@@ -102,7 +100,7 @@ const WeeklySnapshotPage: React.FC = () => {
     const stateCode = get(STATE_CODE_MAPPING, stateName);
     stateImage = stateImage = require("../design-system/state-svg-defs-master/SVG/" +
       stateCode +
-      IMAGE_FORMAT);
+      ".svg");
   }
   return (
     <WeeklySnapshotPageDiv>

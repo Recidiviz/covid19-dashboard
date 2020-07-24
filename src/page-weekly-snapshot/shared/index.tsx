@@ -205,6 +205,7 @@ export const PageWidthContainer = styled.div`
   font-family: Libre Franklin;
   font-size: 11px;
   line-height: 14px;
+  align-items: baseline;
 `;
 
 export const PageHeader = styled.div`
