@@ -98,7 +98,7 @@ const WeeklySnapshotPage: React.FC = () => {
   let stateImage = undefined;
   if (stateName && get(STATE_CODE_MAPPING, stateName)) {
     const stateCode = get(STATE_CODE_MAPPING, stateName);
-    stateImage = stateImage = require("../design-system/state-svg-defs-master/SVG/" +
+    stateImage = require("../design-system/state-svg-defs-master/SVG/" +
       stateCode +
       ".svg");
   }
