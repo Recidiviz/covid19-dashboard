@@ -11,6 +11,7 @@ import { useFacilities } from "../facilities-context";
 import { useLocaleDataState } from "../locale-data-context";
 import ImpactToDateTable from "./ImpactToDateTable";
 import * as chartUtils from "./projectionChartUtils";
+import { LegendContainer, LegendText } from "./shared";
 import { HorizontalRule } from "./shared/index";
 import { useWeeklyReport } from "./weekly-report-context";
 
@@ -54,32 +55,6 @@ const CurveChartWrapper = styled(ChartWrapper)<{ chartHeight: number }>`
   }
 `;
 
-const LegendContainer = styled.div`
-  color: ${Colors.black};
-  display: flex;
-  flex-flow: row nowrap;
-  font-size: 11px;
-  font-weight: 500;
-  margin: 0 5vw;
-`;
-
-const LegendText = styled.div<{ legendColor: string }>`
-  display: inline-block;
-  line-height: 20px;
-  letter-spacing: -0.01em;
-  margin: 0 10px;
-
-  &::before {
-    background-color: ${(props) => props.legendColor};
-    border-radius: 50%;
-    content: " ";
-    display: inline-block;
-    height: 8px;
-    margin: 0 5px;
-    width: 8px;
-  }
-`;
-
 const formatThousands = format(",~g");
 
 const lineColors: { [key in string]: string } = {
@@ -104,7 +79,7 @@ const ImpactProjectionChart: React.FC = () => {
   if (!scenarioLoading && !facilitiesState.loading && !facilities.length) {
     return <div>Missing scenario data for state: {stateName}</div>;
   }
-  const { chartData, tableData } = chartUtils.getChartAndTableData(
+  const { chartData, tableData } = chartUtils.getImpactChartAndTableData(
     modelVersions,
     localeDataSource,
   );

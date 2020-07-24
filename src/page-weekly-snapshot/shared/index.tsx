@@ -133,3 +133,29 @@ export const DeltaContainer = styled.div`
   display: flex;
   justify-content: flex-end;
 `;
+
+export const LegendContainer = styled.div`
+  color: ${Colors.black};
+  display: flex;
+  flex-flow: row nowrap;
+  font-size: 11px;
+  font-weight: 500;
+  margin: 10px 0;
+`;
+
+export const LegendText = styled.div<{ legendColor: string }>`
+  display: inline-block;
+  line-height: 20px;
+  letter-spacing: -0.01em;
+  margin: 0 10px;
+
+  &::before {
+    background-color: ${(props) => props.legendColor};
+    border-radius: 50%;
+    content: " ";
+    display: inline-block;
+    height: 8px;
+    margin: 0 5px;
+    width: 8px;
+  }
+`;
