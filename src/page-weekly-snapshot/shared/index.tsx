@@ -239,7 +239,7 @@ export const Image = styled.img`
   -moz-border-radius: 40px;
   -webkit-border-radius: 40px;
   border: 1px solid black;
-  padding: 5px;
+  padding-top: 5px;
   margin-top: 10px;
   margin-bottom: -10px;
 `;

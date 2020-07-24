@@ -1,20 +1,18 @@
-import { format, max, startOfToday, startOfYesterday } from "date-fns";
-import { get } from "lodash";
+import { format, max, startOfToday, startOfYear } from "date-fns";
+import { get, maxBy } from "lodash";
 import React from "react";
 import styled from "styled-components";
 
 import Loading from "../design-system/Loading";
 import { useFacilities } from "../facilities-context";
-import {
-  findMatchingDay,
-  findMostRecentDate,
-} from "../hooks/useAddCasesInputs";
+import { findMostRecentDate } from "../hooks/useAddCasesInputs";
 import { useLocaleDataState } from "../locale-data-context";
 import { Facility } from "../page-multi-facility/types";
 import FacilitySummaries from "./FacilitySummaries";
 import ImpactProjectionChart from "./ImpactProjectionChart";
 import LocaleStatsTable from "./LocaleStatsTable";
 import LocaleSummary from "./LocaleSummary";
+import { NYTCountyRecord, NYTStateRecord, useNYTData } from "./NYTDataProvider";
 import {
   BorderDiv,
   HorizontalRule,
@@ -54,7 +52,23 @@ function getMostRecentDOCRDate(facilities: Facility[]) {
   if (mostRecentDate) {
     return mostRecentDate;
   }
-  return startOfToday();
+  // obviously wrong date if this fails
+  return startOfYear(startOfToday());
+}
+
+function getMostRecentNYTDate(
+  nytData: NYTCountyRecord[] | NYTStateRecord[] | undefined,
+) {
+  console.log(nytData);
+  const mostRecentRecord = maxBy(
+    nytData,
+    (d: NYTCountyRecord | NYTStateRecord) => d.date,
+  );
+  if (mostRecentRecord) {
+    return mostRecentRecord.date;
+  }
+  // obviously wrong date if this fails
+  return startOfYear(startOfToday());
 }
 
 const WeeklySnapshotPage: React.FC = () => {
@@ -62,17 +76,25 @@ const WeeklySnapshotPage: React.FC = () => {
   const {
     state: { stateName },
   } = useWeeklyReport();
+  const { data } = useNYTData();
   const { state: facilitiesState } = useFacilities();
   const facilities = Object.values(facilitiesState.facilities);
+
+  let mostRecentNYTDate = new Date();
+  let mostRecentNYTDateFormatted = "";
+
+  if (stateName) {
+    const stateData = data[stateName];
+    mostRecentNYTDate = getMostRecentNYTDate(stateData.state);
+  }
+
+  mostRecentNYTDateFormatted = format(mostRecentNYTDate, "MM/dd/yyyy");
 
   const today = startOfToday();
   const todayFormatted = format(today, "LLLL dd, yyyy");
 
   const mostRecentDOCRDate = getMostRecentDOCRDate(facilities);
   const mostRecentDOCRDateFormatted = format(mostRecentDOCRDate, "MM/dd/yyyy");
-
-  const yesterday = startOfYesterday();
-  const yesterdayFormatted = format(yesterday, "MM/dd/yyyy");
 
   let stateImage = undefined;
   if (stateName && get(STATE_CODE_MAPPING, stateName)) {
@@ -103,7 +125,7 @@ const WeeklySnapshotPage: React.FC = () => {
                   </LeftHeading>
                   <Right>
                     DOCR data as of: {mostRecentDOCRDateFormatted} Community
-                    cases as of: {yesterdayFormatted}
+                    cases as of: {mostRecentNYTDateFormatted}
                   </Right>
                 </TextContainer>
                 <HorizontalRule />
