@@ -9,6 +9,10 @@ export const PageContainer = styled.div`
   @media (max-width: 700px) {
     flex-direction: column;
   }
+
+  @media print {
+    flex-flow: row nowrap;
+  }
 `;
 
 const borderStyle = `1px solid ${Colors.paleGreen}`;
@@ -20,5 +24,9 @@ export const Column = styled.div<{ width?: string; borderTop?: boolean }>`
 
   @media (max-width: 700px) {
     width: inherit;
+  }
+
+  @media print {
+    width: 50%;
   }
 `;
