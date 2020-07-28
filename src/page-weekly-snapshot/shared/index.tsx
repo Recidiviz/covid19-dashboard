@@ -196,6 +196,12 @@ export const SnapshotPageContainer = styled.div`
   font-size: 11px;
   font-weight: 400;
   font-family: "Libre Franklin";
+  page-break-after: always;
+
+  @media print {
+    min-height: 1700px;
+    height: 100%;
+  }
 `;
 
 export const PageWidthContainer = styled.div`
