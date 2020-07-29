@@ -21,6 +21,11 @@ import {
   Right,
   TableHeading,
   TextContainer,
+  SectionHeader,
+  SectionSubheader,
+  Header,
+  Value,
+  ValueDescription,
 } from ".";
 
 export interface IncarceratedFacilitySummaryData {
@@ -60,40 +65,49 @@ const VALUE_MAPPING = {
 
 export function makeTableHeadings() {
   return (
-    <tr>
-      <TableHeading>
-        <BorderDiv marginRight={COLUMN_SPACING} />
-        <LeftHeading>Incarcerated population</LeftHeading>
-        <HorizontalRule marginRight={COLUMN_SPACING} />
-      </TableHeading>
-      <TableHeading>
-        <BorderDiv marginRight={COLUMN_SPACING} />
-        <LeftHeading>Incarcerated cases</LeftHeading>
-        <HorizontalRule marginRight={COLUMN_SPACING} />
-      </TableHeading>
-      <TableHeading>
-        <BorderDiv marginRight={COLUMN_SPACING} />
-        <LeftHeading>Staff population</LeftHeading>
-        <HorizontalRule marginRight={COLUMN_SPACING} />
-      </TableHeading>
-      <TableHeading>
-        <BorderDiv marginRight={COLUMN_SPACING} />
-        <LeftHeading>Staff cases</LeftHeading>
-        <HorizontalRule marginRight={COLUMN_SPACING} />
-      </TableHeading>
-    </tr>
+    <>
+      <tr>
+        <TableHeading>
+          <TextContainer>
+            <SectionHeader>Current System Summary</SectionHeader>
+          </TextContainer>
+        </TableHeading>
+      </tr>
+      <tr>
+        <TableHeading>
+          <BorderDiv marginRight={COLUMN_SPACING} />
+          <Header>Incarcerated population</Header>
+          <HorizontalRule marginRight={COLUMN_SPACING} />
+        </TableHeading>
+        <TableHeading>
+          <BorderDiv marginRight={COLUMN_SPACING} />
+          <Header>Incarcerated cases</Header>
+          <HorizontalRule marginRight={COLUMN_SPACING} />
+        </TableHeading>
+        <TableHeading>
+          <BorderDiv marginRight={COLUMN_SPACING} />
+          <Header>Staff population</Header>
+          <HorizontalRule marginRight={COLUMN_SPACING} />
+        </TableHeading>
+        <TableHeading>
+          <BorderDiv marginRight={COLUMN_SPACING} />
+          <Header>Staff cases</Header>
+          <HorizontalRule marginRight={COLUMN_SPACING} />
+        </TableHeading>
+      </tr>
+    </>
   );
 }
 
 function makeSummaryRow(total: number, deltaDirection: string, delta: number) {
   return (
     <TextContainer>
-      <Left>{formatThousands(total)}</Left>
+      <Value>{formatThousands(total)}</Value>
       <DeltaContainer>
         <Delta deltaDirection={deltaDirection}>
           {get(DELTA_DIRECTION_MAPPING, deltaDirection)}
         </Delta>
-        <Right marginRight={COLUMN_SPACING}>{formatThousands(delta)}</Right>
+        <ValueDescription marginRight={COLUMN_SPACING}>{formatThousands(delta)}</ValueDescription>
       </DeltaContainer>
     </TextContainer>
   );
