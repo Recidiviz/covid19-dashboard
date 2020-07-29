@@ -2,7 +2,7 @@ import numeral from "numeral";
 import React from "react";
 import styled from "styled-components";
 
-import StatsTable from "./shared/StatsTable";
+import StatsTable, { StatsTableRow } from "./shared/StatsTable";
 import { TableData } from "./projectionChartUtils";
 
 
@@ -29,7 +29,7 @@ const ImpactToDateTable: React.FC<TableData> = ({
     projectedIncarceratedCasesToday - incarceratedCasesToday;
   const staffCasesPrevented = projectedStaffCasesToday - staffCasesToday;
 
-  const tableData = [
+  const columnData = [
     {
       header: "Incarcerated lives saved",
       value: formatValue(incarceratedLivesSaved),
@@ -49,11 +49,12 @@ const ImpactToDateTable: React.FC<TableData> = ({
   ]
   return (
     <ImpactToDateTableContainer>
-      <StatsTable
-        tableHeading="Intervention Impact To-Date"
-        tableData={tableData}
-        columnMarginRight={"3vw"}
-      />
+      <StatsTable tableHeading="Intervention Impact To-Date">
+        <StatsTableRow
+          columns={columnData}
+          columnMarginRight={"3vw"}
+        />
+      </StatsTable>
     </ImpactToDateTableContainer>
   );
 };
