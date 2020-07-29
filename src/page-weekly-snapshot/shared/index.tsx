@@ -97,7 +97,7 @@ export const HorizontalRule = styled.hr<{ marginRight?: string }>`
   margin-right: ${(props) => props.marginRight || "0px"};
 `;
 
-export const TableHeadingCell = styled.td`
+export const TableHeadingCell = styled.th`
   font-family: "Libre Franklin";
   font-weight: bold;
   font-size: 11px;
@@ -122,6 +122,7 @@ export const RankText = styled.td`
 `;
 
 export const LeftHeading = styled.div<{ marginTop?: string }>`
+  font-size: 12px;
   margin-top: ${(props) => props.marginTop || TOP_BOTTOM_MARGIN};
   text-align: left;
 `;
@@ -149,6 +150,7 @@ export const TextContainer = styled.div`
 `;
 
 export const Right = styled.div<{ marginRight?: string; marginTop?: string }>`
+  font-size: 12px;
   text-align: right;
   margin-top: ${(props) => props.marginTop || "0px"};
   margin-right: ${(props) => props.marginRight || "0px"};
@@ -170,7 +172,7 @@ export const Left = styled.div<{
 `;
 
 export const TableCell = styled.td<{ label?: boolean }>`
-  font-size: 11px;
+  font-size: 13px;
   line-height: 200%;
   text-align: "left";
   width: ${(props) => (props.label ? "200px" : "auto")};
@@ -225,6 +227,7 @@ export const PageHeader = styled.div`
 `;
 
 export const PageSubheader = styled.div`
+  font-size: 14px;
   text-align: right;
   padding-top: 25px;
   font-weight: 200;
@@ -232,7 +235,7 @@ export const PageSubheader = styled.div`
 
 export const Emphasize = styled.span`
   font-weight: 900;
-  font-size: 12px;
+  font-size: 14px;
 `;
 
 export const Body = styled.div`
@@ -287,4 +290,38 @@ export const LegendText = styled.div<{ legendColor: string }>`
     margin: 0 5px;
     width: 8px;
   }
+`;
+
+export const SectionHeader = styled.div`
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 16px;
+`;
+export const SectionSubheader = styled.div`
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 16px;
+`;
+export const Header = styled.div`
+  font-size: 13px;
+  line-height: 14px;
+  margin: 10px 0;
+`;
+export const Value = styled.div`
+  font-size: 24px;
+  font-family: "Libre Baskerville";
+  line-height: 26px;
+`;
+export const ValueDescription = styled.div<{ marginRight?: string; marginTop?: string }>`
+  font-size: 12px;
+  letter-spacing: -0.01em;
+  line-height: 14px;
+  margin-top: ${(props) => props.marginTop || "0px"};
+  margin-right: ${(props) => props.marginRight || "0px"};
+  text-align: right;
+`;
+
+export const TableCellContainer = styled.div<{ marginRight?: string; }>`
+  margin-right: ${(props) => props.marginRight || "0px"};
 `;
