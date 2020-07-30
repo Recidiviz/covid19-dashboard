@@ -128,7 +128,7 @@ const SystemWideProjectionChart: React.FC = () => {
       {
         orient: "left",
         baseline: false,
-        label: "Active cases",
+        label: "Projected active cases",
       },
     ],
     annotationSettings: {
