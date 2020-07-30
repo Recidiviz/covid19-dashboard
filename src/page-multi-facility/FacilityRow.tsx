@@ -86,7 +86,6 @@ interface Props {
 }
 
 const FacilityRow: React.FC<Props> = ({ facility, facilityRtData, onSave }) => {
-  console.log(facility.name);
   const {
     actions: { selectFacility },
   } = useFacilities();
