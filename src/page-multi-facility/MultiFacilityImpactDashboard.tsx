@@ -86,7 +86,9 @@ interface ProjectionsPanelProps {
   handleFacilitySave: (facility: Facility) => void;
 }
 
-const ProjectionsPanel = (props: ProjectionsPanelProps) => {
+const ProjectionsPanel = React.memo(function ProjectionsPanel(
+  props: ProjectionsPanelProps,
+) {
   return (
     <>
       <ProjectionsHeader />
@@ -110,7 +112,7 @@ const ProjectionsPanel = (props: ProjectionsPanelProps) => {
       )}
     </>
   );
-};
+});
 
 const MultiFacilityImpactDashboard: React.FC = () => {
   const rejectionToast = useRejectionToast();
