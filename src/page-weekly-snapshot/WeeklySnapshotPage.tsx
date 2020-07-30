@@ -28,6 +28,14 @@ import { useWeeklyReport } from "./weekly-report-context/WeeklyReportContext";
 const WeeklySnapshotPageDiv = styled.div``;
 const WeeklySnapshotContainer = styled.div``;
 
+const Delimiter = styled.span`
+  margin: 0 5px;
+
+  &::before {
+    content: "|";
+  }
+`;
+
 function getMostRecentDOCRDate(facilities: Facility[]) {
   let mostRecentDate = undefined;
   for (let i = 0; i < facilities.length; i++) {
@@ -123,8 +131,9 @@ const WeeklySnapshotPage: React.FC = () => {
                     impact on the incarcerated and staff
                   </LeftHeading>
                   <Right>
-                    DOCR data as of: {mostRecentDOCRDateFormatted} Community
-                    cases as of: {mostRecentNYTDateFormatted}
+                    Corrections data as of: {mostRecentDOCRDateFormatted}{" "}
+                    <Delimiter />
+                    Community cases as of: {mostRecentNYTDateFormatted}
                   </Right>
                 </TextContainer>
                 <HorizontalRule />

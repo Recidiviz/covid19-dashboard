@@ -30,7 +30,7 @@ const HeaderContainer = styled.div`
 `;
 
 const CurveChartWrapper = styled.div`
-  height: 400px;
+  height: 500px;
   margin: 20px 0;
 
   .axis.x {
@@ -84,6 +84,7 @@ const SystemWideProjectionChart: React.FC = () => {
     modelVersions,
     localeDataSource,
   );
+  const maxValue = Math.max(...activeCases);
   const chartData = activeCases.map((cases, index) => {
     return {
       cases,
@@ -101,9 +102,8 @@ const SystemWideProjectionChart: React.FC = () => {
     xScaleType: scaleTime(),
     responsiveHeight: true,
     responsiveWidth: true,
-    size: [450, 450],
-    yExtent: [0],
-    margin: { left: 60, bottom: 60, right: 60, top: 10 },
+    yExtent: [0, maxValue + 50],
+    margin: { left: 100, bottom: 60, right: 100, top: 10 },
     lineStyle: {
       stroke: legendColors.projected,
       strokeWidth: 2,
@@ -128,13 +128,13 @@ const SystemWideProjectionChart: React.FC = () => {
       {
         orient: "left",
         baseline: false,
-        label: "Active cases",
+        label: "Projected active cases",
       },
     ],
     annotationSettings: {
       layout: {
         type: "bump",
-        padding: -20,
+        padding: -5,
       },
     },
     annotations: [
@@ -145,7 +145,7 @@ const SystemWideProjectionChart: React.FC = () => {
           note: {
             label: `${data.cases}`,
             orientation: "topBottom",
-            align: "middle",
+            align: "top",
           },
           ...data,
         };
@@ -164,7 +164,7 @@ const SystemWideProjectionChart: React.FC = () => {
           </ChartHeader>
           <LegendContainer>
             <LegendText legendColor={legendColors.projected}>
-              Pessimistic Scenario
+              Projected Cases
             </LegendText>
             <LegendText legendColor={legendColors.today}>
               Cases Today

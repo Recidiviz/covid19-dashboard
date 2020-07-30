@@ -33,7 +33,11 @@ const SnapshotPage: React.FC<Props> = ({
     <SnapshotPageContainer>
       <PageWidthContainer>
         <ImageContainer>
-          <ImageLeft>{image && <Image src={image} />}</ImageLeft>
+          {image && (
+            <ImageLeft>
+              <Image src={image} />
+            </ImageLeft>
+          )}
           <PageHeader>{header}</PageHeader>
         </ImageContainer>
         {subheader && (

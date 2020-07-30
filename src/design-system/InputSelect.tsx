@@ -20,6 +20,10 @@ const SelectContainer = styled.div`
   flex-grow: 1;
   flex-basis: 50%;
   margin-right: 8px;
+
+  @media print {
+    display: none;
+  }
 `;
 
 const caretSize = 5;

@@ -1,5 +1,4 @@
 import { get, pick, pickBy, sum, values } from "lodash";
-import React from "react";
 
 import {
   caseBracketKeys,
@@ -7,21 +6,7 @@ import {
   populationKeys,
   recoveredBracketKeys,
 } from "../../impact-dashboard/EpidemicModelContext";
-import { formatThousands } from "../../impact-dashboard/ImpactProjectionTable";
 import { Facility, ModelInputs } from "../../page-multi-facility/types";
-import {
-  BorderDiv,
-  COLUMN_SPACING,
-  Delta,
-  DELTA_DIRECTION_MAPPING,
-  DeltaContainer,
-  HorizontalRule,
-  Left,
-  LeftHeading,
-  Right,
-  TableHeading,
-  TextContainer,
-} from ".";
 
 export interface IncarceratedFacilitySummaryData {
   incarceratedPopulation: number;
@@ -58,83 +43,6 @@ const VALUE_MAPPING = {
   recovered: recoveredBracketKeys,
 };
 
-export function makeTableHeadings() {
-  return (
-    <tr>
-      <TableHeading>
-        <BorderDiv marginRight={COLUMN_SPACING} />
-        <LeftHeading>Incarcerated population</LeftHeading>
-        <HorizontalRule marginRight={COLUMN_SPACING} />
-      </TableHeading>
-      <TableHeading>
-        <BorderDiv marginRight={COLUMN_SPACING} />
-        <LeftHeading>Incarcerated cases</LeftHeading>
-        <HorizontalRule marginRight={COLUMN_SPACING} />
-      </TableHeading>
-      <TableHeading>
-        <BorderDiv marginRight={COLUMN_SPACING} />
-        <LeftHeading>Staff population</LeftHeading>
-        <HorizontalRule marginRight={COLUMN_SPACING} />
-      </TableHeading>
-      <TableHeading>
-        <BorderDiv marginRight={COLUMN_SPACING} />
-        <LeftHeading>Staff cases</LeftHeading>
-        <HorizontalRule marginRight={COLUMN_SPACING} />
-      </TableHeading>
-    </tr>
-  );
-}
-
-function makeSummaryRow(total: number, deltaDirection: string, delta: number) {
-  return (
-    <TextContainer>
-      <Left>{formatThousands(total)}</Left>
-      <DeltaContainer>
-        <Delta deltaDirection={deltaDirection}>
-          {get(DELTA_DIRECTION_MAPPING, deltaDirection)}
-        </Delta>
-        <Right marginRight={COLUMN_SPACING}>{formatThousands(delta)}</Right>
-      </DeltaContainer>
-    </TextContainer>
-  );
-}
-
-export function makeSummaryColumns(facilitySummaryData: FacilitySummaryData) {
-  return (
-    <tr>
-      <td>
-        {makeSummaryRow(
-          facilitySummaryData.incarceratedData.incarceratedPopulation,
-          facilitySummaryData.incarceratedData
-            .incarceratedPopulationDeltaDirection,
-          facilitySummaryData.incarceratedData.incarceratedPopulationDelta,
-        )}
-      </td>
-      <td>
-        {makeSummaryRow(
-          facilitySummaryData.incarceratedData.incarceratedCases,
-          facilitySummaryData.incarceratedData.incarceratedCasesDeltaDirection,
-          facilitySummaryData.incarceratedData.incarceratedCasesDelta,
-        )}
-      </td>
-      <td>
-        {makeSummaryRow(
-          facilitySummaryData.staffData.staffPopulation,
-          facilitySummaryData.staffData.staffPopulationDeltaDirection,
-          facilitySummaryData.staffData.staffPopulationDelta,
-        )}
-      </td>
-      <td>
-        {makeSummaryRow(
-          facilitySummaryData.staffData.staffCases,
-          facilitySummaryData.staffData.staffCasesDeltaDirection,
-          facilitySummaryData.staffData.staffCasesDelta,
-        )}
-      </td>
-    </tr>
-  );
-}
-
 function getActiveCases(
   totalCases: number,
   recoveredCases: number,
@@ -154,9 +62,7 @@ function getTotalValues(
   let result = 0;
   const valueKeys = get(VALUE_MAPPING, value);
   const allData = pick(modelInputs, valueKeys);
-  const data = pickBy(allData, (value, key) =>
-    key.startsWith(startsWithFilter),
-  );
+  const data = pickBy(allData, (_, key) => key.startsWith(startsWithFilter));
   result += sum(values(data));
   return result;
 }

@@ -109,7 +109,7 @@ const ImpactProjectionChart: React.FC = () => {
     responsiveWidth: true,
     size: [450, 450],
     yExtent: { extent: [0], includeAnnotations: false },
-    margin: { left: 60, bottom: 60, right: 60, top: 10 },
+    margin: { left: 100, bottom: 60, right: 100, top: 10 },
     lineStyle: ({ key }: { key: string }) => {
       const baseStyle = {
         stroke: lineColors[key],
@@ -131,7 +131,10 @@ const ImpactProjectionChart: React.FC = () => {
       },
       {
         orient: "left",
-        baseline: false,
+        baseline: "under",
+        tickLineGenerator: function HideTickLines() {
+          return <path style={{ fill: "none" }} />;
+        },
         tickFormat: formatThousands,
       },
     ],
@@ -194,7 +197,7 @@ const ImpactProjectionChart: React.FC = () => {
           <ChartTitle>
             Projection Assuming No Intervention vs. Actual Cumulative Cases
           </ChartTitle>
-          <CurveChartWrapper chartHeight={400}>
+          <CurveChartWrapper chartHeight={700}>
             <ResponsiveXYFrame {...frameProps} />
           </CurveChartWrapper>
           <HorizontalRule />

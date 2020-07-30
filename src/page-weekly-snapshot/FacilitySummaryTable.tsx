@@ -4,14 +4,16 @@ import {
   findMatchingDay,
   findMostRecentDate,
 } from "../hooks/useAddCasesInputs";
+import { formatThousands } from "../impact-dashboard/ImpactProjectionTable";
 import { Facility } from "../page-multi-facility/types";
-import { Table } from "./FacilityPage";
+import { COLUMN_SPACING } from "./shared";
+import StatsTable, {
+  StatsTableRow,
+  ValueDescriptionWithDelta,
+} from "./shared/StatsTable";
 import {
   buildIncarceratedFacilitySummaryData,
   buildStaffFacilitySummaryData,
-  FacilitySummaryData,
-  makeSummaryColumns,
-  makeTableHeadings,
 } from "./shared/utils";
 
 const FacilitySummaryTable: React.FC<{
@@ -33,26 +35,60 @@ const FacilitySummaryTable: React.FC<{
     });
   }
 
-  const incarceratedSummaryData = buildIncarceratedFacilitySummaryData(
+  const incarceratedData = buildIncarceratedFacilitySummaryData(
     facility,
     mostRecentData,
   );
 
-  const staffSummaryData = buildStaffFacilitySummaryData(
-    facility,
-    mostRecentData,
-  );
+  const staffData = buildStaffFacilitySummaryData(facility, mostRecentData);
 
-  const facilitySummaryData = {
-    incarceratedData: incarceratedSummaryData,
-    staffData: staffSummaryData,
-  } as FacilitySummaryData;
+  const tableData = [
+    {
+      header: "Incarcerated population",
+      value: formatThousands(incarceratedData.incarceratedPopulation),
+      valueDescription: (
+        <ValueDescriptionWithDelta
+          deltaDirection={incarceratedData.incarceratedPopulationDeltaDirection}
+          delta={incarceratedData.incarceratedPopulationDelta}
+        />
+      ),
+    },
+    {
+      header: "Incarcerated cases",
+      value: formatThousands(incarceratedData.incarceratedCases),
+      valueDescription: (
+        <ValueDescriptionWithDelta
+          deltaDirection={incarceratedData.incarceratedCasesDeltaDirection}
+          delta={incarceratedData.incarceratedCasesDelta}
+        />
+      ),
+    },
+    {
+      header: "Staff population",
+      value: formatThousands(staffData.staffPopulation),
+      valueDescription: (
+        <ValueDescriptionWithDelta
+          deltaDirection={staffData.staffPopulationDeltaDirection}
+          delta={staffData.staffPopulationDelta}
+        />
+      ),
+    },
+    {
+      header: "Staff cases",
+      value: formatThousands(staffData.staffCases),
+      valueDescription: (
+        <ValueDescriptionWithDelta
+          deltaDirection={staffData.staffCasesDeltaDirection}
+          delta={staffData.staffCasesDelta}
+        />
+      ),
+    },
+  ];
 
   return (
-    <Table>
-      <thead>{makeTableHeadings()}</thead>
-      <tbody>{makeSummaryColumns(facilitySummaryData)}</tbody>
-    </Table>
+    <StatsTable header="Facility Summary">
+      <StatsTableRow columns={tableData} columnMarginRight={COLUMN_SPACING} />
+    </StatsTable>
   );
 };
 

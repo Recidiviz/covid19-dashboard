@@ -19,7 +19,7 @@ import { initialPublicCurveToggles } from "../page-multi-facility/curveToggles";
 import { useProjectionData } from "../page-multi-facility/projectionCurveHooks";
 import { Facility } from "../page-multi-facility/types";
 import FacilitySummaryTable from "./FacilitySummaryTable";
-import { Heading } from "./shared/index";
+import { Heading, LeftHeading } from "./shared/index";
 import SnapshotPage from "./SnapshotPage";
 
 const DURATION = 21;
@@ -132,14 +132,14 @@ const FacilityPage: React.FC<Props> = ({ facility, rtData }) => {
 
   return (
     <SnapshotPage header={facility.name}>
+      <LeftHeading>Facility-Specific Projection</LeftHeading>
       <ProjectionSection>
         <ProjectionContainer>
-          <Heading>Facility Summary</Heading>
           <FacilitySummaryTable facility={facility} />
           <HorizontalRule />
         </ProjectionContainer>
       </ProjectionSection>
-      Facility-Specific Projection
+
       <ProjectionSection>
         <ProjectionContainer>
           <FacilityProjection projectionData={projectionData} />
