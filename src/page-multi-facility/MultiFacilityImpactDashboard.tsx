@@ -15,7 +15,6 @@ import useRejectionToast from "../hooks/useRejectionToast";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
 import { getFacilitiesRtDataById } from "../infection-model/rt";
 import { LocaleData, useLocaleDataState } from "../locale-data-context";
-import facility from "../pages/facility";
 import useScenario from "../scenario-context/useScenario";
 import FacilityRow from "./FacilityRow";
 import FacilityRowPlaceholder from "./FacilityRowPlaceholder";
