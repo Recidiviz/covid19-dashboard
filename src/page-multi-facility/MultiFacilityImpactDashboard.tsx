@@ -161,7 +161,7 @@ const MultiFacilityImpactDashboard: React.FC = () => {
         await rejectionToast(createOrUpdateFacility(facility));
       }
     },
-    [facility],
+    [createOrUpdateFacility, rejectionToast, scenarioId],
   );
 
   useEffect(() => {
