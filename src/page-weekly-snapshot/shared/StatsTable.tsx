@@ -1,5 +1,6 @@
 import { get } from "lodash";
 import React from "react";
+import styled from "styled-components";
 
 import { formatThousands } from "../../impact-dashboard/ImpactProjectionTable";
 import {
@@ -11,7 +12,7 @@ import {
   Header,
   HorizontalRule,
   SectionHeader,
-  SectionSubheader,
+  SubHeader,
   Table,
   TableCell,
   TableCellContainer,
@@ -20,6 +21,12 @@ import {
   Value,
   ValueDescription,
 } from ".";
+
+const HeaderContainer = styled.div`
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+`;
 
 export const ValueDescriptionWithDelta: React.FC<{
   deltaDirection: string;
@@ -39,6 +46,7 @@ export const ValueDescriptionWithDelta: React.FC<{
 
 type ColumnData = {
   header: string;
+  subheader?: string;
   value: string;
   valueDescription?: React.ReactElement | undefined;
 };
@@ -58,7 +66,12 @@ export const StatsTableRow: React.FC<StatsTableRowProps> = ({
         <TableCell key={`${columnData.header}-${index}`}>
           <TableCellContainer marginRight={columnMarginRight}>
             <BorderDiv />
-            <Header>{columnData.header}</Header>
+            <HeaderContainer>
+              <Header>{columnData.header}</Header>
+              {columnData.subheader && (
+                <SubHeader>{columnData.subheader}</SubHeader>
+              )}
+            </HeaderContainer>
             <HorizontalRule />
             <TextContainer>
               <Value>{columnData.value}</Value>
@@ -72,16 +85,11 @@ export const StatsTableRow: React.FC<StatsTableRowProps> = ({
 };
 
 interface StatesTableProps {
-  tableHeading: string;
-  tableSubheading?: string;
+  header: string;
   children: React.ReactNode;
 }
 
-const StatsTable: React.FC<StatesTableProps> = ({
-  tableHeading,
-  tableSubheading,
-  children,
-}) => {
+const StatsTable: React.FC<StatesTableProps> = ({ header, children }) => {
   return (
     <>
       <HorizontalRule />
@@ -90,10 +98,7 @@ const StatsTable: React.FC<StatesTableProps> = ({
           <tr>
             <TableHeading>
               <TextContainer>
-                <SectionHeader>{tableHeading}</SectionHeader>
-                {tableSubheading && (
-                  <SectionSubheader>{tableSubheading}</SectionSubheader>
-                )}
+                <SectionHeader>{header}</SectionHeader>
               </TextContainer>
             </TableHeading>
           </tr>

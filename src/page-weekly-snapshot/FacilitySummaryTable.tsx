@@ -86,7 +86,7 @@ const FacilitySummaryTable: React.FC<{
   ];
 
   return (
-    <StatsTable tableHeading="Facility Summary">
+    <StatsTable header="Facility Summary">
       <StatsTableRow columns={tableData} columnMarginRight={COLUMN_SPACING} />
     </StatsTable>
   );

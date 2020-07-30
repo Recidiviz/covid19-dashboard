@@ -224,7 +224,7 @@ const SystemWideSummaryTable: React.FC<{}> = () => {
 
   return (
     <>
-      <StatsTable tableHeading="Current System Summary">
+      <StatsTable header="Current System Summary">
         <StatsTableRow columns={tableData} columnMarginRight={COLUMN_SPACING} />
       </StatsTable>
       <br />

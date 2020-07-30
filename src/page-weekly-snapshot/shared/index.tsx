@@ -294,6 +294,7 @@ export const LegendText = styled.div<{ legendColor: string }>`
     display: inline-block;
     height: 8px;
     margin: 0 5px;
+    -webkit-print-color-adjust: exact;
     width: 8px;
   }
 `;
@@ -303,22 +304,26 @@ export const SectionHeader = styled.div`
   font-weight: bold;
   line-height: 16px;
 `;
-export const SectionSubheader = styled.div`
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: -0.01em;
-  line-height: 16px;
-`;
+
 export const Header = styled.div`
   font-size: 13px;
   line-height: 14px;
   margin: 10px 0;
 `;
+
+export const SubHeader = styled.div`
+  font-size: 13px;
+  line-height: 14px;
+  margin: 10px 0;
+  text-align: right;
+`;
+
 export const Value = styled.div`
   font-size: 24px;
   font-family: "Libre Baskerville";
   line-height: 26px;
 `;
+
 export const ValueDescription = styled.div<{
   marginRight?: string;
   marginTop?: string;

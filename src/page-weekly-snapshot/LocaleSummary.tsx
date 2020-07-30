@@ -63,7 +63,7 @@ export default function LocaleSummary() {
               model.recidiviz.org.
             </SectionText>
           </Column>
-          <Column>
+          <Column margin="0 10px 20px">
             <LocaleSummaryTable
               stateName={selectedState?.state[0].stateName}
               stateNames={stateNames}
