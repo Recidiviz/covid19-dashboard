@@ -7,14 +7,14 @@ import Colors from "../design-system/Colors";
 import iconAddSrc from "../design-system/icons/ic_add.svg";
 import Loading from "../design-system/Loading";
 import TextLabel from "../design-system/TextLabel";
-import { useFacilities } from "../facilities-context";
+import { FacilitiesState, useFacilities } from "../facilities-context";
 import { useFlag } from "../feature-flags";
 import useReadOnlyMode from "../hooks/useReadOnlyMode";
 import useReferenceFacilitiesEligible from "../hooks/useReferenceFacilitiesEligible";
 import useRejectionToast from "../hooks/useRejectionToast";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
 import { getFacilitiesRtDataById } from "../infection-model/rt";
-import { useLocaleDataState } from "../locale-data-context";
+import { LocaleData, useLocaleDataState } from "../locale-data-context";
 import useScenario from "../scenario-context/useScenario";
 import FacilityRow from "./FacilityRow";
 import FacilityRowPlaceholder from "./FacilityRowPlaceholder";
@@ -24,7 +24,7 @@ import SyncNewReferenceData from "./ReferenceDataModal/SyncNewReferenceData";
 import SyncNoUserFacilities from "./ReferenceDataModal/SyncNoUserFacilities";
 import ScenarioSidebar from "./ScenarioSidebar";
 import SystemSummary from "./SystemSummary";
-import { Facility } from "./types";
+import { Facility, RtDataMapping } from "./types";
 
 const MultiFacilityImpactDashboardContainer = styled.main.attrs({
   className: `
@@ -77,6 +77,40 @@ const ScenarioTab = styled.li<{ active?: boolean }>`
   `
       : null}
 `;
+
+interface ProjectionsPanelProps {
+  facilitiesState: FacilitiesState;
+  facilities: Facility[];
+  localeDataSource: LocaleData;
+  rtData: Pick<RtDataMapping, string> | undefined;
+  handleFacilitySave: (facility: Facility) => void;
+}
+
+const ProjectionsPanel = (props: ProjectionsPanelProps) => {
+  return (
+    <>
+      <ProjectionsHeader />
+      {props.facilitiesState.loading ? (
+        <Loading />
+      ) : (
+        props.facilities.map((facility) => (
+          <FacilityRowPlaceholder key={facility.id}>
+            <EpidemicModelProvider
+              facilityModel={facility.modelInputs}
+              localeDataSource={props.localeDataSource}
+            >
+              <FacilityRow
+                facility={facility}
+                facilityRtData={props.rtData && props.rtData[facility.id]}
+                onSave={props.handleFacilitySave}
+              />
+            </EpidemicModelProvider>
+          </FacilityRowPlaceholder>
+        ))
+      )}
+    </>
+  );
+};
 
 const MultiFacilityImpactDashboard: React.FC = () => {
   const rejectionToast = useRejectionToast();
@@ -135,30 +169,6 @@ const MultiFacilityImpactDashboard: React.FC = () => {
 
   const [selectedTab, setSelectedTab] = useState(0);
 
-  const projectionsPanel = (
-    <>
-      <ProjectionsHeader />
-      {facilitiesState.loading ? (
-        <Loading />
-      ) : (
-        facilities.map((facility) => (
-          <FacilityRowPlaceholder key={facility.id}>
-            <EpidemicModelProvider
-              facilityModel={facility.modelInputs}
-              localeDataSource={localeDataSource}
-            >
-              <FacilityRow
-                facility={facility}
-                facilityRtData={rtData && rtData[facility.id]}
-                onSave={handleFacilitySave}
-              />
-            </EpidemicModelProvider>
-          </FacilityRowPlaceholder>
-        ))
-      )}
-    </>
-  );
-
   return (
     <MultiFacilityImpactDashboardContainer>
       {scenarioState.loading ? (
@@ -198,7 +208,15 @@ const MultiFacilityImpactDashboard: React.FC = () => {
             </ScenarioTabList>
           </ScenarioTabs>
         </div>
-        {selectedTab === 0 && projectionsPanel}
+        {selectedTab == 0 && (
+          <ProjectionsPanel
+            facilitiesState={facilitiesState}
+            facilities={facilities}
+            localeDataSource={localeDataSource}
+            rtData={rtData}
+            handleFacilitySave={handleFacilitySave}
+          />
+        )}
         {selectedTab === 1 && (
           <RateOfSpreadPanel
             facilities={facilities}
