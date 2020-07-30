@@ -88,6 +88,13 @@ export const Table = styled.table`
   table-layout: fixed;
 `;
 
+export const SectionText = styled.div`
+  font-family: "Libre Franklin";
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: -0.01em;
+`;
+
 export const BorderDiv = styled.div<{ marginRight?: string }>`
   border-top: 1px solid ${Colors.black};
   margin-right: ${(props) => props.marginRight || "0px"};
