@@ -2,9 +2,9 @@ import numeral from "numeral";
 import React from "react";
 import styled from "styled-components";
 
-import StatsTable, { StatsTableRow } from "./shared/StatsTable";
 import { TableData } from "./projectionChartUtils";
-
+import { HorizontalRule } from "./shared";
+import StatsTable, { StatsTableRow } from "./shared/StatsTable";
 
 const ImpactToDateTableContainer = styled.div`
   margin: 0 3vw 3vw;
@@ -46,15 +46,13 @@ const ImpactToDateTable: React.FC<TableData> = ({
       header: "Staff cases prevented",
       value: formatValue(staffCasesPrevented),
     },
-  ]
+  ];
   return (
     <ImpactToDateTableContainer>
       <StatsTable tableHeading="Intervention Impact To-Date">
-        <StatsTableRow
-          columns={columnData}
-          columnMarginRight={"3vw"}
-        />
+        <StatsTableRow columns={columnData} columnMarginRight={"3vw"} />
       </StatsTable>
+      <HorizontalRule />
     </ImpactToDateTableContainer>
   );
 };

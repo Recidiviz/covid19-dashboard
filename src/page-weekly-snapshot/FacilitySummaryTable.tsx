@@ -4,11 +4,13 @@ import {
   findMatchingDay,
   findMostRecentDate,
 } from "../hooks/useAddCasesInputs";
-import { Facility } from "../page-multi-facility/types";
-import StatsTable, { StatsTableRow, ValueDescriptionWithDelta } from "./shared/StatsTable";
-import { COLUMN_SPACING } from "./shared";
 import { formatThousands } from "../impact-dashboard/ImpactProjectionTable";
-
+import { Facility } from "../page-multi-facility/types";
+import { COLUMN_SPACING } from "./shared";
+import StatsTable, {
+  StatsTableRow,
+  ValueDescriptionWithDelta,
+} from "./shared/StatsTable";
 import {
   buildIncarceratedFacilitySummaryData,
   buildStaffFacilitySummaryData,
@@ -38,16 +40,13 @@ const FacilitySummaryTable: React.FC<{
     mostRecentData,
   );
 
-  const staffData = buildStaffFacilitySummaryData(
-    facility,
-    mostRecentData,
-  );
+  const staffData = buildStaffFacilitySummaryData(facility, mostRecentData);
 
   const tableData = [
     {
       header: "Incarcerated population",
       value: formatThousands(incarceratedData.incarceratedPopulation),
-      valueDescription: () => (
+      valueDescription: (
         <ValueDescriptionWithDelta
           deltaDirection={incarceratedData.incarceratedPopulationDeltaDirection}
           delta={incarceratedData.incarceratedPopulationDelta}
@@ -57,7 +56,7 @@ const FacilitySummaryTable: React.FC<{
     {
       header: "Incarcerated cases",
       value: formatThousands(incarceratedData.incarceratedCases),
-      valueDescription: () => (
+      valueDescription: (
         <ValueDescriptionWithDelta
           deltaDirection={incarceratedData.incarceratedCasesDeltaDirection}
           delta={incarceratedData.incarceratedCasesDelta}
@@ -67,7 +66,7 @@ const FacilitySummaryTable: React.FC<{
     {
       header: "Staff population",
       value: formatThousands(staffData.staffPopulation),
-      valueDescription: () => (
+      valueDescription: (
         <ValueDescriptionWithDelta
           deltaDirection={staffData.staffPopulationDeltaDirection}
           delta={staffData.staffPopulationDelta}
@@ -77,21 +76,18 @@ const FacilitySummaryTable: React.FC<{
     {
       header: "Staff cases",
       value: formatThousands(staffData.staffCases),
-      valueDescription: () => (
+      valueDescription: (
         <ValueDescriptionWithDelta
           deltaDirection={staffData.staffCasesDeltaDirection}
           delta={staffData.staffCasesDelta}
         />
       ),
     },
-  ]
+  ];
 
   return (
-    <StatsTable tableHeading="Current System Summary">
-      <StatsTableRow
-        columns={tableData}
-        columnMarginRight={COLUMN_SPACING}
-      />
+    <StatsTable tableHeading="Facility Summary">
+      <StatsTableRow columns={tableData} columnMarginRight={COLUMN_SPACING} />
     </StatsTable>
   );
 };

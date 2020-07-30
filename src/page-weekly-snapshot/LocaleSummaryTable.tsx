@@ -13,7 +13,7 @@ import { formatThousands } from "../impact-dashboard/ImpactProjectionTable";
 import { LocaleData, useLocaleDataState } from "../locale-data-context";
 import { Facility } from "../page-multi-facility/types";
 import { ValueDescription } from "./shared";
-import StatsTable, { StatsTableRow } from "./shared/StatsTable"
+import StatsTable, { StatsTableRow } from "./shared/StatsTable";
 
 type StateMetrics = {
   stateName: string;
@@ -209,18 +209,18 @@ const LocaleSummaryTable: React.FC<{
   const casesTableData = [
     {
       header: "Incarcerated Cases",
-      value: hasCaseData ? formatThousands(incarceratedCasesRate) : "???"
+      value: hasCaseData ? formatThousands(incarceratedCasesRate) : "???",
     },
     {
       header: "Overall State Cases",
       value: formatThousands(casesRate),
-      valueDescription:  () => (
+      valueDescription: (
         <ValueDescription>
           {formatOrdinal(casesRateRank)} lowest of {NUM_STATES}
         </ValueDescription>
-      )
+      ),
     },
-  ]
+  ];
 
   const fatalitiesTableData = [
     {
@@ -230,43 +230,35 @@ const LocaleSummaryTable: React.FC<{
     {
       header: "Overall State Fatalities",
       value: formatThousands(deathsRate),
-      valueDescription: () => (
+      valueDescription: (
         <ValueDescription>
           {formatOrdinal(deathsRateRank)} lowest of {NUM_STATES}
         </ValueDescription>
-      )
+      ),
     },
-  ]
+  ];
 
   return (
     <>
       <PageContainer>
         <Column>
-          <StatsTable
-            tableHeading="Cases"
-            tableSubheading="(per 100k)"
-          >
-            {
-              casesTableData.map((tableData) => (
-                <StatsTableRow
-                  columns={[tableData]}
-                />
-              ))
-            }
+          <StatsTable tableHeading="Cases" tableSubheading="(per 100k)">
+            {casesTableData.map((tableData, index) => (
+              <StatsTableRow
+                key={`Cases__StatsTableRow--${index}`}
+                columns={[tableData]}
+              />
+            ))}
           </StatsTable>
         </Column>
         <Column>
-          <StatsTable
-            tableHeading="Fatalities"
-            tableSubheading="(per 100k)"
-          >
-            {
-              fatalitiesTableData.map((tableData) => (
-                <StatsTableRow
-                  columns={[tableData]}
-                />
-              ))
-            }
+          <StatsTable tableHeading="Fatalities" tableSubheading="(per 100k)">
+            {fatalitiesTableData.map((tableData, index) => (
+              <StatsTableRow
+                key={`Fatalities__StatsTableRow--${index}`}
+                columns={[tableData]}
+              />
+            ))}
           </StatsTable>
         </Column>
       </PageContainer>

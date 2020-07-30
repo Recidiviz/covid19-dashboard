@@ -1,7 +1,7 @@
 import { get } from "lodash";
-
-import styled from "styled-components";
 import React from "react";
+import styled from "styled-components";
+
 import Colors from "../../design-system/Colors";
 import { formatThousands } from "../../impact-dashboard/ImpactProjectionTable";
 
@@ -85,7 +85,6 @@ export const Table = styled.table`
   color: ${Colors.black};
   text-align: left;
   width: 100%;
-  margin-top: 10px;
   table-layout: fixed;
 `;
 
@@ -145,7 +144,7 @@ export const TextContainerHeading = styled.div<{
 
 export const TextContainer = styled.div`
   width: 100%;
-  margin: 15px 0 15px;
+  margin: 10px 0;
   display: flex;
   justify-content: space-between;
   align-items: baseline;
@@ -204,7 +203,7 @@ export const SnapshotPageContainer = styled.div`
   page-break-after: always;
 
   @media print {
-    min-height: 1700px;
+    min-height: 1350px;
     height: 100%;
   }
 `;
@@ -316,7 +315,10 @@ export const Value = styled.div`
   font-family: "Libre Baskerville";
   line-height: 26px;
 `;
-export const ValueDescription = styled.div<{ marginRight?: string; marginTop?: string }>`
+export const ValueDescription = styled.div<{
+  marginRight?: string;
+  marginTop?: string;
+}>`
   font-size: 12px;
   letter-spacing: -0.01em;
   margin-top: ${(props) => props.marginTop || "0px"};
@@ -324,7 +326,7 @@ export const ValueDescription = styled.div<{ marginRight?: string; marginTop?: s
   text-align: right;
 `;
 
-export const TableCellContainer = styled.div<{ marginRight?: string; }>`
+export const TableCellContainer = styled.div<{ marginRight?: string }>`
   margin-right: ${(props) => props.marginRight || "0px"};
 `;
 
@@ -337,7 +339,9 @@ export const ValueDescriptionWithDelta: React.FC<{
       <Delta deltaDirection={deltaDirection}>
         {get(DELTA_DIRECTION_MAPPING, deltaDirection)}
       </Delta>
-      <ValueDescription marginRight={COLUMN_SPACING}>{formatThousands(delta)}</ValueDescription>
+      <ValueDescription marginRight={COLUMN_SPACING}>
+        {formatThousands(delta)}
+      </ValueDescription>
     </DeltaContainer>
-  )
-}
+  );
+};

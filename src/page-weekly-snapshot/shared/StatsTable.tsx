@@ -1,25 +1,25 @@
 import { get } from "lodash";
-
 import React from "react";
+
+import { formatThousands } from "../../impact-dashboard/ImpactProjectionTable";
 import {
-  DeltaContainer,
-  Delta,
-  HorizontalRule,
-  Table,
-  TableHeading,
-  TableCell,
-  TableCellContainer,
   BorderDiv,
+  COLUMN_SPACING,
+  Delta,
+  DELTA_DIRECTION_MAPPING,
+  DeltaContainer,
   Header,
-  Value,
-  ValueDescription,
-  TextContainer,
+  HorizontalRule,
   SectionHeader,
   SectionSubheader,
-  DELTA_DIRECTION_MAPPING,
-  COLUMN_SPACING,
+  Table,
+  TableCell,
+  TableCellContainer,
+  TableHeading,
+  TextContainer,
+  Value,
+  ValueDescription,
 } from ".";
-import { formatThousands } from "../../impact-dashboard/ImpactProjectionTable";
 
 export const ValueDescriptionWithDelta: React.FC<{
   deltaDirection: string;
@@ -34,14 +34,14 @@ export const ValueDescriptionWithDelta: React.FC<{
         {formatThousands(delta)}
       </ValueDescription>
     </DeltaContainer>
-  )
-}
+  );
+};
 
 type ColumnData = {
   header: string;
   value: string;
-  valueDescription?: () => React.ReactElement | undefined
-}
+  valueDescription?: React.ReactElement | undefined;
+};
 
 interface StatsTableRowProps {
   columns: ColumnData[];
@@ -50,28 +50,26 @@ interface StatsTableRowProps {
 
 export const StatsTableRow: React.FC<StatsTableRowProps> = ({
   columns,
-  columnMarginRight = "0px"
+  columnMarginRight = "0px",
 }) => {
   return (
     <tr>
-      {
-        columns.map((columnData: ColumnData) => (
-          <TableCell>
-            <TableCellContainer marginRight={columnMarginRight}>
-              <BorderDiv />
-              <Header>{columnData.header}</Header>
-              <HorizontalRule />
-              <TextContainer>
-                <Value>{columnData.value}</Value>
-                {columnData.valueDescription && columnData.valueDescription()}
-              </TextContainer>
-            </TableCellContainer>
-          </TableCell>
-        ))
-      }
+      {columns.map((columnData: ColumnData, index) => (
+        <TableCell key={`${columnData.header}-${index}`}>
+          <TableCellContainer marginRight={columnMarginRight}>
+            <BorderDiv />
+            <Header>{columnData.header}</Header>
+            <HorizontalRule />
+            <TextContainer>
+              <Value>{columnData.value}</Value>
+              {columnData.valueDescription && columnData.valueDescription}
+            </TextContainer>
+          </TableCellContainer>
+        </TableCell>
+      ))}
     </tr>
-  )
-}
+  );
+};
 
 interface StatesTableProps {
   tableHeading: string;
@@ -93,18 +91,17 @@ const StatsTable: React.FC<StatesTableProps> = ({
             <TableHeading>
               <TextContainer>
                 <SectionHeader>{tableHeading}</SectionHeader>
-                {tableSubheading && <SectionSubheader>{tableSubheading}</SectionSubheader>}
+                {tableSubheading && (
+                  <SectionSubheader>{tableSubheading}</SectionSubheader>
+                )}
               </TextContainer>
             </TableHeading>
           </tr>
         </thead>
-        <tbody>
-          {children}
-        </tbody>
+        <tbody>{children}</tbody>
       </Table>
-      <HorizontalRule />
     </>
-  )
-}
+  );
+};
 
 export default StatsTable;

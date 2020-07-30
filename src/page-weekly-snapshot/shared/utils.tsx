@@ -1,5 +1,4 @@
 import { get, pick, pickBy, sum, values } from "lodash";
-import React from "react";
 
 import {
   caseBracketKeys,
@@ -7,26 +6,7 @@ import {
   populationKeys,
   recoveredBracketKeys,
 } from "../../impact-dashboard/EpidemicModelContext";
-import { formatThousands } from "../../impact-dashboard/ImpactProjectionTable";
 import { Facility, ModelInputs } from "../../page-multi-facility/types";
-import {
-  BorderDiv,
-  COLUMN_SPACING,
-  Delta,
-  DELTA_DIRECTION_MAPPING,
-  DeltaContainer,
-  HorizontalRule,
-  Left,
-  LeftHeading,
-  Right,
-  TableHeading,
-  TextContainer,
-  SectionHeader,
-  SectionSubheader,
-  Header,
-  Value,
-  ValueDescription,
-} from ".";
 
 export interface IncarceratedFacilitySummaryData {
   incarceratedPopulation: number;
@@ -82,9 +62,7 @@ function getTotalValues(
   let result = 0;
   const valueKeys = get(VALUE_MAPPING, value);
   const allData = pick(modelInputs, valueKeys);
-  const data = pickBy(allData, (value, key) =>
-    key.startsWith(startsWithFilter),
-  );
+  const data = pickBy(allData, (_, key) => key.startsWith(startsWithFilter));
   result += sum(values(data));
   return result;
 }

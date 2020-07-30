@@ -32,7 +32,7 @@ export default function LocaleSummary() {
       {loading || nytLoading ? (
         <Loading />
       ) : (
-        <PageContainer>
+        <PageContainer marginTop="20px">
           <Column>
             <InputSelect
               label="State"
