@@ -18,8 +18,12 @@ export const PageContainer = styled.div<{ marginTop?: string }>`
 
 const borderStyle = `1px solid ${Colors.paleGreen}`;
 
-export const Column = styled.div<{ width?: string; borderTop?: boolean }>`
-  margin: 0 20px 20px;
+export const Column = styled.div<{
+  margin?: string;
+  width?: string;
+  borderTop?: boolean;
+}>`
+  margin: ${(props) => props.margin || "0 20px 20px"};
   width: ${(props) => props.width || "50%"};
   border-top: ${(props) => (props.borderTop ? borderStyle : "none")};
 

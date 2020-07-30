@@ -209,10 +209,12 @@ const LocaleSummaryTable: React.FC<{
   const casesTableData = [
     {
       header: "Incarcerated Cases",
+      subheader: "(per 100k)",
       value: hasCaseData ? formatThousands(incarceratedCasesRate) : "???",
     },
     {
       header: "Overall State Cases",
+      subheader: "(per 100k)",
       value: formatThousands(casesRate),
       valueDescription: (
         <ValueDescription>
@@ -225,10 +227,12 @@ const LocaleSummaryTable: React.FC<{
   const fatalitiesTableData = [
     {
       header: "Incarcerated Fatalities",
+      subheader: "(per 100k)",
       value: hasDeathData ? formatThousands(incarceratedDeathsRate) : "???",
     },
     {
       header: "Overall State Fatalities",
+      subheader: "(per 100k)",
       value: formatThousands(deathsRate),
       valueDescription: (
         <ValueDescription>
@@ -242,7 +246,7 @@ const LocaleSummaryTable: React.FC<{
     <>
       <PageContainer>
         <Column>
-          <StatsTable tableHeading="Cases" tableSubheading="(per 100k)">
+          <StatsTable header="Cases">
             {casesTableData.map((tableData, index) => (
               <StatsTableRow
                 key={`Cases__StatsTableRow--${index}`}
@@ -252,7 +256,7 @@ const LocaleSummaryTable: React.FC<{
           </StatsTable>
         </Column>
         <Column>
-          <StatsTable tableHeading="Fatalities" tableSubheading="(per 100k)">
+          <StatsTable header="Fatalities">
             {fatalitiesTableData.map((tableData, index) => (
               <StatsTableRow
                 key={`Fatalities__StatsTableRow--${index}`}
