@@ -203,6 +203,7 @@ const FacilityRow: React.FC<Props> = ({ facility, facilityRtData, onSave }) => {
             groupStatus={initialPublicCurveToggles}
             markColors={markColors}
             addAnnotations={false}
+            useHoverAnnotations={false}
           />
         </div>
       </DataContainer>
