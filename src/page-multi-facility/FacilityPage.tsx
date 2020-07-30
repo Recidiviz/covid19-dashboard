@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import Loading from "../design-system/Loading";
@@ -9,6 +9,7 @@ import useScenario from "../scenario-context/useScenario";
 import SiteHeader from "../site-header/SiteHeader";
 import FacilityInputForm from "./FacilityInputForm";
 import ReadOnlyScenarioBanner from "./ReadOnlyScenarioBanner";
+import { Facility } from "./types";
 
 const FacilityPageDiv = styled.div``;
 
@@ -18,39 +19,47 @@ const FacilityPage: React.FC = () => {
   const {
     state: { facilities, selectedFacilityId },
   } = useFacilities();
-  const facility = getFacilityById(facilities, selectedFacilityId);
   const [scenario, dispatchScenarioUpdate] = useScenario();
+  const [facility, setFacility] = useState<Facility | undefined>();
 
-  return (
-    <>
-      {scenario.loading || !scenario?.data?.id ? (
-        <Loading />
-      ) : (
-        <EpidemicModelProvider
-          facilityModel={facility?.modelInputs}
-          localeDataSource={localeDataSource}
-        >
-          <FacilityPageDiv>
-            {scenario.data && (
-              <ReadOnlyScenarioBanner
-                scenario={scenario.data}
-                dispatchScenarioUpdate={dispatchScenarioUpdate}
-              />
-            )}
-            <div className="font-body text-green min-h-screen tracking-normal w-full">
-              <div className="max-w-screen-xl px-4 mx-auto">
-                <SiteHeader styles={{ borderBottom: "none" }} />
-                <FacilityInputForm
-                  key={selectedFacilityId || undefined}
-                  scenarioId={scenario.data.id}
+  useEffect(() => {
+    setFacility(getFacilityById(facilities, selectedFacilityId));
+  });
+
+  if (facility === undefined) {
+    return <Loading />;
+  } else {
+    return (
+      <>
+        {scenario.loading || !scenario?.data?.id ? (
+          <Loading />
+        ) : (
+          <EpidemicModelProvider
+            facilityModel={facility?.modelInputs}
+            localeDataSource={localeDataSource}
+          >
+            <FacilityPageDiv>
+              {scenario.data && (
+                <ReadOnlyScenarioBanner
+                  scenario={scenario.data}
+                  dispatchScenarioUpdate={dispatchScenarioUpdate}
                 />
+              )}
+              <div className="font-body text-green min-h-screen tracking-normal w-full">
+                <div className="max-w-screen-xl px-4 mx-auto">
+                  <SiteHeader styles={{ borderBottom: "none" }} />
+                  <FacilityInputForm
+                    key={selectedFacilityId || undefined}
+                    scenarioId={scenario.data.id}
+                  />
+                </div>
               </div>
-            </div>
-          </FacilityPageDiv>
-        </EpidemicModelProvider>
-      )}
-    </>
-  );
+            </FacilityPageDiv>
+          </EpidemicModelProvider>
+        )}
+      </>
+    );
+  }
 };
 
 export default FacilityPage;
