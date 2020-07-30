@@ -1,6 +1,6 @@
 import { isAfter } from "date-fns";
 import { navigate } from "gatsby";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
@@ -15,6 +15,7 @@ import useRejectionToast from "../hooks/useRejectionToast";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
 import { getFacilitiesRtDataById } from "../infection-model/rt";
 import { LocaleData, useLocaleDataState } from "../locale-data-context";
+import facility from "../pages/facility";
 import useScenario from "../scenario-context/useScenario";
 import FacilityRow from "./FacilityRow";
 import FacilityRowPlaceholder from "./FacilityRowPlaceholder";
@@ -154,11 +155,14 @@ const MultiFacilityImpactDashboard: React.FC = () => {
         );
       }));
 
-  const handleFacilitySave = async (facility: Facility) => {
-    if (scenarioId) {
-      await rejectionToast(createOrUpdateFacility(facility));
-    }
-  };
+  const handleFacilitySave = useCallback(
+    async (facility: Facility) => {
+      if (scenarioId) {
+        await rejectionToast(createOrUpdateFacility(facility));
+      }
+    },
+    [facility],
+  );
 
   useEffect(() => {
     setReferenceDataModalOpen(showSyncNewReferenceData);
