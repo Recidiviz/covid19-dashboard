@@ -82,6 +82,7 @@ interface CurveChartProps {
   hideAxes?: boolean;
   yAxisExtent?: number[];
   addAnnotations?: boolean;
+  useHoverAnnotations?: boolean;
 }
 
 const xAxisOptions: any[] = [
@@ -116,6 +117,7 @@ const CurveChart: React.FC<CurveChartProps> = ({
   hideAxes,
   yAxisExtent = [0],
   addAnnotations = true,
+  useHoverAnnotations = true,
 }) => {
   const frameProps = {
     lines: Object.entries(curveData).map(([bucket, values]) => ({
@@ -169,7 +171,7 @@ const CurveChart: React.FC<CurveChartProps> = ({
       }
       return null;
     },
-    hoverAnnotation: true,
+    hoverAnnotation: useHoverAnnotations,
     tooltipContent: Tooltip,
     // these two options place the hover targets along the line
     // (rather in the center of the area) but keep them invisible

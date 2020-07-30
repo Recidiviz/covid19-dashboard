@@ -86,6 +86,7 @@ interface Props {
 }
 
 const FacilityRow: React.FC<Props> = ({ facility, facilityRtData, onSave }) => {
+  console.log(facility.name);
   const {
     actions: { selectFacility },
   } = useFacilities();
@@ -203,6 +204,7 @@ const FacilityRow: React.FC<Props> = ({ facility, facilityRtData, onSave }) => {
             groupStatus={initialPublicCurveToggles}
             markColors={markColors}
             addAnnotations={false}
+            useHoverAnnotations={false}
           />
         </div>
       </DataContainer>
