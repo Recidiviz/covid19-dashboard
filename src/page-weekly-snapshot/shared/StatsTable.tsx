@@ -1,5 +1,9 @@
+import { get } from "lodash";
+
 import React from "react";
 import {
+  DeltaContainer,
+  Delta,
   HorizontalRule,
   Table,
   TableHeading,
@@ -8,10 +12,30 @@ import {
   BorderDiv,
   Header,
   Value,
+  ValueDescription,
   TextContainer,
   SectionHeader,
   SectionSubheader,
+  DELTA_DIRECTION_MAPPING,
+  COLUMN_SPACING,
 } from ".";
+import { formatThousands } from "../../impact-dashboard/ImpactProjectionTable";
+
+export const ValueDescriptionWithDelta: React.FC<{
+  deltaDirection: string;
+  delta: number;
+}> = ({ deltaDirection, delta }) => {
+  return (
+    <DeltaContainer>
+      <Delta deltaDirection={deltaDirection}>
+        {get(DELTA_DIRECTION_MAPPING, deltaDirection)}
+      </Delta>
+      <ValueDescription marginRight={COLUMN_SPACING}>
+        {formatThousands(delta)}
+      </ValueDescription>
+    </DeltaContainer>
+  )
+}
 
 type ColumnData = {
   header: string;

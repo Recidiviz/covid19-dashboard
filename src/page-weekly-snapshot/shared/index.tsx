@@ -1,6 +1,9 @@
-import styled from "styled-components";
+import { get } from "lodash";
 
+import styled from "styled-components";
+import React from "react";
 import Colors from "../../design-system/Colors";
+import { formatThousands } from "../../impact-dashboard/ImpactProjectionTable";
 
 export const COLUMN_SPACING = "20px";
 export const TOP_BOTTOM_MARGIN = "10px";
@@ -316,7 +319,6 @@ export const Value = styled.div`
 export const ValueDescription = styled.div<{ marginRight?: string; marginTop?: string }>`
   font-size: 12px;
   letter-spacing: -0.01em;
-  line-height: 14px;
   margin-top: ${(props) => props.marginTop || "0px"};
   margin-right: ${(props) => props.marginRight || "0px"};
   text-align: right;
@@ -325,3 +327,17 @@ export const ValueDescription = styled.div<{ marginRight?: string; marginTop?: s
 export const TableCellContainer = styled.div<{ marginRight?: string; }>`
   margin-right: ${(props) => props.marginRight || "0px"};
 `;
+
+export const ValueDescriptionWithDelta: React.FC<{
+  deltaDirection: string;
+  delta: number;
+}> = ({ deltaDirection, delta }) => {
+  return (
+    <DeltaContainer>
+      <Delta deltaDirection={deltaDirection}>
+        {get(DELTA_DIRECTION_MAPPING, deltaDirection)}
+      </Delta>
+      <ValueDescription marginRight={COLUMN_SPACING}>{formatThousands(delta)}</ValueDescription>
+    </DeltaContainer>
+  )
+}
