@@ -2,9 +2,10 @@ import styled from "styled-components";
 
 import Colors from "./Colors";
 
-export const PageContainer = styled.div`
+export const PageContainer = styled.div<{ marginTop?: string }>`
   display: flex;
   flex-direction: row;
+  margin-top: ${(props) => props.marginTop || "0px"};
 
   @media (max-width: 700px) {
     flex-direction: column;

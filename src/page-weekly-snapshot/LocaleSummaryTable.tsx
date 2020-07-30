@@ -12,17 +12,8 @@ import {
 import { formatThousands } from "../impact-dashboard/ImpactProjectionTable";
 import { LocaleData, useLocaleDataState } from "../locale-data-context";
 import { Facility } from "../page-multi-facility/types";
-import {
-  BorderDiv,
-  HorizontalRule,
-  Left,
-  LeftHeading,
-  Right,
-  Table,
-  TableCell,
-  TableHeadingCell,
-  TextContainer,
-} from "./shared";
+import { ValueDescription } from "./shared";
+import StatsTable, { StatsTableRow } from "./shared/StatsTable";
 
 type StateMetrics = {
   stateName: string;
@@ -147,80 +138,6 @@ function getTotalIncarceratedValue(facilities: Facility[], value: string) {
   return incarceratedData;
 }
 
-function makeIncarceratedDataRow(
-  hasData: boolean,
-  incarceratedDataRate: number,
-) {
-  if (hasData) {
-    return (
-      <tr>
-        <TextContainer>
-          <Left>{formatThousands(incarceratedDataRate)}</Left>
-        </TextContainer>
-      </tr>
-    );
-  } else {
-    return (
-      <tr>
-        <TextContainer>
-          <Left>???</Left>
-        </TextContainer>
-      </tr>
-    );
-  }
-}
-
-function makeTableColumn(
-  heading: string,
-  incarceratedData: number,
-  stateData: number,
-  stateRank: number,
-  hasData: boolean,
-) {
-  const incarceratedDataRow = makeIncarceratedDataRow(
-    hasData,
-    incarceratedData,
-  );
-  return (
-    <>
-      <tr>
-        <TableHeadingCell>
-          <HorizontalRule />
-          <TextContainer>
-            <Right>{heading} </Right>
-            <LeftHeading marginTop={"0px"}>(per 100k)</LeftHeading>
-          </TextContainer>
-        </TableHeadingCell>
-      </tr>
-      <BorderDiv />
-      <tr>
-        <TableCell>
-          Incarcerated {heading}
-          <HorizontalRule />
-        </TableCell>
-      </tr>
-      {incarceratedDataRow}
-      <BorderDiv />
-      <tr>
-        <TableCell>
-          Overall State {heading}
-          <HorizontalRule />
-        </TableCell>
-      </tr>
-      <tr>
-        <TableCell>
-          <TextContainer>
-            <Left>{formatThousands(stateData)}</Left>
-            <Right>
-              {formatOrdinal(stateRank)} lowest of {NUM_STATES}
-            </Right>
-          </TextContainer>
-        </TableCell>
-      </tr>
-    </>
-  );
-}
-
 const LocaleSummaryTable: React.FC<{
   stateName: string | undefined;
   stateNames: string[];
@@ -246,8 +163,6 @@ const LocaleSummaryTable: React.FC<{
 
   const allStateMetrics = getAllStateData(localeData, stateNames);
 
-  // TODO (per 644): currently getting state name from the drop down;
-  // may need to update this depending on how the logic 644 is implemented
   if (stateName) {
     const selectedStateCasesRank = getStateRank(
       allStateMetrics,
@@ -291,36 +206,60 @@ const LocaleSummaryTable: React.FC<{
     hasDeathData = totalIncarceratedDeaths.hasData;
   }
 
+  const casesTableData = [
+    {
+      header: "Incarcerated Cases",
+      value: hasCaseData ? formatThousands(incarceratedCasesRate) : "???",
+    },
+    {
+      header: "Overall State Cases",
+      value: formatThousands(casesRate),
+      valueDescription: (
+        <ValueDescription>
+          {formatOrdinal(casesRateRank)} lowest of {NUM_STATES}
+        </ValueDescription>
+      ),
+    },
+  ];
+
+  const fatalitiesTableData = [
+    {
+      header: "Incarcerated Fatalities",
+      value: hasDeathData ? formatThousands(incarceratedDeathsRate) : "???",
+    },
+    {
+      header: "Overall State Fatalities",
+      value: formatThousands(deathsRate),
+      valueDescription: (
+        <ValueDescription>
+          {formatOrdinal(deathsRateRank)} lowest of {NUM_STATES}
+        </ValueDescription>
+      ),
+    },
+  ];
+
   return (
     <>
       <PageContainer>
         <Column>
-          <Table>
-            <tbody>
-              <td />
-              {makeTableColumn(
-                "Cases",
-                incarceratedCasesRate,
-                casesRate,
-                casesRateRank,
-                hasCaseData,
-              )}
-            </tbody>
-          </Table>
+          <StatsTable tableHeading="Cases" tableSubheading="(per 100k)">
+            {casesTableData.map((tableData, index) => (
+              <StatsTableRow
+                key={`Cases__StatsTableRow--${index}`}
+                columns={[tableData]}
+              />
+            ))}
+          </StatsTable>
         </Column>
         <Column>
-          <Table>
-            <tbody>
-              <td />
-              {makeTableColumn(
-                "Fatalities",
-                incarceratedDeathsRate,
-                deathsRate,
-                deathsRateRank,
-                hasDeathData,
-              )}
-            </tbody>
-          </Table>
+          <StatsTable tableHeading="Fatalities" tableSubheading="(per 100k)">
+            {fatalitiesTableData.map((tableData, index) => (
+              <StatsTableRow
+                key={`Fatalities__StatsTableRow--${index}`}
+                columns={[tableData]}
+              />
+            ))}
+          </StatsTable>
         </Column>
       </PageContainer>
     </>

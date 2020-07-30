@@ -3,24 +3,11 @@ import React from "react";
 import styled from "styled-components";
 
 import { TableData } from "./projectionChartUtils";
-import {
-  BorderDiv,
-  HorizontalRule,
-  Left,
-  Right,
-  Table,
-  TableCell,
-  TableHeadingCell,
-  TextContainer,
-  TextContainerHeading,
-} from "./shared";
+import { HorizontalRule } from "./shared";
+import StatsTable, { StatsTableRow } from "./shared/StatsTable";
 
 const ImpactToDateTableContainer = styled.div`
   margin: 0 3vw 3vw;
-`;
-
-const ImpactStatContainer = styled.div`
-  margin-right: 3vw;
 `;
 
 const formatValue = (n: number) => numeral(n).format("0,0");
@@ -42,62 +29,29 @@ const ImpactToDateTable: React.FC<TableData> = ({
     projectedIncarceratedCasesToday - incarceratedCasesToday;
   const staffCasesPrevented = projectedStaffCasesToday - staffCasesToday;
 
+  const columnData = [
+    {
+      header: "Incarcerated lives saved",
+      value: formatValue(incarceratedLivesSaved),
+    },
+    {
+      header: "Staff lives saved",
+      value: formatValue(staffLivesSaved),
+    },
+    {
+      header: "Incarcerated cases prevented",
+      value: formatValue(incarceratedCasesPrevented),
+    },
+    {
+      header: "Staff cases prevented",
+      value: formatValue(staffCasesPrevented),
+    },
+  ];
   return (
     <ImpactToDateTableContainer>
-      <HorizontalRule />
-      <Table>
-        <thead>
-          <tr>
-            <TableHeadingCell>
-              <TextContainerHeading>
-                <Right>Intervention Impact To-Date</Right>
-              </TextContainerHeading>
-            </TableHeadingCell>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <TableCell>
-              <ImpactStatContainer>
-                <BorderDiv />
-                Incarcerated lives saved
-                <HorizontalRule />
-                <TextContainer>
-                  <Left>{formatValue(incarceratedLivesSaved)}</Left>
-                </TextContainer>
-              </ImpactStatContainer>
-            </TableCell>
-            <TableCell>
-              <ImpactStatContainer>
-                <BorderDiv />
-                Staff lives saved
-                <HorizontalRule />
-                <TextContainer>
-                  <Left>{formatValue(staffLivesSaved)}</Left>
-                </TextContainer>
-              </ImpactStatContainer>
-            </TableCell>
-            <TableCell>
-              <ImpactStatContainer>
-                <BorderDiv />
-                Incarcerated cases prevented
-                <HorizontalRule />
-                <TextContainer>
-                  <Left>{formatValue(incarceratedCasesPrevented)}</Left>
-                </TextContainer>
-              </ImpactStatContainer>
-            </TableCell>
-            <TableCell>
-              <BorderDiv />
-              Staff cases prevented
-              <HorizontalRule />
-              <TextContainer>
-                <Left>{formatValue(staffCasesPrevented)}</Left>
-              </TextContainer>
-            </TableCell>
-          </tr>
-        </tbody>
-      </Table>
+      <StatsTable tableHeading="Intervention Impact To-Date">
+        <StatsTableRow columns={columnData} columnMarginRight={"3vw"} />
+      </StatsTable>
       <HorizontalRule />
     </ImpactToDateTableContainer>
   );
