@@ -207,7 +207,7 @@ export const SnapshotPageContainer = styled.div`
   page-break-after: always;
 
   @media print {
-    min-height: 1350px;
+    min-height: 1700px;
     height: 100%;
   }
 `;

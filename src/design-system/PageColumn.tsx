@@ -5,7 +5,7 @@ import Colors from "./Colors";
 export const PageContainer = styled.div<{ marginTop?: string }>`
   display: flex;
   flex-direction: row;
-  margintop: ${(props) => props.marginTop || "0px"};
+  margin-top: ${(props) => props.marginTop || "0px"};
 
   @media (max-width: 700px) {
     flex-direction: column;
