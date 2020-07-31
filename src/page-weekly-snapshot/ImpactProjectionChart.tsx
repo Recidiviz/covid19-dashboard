@@ -10,9 +10,9 @@ import Loading from "../design-system/Loading";
 import { useFacilities } from "../facilities-context";
 import { useLocaleDataState } from "../locale-data-context";
 import ImpactToDateTable from "./ImpactToDateTable";
-import * as chartUtils from "./projectionChartUtils";
 import { LegendContainer, LegendText } from "./shared";
 import { HorizontalRule } from "./shared/index";
+import * as chartUtils from "./shared/projectionChartUtils";
 import { useWeeklyReport } from "./weekly-report-context";
 
 const ImpactProjectionContainer = styled.div`

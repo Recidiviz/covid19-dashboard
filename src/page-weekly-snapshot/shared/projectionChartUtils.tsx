@@ -11,17 +11,20 @@ import {
   totalIncarceratedConfirmedDeaths,
   totalStaffConfirmedCases,
   totalStaffConfirmedDeaths,
-} from "../impact-dashboard/EpidemicModelContext";
+} from "../../impact-dashboard/EpidemicModelContext";
 import {
   countActiveCasesForDay,
   countCasesForDay,
-} from "../impact-dashboard/ImpactProjectionTableContainer";
-import { NUM_DAYS } from "../infection-model";
-import { calculateCurves, curveInputsFromUserInputs } from "../infection-model";
-import { getAllValues, getColView } from "../infection-model/matrixUtils";
-import { seirIndex } from "../infection-model/seir";
-import { LocaleData } from "../locale-data-context";
-import { ModelInputs } from "../page-multi-facility/types";
+} from "../../impact-dashboard/ImpactProjectionTableContainer";
+import { NUM_DAYS } from "../../infection-model";
+import {
+  calculateCurves,
+  curveInputsFromUserInputs,
+} from "../../infection-model";
+import { getAllValues, getColView } from "../../infection-model/matrixUtils";
+import { seirIndex } from "../../infection-model/seir";
+import { LocaleData } from "../../locale-data-context";
+import { ModelInputs } from "../../page-multi-facility/types";
 
 export const today = () => dateFns.endOfToday();
 export const ninetyDaysAgo = () => dateFns.subDays(today(), NUM_DAYS);

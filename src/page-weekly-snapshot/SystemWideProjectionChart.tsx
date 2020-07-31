@@ -7,8 +7,8 @@ import styled from "styled-components";
 import Colors from "../design-system/Colors";
 import { useFacilities } from "../facilities-context";
 import { useLocaleDataState } from "../locale-data-context";
-import * as chartUtils from "./projectionChartUtils";
 import { HorizontalRule, LegendContainer, LegendText } from "./shared";
+import * as chartUtils from "./shared/projectionChartUtils";
 import SystemWideSummaryTable from "./SystemWideSummaryTable";
 import { useWeeklyReport } from "./weekly-report-context";
 

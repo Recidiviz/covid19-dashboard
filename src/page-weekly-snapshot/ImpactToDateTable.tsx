@@ -2,8 +2,8 @@ import numeral from "numeral";
 import React from "react";
 import styled from "styled-components";
 
-import { TableData } from "./projectionChartUtils";
 import { HorizontalRule } from "./shared";
+import { TableData } from "./shared/projectionChartUtils";
 import StatsTable, { StatsTableRow } from "./shared/StatsTable";
 
 const ImpactToDateTableContainer = styled.div`
