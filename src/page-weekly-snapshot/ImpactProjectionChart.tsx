@@ -126,7 +126,11 @@ const ImpactProjectionChart: React.FC = () => {
       {
         orient: "bottom",
         label: "Date",
-        tickValues: [chartUtils.ninetyDaysAgo(), chartUtils.today()],
+        baseline: "under",
+        tickLineGenerator: function HideTickLines() {
+          return <path style={{ fill: "none" }} />;
+        },
+        tickValues: chartUtils.xAxisTickValues(),
         tickFormat: (value: Date) => dateFns.format(value, "MM/dd"),
       },
       {

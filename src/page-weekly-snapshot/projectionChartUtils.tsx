@@ -1,4 +1,5 @@
 import * as dateFns from "date-fns";
+import { chunk } from "lodash";
 import ndarray from "ndarray";
 
 import {
@@ -24,6 +25,27 @@ import { ModelInputs } from "../page-multi-facility/types";
 
 export const today = () => dateFns.endOfToday();
 export const ninetyDaysAgo = () => dateFns.subDays(today(), NUM_DAYS);
+
+export const ninetyDayInterval = () =>
+  dateFns.eachDayOfInterval({
+    start: ninetyDaysAgo(),
+    end: today(),
+  });
+
+/**
+ * Returns an array of 6 tick values to use on the projection chart
+ * Using this function instead of the XYFrame option `ticks` because it does not
+ * consistently start with the first value on the x axis
+ *
+ * @returns tickValues - [1/1/2020, 1/12/2020, ...]
+ */
+export const xAxisTickValues = () => {
+  const dates = ninetyDayInterval();
+  const chunkSize = NUM_DAYS / 5;
+  const chunks = chunk(dates, chunkSize);
+  return chunks.map((c) => c[0]);
+};
+
 const SEVEN_DAY_PROJECTION = 7;
 
 type ProjectedCases = {
@@ -251,10 +273,7 @@ function findClosestVersionForDates(versions: ModelInputs[], date: Date) {
  * @returns actualData - An object of staff/incarcerated cases/fatalities 90 day arrays
  */
 export function getFacilitiesData(modelVersions: ModelInputs[]) {
-  const datesInterval = dateFns.eachDayOfInterval({
-    start: ninetyDaysAgo(),
-    end: today(),
-  });
+  const datesInterval = ninetyDayInterval();
 
   const actualData: FacilitiesData = {
     staffCases: [],
