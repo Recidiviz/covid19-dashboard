@@ -206,11 +206,13 @@ const LocaleSummaryTable: React.FC<{
     hasDeathData = totalIncarceratedDeaths.hasData;
   }
 
+  const NO_DATA = "No data";
+
   const casesTableData = [
     {
       header: "Incarcerated Cases",
       subheader: "(per 100k)",
-      value: hasCaseData ? formatThousands(incarceratedCasesRate) : "???",
+      value: hasCaseData ? formatThousands(incarceratedCasesRate) : NO_DATA,
     },
     {
       header: "Overall State Cases",
@@ -228,7 +230,7 @@ const LocaleSummaryTable: React.FC<{
     {
       header: "Incarcerated Fatalities",
       subheader: "(per 100k)",
-      value: hasDeathData ? formatThousands(incarceratedDeathsRate) : "???",
+      value: hasDeathData ? formatThousands(incarceratedDeathsRate) : NO_DATA,
     },
     {
       header: "Overall State Fatalities",

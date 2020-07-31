@@ -49,7 +49,8 @@ export const xAxisTickValues = () => {
   return chunks.map((c) => c[0]);
 };
 
-const SEVEN_DAY_PROJECTION = 7;
+// Projection should show 8 data points, the current day + 7 days
+const NEXT_SEVEN_DAYS_PROJECTION = 8;
 
 type ProjectedCases = {
   projectedStaffCases: number[];
@@ -457,12 +458,12 @@ function get7DayProjection(
 ): ProjectedCases {
   const curveData = calculateCurveData(
     epidemicModelInputs,
-    SEVEN_DAY_PROJECTION,
+    NEXT_SEVEN_DAYS_PROJECTION,
   );
 
   const zeroProjection = {
-    projectedStaffCases: Array(SEVEN_DAY_PROJECTION).fill(0),
-    projectedIncarceratedCases: Array(SEVEN_DAY_PROJECTION).fill(0),
+    projectedStaffCases: Array(NEXT_SEVEN_DAYS_PROJECTION).fill(0),
+    projectedIncarceratedCases: Array(NEXT_SEVEN_DAYS_PROJECTION).fill(0),
   };
 
   if (!curveData) return zeroProjection;
@@ -493,9 +494,9 @@ export function get7DayProjectionChartData(
     get7DayProjection,
   );
 
-  let totalActiveCases = Array(SEVEN_DAY_PROJECTION).fill(0);
+  let totalActiveCases = Array(NEXT_SEVEN_DAYS_PROJECTION).fill(0);
 
-  for (let index = 0; index < SEVEN_DAY_PROJECTION; index++) {
+  for (let index = 0; index < NEXT_SEVEN_DAYS_PROJECTION; index++) {
     facilitiesProjections.forEach((facility) => {
       totalActiveCases[index] +=
         facility.projectedIncarceratedCases[index] +

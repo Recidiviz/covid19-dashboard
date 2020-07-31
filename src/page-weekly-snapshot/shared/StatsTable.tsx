@@ -1,10 +1,10 @@
 import { get } from "lodash";
 import React from "react";
-import styled from "styled-components";
 
 import { formatThousands } from "../../impact-dashboard/ImpactProjectionTable";
 import {
   BorderDiv,
+  CellHeaderContainer,
   COLUMN_SPACING,
   Delta,
   DELTA_DIRECTION_MAPPING,
@@ -21,12 +21,6 @@ import {
   Value,
   ValueDescription,
 } from ".";
-
-const HeaderContainer = styled.div`
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: space-between;
-`;
 
 export const ValueDescriptionWithDelta: React.FC<{
   deltaDirection: string;
@@ -66,12 +60,12 @@ export const StatsTableRow: React.FC<StatsTableRowProps> = ({
         <TableCell key={`${columnData.header}-${index}`}>
           <TableCellContainer marginRight={columnMarginRight}>
             <BorderDiv />
-            <HeaderContainer>
+            <CellHeaderContainer>
               <Header>{columnData.header}</Header>
               {columnData.subheader && (
                 <SubHeader>{columnData.subheader}</SubHeader>
               )}
-            </HeaderContainer>
+            </CellHeaderContainer>
             <HorizontalRule />
             <TextContainer>
               <Value>{columnData.value}</Value>

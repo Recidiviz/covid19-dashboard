@@ -127,18 +127,14 @@ const ImpactProjectionChart: React.FC = () => {
         orient: "bottom",
         label: "Date",
         baseline: "under",
-        tickLineGenerator: function HideTickLines() {
-          return <path style={{ fill: "none" }} />;
-        },
+        tickLineGenerator: () => null,
         tickValues: chartUtils.xAxisTickValues(),
         tickFormat: (value: Date) => dateFns.format(value, "MM/dd"),
       },
       {
         orient: "left",
         baseline: "under",
-        tickLineGenerator: function HideTickLines() {
-          return <path style={{ fill: "none" }} />;
-        },
+        tickLineGenerator: () => null,
         tickFormat: formatThousands,
       },
     ],

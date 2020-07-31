@@ -99,7 +99,6 @@ export const BorderDiv = styled.div<{ marginRight?: string }>`
 
 export const HorizontalRule = styled.hr<{ marginRight?: string }>`
   border-color: ${Colors.opacityGray};
-  margin-top: 10px;
   margin-right: ${(props) => props.marginRight || "0px"};
 `;
 
@@ -148,7 +147,7 @@ export const TextContainerHeading = styled.div<{
 
 export const TextContainer = styled.div`
   width: 100%;
-  margin: 10px 0;
+  margin: 12px 0;
   display: flex;
   justify-content: space-between;
   align-items: baseline;
@@ -180,7 +179,6 @@ export const Left = styled.div<{
 export const TableCell = styled.td<{ label?: boolean }>`
   font-size: 13px;
   line-height: 200%;
-  text-align: "left";
   width: ${(props) => (props.label ? "200px" : "auto")};
 `;
 
@@ -194,6 +192,7 @@ export const Heading = styled.div`
 export const DeltaContainer = styled.div`
   display: flex;
   justify-content: flex-end;
+  font-size: 14px;
 `;
 
 export const SnapshotPageContainer = styled.div`
@@ -328,7 +327,7 @@ export const ValueDescription = styled.div<{
   marginRight?: string;
   marginTop?: string;
 }>`
-  font-size: 12px;
+  font-size: 14px;
   letter-spacing: -0.01em;
   margin-top: ${(props) => props.marginTop || "0px"};
   margin-right: ${(props) => props.marginRight || "0px"};
@@ -337,4 +336,10 @@ export const ValueDescription = styled.div<{
 
 export const TableCellContainer = styled.div<{ marginRight?: string }>`
   margin-right: ${(props) => props.marginRight || "0px"};
+`;
+
+export const CellHeaderContainer = styled.div`
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
 `;
