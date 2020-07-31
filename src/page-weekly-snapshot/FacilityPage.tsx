@@ -19,30 +19,24 @@ import { initialPublicCurveToggles } from "../page-multi-facility/curveToggles";
 import { useProjectionData } from "../page-multi-facility/projectionCurveHooks";
 import { Facility } from "../page-multi-facility/types";
 import FacilitySummaryTable from "./FacilitySummaryTable";
-import { Heading, LeftHeading } from "./shared/index";
+import {
+  BorderDiv,
+  CellHeaderContainer,
+  COLUMN_SPACING,
+  Header,
+  HorizontalRule,
+  LeftHeading,
+  SectionHeader,
+  Table,
+  TableCell,
+  TableCellContainer,
+  TableHeading,
+  TextContainer,
+  Value,
+} from "./shared";
 import SnapshotPage from "./SnapshotPage";
 
 const DURATION = 21;
-
-export const Table = styled.table`
-  color: ${Colors.black};
-  text-align: left;
-  width: 100%;
-  margin-top: 10px;
-`;
-
-const TableHeadingCell = styled.td`
-  font-family: "Poppins", sans serif;
-  line-height: 24px;
-  margin-right: 5px;
-  vertical-align: middle;
-`;
-
-export const BorderDiv = styled.div<{ marginRight?: string }>`
-  border-top: 1px solid ${Colors.black};
-  margin-right: ${(props) => props.marginRight || "5px"};
-  margin-bottom: 10px;
-`;
 
 const ProjectionSection = styled.div`
   margin-top: 10px;
@@ -55,22 +49,6 @@ const ProjectionContainer = styled.div`
     fill: ${Colors.black};
     font-family: "Libre Franklin";
   }
-`;
-
-export const HorizontalRule = styled.hr<{ marginRight?: string }>`
-  border-color: ${Colors.opacityGray};
-  margin-top: 10px;
-  margin-right: ${(props) => props.marginRight || "0px"};
-`;
-
-const TableCell = styled.td<{ labelCell?: boolean }>`
-  font-size: 13px;
-  line-height: 200%;
-  text-align: left;
-  opacity: 0.7;
-  border-top: 1px solid ${Colors.darkGray};
-  vertical-align: middle;
-  width: ${(props) => (props.labelCell ? "200px" : "auto")};
 `;
 
 interface Props {
@@ -86,11 +64,17 @@ function makeTableRow(row: TableRow) {
   const { label, week1, week2, week3, overall } = row;
   return (
     <tr key={label}>
-      <TableCell labelCell>{label}</TableCell>
-      <TableCell>{formatThousands(week1)}</TableCell>
-      <TableCell>{formatThousands(week2)}</TableCell>
-      <TableCell>{formatThousands(week3)}</TableCell>
-      <TableCell>{formatThousands(overall)}</TableCell>
+      <TableCell>{label}</TableCell>
+      {[week1, week2, week3, overall].map((data, idx) => (
+        <TableCell key={`FacilityTable-${label}-${idx}`}>
+          <TableCellContainer marginRight={COLUMN_SPACING}>
+            <HorizontalRule />
+            <TextContainer>
+              <Value>{formatThousands(data)}</Value>
+            </TextContainer>
+          </TableCellContainer>
+        </TableCell>
+      ))}
     </tr>
   );
 }
@@ -99,10 +83,26 @@ function makeHeadingRow() {
   return (
     <tr>
       <td />
-      <TableHeadingCell>Week 1</TableHeadingCell>
-      <TableHeadingCell>Week 2</TableHeadingCell>
-      <TableHeadingCell>Week 3</TableHeadingCell>
-      <TableHeadingCell>Overall</TableHeadingCell>
+      <TableCell>
+        <CellHeaderContainer>
+          <Header>Week 1</Header>
+        </CellHeaderContainer>
+      </TableCell>
+      <TableCell>
+        <CellHeaderContainer>
+          <Header>Week 2</Header>
+        </CellHeaderContainer>
+      </TableCell>
+      <TableCell>
+        <CellHeaderContainer>
+          <Header>Week 3</Header>
+        </CellHeaderContainer>
+      </TableCell>
+      <TableCell>
+        <CellHeaderContainer>
+          <Header>Overall</Header>
+        </CellHeaderContainer>
+      </TableCell>
     </tr>
   );
 }
@@ -145,9 +145,22 @@ const FacilityPage: React.FC<Props> = ({ facility, rtData }) => {
           <FacilityProjection projectionData={projectionData} />
         </ProjectionContainer>
 
-        <Heading>Incarcerated Population Projection</Heading>
-        <BorderDiv />
+        <HorizontalRule marginRight={COLUMN_SPACING} />
         <Table>
+          <thead>
+            <tr>
+              <TableHeading colSpan={5}>
+                <TableCellContainer marginRight={COLUMN_SPACING}>
+                  <TextContainer>
+                    <SectionHeader>
+                      Incarcerated Population Projection
+                    </SectionHeader>
+                  </TextContainer>
+                  <BorderDiv />
+                </TableCellContainer>
+              </TableHeading>
+            </tr>
+          </thead>
           <tbody>
             {makeHeadingRow()}
             {incarceratedData.map((row) => makeTableRow(row))}
@@ -155,9 +168,20 @@ const FacilityPage: React.FC<Props> = ({ facility, rtData }) => {
         </Table>
       </ProjectionSection>
       <ProjectionSection>
-        <Heading>Staff Projection</Heading>
-        <BorderDiv />
+        <HorizontalRule marginRight={COLUMN_SPACING} />
         <Table>
+          <thead>
+            <tr>
+              <TableHeading colSpan={5}>
+                <TableCellContainer marginRight={COLUMN_SPACING}>
+                  <TextContainer>
+                    <SectionHeader>Staff Projection</SectionHeader>
+                  </TextContainer>
+                  <BorderDiv />
+                </TableCellContainer>
+              </TableHeading>
+            </tr>
+          </thead>
           <tbody>
             {makeHeadingRow()}
             {staffData.map((row) => makeTableRow(row))}
