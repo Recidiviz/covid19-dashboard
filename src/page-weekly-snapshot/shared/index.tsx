@@ -4,6 +4,7 @@ import Colors from "../../design-system/Colors";
 
 export const COLUMN_SPACING = "20px";
 export const TOP_BOTTOM_MARGIN = "10px";
+export const CHART_MARGINS = { left: 100, bottom: 60, right: 100, top: 10 };
 
 export const DELTA_DIRECTION_MAPPING = {
   positive: "↑ ",
@@ -275,7 +276,7 @@ export const LegendContainer = styled.div`
   color: ${Colors.black};
   display: flex;
   flex-flow: row nowrap;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 500;
   margin: 10px 0;
 `;
@@ -342,4 +343,21 @@ export const CellHeaderContainer = styled.div`
   display: flex;
   flex-flow: row nowrap;
   justify-content: space-between;
+`;
+
+export const ChartHeader = styled.h3`
+  color: ${Colors.black};
+  font-family: "Libre Franklin";
+  font-style: normal;
+  font-weight: bold;
+  font-size: 13px;
+  line-height: 13px;
+  margin-bottom: 1vw;
+`;
+
+export const ChartHeaderContainer = styled.div`
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  align-items: baseline;
 `;

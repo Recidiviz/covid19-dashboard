@@ -1,9 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
-import Colors, { MarkColors as markColors } from "../design-system/Colors";
+import Colors from "../design-system/Colors";
 import Loading from "../design-system/Loading";
-import ChartArea from "../impact-dashboard/ChartArea";
 import { useEpidemicModelState } from "../impact-dashboard/EpidemicModelContext";
 import {
   formatThousands,
@@ -13,11 +12,10 @@ import {
   buildIncarceratedData,
   buildStaffData,
 } from "../impact-dashboard/ImpactProjectionTableContainer";
-import { CurveData } from "../infection-model";
 import { RtData, RtError } from "../infection-model/rt";
-import { initialPublicCurveToggles } from "../page-multi-facility/curveToggles";
 import { useProjectionData } from "../page-multi-facility/projectionCurveHooks";
 import { Facility } from "../page-multi-facility/types";
+import FacilityProjectionChart from "./FacilityProjectionChart";
 import FacilitySummaryTable from "./FacilitySummaryTable";
 import {
   BorderDiv,
@@ -54,10 +52,6 @@ const ProjectionContainer = styled.div`
 interface Props {
   facility: Facility;
   rtData: RtData | RtError | undefined;
-}
-
-interface ProjectionProps {
-  projectionData: CurveData | undefined;
 }
 
 function makeTableRow(row: TableRow) {
@@ -107,26 +101,15 @@ function makeHeadingRow() {
   );
 }
 
-const FacilityProjection: React.FC<ProjectionProps> = ({ projectionData }) => {
-  return (
-    <ChartArea
-      projectionData={projectionData}
-      initialCurveToggles={initialPublicCurveToggles}
-      markColors={markColors}
-      title={"Estimated Impact"}
-    />
-  );
-};
-
 const FacilityPage: React.FC<Props> = ({ facility, rtData }) => {
-  const projectionData = useProjectionData(
+  const curveData = useProjectionData(
     useEpidemicModelState(),
     true,
     rtData,
     DURATION,
   );
-  if (!projectionData) return <Loading />;
-  const { incarcerated, staff } = projectionData;
+  if (!curveData) return <Loading />;
+  const { incarcerated, staff } = curveData;
   const incarceratedData = buildIncarceratedData(incarcerated);
   const staffData = buildStaffData({ staff, showHospitalizedRow: false });
 
@@ -136,13 +119,12 @@ const FacilityPage: React.FC<Props> = ({ facility, rtData }) => {
       <ProjectionSection>
         <ProjectionContainer>
           <FacilitySummaryTable facility={facility} />
-          <HorizontalRule />
         </ProjectionContainer>
       </ProjectionSection>
 
       <ProjectionSection>
         <ProjectionContainer>
-          <FacilityProjection projectionData={projectionData} />
+          <FacilityProjectionChart curveData={curveData} />
         </ProjectionContainer>
 
         <HorizontalRule marginRight={COLUMN_SPACING} />

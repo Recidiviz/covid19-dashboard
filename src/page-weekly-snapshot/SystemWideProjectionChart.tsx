@@ -7,7 +7,13 @@ import styled from "styled-components";
 import Colors from "../design-system/Colors";
 import { useFacilities } from "../facilities-context";
 import { useLocaleDataState } from "../locale-data-context";
-import { HorizontalRule, LegendContainer, LegendText } from "./shared";
+import {
+  CHART_MARGINS,
+  ChartHeader,
+  HorizontalRule,
+  LegendContainer,
+  LegendText,
+} from "./shared";
 import * as chartUtils from "./shared/projectionChartUtils";
 import SystemWideSummaryTable from "./SystemWideSummaryTable";
 import { useWeeklyReport } from "./weekly-report-context";
@@ -48,15 +54,6 @@ const CurveChartWrapper = styled.div`
     line-height: 17px;
     text-align: right;
   }
-`;
-
-export const ChartHeader = styled.h3`
-  color: ${Colors.black};
-  font-family: "Libre Franklin";
-  font-style: normal;
-  font-weight: 700;
-  font-size: 11px;
-  line-height: 13px;
 `;
 
 const legendColors = {
@@ -103,7 +100,7 @@ const SystemWideProjectionChart: React.FC = () => {
     responsiveHeight: true,
     responsiveWidth: true,
     yExtent: [0, maxValue + 50],
-    margin: { left: 100, bottom: 60, right: 100, top: 10 },
+    margin: CHART_MARGINS,
     lineStyle: {
       stroke: legendColors.projected,
       strokeWidth: 2,

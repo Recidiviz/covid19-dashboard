@@ -7,7 +7,7 @@ import { TableData } from "./shared/projectionChartUtils";
 import StatsTable, { StatsTableRow } from "./shared/StatsTable";
 
 const ImpactToDateTableContainer = styled.div`
-  margin: 0 3vw 3vw;
+  margin: 10px 0;
 `;
 
 const formatValue = (n: number) => numeral(n).format("0,0");
