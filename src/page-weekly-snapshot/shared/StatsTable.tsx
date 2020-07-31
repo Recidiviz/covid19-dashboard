@@ -41,6 +41,7 @@ export const ValueDescriptionWithDelta: React.FC<{
 type ColumnData = {
   header: string;
   subheader?: string;
+  marginRight?: string;
   value: string;
   valueDescription?: React.ReactElement | undefined;
 };
@@ -58,7 +59,9 @@ export const StatsTableRow: React.FC<StatsTableRowProps> = ({
     <tr>
       {columns.map((columnData: ColumnData, index) => (
         <TableCell key={`${columnData.header}-${index}`}>
-          <TableCellContainer marginRight={columnMarginRight}>
+          <TableCellContainer
+            marginRight={columnData.marginRight || columnMarginRight}
+          >
             <BorderDiv />
             <CellHeaderContainer>
               <Header>{columnData.header}</Header>
@@ -79,15 +82,14 @@ export const StatsTableRow: React.FC<StatsTableRowProps> = ({
 };
 
 interface StatesTableProps {
-  header: string;
+  header?: string;
   children: React.ReactNode;
 }
 
 const StatsTable: React.FC<StatesTableProps> = ({ header, children }) => {
   return (
-    <>
-      <HorizontalRule />
-      <Table>
+    <Table>
+      {header && (
         <thead>
           <tr>
             <TableHeading>
@@ -97,9 +99,9 @@ const StatsTable: React.FC<StatesTableProps> = ({ header, children }) => {
             </TableHeading>
           </tr>
         </thead>
-        <tbody>{children}</tbody>
-      </Table>
-    </>
+      )}
+      <tbody>{children}</tbody>
+    </Table>
   );
 };
 

@@ -12,7 +12,7 @@ import {
 import { formatThousands } from "../impact-dashboard/ImpactProjectionTable";
 import { LocaleData, useLocaleDataState } from "../locale-data-context";
 import { Facility } from "../page-multi-facility/types";
-import { ValueDescription } from "./shared";
+import { HorizontalRule, ValueDescription } from "./shared";
 import StatsTable, { StatsTableRow } from "./shared/StatsTable";
 
 type StateMetrics = {
@@ -258,6 +258,7 @@ const LocaleSummaryTable: React.FC<{
           </StatsTable>
         </Column>
         <Column>
+          <HorizontalRule />
           <StatsTable header="Fatalities">
             {fatalitiesTableData.map((tableData, index) => (
               <StatsTableRow

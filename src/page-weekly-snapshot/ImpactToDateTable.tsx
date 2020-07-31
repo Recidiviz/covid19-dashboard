@@ -49,6 +49,7 @@ const ImpactToDateTable: React.FC<TableData> = ({
   ];
   return (
     <ImpactToDateTableContainer>
+      <HorizontalRule />
       <StatsTable header="Intervention Impact To-Date">
         <StatsTableRow columns={columnData} columnMarginRight={"3vw"} />
       </StatsTable>

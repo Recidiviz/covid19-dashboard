@@ -66,6 +66,22 @@ export const STATE_CODE_MAPPING = {
   "Wyoming": "WY",
 };
 
+export const FooterContainer = styled.div`
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  padding: ${TOP_BOTTOM_MARGIN} 0;
+  width: 100%;
+`;
+
+export const FooterText = styled.div`
+  color: ${Colors.black};
+  font-size: 12px;
+  font-family: "Libre Franklin";
+  font-weight: 500;
+  letter-spacing: -0.01em;
+`;
+
 export const Delta = styled.div<{ deltaDirection?: string }>`
   color: ${(props) =>
     props.deltaDirection == "positive"
@@ -103,14 +119,6 @@ export const HorizontalRule = styled.hr<{ marginRight?: string }>`
   margin-right: ${(props) => props.marginRight || "0px"};
 `;
 
-export const TableHeadingCell = styled.th`
-  font-family: "Libre Franklin";
-  font-weight: bold;
-  font-size: 11px;
-  line-height: 13px;
-  vertical-align: middle;
-`;
-
 export const RankContainer = styled.div`
   display: flex;
   flex-direction: row;
@@ -122,7 +130,7 @@ export const RankContainer = styled.div`
 
 export const RankText = styled.td`
   font-family: "Libre Franklin";
-  font-size: 11px;
+  font-size: 13px;
   margin-right: 10px;
   align-items: baseline;
 `;
@@ -184,10 +192,12 @@ export const TableCell = styled.td<{ label?: boolean }>`
 `;
 
 export const Heading = styled.div`
-  font-weight: 700;
+  color: ${Colors.black};
+  font-family: "Libre Franklin";
+  font-size: 13px;
+  font-weight: bold;
   line-height: 13px;
-  border-top: 1px solid ${Colors.darkGray};
-  padding: 10px 0;
+  padding: ${TOP_BOTTOM_MARGIN} 0;
 `;
 
 export const DeltaContainer = styled.div`
@@ -229,7 +239,7 @@ export const PageHeader = styled.div`
   margin-bottom: 3px;
   font-family: "Libre Baskerville";
   text-align: left;
-  padding-top: 10px;
+  padding-top: ${TOP_BOTTOM_MARGIN};
 `;
 
 export const PageSubheader = styled.div`
@@ -256,7 +266,7 @@ export const Image = styled.img`
   -webkit-border-radius: 40px;
   border: 1px solid black;
   padding-top: 5px;
-  margin-top: 10px;
+  margin-top: ${TOP_BOTTOM_MARGIN};
   margin-bottom: -10px;
 `;
 

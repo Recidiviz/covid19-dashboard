@@ -1,6 +1,7 @@
 import { maxBy, minBy, orderBy } from "lodash";
 import numeral from "numeral";
 import React from "react";
+import styled from "styled-components";
 
 import { Column, PageContainer } from "../design-system/PageColumn";
 import { useFacilities } from "../facilities-context";
@@ -19,20 +20,27 @@ import {
 import { NYTCountyRecord, NYTStateRecord, useNYTData } from "./NYTDataProvider";
 import {
   BorderDiv,
+  CellHeaderContainer,
   COLUMN_SPACING,
+  Header,
   Heading,
   HorizontalRule,
   Left,
-  LeftHeading,
   RankContainer,
   RankText,
   Right,
+  SubHeader,
   Table,
   TableHeading,
   TextContainer,
   TextContainerHeading,
+  Value,
+  ValueDescription,
 } from "./shared";
+import StatsTable, { StatsTableRow } from "./shared/StatsTable";
 import { useWeeklyReport } from "./weekly-report-context";
+
+const LocaleStatsContainer = styled.div``;
 
 type PerCapitaCountyCase = {
   name: string;
@@ -157,7 +165,7 @@ function makeCountyRow(
           {direction} {num}
         </Right>
       </TextContainerHeading>
-      <HorizontalRule />
+      {index !== 3 && <HorizontalRule />}
     </tr>
   );
 }
@@ -165,34 +173,10 @@ function makeCountyRow(
 function makeFacilitiesToWatchRow(highestCountiesFacilities: string) {
   return (
     <tr>
-      <TextContainerHeading>
-        <Left>{highestCountiesFacilities}</Left>
-      </TextContainerHeading>
+      <TextContainer>
+        <Value>{highestCountiesFacilities}</Value>
+      </TextContainer>
     </tr>
-  );
-}
-
-function makeTableHeading(heading: string) {
-  return (
-    <TableHeading>
-      <BorderDiv marginRight={COLUMN_SPACING} />
-      <TextContainer>{heading}</TextContainer>
-      <HorizontalRule marginRight={COLUMN_SPACING} />
-    </TableHeading>
-  );
-}
-
-function makeTableSubheading(leftHeading: string, rightHeading: string) {
-  return (
-    <TableHeading>
-      <BorderDiv>
-        <TextContainer>
-          <LeftHeading marginTop={"0px"}>{leftHeading}</LeftHeading>
-          <Right>{rightHeading}</Right>
-        </TextContainer>
-      </BorderDiv>
-      <HorizontalRule />
-    </TableHeading>
   );
 }
 
@@ -263,54 +247,70 @@ const LocaleStatsTable: React.FC<{}> = () => {
   }
 
   return (
-    <>
+    <LocaleStatsContainer>
+      <HorizontalRule />
       <Heading>Locale Summary</Heading>
       <PageContainer>
-        <BorderDiv marginRight={"-20px"} />
-        <Column>
-          <Table>
-            <BorderDiv />
-          </Table>
+        <Column margin={`0 ${COLUMN_SPACING} 0 0`}>
+          <BorderDiv />
         </Column>
-        <Column>
+        <Column borderTop={false} margin={`0 0 0 ${COLUMN_SPACING}`}>
+          <StatsTable>
+            <StatsTableRow
+              columnMarginRight={COLUMN_SPACING}
+              columns={[
+                {
+                  header: "State rate of spread",
+                  value: " ",
+                  valueDescription: (
+                    <ValueDescription>since last week</ValueDescription>
+                  ),
+                },
+                {
+                  header: "Facilities with rate of spread > 1.00",
+                  value: `${numFacilitiesThisWeek} of ${totalNumFacilities}`,
+                  marginRight: "0px",
+                  valueDescription: (
+                    <ValueDescription>
+                      {getDirection(
+                        numFacilitiesLastWeek,
+                        numFacilitiesThisWeek,
+                      )}
+                      {numFacilitiesLastWeek} since last week
+                    </ValueDescription>
+                  ),
+                },
+              ]}
+            />
+          </StatsTable>
+          <BorderDiv />
           <Table>
-            <tr>
-              {makeTableHeading("State rate of spread")}
-              {makeTableHeading("Facilities with rate of spread > 1")}
-            </tr>
-            <td>
-              <TextContainer>
-                <Left />
-                <Right marginRight={COLUMN_SPACING}>since last week</Right>
-              </TextContainer>
-            </td>
-            <td>
-              <TextContainer>
-                <Left>
-                  {numFacilitiesThisWeek} of {totalNumFacilities}{" "}
-                </Left>
-                <Right marginRight={COLUMN_SPACING}>
-                  {getDirection(numFacilitiesLastWeek, numFacilitiesThisWeek)}
-                  {numFacilitiesLastWeek} since last week
-                </Right>
-              </TextContainer>
-            </td>
+            <tbody>
+              <tr>
+                <CellHeaderContainer>
+                  <Header>Counties to watch</Header>
+                  <SubHeader>
+                    Change in cases per 100k since last week
+                  </SubHeader>
+                </CellHeaderContainer>
+                <HorizontalRule />
+              </tr>
+              {highestFourCounties.map((row, index) =>
+                makeCountyRow(row, facilitiesCounties, index),
+              )}
+              <tr>
+                <TableHeading>
+                  <BorderDiv />
+                  <Header>Facilities in counties to watch</Header>
+                  <HorizontalRule />
+                </TableHeading>
+              </tr>
+              {makeFacilitiesToWatchRow(highestCountiesFacilities)}
+            </tbody>
           </Table>
-          <tr>
-            {makeTableSubheading(
-              "Counties to watch",
-              "Change in cases per 100k since last week",
-            )}
-          </tr>
-          {highestFourCounties.map((row, index) =>
-            makeCountyRow(row, facilitiesCounties, index),
-          )}
-          <br />
-          <tr>{makeTableSubheading("Facilities in counties to watch", "")}</tr>
-          {makeFacilitiesToWatchRow(highestCountiesFacilities)}
         </Column>
       </PageContainer>
-    </>
+    </LocaleStatsContainer>
   );
 };
 
