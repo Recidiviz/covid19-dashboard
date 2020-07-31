@@ -60,8 +60,8 @@ const formatThousands = format(",~g");
 const lineColors: { [key in string]: string } = {
   projectedCases: Colors.forest50,
   projectedFatalities: Colors.black50,
-  actualCases: Colors.black,
-  actualFatalities: Colors.tamarillo,
+  cases: Colors.black,
+  fatalities: Colors.tamarillo,
 };
 
 const ImpactProjectionChart: React.FC = () => {
@@ -164,7 +164,6 @@ const ImpactProjectionChart: React.FC = () => {
       {
         type: "react-annotation",
         color: Colors.black,
-        disable: ["connector"],
         date: chartUtils.ninetyDaysAgo(),
         count: actualCasesDay90,
         note: {
@@ -205,13 +204,11 @@ const ImpactProjectionChart: React.FC = () => {
             <LegendText legendColor={lineColors.projectedCases}>
               Projected cases w/o intervention
             </LegendText>
-            <LegendText legendColor={lineColors.actualCases}>
-              Actual cases
-            </LegendText>
+            <LegendText legendColor={lineColors.cases}>Actual cases</LegendText>
             <LegendText legendColor={lineColors.projectedFatalities}>
               Projected fatalities w/o intervention
             </LegendText>
-            <LegendText legendColor={lineColors.actualFatalities}>
+            <LegendText legendColor={lineColors.fatalities}>
               Actual fatalities
             </LegendText>
           </LegendContainer>
