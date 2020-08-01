@@ -248,6 +248,7 @@ const LocaleSummaryTable: React.FC<{
     <>
       <PageContainer>
         <Column>
+          <HorizontalRule />
           <StatsTable header="Cases">
             {casesTableData.map((tableData, index) => (
               <StatsTableRow
