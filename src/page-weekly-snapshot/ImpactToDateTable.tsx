@@ -2,12 +2,12 @@ import numeral from "numeral";
 import React from "react";
 import styled from "styled-components";
 
-import { TableData } from "./projectionChartUtils";
 import { HorizontalRule } from "./shared";
+import { TableData } from "./shared/projectionChartUtils";
 import StatsTable, { StatsTableRow } from "./shared/StatsTable";
 
 const ImpactToDateTableContainer = styled.div`
-  margin: 0 3vw 3vw;
+  margin: 10px 0;
 `;
 
 const formatValue = (n: number) => numeral(n).format("0,0");
@@ -49,6 +49,7 @@ const ImpactToDateTable: React.FC<TableData> = ({
   ];
   return (
     <ImpactToDateTableContainer>
+      <HorizontalRule />
       <StatsTable header="Intervention Impact To-Date">
         <StatsTableRow columns={columnData} columnMarginRight={"3vw"} />
       </StatsTable>

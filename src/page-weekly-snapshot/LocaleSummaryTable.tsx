@@ -12,7 +12,7 @@ import {
 import { formatThousands } from "../impact-dashboard/ImpactProjectionTable";
 import { LocaleData, useLocaleDataState } from "../locale-data-context";
 import { Facility } from "../page-multi-facility/types";
-import { ValueDescription } from "./shared";
+import { HorizontalRule, ValueDescription } from "./shared";
 import StatsTable, { StatsTableRow } from "./shared/StatsTable";
 
 type StateMetrics = {
@@ -206,11 +206,13 @@ const LocaleSummaryTable: React.FC<{
     hasDeathData = totalIncarceratedDeaths.hasData;
   }
 
+  const NO_DATA = "No data";
+
   const casesTableData = [
     {
       header: "Incarcerated Cases",
       subheader: "(per 100k)",
-      value: hasCaseData ? formatThousands(incarceratedCasesRate) : "???",
+      value: hasCaseData ? formatThousands(incarceratedCasesRate) : NO_DATA,
     },
     {
       header: "Overall State Cases",
@@ -228,7 +230,7 @@ const LocaleSummaryTable: React.FC<{
     {
       header: "Incarcerated Fatalities",
       subheader: "(per 100k)",
-      value: hasDeathData ? formatThousands(incarceratedDeathsRate) : "???",
+      value: hasDeathData ? formatThousands(incarceratedDeathsRate) : NO_DATA,
     },
     {
       header: "Overall State Fatalities",
@@ -246,6 +248,7 @@ const LocaleSummaryTable: React.FC<{
     <>
       <PageContainer>
         <Column>
+          <HorizontalRule />
           <StatsTable header="Cases">
             {casesTableData.map((tableData, index) => (
               <StatsTableRow
@@ -256,6 +259,7 @@ const LocaleSummaryTable: React.FC<{
           </StatsTable>
         </Column>
         <Column>
+          <HorizontalRule />
           <StatsTable header="Fatalities">
             {fatalitiesTableData.map((tableData, index) => (
               <StatsTableRow

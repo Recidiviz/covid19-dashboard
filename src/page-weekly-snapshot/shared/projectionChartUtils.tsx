@@ -1,4 +1,5 @@
 import * as dateFns from "date-fns";
+import { chunk } from "lodash";
 import ndarray from "ndarray";
 
 import {
@@ -10,21 +11,46 @@ import {
   totalIncarceratedConfirmedDeaths,
   totalStaffConfirmedCases,
   totalStaffConfirmedDeaths,
-} from "../impact-dashboard/EpidemicModelContext";
+} from "../../impact-dashboard/EpidemicModelContext";
 import {
   countActiveCasesForDay,
   countCasesForDay,
-} from "../impact-dashboard/ImpactProjectionTableContainer";
-import { NUM_DAYS } from "../infection-model";
-import { calculateCurves, curveInputsFromUserInputs } from "../infection-model";
-import { getAllValues, getColView } from "../infection-model/matrixUtils";
-import { seirIndex } from "../infection-model/seir";
-import { LocaleData } from "../locale-data-context";
-import { ModelInputs } from "../page-multi-facility/types";
+} from "../../impact-dashboard/ImpactProjectionTableContainer";
+import { NUM_DAYS } from "../../infection-model";
+import {
+  calculateCurves,
+  curveInputsFromUserInputs,
+} from "../../infection-model";
+import { getAllValues, getColView } from "../../infection-model/matrixUtils";
+import { seirIndex } from "../../infection-model/seir";
+import { LocaleData } from "../../locale-data-context";
+import { ModelInputs } from "../../page-multi-facility/types";
 
 export const today = () => dateFns.endOfToday();
 export const ninetyDaysAgo = () => dateFns.subDays(today(), NUM_DAYS);
-const SEVEN_DAY_PROJECTION = 7;
+
+export const ninetyDayInterval = () =>
+  dateFns.eachDayOfInterval({
+    start: ninetyDaysAgo(),
+    end: today(),
+  });
+
+/**
+ * Returns an array of 6 tick values to use on the projection chart
+ * Using this function instead of the XYFrame option `ticks` because it does not
+ * consistently start with the first value on the x axis
+ *
+ * @returns tickValues - [1/1/2020, 1/12/2020, ...]
+ */
+export const xAxisTickValues = () => {
+  const dates = ninetyDayInterval();
+  const chunkSize = NUM_DAYS / 5;
+  const chunks = chunk(dates, chunkSize);
+  return chunks.map((c) => c[0]);
+};
+
+// Projection should show 8 data points, the current day + 7 days
+const NEXT_SEVEN_DAYS_PROJECTION = 8;
 
 type ProjectedCases = {
   projectedStaffCases: number[];
@@ -251,10 +277,7 @@ function findClosestVersionForDates(versions: ModelInputs[], date: Date) {
  * @returns actualData - An object of staff/incarcerated cases/fatalities 90 day arrays
  */
 export function getFacilitiesData(modelVersions: ModelInputs[]) {
-  const datesInterval = dateFns.eachDayOfInterval({
-    start: ninetyDaysAgo(),
-    end: today(),
-  });
+  const datesInterval = ninetyDayInterval();
 
   const actualData: FacilitiesData = {
     staffCases: [],
@@ -435,12 +458,12 @@ function get7DayProjection(
 ): ProjectedCases {
   const curveData = calculateCurveData(
     epidemicModelInputs,
-    SEVEN_DAY_PROJECTION,
+    NEXT_SEVEN_DAYS_PROJECTION,
   );
 
   const zeroProjection = {
-    projectedStaffCases: Array(SEVEN_DAY_PROJECTION).fill(0),
-    projectedIncarceratedCases: Array(SEVEN_DAY_PROJECTION).fill(0),
+    projectedStaffCases: Array(NEXT_SEVEN_DAYS_PROJECTION).fill(0),
+    projectedIncarceratedCases: Array(NEXT_SEVEN_DAYS_PROJECTION).fill(0),
   };
 
   if (!curveData) return zeroProjection;
@@ -471,9 +494,9 @@ export function get7DayProjectionChartData(
     get7DayProjection,
   );
 
-  let totalActiveCases = Array(SEVEN_DAY_PROJECTION).fill(0);
+  let totalActiveCases = Array(NEXT_SEVEN_DAYS_PROJECTION).fill(0);
 
-  for (let index = 0; index < SEVEN_DAY_PROJECTION; index++) {
+  for (let index = 0; index < NEXT_SEVEN_DAYS_PROJECTION; index++) {
     facilitiesProjections.forEach((facility) => {
       totalActiveCases[index] +=
         facility.projectedIncarceratedCases[index] +

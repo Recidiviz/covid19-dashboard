@@ -4,15 +4,14 @@ import React from "react";
 import { ResponsiveXYFrame } from "semiotic";
 import styled from "styled-components";
 
-import ChartWrapper from "../design-system/ChartWrapper";
 import Colors from "../design-system/Colors";
 import Loading from "../design-system/Loading";
 import { useFacilities } from "../facilities-context";
 import { useLocaleDataState } from "../locale-data-context";
 import ImpactToDateTable from "./ImpactToDateTable";
-import * as chartUtils from "./projectionChartUtils";
 import { LegendContainer, LegendText } from "./shared";
-import { HorizontalRule } from "./shared/index";
+import { CHART_MARGINS, ChartHeader, HorizontalRule } from "./shared";
+import * as chartUtils from "./shared/projectionChartUtils";
 import { useWeeklyReport } from "./weekly-report-context";
 
 const ImpactProjectionContainer = styled.div`
@@ -20,15 +19,12 @@ const ImpactProjectionContainer = styled.div`
   margin-bottom: 5vw;
 `;
 
-const ChartTitle = styled.h3`
-  font-size: 11px;
-  font-weight: bold;
-  line-height: 13px;
-  margin: 0 5vw;
+const CurveChartContainer = styled.div`
+  margin-bottom: 50px;
 `;
 
-const CurveChartWrapper = styled(ChartWrapper)<{ chartHeight: number }>`
-  height: ${(props) => props.chartHeight}px;
+const CurveChartWrapper = styled.div`
+  height: 700px;
   display: flex;
   flex-flow: column;
 
@@ -60,8 +56,8 @@ const formatThousands = format(",~g");
 const lineColors: { [key in string]: string } = {
   projectedCases: Colors.forest50,
   projectedFatalities: Colors.black50,
-  actualCases: Colors.black,
-  actualFatalities: Colors.tamarillo,
+  cases: Colors.black,
+  fatalities: Colors.tamarillo,
 };
 
 const ImpactProjectionChart: React.FC = () => {
@@ -108,8 +104,11 @@ const ImpactProjectionChart: React.FC = () => {
     responsiveHeight: true,
     responsiveWidth: true,
     size: [450, 450],
-    yExtent: { extent: [0], includeAnnotations: false },
-    margin: { left: 100, bottom: 60, right: 100, top: 10 },
+    yExtent: {
+      extent: [0, projectedCasesToday + 1000],
+      includeAnnotations: false,
+    },
+    margin: CHART_MARGINS,
     lineStyle: ({ key }: { key: string }) => {
       const baseStyle = {
         stroke: lineColors[key],
@@ -126,15 +125,15 @@ const ImpactProjectionChart: React.FC = () => {
       {
         orient: "bottom",
         label: "Date",
-        tickValues: [chartUtils.ninetyDaysAgo(), chartUtils.today()],
+        baseline: "under",
+        tickLineGenerator: () => null,
+        tickValues: chartUtils.xAxisTickValues(),
         tickFormat: (value: Date) => dateFns.format(value, "MM/dd"),
       },
       {
         orient: "left",
         baseline: "under",
-        tickLineGenerator: function HideTickLines() {
-          return <path style={{ fill: "none" }} />;
-        },
+        tickLineGenerator: () => null,
         tickFormat: formatThousands,
       },
     ],
@@ -164,7 +163,6 @@ const ImpactProjectionChart: React.FC = () => {
       {
         type: "react-annotation",
         color: Colors.black,
-        disable: ["connector"],
         date: chartUtils.ninetyDaysAgo(),
         count: actualCasesDay90,
         note: {
@@ -194,24 +192,25 @@ const ImpactProjectionChart: React.FC = () => {
       ) : (
         <>
           <ImpactToDateTable {...tableData} />
-          <ChartTitle>
+          <ChartHeader>
             Projection Assuming No Intervention vs. Actual Cumulative Cases
-          </ChartTitle>
-          <CurveChartWrapper chartHeight={700}>
-            <ResponsiveXYFrame {...frameProps} />
-          </CurveChartWrapper>
+          </ChartHeader>
+          <HorizontalRule />
+          <CurveChartContainer>
+            <CurveChartWrapper>
+              <ResponsiveXYFrame {...frameProps} />
+            </CurveChartWrapper>
+          </CurveChartContainer>
           <HorizontalRule />
           <LegendContainer>
             <LegendText legendColor={lineColors.projectedCases}>
               Projected cases w/o intervention
             </LegendText>
-            <LegendText legendColor={lineColors.actualCases}>
-              Actual cases
-            </LegendText>
+            <LegendText legendColor={lineColors.cases}>Actual cases</LegendText>
             <LegendText legendColor={lineColors.projectedFatalities}>
               Projected fatalities w/o intervention
             </LegendText>
-            <LegendText legendColor={lineColors.actualFatalities}>
+            <LegendText legendColor={lineColors.fatalities}>
               Actual fatalities
             </LegendText>
           </LegendContainer>

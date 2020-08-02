@@ -6,7 +6,7 @@ import {
 } from "../hooks/useAddCasesInputs";
 import { formatThousands } from "../impact-dashboard/ImpactProjectionTable";
 import { Facility } from "../page-multi-facility/types";
-import { COLUMN_SPACING } from "./shared";
+import { COLUMN_SPACING, HorizontalRule } from "./shared";
 import StatsTable, {
   StatsTableRow,
   ValueDescriptionWithDelta,
@@ -86,9 +86,12 @@ const FacilitySummaryTable: React.FC<{
   ];
 
   return (
-    <StatsTable header="Facility Summary">
-      <StatsTableRow columns={tableData} columnMarginRight={COLUMN_SPACING} />
-    </StatsTable>
+    <>
+      <HorizontalRule />
+      <StatsTable header="Facility Summary">
+        <StatsTableRow columns={tableData} columnMarginRight={COLUMN_SPACING} />
+      </StatsTable>
+    </>
   );
 };
 

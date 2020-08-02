@@ -4,6 +4,7 @@ import Colors from "../../design-system/Colors";
 
 export const COLUMN_SPACING = "20px";
 export const TOP_BOTTOM_MARGIN = "10px";
+export const CHART_MARGINS = { left: 100, bottom: 60, right: 100, top: 10 };
 
 export const DELTA_DIRECTION_MAPPING = {
   positive: "↑ ",
@@ -65,6 +66,22 @@ export const STATE_CODE_MAPPING = {
   "Wyoming": "WY",
 };
 
+export const FooterContainer = styled.div`
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  padding: ${TOP_BOTTOM_MARGIN} 0;
+  width: 100%;
+`;
+
+export const FooterText = styled.div`
+  color: ${Colors.black};
+  font-size: 12px;
+  font-family: "Libre Franklin";
+  font-weight: 500;
+  letter-spacing: -0.01em;
+`;
+
 export const Delta = styled.div<{ deltaDirection?: string }>`
   color: ${(props) =>
     props.deltaDirection == "positive"
@@ -99,16 +116,7 @@ export const BorderDiv = styled.div<{ marginRight?: string }>`
 
 export const HorizontalRule = styled.hr<{ marginRight?: string }>`
   border-color: ${Colors.opacityGray};
-  margin-top: 10px;
   margin-right: ${(props) => props.marginRight || "0px"};
-`;
-
-export const TableHeadingCell = styled.th`
-  font-family: "Libre Franklin";
-  font-weight: bold;
-  font-size: 11px;
-  line-height: 13px;
-  vertical-align: middle;
 `;
 
 export const RankContainer = styled.div`
@@ -122,7 +130,7 @@ export const RankContainer = styled.div`
 
 export const RankText = styled.td`
   font-family: "Libre Franklin";
-  font-size: 11px;
+  font-size: 13px;
   margin-right: 10px;
   align-items: baseline;
 `;
@@ -148,7 +156,7 @@ export const TextContainerHeading = styled.div<{
 
 export const TextContainer = styled.div`
   width: 100%;
-  margin: 10px 0;
+  margin: 12px 0;
   display: flex;
   justify-content: space-between;
   align-items: baseline;
@@ -180,20 +188,22 @@ export const Left = styled.div<{
 export const TableCell = styled.td<{ label?: boolean }>`
   font-size: 13px;
   line-height: 200%;
-  text-align: "left";
   width: ${(props) => (props.label ? "200px" : "auto")};
 `;
 
 export const Heading = styled.div`
-  font-weight: 700;
+  color: ${Colors.black};
+  font-family: "Libre Franklin";
+  font-size: 13px;
+  font-weight: bold;
   line-height: 13px;
-  border-top: 1px solid ${Colors.darkGray};
-  padding: 10px 0;
+  padding: ${TOP_BOTTOM_MARGIN} 0;
 `;
 
 export const DeltaContainer = styled.div`
   display: flex;
   justify-content: flex-end;
+  font-size: 14px;
 `;
 
 export const SnapshotPageContainer = styled.div`
@@ -229,7 +239,7 @@ export const PageHeader = styled.div`
   margin-bottom: 3px;
   font-family: "Libre Baskerville";
   text-align: left;
-  padding-top: 10px;
+  padding-top: ${TOP_BOTTOM_MARGIN};
 `;
 
 export const PageSubheader = styled.div`
@@ -256,7 +266,7 @@ export const Image = styled.img`
   -webkit-border-radius: 40px;
   border: 1px solid black;
   padding-top: 5px;
-  margin-top: 10px;
+  margin-top: ${TOP_BOTTOM_MARGIN};
   margin-bottom: -10px;
 `;
 
@@ -276,7 +286,7 @@ export const LegendContainer = styled.div`
   color: ${Colors.black};
   display: flex;
   flex-flow: row nowrap;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 500;
   margin: 10px 0;
 `;
@@ -328,7 +338,7 @@ export const ValueDescription = styled.div<{
   marginRight?: string;
   marginTop?: string;
 }>`
-  font-size: 12px;
+  font-size: 14px;
   letter-spacing: -0.01em;
   margin-top: ${(props) => props.marginTop || "0px"};
   margin-right: ${(props) => props.marginRight || "0px"};
@@ -337,4 +347,27 @@ export const ValueDescription = styled.div<{
 
 export const TableCellContainer = styled.div<{ marginRight?: string }>`
   margin-right: ${(props) => props.marginRight || "0px"};
+`;
+
+export const CellHeaderContainer = styled.div`
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+`;
+
+export const ChartHeader = styled.h3`
+  color: ${Colors.black};
+  font-family: "Libre Franklin";
+  font-style: normal;
+  font-weight: bold;
+  font-size: 13px;
+  line-height: 13px;
+  margin-bottom: 1vw;
+`;
+
+export const ChartHeaderContainer = styled.div`
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  align-items: baseline;
 `;

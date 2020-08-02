@@ -140,7 +140,7 @@ const WeeklySnapshotPage: React.FC = () => {
                 <LocaleSummary />
                 <ImpactProjectionChart />
               </SnapshotPage>
-              <SnapshotPage header="System Snapshot" subheader>
+              <SnapshotPage header="System Snapshot">
                 <SystemWideProjectionChart />
                 <LocaleStatsTable />
               </SnapshotPage>

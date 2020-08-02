@@ -1,10 +1,10 @@
 import { get } from "lodash";
 import React from "react";
-import styled from "styled-components";
 
 import { formatThousands } from "../../impact-dashboard/ImpactProjectionTable";
 import {
   BorderDiv,
+  CellHeaderContainer,
   COLUMN_SPACING,
   Delta,
   DELTA_DIRECTION_MAPPING,
@@ -21,12 +21,6 @@ import {
   Value,
   ValueDescription,
 } from ".";
-
-const HeaderContainer = styled.div`
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: space-between;
-`;
 
 export const ValueDescriptionWithDelta: React.FC<{
   deltaDirection: string;
@@ -47,6 +41,7 @@ export const ValueDescriptionWithDelta: React.FC<{
 type ColumnData = {
   header: string;
   subheader?: string;
+  marginRight?: string;
   value: string;
   valueDescription?: React.ReactElement | undefined;
 };
@@ -64,14 +59,16 @@ export const StatsTableRow: React.FC<StatsTableRowProps> = ({
     <tr>
       {columns.map((columnData: ColumnData, index) => (
         <TableCell key={`${columnData.header}-${index}`}>
-          <TableCellContainer marginRight={columnMarginRight}>
+          <TableCellContainer
+            marginRight={columnData.marginRight || columnMarginRight}
+          >
             <BorderDiv />
-            <HeaderContainer>
+            <CellHeaderContainer>
               <Header>{columnData.header}</Header>
               {columnData.subheader && (
                 <SubHeader>{columnData.subheader}</SubHeader>
               )}
-            </HeaderContainer>
+            </CellHeaderContainer>
             <HorizontalRule />
             <TextContainer>
               <Value>{columnData.value}</Value>
@@ -85,15 +82,14 @@ export const StatsTableRow: React.FC<StatsTableRowProps> = ({
 };
 
 interface StatesTableProps {
-  header: string;
+  header?: string;
   children: React.ReactNode;
 }
 
 const StatsTable: React.FC<StatesTableProps> = ({ header, children }) => {
   return (
-    <>
-      <HorizontalRule />
-      <Table>
+    <Table>
+      {header && (
         <thead>
           <tr>
             <TableHeading>
@@ -103,9 +99,9 @@ const StatsTable: React.FC<StatesTableProps> = ({ header, children }) => {
             </TableHeading>
           </tr>
         </thead>
-        <tbody>{children}</tbody>
-      </Table>
-    </>
+      )}
+      <tbody>{children}</tbody>
+    </Table>
   );
 };
 
