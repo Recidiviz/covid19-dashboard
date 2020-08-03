@@ -111,8 +111,9 @@ const FacilityRow: React.FC<Props> = ({ facility, facilityRtData, onSave }) => {
   const confirmedCases = totalConfirmedCases(model);
   const population = totalIncarceratedPopulation(model);
 
-  const openFacilityPage = () => {
-    selectFacility(facility.id);
+  const openFacilityPage = async () => {
+    await selectFacility(facility.id);
+    console.log(facility);
     navigate("/facility");
   };
 

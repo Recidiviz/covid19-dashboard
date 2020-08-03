@@ -25,13 +25,14 @@ export function deselectFacility(dispatch: FacilitiesDispatch) {
   };
 }
 
-export function selectFacility(dispatch: FacilitiesDispatch) {
-  return (facilityId: Facility["id"]) => {
-    dispatch({
-      type: SELECT_FACILITY,
-      payload: facilityId,
-    });
-  };
+export async function selectFacility(
+  facilityId: string,
+  dispatch: FacilitiesDispatch,
+) {
+  dispatch({
+    type: SELECT_FACILITY,
+    payload: facilityId,
+  });
 }
 
 export function requestFacilities(dispatch: FacilitiesDispatch) {

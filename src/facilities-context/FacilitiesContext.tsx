@@ -43,7 +43,7 @@ export type ExportedActions = {
   ) => Promise<void>;
   duplicateFacility: (facility: Facility) => Promise<Facility | void>;
   deselectFacility: () => void;
-  selectFacility: (facilityId: Facility["id"]) => void;
+  selectFacility: (facilityId: Facility["id"]) => Promise<void>;
   fetchReferenceFacilities: (
     stateName: string,
     systemType: string,
@@ -129,7 +129,9 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     },
     deselectFacility: facilitiesActions.deselectFacility(dispatch),
-    selectFacility: facilitiesActions.selectFacility(dispatch),
+    selectFacility: async (facilityId: string): Promise<void> => {
+      facilitiesActions.selectFacility(facilityId, dispatch);
+    },
     fetchReferenceFacilities: async (
       stateName: string,
       systemType: string,
