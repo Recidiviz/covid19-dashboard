@@ -50,9 +50,9 @@ function formatRankText(rank: number) {
   if (rank === 0) return null;
   // Based on whether rank > 25 or rank <= 25. Example: 42nd lowest = 8th highest
   const rankOver25 = rank > 25;
-  const leveledRank = rankOver25 ? 50 - rank : rank;
+  const leveledRank = rankOver25 ? 51 - rank : rank;
   const rankLevel = rankOver25 ? "highest" : "lowest";
-  if (rank === 50) {
+  if (rank === NUM_STATES) {
     return `Highest of ${NUM_STATES} states`;
   } else if (rank === 1) {
     return `Lowest of ${NUM_STATES} states`;
