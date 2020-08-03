@@ -46,6 +46,21 @@ function formatOrdinal(value: number) {
   return value + (suffix[(rem - 20) % 10] || suffix[rem] || suffix[0]);
 }
 
+function formatRankText(rank: number) {
+  if (rank === 0) return null;
+  // Based on whether rank > 25 or rank <= 25. Example: 42nd lowest = 8th highest
+  const rankOver25 = rank > 25;
+  const leveledRank = rankOver25 ? 50 - rank : rank;
+  const rankLevel = rankOver25 ? "highest" : "lowest";
+  if (rank === 50) {
+    return `Highest of ${NUM_STATES} states`;
+  } else if (rank === 1) {
+    return `Lowest of ${NUM_STATES} states`;
+  } else {
+    return `${formatOrdinal(leveledRank)} ${rankLevel} of ${NUM_STATES}`;
+  }
+}
+
 function getRate(
   numerator: number | undefined,
   denominator: number | undefined,
@@ -217,11 +232,9 @@ const LocaleSummaryTable: React.FC<{
     {
       header: "Overall State Cases",
       subheader: "(per 100k)",
-      value: formatThousands(casesRate),
+      value: casesRate ? formatThousands(casesRate) : NO_DATA,
       valueDescription: (
-        <ValueDescription>
-          {formatOrdinal(casesRateRank)} lowest of {NUM_STATES}
-        </ValueDescription>
+        <ValueDescription>{formatRankText(casesRateRank)}</ValueDescription>
       ),
     },
   ];
@@ -235,11 +248,9 @@ const LocaleSummaryTable: React.FC<{
     {
       header: "Overall State Fatalities",
       subheader: "(per 100k)",
-      value: formatThousands(deathsRate),
+      value: deathsRate ? formatThousands(deathsRate) : NO_DATA,
       valueDescription: (
-        <ValueDescription>
-          {formatOrdinal(deathsRateRank)} lowest of {NUM_STATES}
-        </ValueDescription>
+        <ValueDescription>{formatRankText(deathsRateRank)}</ValueDescription>
       ),
     },
   ];
