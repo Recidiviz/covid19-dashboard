@@ -91,6 +91,11 @@ const FacilityRow: React.FC<Props> = ({ facility, facilityRtData, onSave }) => {
   } = useFacilities();
   const [model] = useModel();
 
+  const openFacilityPage = async () => {
+    await selectFacility(facility.id);
+    navigate("/facility");
+  };
+
   const latestRt = isRtData(facilityRtData)
     ? getNewestRt(facilityRtData.Rt)?.value
     : facilityRtData;
@@ -110,11 +115,6 @@ const FacilityRow: React.FC<Props> = ({ facility, facilityRtData, onSave }) => {
   const { name, updatedAt } = facility;
   const confirmedCases = totalConfirmedCases(model);
   const population = totalIncarceratedPopulation(model);
-
-  const openFacilityPage = async () => {
-    await selectFacility(facility.id);
-    navigate("/facility");
-  };
 
   return (
     <FacilityRowDiv
