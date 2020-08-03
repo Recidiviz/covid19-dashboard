@@ -113,7 +113,6 @@ const FacilityRow: React.FC<Props> = ({ facility, facilityRtData, onSave }) => {
 
   const openFacilityPage = async () => {
     await selectFacility(facility.id);
-    console.log(facility);
     navigate("/facility");
   };
 
