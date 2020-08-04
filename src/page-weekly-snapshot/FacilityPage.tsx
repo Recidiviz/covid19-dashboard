@@ -34,8 +34,6 @@ import {
 } from "./shared";
 import SnapshotPage from "./SnapshotPage";
 
-const DURATION = 21;
-
 const ProjectionSection = styled.div`
   margin-top: 10px;
   padding: 5px 0;
@@ -102,12 +100,7 @@ function makeHeadingRow() {
 }
 
 const FacilityPage: React.FC<Props> = ({ facility, rtData }) => {
-  const curveData = useProjectionData(
-    useEpidemicModelState(),
-    true,
-    rtData,
-    DURATION,
-  );
+  const curveData = useProjectionData(useEpidemicModelState(), true, rtData);
   if (!curveData) return <Loading />;
   const { incarcerated, staff } = curveData;
   const incarceratedData = buildIncarceratedData(incarcerated);
