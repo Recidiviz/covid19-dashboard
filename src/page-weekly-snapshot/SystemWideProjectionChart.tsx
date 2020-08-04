@@ -142,7 +142,9 @@ const SystemWideProjectionChart: React.FC = () => {
         orient: "bottom",
         baseline: "under",
         label: "Date",
-        tickValues: chartData[0].coordinates.map((d) => d.date),
+        tickValues: chartData[0]
+          ? chartData[0].coordinates.map((d) => d.date)
+          : [],
         tickFormat: (d: any) => d.getMonth() + 1 + "/" + d.getDate(),
       },
       {
