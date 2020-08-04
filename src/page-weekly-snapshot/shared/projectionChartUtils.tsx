@@ -480,13 +480,14 @@ function get7DayProjection(
  *
  * @param modelVersions - An array of modelVersions for multiple facilities
  * @param localeDataSource - LocaleData from the LocaleDataContext
- * @returns totalActiveCases - Array of 7 values for active cases
+ * @returns { incarcerated, staff } - Object with incarcerated/staff array of
+ * 7 values for active cases for each bucket
  *
  */
 export function get7DayProjectionChartData(
   modelVersions: ModelInputs[][],
   localeDataSource: LocaleData,
-) {
+): { [key: string]: number[] } {
   const facilitiesProjections: ProjectedCases[] = getFacilitiesProjectionData(
     modelVersions,
     localeDataSource,
@@ -494,15 +495,19 @@ export function get7DayProjectionChartData(
     get7DayProjection,
   );
 
-  let totalActiveCases = Array(NEXT_SEVEN_DAYS_PROJECTION).fill(0);
+  let totalActiveIncarceratedCases = Array(NEXT_SEVEN_DAYS_PROJECTION).fill(0);
+  let totalActiveStaffCases = Array(NEXT_SEVEN_DAYS_PROJECTION).fill(0);
 
   for (let index = 0; index < NEXT_SEVEN_DAYS_PROJECTION; index++) {
     facilitiesProjections.forEach((facility) => {
-      totalActiveCases[index] +=
-        facility.projectedIncarceratedCases[index] +
-        facility.projectedStaffCases[index];
+      totalActiveIncarceratedCases[index] +=
+        facility.projectedIncarceratedCases[index];
+      totalActiveStaffCases[index] += facility.projectedStaffCases[index];
     });
   }
 
-  return totalActiveCases;
+  return {
+    incarcerated: totalActiveIncarceratedCases,
+    staff: totalActiveStaffCases,
+  };
 }

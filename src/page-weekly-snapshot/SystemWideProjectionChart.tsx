@@ -1,5 +1,6 @@
 import { curveCatmullRom, scaleTime } from "d3";
 import * as dateFns from "date-fns";
+import { flatten } from "lodash";
 import React from "react";
 import { ResponsiveXYFrame } from "semiotic";
 import styled from "styled-components";
@@ -56,8 +57,9 @@ const CurveChartWrapper = styled.div`
   }
 `;
 
-const legendColors = {
-  projected: Colors.black,
+const legendColors: { [key in string]: string } = {
+  incarcerated: Colors.black,
+  staff: Colors.forest50,
   today: Colors.tamarillo,
 };
 
@@ -81,15 +83,36 @@ const SystemWideProjectionChart: React.FC = () => {
     modelVersions,
     localeDataSource,
   );
-  const maxValue = Math.max(...activeCases);
-  const chartData = activeCases.map((cases, index) => {
-    return {
+
+  const maxValue = Math.max(...activeCases.incarcerated, ...activeCases.staff);
+
+  const chartData = Object.entries(activeCases).map(([bucket, values]) => ({
+    title: bucket,
+    key: bucket,
+    coordinates: values.map((cases: number, index) => ({
       cases,
       date: dateFns.addDays(chartUtils.today(), index),
-      color: index === 0 ? legendColors.today : legendColors.projected,
-    };
-  });
+      color: index === 0 ? legendColors.today : legendColors[bucket],
+    })),
+  }));
 
+  const annotations = flatten(
+    chartData.map(({ coordinates }) => {
+      return coordinates.map((data) => {
+        return {
+          type: "react-annotation",
+          disable: ["connector"],
+          note: {
+            label: `${data.cases}`,
+            orientation: "topBottom",
+            align: "top",
+            padding: 10,
+          },
+          ...data,
+        };
+      });
+    }),
+  );
   const frameProps = {
     showLinePoints: true,
     lines: chartData,
@@ -101,12 +124,12 @@ const SystemWideProjectionChart: React.FC = () => {
     responsiveWidth: true,
     yExtent: [0, maxValue + 50],
     margin: CHART_MARGINS,
-    lineStyle: {
-      stroke: legendColors.projected,
+    lineStyle: ({ key }: { key: string }) => ({
+      stroke: legendColors[key],
       strokeWidth: 2,
-      fill: legendColors.projected,
+      fill: legendColors[key],
       fillOpacity: 1,
-    },
+    }),
     pointStyle: (d: any) => {
       return {
         fill: d.color,
@@ -119,7 +142,9 @@ const SystemWideProjectionChart: React.FC = () => {
         orient: "bottom",
         baseline: "under",
         label: "Date",
-        tickValues: chartData.map((d) => d.date),
+        tickValues: chartData[0]
+          ? chartData[0].coordinates.map((d) => d.date)
+          : [],
         tickFormat: (d: any) => d.getMonth() + 1 + "/" + d.getDate(),
       },
       {
@@ -134,20 +159,7 @@ const SystemWideProjectionChart: React.FC = () => {
         padding: -5,
       },
     },
-    annotations: [
-      ...chartData.map((data) => {
-        return {
-          type: "react-annotation",
-          disable: ["connector"],
-          note: {
-            label: `${data.cases}`,
-            orientation: "topBottom",
-            align: "top",
-          },
-          ...data,
-        };
-      }),
-    ],
+    annotations,
   };
 
   return (
@@ -160,8 +172,11 @@ const SystemWideProjectionChart: React.FC = () => {
             System-Wide Projection for Facilities with Active Cases
           </ChartHeader>
           <LegendContainer>
-            <LegendText legendColor={legendColors.projected}>
-              Projected Cases
+            <LegendText legendColor={legendColors.incarcerated}>
+              Projected Incarcerated Cases
+            </LegendText>
+            <LegendText legendColor={legendColors.staff}>
+              Projected Staff Cases
             </LegendText>
             <LegendText legendColor={legendColors.today}>
               Cases Today
