@@ -126,6 +126,7 @@ export function buildStaffData({
     buildTableRowFromCurves(staff, "Cases", countCasesForDay),
     Object.assign(
       buildTableRowFromCurves(staff, "Unable to work", countUnableToWorkForDay),
+      { overall: null },
     ),
   ];
   showHospitalizedRow && staffData.push(staffHospitalized);
