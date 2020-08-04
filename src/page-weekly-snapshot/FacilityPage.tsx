@@ -34,7 +34,7 @@ import {
 } from "./shared";
 import SnapshotPage from "./SnapshotPage";
 
-const DURATION = 21;
+const DURATION = 22;
 
 const ProjectionSection = styled.div`
   margin-top: 10px;
