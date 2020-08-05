@@ -55,9 +55,7 @@ const formatThousands = format(",~g");
 
 const lineColors: { [key in string]: string } = {
   projectedCases: Colors.forest50,
-  projectedFatalities: Colors.black50,
   cases: Colors.black,
-  fatalities: Colors.tamarillo,
 };
 
 const ImpactProjectionChart: React.FC = () => {
@@ -116,7 +114,7 @@ const ImpactProjectionChart: React.FC = () => {
         fill: lineColors[key],
         fillOpacity: 1,
       };
-      if (key === "projectedCases" || key === "projectedFatalities") {
+      if (key === "projectedCases") {
         return { ...baseStyle, strokeDasharray: "5px" };
       }
       return baseStyle;
@@ -207,12 +205,6 @@ const ImpactProjectionChart: React.FC = () => {
               Projected cases w/o intervention
             </LegendText>
             <LegendText legendColor={lineColors.cases}>Actual cases</LegendText>
-            <LegendText legendColor={lineColors.projectedFatalities}>
-              Projected fatalities w/o intervention
-            </LegendText>
-            <LegendText legendColor={lineColors.fatalities}>
-              Actual fatalities
-            </LegendText>
           </LegendContainer>
           <HorizontalRule />
         </>

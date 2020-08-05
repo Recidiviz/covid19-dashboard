@@ -73,9 +73,7 @@ interface FacilitiesData {
 interface ChartData {
   [key: string]: number[];
   cases: number[];
-  fatalities: number[];
   projectedCases: number[];
-  projectedFatalities: number[];
 }
 
 export interface TableData {
@@ -363,8 +361,7 @@ export function getFacilitiesProjectionData(
  *
  * @param modelVersions - An array of modelVersions for multiple facilities
  * @param localeDataSource - LocaleData from the LocaleDataContext
- * @returns tableData, chartData - { projectedCases: [0..89], cases: [0..89],
- * fatalities: [0..89], projectedCases: [0..89] }
+ * @returns tableData, chartData - { projectedCases: [0..89], cases: [0..89], }
  */
 export function getImpactChartAndTableData(
   modelVersions: ModelInputs[][],
@@ -380,9 +377,7 @@ export function getImpactChartAndTableData(
 
   const chartData: ChartData = {
     projectedCases: addProjectionPadding([]),
-    projectedFatalities: addProjectionPadding([]),
     cases: addProjectionPadding([]),
-    fatalities: addProjectionPadding([]),
   };
 
   const tableData: TableData = {
@@ -401,9 +396,6 @@ export function getImpactChartAndTableData(
       // Sum staff+incarcerated across all facilities
       chartData.cases[index] +=
         facilityData.staffCases[index] + facilityData.incarceratedCases[index];
-      chartData.fatalities[index] +=
-        facilityData.staffFatalities[index] +
-        facilityData.incarceratedFatalities[index];
 
       // Sum the values across all facilities for today's index
       if (index === NUM_DAYS) {
@@ -421,9 +413,6 @@ export function getImpactChartAndTableData(
       chartData.projectedCases[index] +=
         projection.projectedStaffCases[index] +
         projection.projectedIncarceratedCases[index];
-      chartData.projectedFatalities[index] +=
-        projection.projectedStaffFatalities[index] +
-        projection.projectedIncarceratedFatalities[index];
 
       // Sum the values across all facilities for today's index
       if (index === NUM_DAYS) {
