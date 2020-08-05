@@ -43,16 +43,20 @@ const WrappedInput = styled(CustomDebounceInput)`
     background-color: transparent;
   }
 `;
-//${(props) => (!props?.isReference ? "none" : "auto")}}
 
-const InlineIcon = styled.img`
-  display: auto;
-  position: absolute;
+const InlineIcon = styled.img<{ isReference?: boolean }>`
+  display: ${(props) => (!props?.isReference ? "none" : "auto")}}
+  position: relative;
 `;
-// isReference={props.isReference}
 
 const ReferenceIcon: React.FC<{ isReference?: boolean }> = (props) => {
-  return <InlineIcon src={icDataSyncSelected} alt="reference data" />;
+  return (
+    <InlineIcon
+      src={icDataSyncSelected}
+      isReference={props.isReference}
+      alt="reference data"
+    />
+  );
 };
 
 interface Props extends InputBaseProps<string> {
@@ -69,7 +73,6 @@ interface Props extends InputBaseProps<string> {
 }
 
 const InputText: React.FC<Props> = (props) => {
-  console.log(props);
   const nameInput = useRef() as React.MutableRefObject<HTMLInputElement>;
 
   useEffect(() => {
