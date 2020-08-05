@@ -69,6 +69,7 @@ interface Props extends InputBaseProps<string> {
 }
 
 const InputText: React.FC<Props> = (props) => {
+  console.log(props);
   const nameInput = useRef() as React.MutableRefObject<HTMLInputElement>;
 
   useEffect(() => {
