@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 
 import Colors from "./Colors";
+import icDataSyncSelected from "./icons/ic_data_sync_selected.svg";
 import { CustomDebounceInput, InputBaseProps, InputStyle } from "./Input";
 import InputLabelAndHelp from "./InputLabelAndHelp";
 
@@ -18,11 +19,9 @@ const TextInputContainer = styled.div`
 
 const InputWrapper = styled.div`
   ${InputStyle}
-
   align-items: center;
   display: flex;
   flex-direction: row;
-
   &.relativeAmountError--active {
     background-color: ${Colors.darkRed10};
   }
@@ -32,6 +31,7 @@ const WrappedInput = styled(CustomDebounceInput)`
   ${InputStyle}
   margin: 0;
   padding: 0;
+  padding-left: 22px;
 
   /*
     This is a little weird but we need a fixed number to override
@@ -43,6 +43,17 @@ const WrappedInput = styled(CustomDebounceInput)`
     background-color: transparent;
   }
 `;
+//${(props) => (!props?.isReference ? "none" : "auto")}}
+
+const InlineIcon = styled.img`
+  display: auto;
+  position: absolute;
+`;
+// isReference={props.isReference}
+
+const ReferenceIcon: React.FC<{ isReference?: boolean }> = (props) => {
+  return <InlineIcon src={icDataSyncSelected} alt="reference data" />;
+};
 
 interface Props extends InputBaseProps<string> {
   type: "text" | "number" | "email";
@@ -54,6 +65,7 @@ interface Props extends InputBaseProps<string> {
   required?: boolean;
   style?: object;
   inputRelativityError?: boolean;
+  isReference?: boolean;
 }
 
 const InputText: React.FC<Props> = (props) => {
@@ -61,7 +73,6 @@ const InputText: React.FC<Props> = (props) => {
 
   useEffect(() => {
     if (!props.focus) return;
-
     nameInput.current.focus();
   }, []);
 
@@ -74,6 +85,7 @@ const InputText: React.FC<Props> = (props) => {
           props.inputRelativityError ? "relativeAmountError--active" : ""
         }
       >
+        <ReferenceIcon isReference={props.isReference} />
         <WrappedInput
           type={props.type}
           inputRef={nameInput}

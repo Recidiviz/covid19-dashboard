@@ -392,6 +392,7 @@ const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
       <InputCell>
         <InputTextNumeric
           type="number"
+          isReference={true}
           valueEntered={model[props.thirdKey] as number}
           inputRelativityError={deathsInputRelativityError}
           onValueChange={(deaths) => {
