@@ -34,6 +34,7 @@ const ChartContainer = styled.div`
 
 interface ProjectionProps {
   curveData: CurveData | undefined;
+  latestRtValue: number | null;
 }
 
 export interface ChartData {
@@ -41,6 +42,7 @@ export interface ChartData {
 }
 
 const formatThousands = format(",~g");
+const formatRtValue = format(".2f");
 
 const legendColors: { [key in string]: string } = {
   exposed: Colors.green,
@@ -49,7 +51,10 @@ const legendColors: { [key in string]: string } = {
   fatalities: Colors.black,
 };
 
-const FacilityProjectionChart: React.FC<ProjectionProps> = ({ curveData }) => {
+const FacilityProjectionChart: React.FC<ProjectionProps> = ({
+  curveData,
+  latestRtValue,
+}) => {
   const chartData = pick(
     useChartDataFromProjectionData(curveData),
     Object.keys(legendColors),
@@ -104,7 +109,11 @@ const FacilityProjectionChart: React.FC<ProjectionProps> = ({ curveData }) => {
     <ChartContainer>
       <HorizontalRule />
       <ChartHeaderContainer>
-        <ChartHeader>Estimated Impact</ChartHeader>
+        <ChartHeader>
+          Estimated Impact{" "}
+          {latestRtValue &&
+            `(Estimated rate of spread: ${formatRtValue(latestRtValue)})`}
+        </ChartHeader>
         <LegendContainer>
           <LegendText legendColor={legendColors.exposed}>Exposed</LegendText>
           <LegendText legendColor={legendColors.infectious}>
