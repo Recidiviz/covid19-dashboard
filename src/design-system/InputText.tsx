@@ -31,7 +31,6 @@ const WrappedInput = styled(CustomDebounceInput)`
   ${InputStyle}
   margin: 0;
   padding: 0;
-  padding-left: 22px;
 
   /*
     This is a little weird but we need a fixed number to override
@@ -47,6 +46,8 @@ const WrappedInput = styled(CustomDebounceInput)`
 const InlineIcon = styled.img<{ isReference?: boolean }>`
   display: ${(props) => (!props?.isReference ? "none" : "auto")}}
   position: relative;
+  margin-left: -10px;
+  margin-right: 10px
 `;
 
 const ReferenceIcon: React.FC<{ isReference?: boolean }> = (props) => {
