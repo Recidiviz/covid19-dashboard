@@ -152,6 +152,7 @@ interface AgeGroupGridProps {
   setWarnedAt: (warnedAt: number) => void;
   updatedAt?: Date;
   facilityModelVersions?: ModelInputs[] | undefined;
+  isReference?: boolean;
 }
 
 export const AgeGroupGrid: React.FC<AgeGroupGridProps> = ({
@@ -170,6 +171,7 @@ export const AgeGroupGrid: React.FC<AgeGroupGridProps> = ({
   );
 
   console.log(usedReferenceData);
+  props.isReference = usedReferenceData;
 
   const collapseAgeInputs = () => {
     if (pastAgesKnown(props.model)) {
@@ -275,7 +277,6 @@ export const AgeGroupGrid: React.FC<AgeGroupGridProps> = ({
             secondKey="ageUnknownRecovered"
             thirdKey="ageUnknownDeaths"
             lastKey="ageUnknownPopulation"
-            isReference={usedReferenceData}
             {...props}
           />
           <div
