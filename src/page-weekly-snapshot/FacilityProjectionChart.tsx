@@ -46,8 +46,8 @@ const formatRtValue = format(".2f");
 
 const legendColors: { [key in string]: string } = {
   exposed: Colors.green,
-  infectious: Colors.lightBlue,
-  hospitalized: Colors.darkRed,
+  infectious: Colors.darkRed,
+  hospitalized: Colors.lightBlue,
   fatalities: Colors.black,
 };
 
