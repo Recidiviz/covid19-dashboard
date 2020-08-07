@@ -55,12 +55,10 @@ function addDays(date: Date, days: number) {
   return result;
 }
 
-function calculateXTickValues() {
-  let increment = 0;
-  for (let i = 0; i < numXTicks; i++) {
-    increment += tickIntervals;
-    xTickValues.push(addDays(startOfToday(), increment));
-  }
+let increment = 0;
+for (let i = 0; i < numXTicks; i++) {
+  increment += tickIntervals;
+  xTickValues.push(addDays(startOfToday(), increment));
 }
 
 const legendColors: { [key in string]: string } = {
@@ -83,8 +81,6 @@ const FacilityProjectionChart: React.FC<ProjectionProps> = ({
   const maxValue = allValues && Math.max(...allValues);
 
   if (!chartData) return null;
-
-  calculateXTickValues();
 
   const frameProps = {
     lines: Object.entries(chartData).map(([bucket, values]) => ({
