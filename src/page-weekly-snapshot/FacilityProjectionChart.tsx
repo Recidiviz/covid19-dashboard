@@ -80,7 +80,7 @@ const FacilityProjectionChart: React.FC<ProjectionProps> = ({
     yAccessor: "count",
     responsiveHeight: true,
     responsiveWidth: true,
-    yExtent: [0, maxValue + 100],
+    yExtent: [0, maxValue],
     margin: CHART_MARGINS,
     lineStyle: ({ key }: { key: SeirCompartmentKeys }) => ({
       stroke: legendColors[key],
