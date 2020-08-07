@@ -108,7 +108,6 @@ const FacilityProjectionChart: React.FC<ProjectionProps> = ({
     axes: [
       {
         orient: "bottom",
-        ticks: numXTicks,
         tickFormat: (value: Date) => formatDate(new Date(value), "M/d"),
         tickValues: xTickValues,
       },
