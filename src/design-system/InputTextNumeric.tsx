@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import { InputBaseProps } from "./Input";
 import InputText from "./InputText";
+// import { useFacilities, getFacilityById } from "../facilities-context";
 
 interface Props extends InputBaseProps<number> {
   type: "number" | "percent";
@@ -41,9 +42,9 @@ const InputTextNumeric: React.FC<Props> = (props) => {
     }
   }
 
-  if (props.isReference) {
-    console.log("inputtextnumeric", props);
-  }
+  // if (props.isReference) {
+  //   console.log("inputtextnumeric", props);
+  // }
 
   return (
     <InputText

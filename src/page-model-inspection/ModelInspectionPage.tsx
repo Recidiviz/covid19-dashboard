@@ -79,7 +79,7 @@ const ModelInspectionPage: React.FC = () => {
       <ImpactDashboardVDiv>
         <FormColumn>
           <SubsectionHeader>Facility Population</SubsectionHeader>
-          <FacilityInformation />
+          <FacilityInformation facility={undefined} />
           <HorizontalDivider />
           <SubsectionHeader>COVID-19 Mitigation Efforts</SubsectionHeader>
           <MitigationInformation />

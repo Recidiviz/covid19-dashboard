@@ -17,6 +17,12 @@ import {
 } from "./EpidemicModelContext";
 import { FormGrid, FormGridCell, FormGridRow } from "./FormGrid";
 import useModel from "./useModel";
+// import { useFacilities, getFacilityById } from "../facilities-context";
+import startOfToday from "date-fns/startOfToday";
+import { Facility, ModelInputs } from "../page-multi-facility/types";
+import { startOfDay, isEqual } from "date-fns";
+// import useFacilityModelVersions from "../hooks/useFacilityModelVersions";
+// import facility from "../pages/facility";
 
 const FacilityInformationDiv = styled.div``;
 
@@ -124,6 +130,8 @@ interface AgeGroupGridProps {
   collapsible?: boolean;
   warnedAt: number;
   setWarnedAt: (warnedAt: number) => void;
+  updatedAt?: Date;
+  facilityModelVersions?:  ModelInputs[] | undefined;
 }
 
 export const AgeGroupGrid: React.FC<AgeGroupGridProps> = ({
@@ -131,6 +139,14 @@ export const AgeGroupGrid: React.FC<AgeGroupGridProps> = ({
   ...props
 }) => {
   const [collapsed, setCollapsed] = useState(collapsible);
+
+  // TODO: make default parameter
+  const observedAt = props.updatedAt ? props.updatedAt : startOfToday();
+  console.log(observedAt);
+
+  const usedReferenceData = observedAtDateUsesReferenceData(observedAt, props.facilityModelVersions);
+
+  console.log(usedReferenceData);
 
   const collapseAgeInputs = () => {
     if (pastAgesKnown(props.model)) {
@@ -275,6 +291,7 @@ interface AgeGroupRowProps {
   updateModel: (update: EpidemicModelUpdate) => void;
   warnedAt: number;
   setWarnedAt: (warnedAt: number) => void;
+  updatedAt?: Date;
 }
 
 const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
@@ -421,9 +438,31 @@ const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
   );
 };
 
-const FacilityInformation: React.FC = () => {
+interface Props {
+  facility: Facility | undefined;
+}
+
+export function observedAtDateUsesReferenceData(
+  observedAtDate: Date,
+  facilityModelVersions: ModelInputs[] | undefined,
+) {
+  console.log(observedAtDate, facilityModelVersions);
+  let usedReferenceData = false;
+  if (facilityModelVersions) {
+    // sort observed at dates
+    const x = facilityModelVersions.filter(function(facility) {
+      return isEqual(startOfDay(observedAtDate), startOfDay(facility.observedAt)) && facility.isReference;
+    });
+    console.log(x);
+  }
+  return usedReferenceData;
+}
+
+const FacilityInformation: React.FC<Props> = (props: Props) => {
   const [model, updateModel] = useModel();
   const [warnedAt, setWarnedAt] = useState(0);
+
+  const facilityModelVersions = props.facility?.modelVersions;
 
   return (
     <FacilityInformationDiv>
@@ -433,6 +472,7 @@ const FacilityInformation: React.FC = () => {
           updateModel={updateModel}
           warnedAt={warnedAt}
           setWarnedAt={setWarnedAt}
+          facilityModelVersions={facilityModelVersions}
         />
         <FormGrid>
           <FormRow

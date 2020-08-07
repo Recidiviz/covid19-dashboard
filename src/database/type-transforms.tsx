@@ -16,7 +16,10 @@ import { referenceFacilitiesProp } from ".";
 import { FacilityDocUpdate } from "./types";
 
 const timestampToDate = (timestamp: firebase.firestore.Timestamp): Date => {
-  return timestamp.toDate();
+  if (timestamp){
+    return timestamp.toDate();
+  }
+  return new Date();
 };
 
 const buildPlannedRelease = (plannedReleaseData: any): PlannedRelease => {

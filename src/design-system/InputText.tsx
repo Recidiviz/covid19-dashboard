@@ -46,8 +46,7 @@ const WrappedInput = styled(CustomDebounceInput)`
 const InlineIcon = styled.img<{ isReference?: boolean }>`
   display: ${(props) => (!props?.isReference ? "none" : "auto")}}
   position: relative;
-  margin-left: -10px;
-  margin-right: 10px
+  margin-left: 10px;
 `;
 
 const ReferenceIcon: React.FC<{ isReference?: boolean }> = (props) => {
@@ -79,7 +78,7 @@ const InputText: React.FC<Props> = (props) => {
   useEffect(() => {
     if (!props.focus) return;
     nameInput.current.focus();
-  }, []);
+  }, [props.focus, nameInput]);
 
   return (
     <TextInputContainer>
@@ -90,7 +89,6 @@ const InputText: React.FC<Props> = (props) => {
           props.inputRelativityError ? "relativeAmountError--active" : ""
         }
       >
-        <ReferenceIcon isReference={props.isReference} />
         <WrappedInput
           type={props.type}
           inputRef={nameInput}
@@ -107,6 +105,7 @@ const InputText: React.FC<Props> = (props) => {
           }
         />
         {props.children}
+        <ReferenceIcon isReference={props.isReference} />
       </InputWrapper>
     </TextInputContainer>
   );

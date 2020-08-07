@@ -196,6 +196,8 @@ const AddCasesModalContent: React.FC<Props> = ({
         collapsible={true}
         warnedAt={warnedAt}
         setWarnedAt={setWarnedAt}
+        updatedAt={observationDate || startOfToday()}
+        facilityModelVersions={facilityModelVersions}
       />
       <HorizRule />
       <InputButton label="Save" onClick={onSave} />
