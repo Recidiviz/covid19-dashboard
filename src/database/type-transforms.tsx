@@ -98,7 +98,11 @@ export const buildScenario = (
   let scenario: Scenario = documentData;
   scenario.id = document.id;
   scenario.createdAt = timestampToDate(documentData.createdAt);
-  scenario.updatedAt = timestampToDate(documentData.updatedAt);
+  scenario.updatedAt = timestampToDate(
+    // when Firestore writes are pending, updatedAt may be null since it's a server timestamp;
+    // we can substitute the local now in the meantime
+    documentData.updatedAt || firebase.firestore.Timestamp.now(),
+  );
   scenario.referenceDataObservedAt = documentData.referenceDataObservedAt
     ? timestampToDate(documentData.referenceDataObservedAt)
     : undefined;
