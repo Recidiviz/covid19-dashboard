@@ -24,7 +24,7 @@ import {
 } from "lodash";
 import { Optional } from "utility-types";
 
-import { MMMMdyyyy } from "../constants";
+import { MMMMdyyyy, CLOUD_FUNCTION_URL_BASE } from "../constants";
 import { persistedKeys } from "../impact-dashboard/EpidemicModelContext";
 import {
   Facility,
@@ -47,8 +47,7 @@ import { validateCumulativeCases } from "../infection-model/validators";
 import { ModelInputsUpdate } from "./types";
 
 // As long as there is just one Auth0 config, this endpoint will work with any environment (local, prod, etc.).
-const tokenExchangeEndpoint =
-  "https://us-central1-c19-backend.cloudfunctions.net/getFirebaseToken";
+const tokenExchangeEndpoint = `${CLOUD_FUNCTION_URL_BASE}/getFirebaseToken`;
 const scenariosCollectionId = "scenarios";
 const facilitiesCollectionId = "facilities";
 const modelVersionCollectionId = "modelVersions";

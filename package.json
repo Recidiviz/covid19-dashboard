@@ -107,7 +107,7 @@
     "!(*.d).ts": [
       "false -- Please use .tsx instead of .ts!"
     ],
-    "*/**/*.js": [
+    "src/**/*.js": [
       "false -- Please use .tsx with `// @ts-nocheck` instead of .js!"
     ],
     "*.{html,json,md,webmanifest}": [
