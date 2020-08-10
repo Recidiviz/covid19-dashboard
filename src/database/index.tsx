@@ -279,15 +279,13 @@ export const getSharedBaselineScenarios = async (): Promise<Scenario[]> => {
 
     const results = await db
       .collection(scenariosCollectionId)
-      .where(`roles.${currentUserId()}`, "in", ["owner", "viewer"])
+      .where(`roles.${currentUserId()}`, "in", ["viewer"])
       .where("baseline", "==", true)
       .get();
 
     const sharedBaselineScenarios = results.docs.map((doc) => {
       return buildScenario(doc);
     });
-
-    console.log(sharedBaselineScenarios);
 
     return sharedBaselineScenarios;
   } catch (error) {

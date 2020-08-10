@@ -21,8 +21,6 @@ import {
 } from "./EpidemicModelContext";
 import { FormGrid, FormGridCell, FormGridRow } from "./FormGrid";
 import useModel from "./useModel";
-// import useFacilityModelVersions from "../hooks/useFacilityModelVersions";
-// import facility from "../pages/facility";
 
 const FacilityInformationDiv = styled.div``;
 
@@ -260,7 +258,6 @@ export const AgeGroupGrid: React.FC<AgeGroupGridProps> = ({
         secondKey="staffRecovered"
         thirdKey="staffDeaths"
         lastKey="staffPopulation"
-        isReference={usedReferenceData}
         {...props}
       />
 
