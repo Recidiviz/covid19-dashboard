@@ -77,7 +77,6 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
   const scenarioId = scenario?.id;
 
   const shouldFetchReferenceFacilities = useReferenceFacilitiesEligible();
-  console.log(shouldFetchReferenceFacilities, scenarioId);
   const shouldUseReferenceFacilities =
     shouldFetchReferenceFacilities && scenario?.useReferenceData;
 

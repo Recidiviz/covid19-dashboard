@@ -163,14 +163,12 @@ export const AgeGroupGrid: React.FC<AgeGroupGridProps> = ({
 
   // TODO: make default parameter
   const observedAt = props.updatedAt ? props.updatedAt : startOfToday();
-  console.log(observedAt);
 
   const usedReferenceData = observedAtDateUsesReferenceData(
     observedAt,
     props.facilityModelVersions,
   );
 
-  console.log(usedReferenceData);
   props.isReference = usedReferenceData;
 
   const collapseAgeInputs = () => {
