@@ -307,7 +307,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
             setSystemType={setSystemType}
           />
           <SectionHeader>Facility Details</SectionHeader>
-          <FacilityInformation facility={facility}/>
+          <FacilityInformation />
           <SectionHeader>Rate of Spread</SectionHeader>
           <MitigationInformation />
           <ButtonSection className="pl-8" screenWidth={screenWidth}>

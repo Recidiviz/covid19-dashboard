@@ -16,7 +16,7 @@ import { referenceFacilitiesProp } from ".";
 import { FacilityDocUpdate } from "./types";
 
 const timestampToDate = (timestamp: firebase.firestore.Timestamp): Date => {
-  if (timestamp){
+  if (timestamp) {
     return timestamp.toDate();
   }
   return new Date();
@@ -41,6 +41,8 @@ const buildPlannedRelease = (plannedReleaseData: any): PlannedRelease => {
 
 export const buildModelInputs = (document: any): ModelInputs => {
   let modelInputs: ModelInputs = { ...document };
+
+  console.log(document);
 
   modelInputs.observedAt = timestampToDate(document.observedAt);
   modelInputs.updatedAt = timestampToDate(document.updatedAt);

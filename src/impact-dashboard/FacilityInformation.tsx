@@ -1,5 +1,4 @@
 import { isEqual, startOfDay } from "date-fns";
-// import { useFacilities, getFacilityById } from "../facilities-context";
 import startOfToday from "date-fns/startOfToday";
 import { isUndefined, omitBy, pickBy } from "lodash";
 import numeral from "numeral";
@@ -463,15 +462,9 @@ const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
   );
 };
 
-interface Props {
-  facility: Facility | undefined;
-}
-
-const FacilityInformation: React.FC<Props> = (props: Props) => {
+const FacilityInformation: React.FC = () => {
   const [model, updateModel] = useModel();
   const [warnedAt, setWarnedAt] = useState(0);
-
-  const facilityModelVersions = props.facility?.modelVersions;
 
   return (
     <FacilityInformationDiv>
@@ -481,7 +474,6 @@ const FacilityInformation: React.FC<Props> = (props: Props) => {
           updateModel={updateModel}
           warnedAt={warnedAt}
           setWarnedAt={setWarnedAt}
-          facilityModelVersions={facilityModelVersions}
         />
         <FormGrid>
           <FormRow

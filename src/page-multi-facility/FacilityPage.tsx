@@ -21,6 +21,10 @@ const FacilityPage: React.FC = () => {
   const facility = getFacilityById(facilities, selectedFacilityId);
   const [scenario, dispatchScenarioUpdate] = useScenario();
 
+  console.log("*****");
+  console.log(facility?.modelInputs);
+  console.log(facility?.modelVersions);
+
   return (
     <>
       {scenario.loading || !scenario?.data?.id ? (
