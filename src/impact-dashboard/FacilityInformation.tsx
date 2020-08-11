@@ -132,7 +132,6 @@ export const AgeGroupGrid: React.FC<AgeGroupGridProps> = ({
   collapsible = false,
   ...props
 }) => {
-  console.log("IS REFERENCE", props.isReference);
   const [collapsed, setCollapsed] = useState(collapsible);
 
   const collapseAgeInputs = () => {

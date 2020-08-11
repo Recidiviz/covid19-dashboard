@@ -112,7 +112,6 @@ const AddCasesModalContent: React.FC<Props> = ({
   facilityModelVersions,
   isReference,
 }) => {
-  console.log("inputs", inputs);
   const findMatchingDay = useCallback(
     ({ date }: { date: Date }) =>
       facilityModelVersions?.find(

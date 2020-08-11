@@ -293,7 +293,6 @@ export function EpidemicModelProvider({
   facilityModel,
   localeDataSource,
 }: EpidemicModelProviderProps) {
-  console.log("facility model", facilityModel);
   const initialState = {
     ...getLocaleDefaults(
       localeDataSource,

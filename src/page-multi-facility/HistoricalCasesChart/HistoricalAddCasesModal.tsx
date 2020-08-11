@@ -38,8 +38,6 @@ const HistoricalAddCasesModal: React.FC<Props> = ({
     setOpen(false);
   }
 
-  console.log("is refrence hisotirical", isReference);
-
   return (
     <ModalDialog
       title="Add Historical Data"

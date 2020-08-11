@@ -23,8 +23,6 @@ const AddCasesModal: React.FC<Props> = ({ facility, trigger, onSave }) => {
     isReference,
   } = useAddCasesInputs(facility, onSave, observedAt);
 
-  console.log("HERE is reference", isReference);
-
   async function handleSave() {
     await saveCases();
     setModalOpen(false);
