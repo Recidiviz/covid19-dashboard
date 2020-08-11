@@ -1,5 +1,5 @@
 import { curveCatmullRom, format } from "d3";
-import { add, format as formatDate } from "date-fns";
+import { add, format as formatDate, startOfToday } from "date-fns";
 import { flatten, pick } from "lodash";
 import React from "react";
 import { ResponsiveXYFrame } from "semiotic";
@@ -34,6 +34,7 @@ const ChartContainer = styled.div`
 
 interface ProjectionProps {
   curveData: CurveData | undefined;
+  latestRtValue: number | null;
 }
 
 export interface ChartData {
@@ -41,15 +42,36 @@ export interface ChartData {
 }
 
 const formatThousands = format(",~g");
+const formatRtValue = format(".2f");
+
+const PROJECTION_DURATION = 90;
+const numXTicks = 4;
+const tickIntervals = PROJECTION_DURATION / numXTicks;
+const xTickValues: Date[] = [];
+
+function addDays(date: Date, days: number) {
+  let result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
+}
+
+let increment = 0;
+for (let i = 0; i < numXTicks; i++) {
+  increment += tickIntervals;
+  xTickValues.push(addDays(startOfToday(), increment));
+}
 
 const legendColors: { [key in string]: string } = {
   exposed: Colors.green,
-  infectious: Colors.lightBlue,
-  hospitalized: Colors.darkRed,
+  infectious: Colors.darkRed,
+  hospitalized: Colors.lightBlue,
   fatalities: Colors.black,
 };
 
-const FacilityProjectionChart: React.FC<ProjectionProps> = ({ curveData }) => {
+const FacilityProjectionChart: React.FC<ProjectionProps> = ({
+  curveData,
+  latestRtValue,
+}) => {
   const chartData = pick(
     useChartDataFromProjectionData(curveData),
     Object.keys(legendColors),
@@ -75,7 +97,7 @@ const FacilityProjectionChart: React.FC<ProjectionProps> = ({ curveData }) => {
     yAccessor: "count",
     responsiveHeight: true,
     responsiveWidth: true,
-    yExtent: [0, maxValue + 100],
+    yExtent: [0, maxValue],
     margin: CHART_MARGINS,
     lineStyle: ({ key }: { key: SeirCompartmentKeys }) => ({
       stroke: legendColors[key],
@@ -86,8 +108,8 @@ const FacilityProjectionChart: React.FC<ProjectionProps> = ({ curveData }) => {
     axes: [
       {
         orient: "bottom",
-        ticks: 5,
-        tickFormat: (value: Date) => formatDate(new Date(value), "MM/dd"),
+        tickFormat: (value: Date) => formatDate(new Date(value), "M/d"),
+        tickValues: xTickValues,
       },
       {
         orient: "left",
@@ -104,7 +126,11 @@ const FacilityProjectionChart: React.FC<ProjectionProps> = ({ curveData }) => {
     <ChartContainer>
       <HorizontalRule />
       <ChartHeaderContainer>
-        <ChartHeader>Estimated Impact</ChartHeader>
+        <ChartHeader>
+          Estimated Impact{" "}
+          {latestRtValue &&
+            `(Estimated rate of spread: ${formatRtValue(latestRtValue)})`}
+        </ChartHeader>
         <LegendContainer>
           <LegendText legendColor={legendColors.exposed}>Exposed</LegendText>
           <LegendText legendColor={legendColors.infectious}>

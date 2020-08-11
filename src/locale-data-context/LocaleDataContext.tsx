@@ -3,6 +3,8 @@ import { rollup } from "d3-array";
 import numeral from "numeral";
 import React from "react";
 
+import { CLOUD_FUNCTION_URL_BASE } from "../constants";
+
 export type LocaleRecord = {
   county: string;
   totalPopulation: number;
@@ -67,11 +69,8 @@ export const LocaleDataProvider: React.FC<{ children: React.ReactNode }> = ({
     () => {
       async function effect() {
         try {
-          // TODO: fix the intermittent CORS issue on this fetch?
           const response = await fetch(
-            "https://cors-anywhere.herokuapp.com/https://docs.google.com/spreadsheets/d/e/2PACX-1vSeEO7JySaN21_Cxa7ON_x" +
-              "UHDM-EEOFSMIjOAoLf6YOXBurMRXZYPFi7x_aOe-0awqDcL4KZTK1NhVI/pub?gid=" +
-              "1836987932&single=true&output=csv",
+            `${CLOUD_FUNCTION_URL_BASE}/getLocaleData`,
           );
           let rawCSV = await response.text();
           // the first line is not the header row so we need to strip it

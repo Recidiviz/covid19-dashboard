@@ -12,7 +12,7 @@ import {
   buildIncarceratedData,
   buildStaffData,
 } from "../impact-dashboard/ImpactProjectionTableContainer";
-import { RtData, RtError } from "../infection-model/rt";
+import { getLatestRtValue, RtData, RtError } from "../infection-model/rt";
 import { useProjectionData } from "../page-multi-facility/projectionCurveHooks";
 import { Facility } from "../page-multi-facility/types";
 import FacilityProjectionChart from "./FacilityProjectionChart";
@@ -33,8 +33,6 @@ import {
   Value,
 } from "./shared";
 import SnapshotPage from "./SnapshotPage";
-
-const DURATION = 21;
 
 const ProjectionSection = styled.div`
   margin-top: 10px;
@@ -102,16 +100,12 @@ function makeHeadingRow() {
 }
 
 const FacilityPage: React.FC<Props> = ({ facility, rtData }) => {
-  const curveData = useProjectionData(
-    useEpidemicModelState(),
-    true,
-    rtData,
-    DURATION,
-  );
+  const curveData = useProjectionData(useEpidemicModelState(), true, rtData);
   if (!curveData) return <Loading />;
   const { incarcerated, staff } = curveData;
   const incarceratedData = buildIncarceratedData(incarcerated);
   const staffData = buildStaffData({ staff, showHospitalizedRow: false });
+  const latestRtValue = getLatestRtValue(rtData);
 
   return (
     <SnapshotPage header={facility.name}>
@@ -124,7 +118,10 @@ const FacilityPage: React.FC<Props> = ({ facility, rtData }) => {
 
       <ProjectionSection>
         <ProjectionContainer>
-          <FacilityProjectionChart curveData={curveData} />
+          <FacilityProjectionChart
+            curveData={curveData}
+            latestRtValue={latestRtValue}
+          />
         </ProjectionContainer>
 
         <HorizontalRule marginRight={COLUMN_SPACING} />
