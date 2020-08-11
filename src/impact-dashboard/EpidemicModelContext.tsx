@@ -134,7 +134,6 @@ interface MetadataPersistent {
   // fields that we want to store
   countyName?: string;
   stateName?: string;
-  isReference?: boolean;
 }
 
 // some fields are required to display a sensible UI, define them here
@@ -200,7 +199,6 @@ export const persistedKeys: Array<keyof EpidemicModelPersistent> = [
   "rateOfSpreadFactor",
   "observedAt",
   "updatedAt",
-  "isReference",
 ];
 
 export type EpidemicModelUpdate = ModelInputsUpdate & MetadataPersistent;
@@ -295,7 +293,7 @@ export function EpidemicModelProvider({
   facilityModel,
   localeDataSource,
 }: EpidemicModelProviderProps) {
-  console.log(facilityModel);
+  console.log("facility model", facilityModel);
   const initialState = {
     ...getLocaleDefaults(
       localeDataSource,

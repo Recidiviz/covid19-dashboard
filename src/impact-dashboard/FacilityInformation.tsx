@@ -1,5 +1,3 @@
-import { isEqual, startOfDay } from "date-fns";
-import startOfToday from "date-fns/startOfToday";
 import { isUndefined, omitBy, pickBy } from "lodash";
 import numeral from "numeral";
 import React, { useEffect, useState } from "react";
@@ -12,7 +10,6 @@ import {
   curveInputsFromUserInputs,
   getAdjustedTotalPopulation,
 } from "../infection-model";
-import { Facility, ModelInputs } from "../page-multi-facility/types";
 import Description from "./Description";
 import {
   EpidemicModelState,
@@ -121,26 +118,6 @@ const includesUnknownAges = (model: object) => {
   return total > 0;
 };
 
-function observedAtDateUsesReferenceData(
-  observedAtDate: Date,
-  facilityModelVersions: ModelInputs[] | undefined,
-) {
-  let usedReferenceData = false;
-  if (facilityModelVersions) {
-    // sort observed at dates
-    const modelInputsSameDate = facilityModelVersions.filter(function (
-      facility,
-    ) {
-      return (
-        isEqual(startOfDay(observedAtDate), startOfDay(facility.observedAt)) &&
-        facility.isReference
-      );
-    });
-    usedReferenceData = modelInputsSameDate.length > 0;
-  }
-  return usedReferenceData;
-}
-
 interface AgeGroupGridProps {
   model: Partial<EpidemicModelState>;
   updateModel: (update: EpidemicModelUpdate) => void;
@@ -148,7 +125,6 @@ interface AgeGroupGridProps {
   warnedAt: number;
   setWarnedAt: (warnedAt: number) => void;
   updatedAt?: Date;
-  facilityModelVersions?: ModelInputs[] | undefined;
   isReference?: boolean;
 }
 
@@ -156,17 +132,8 @@ export const AgeGroupGrid: React.FC<AgeGroupGridProps> = ({
   collapsible = false,
   ...props
 }) => {
+  console.log("IS REFERENCE", props.isReference);
   const [collapsed, setCollapsed] = useState(collapsible);
-
-  // TODO: make default parameter
-  const observedAt = props.updatedAt ? props.updatedAt : startOfToday();
-
-  const usedReferenceData = observedAtDateUsesReferenceData(
-    observedAt,
-    props.facilityModelVersions,
-  );
-
-  props.isReference = usedReferenceData;
 
   const collapseAgeInputs = () => {
     if (pastAgesKnown(props.model)) {
@@ -317,6 +284,7 @@ interface AgeGroupRowProps {
 
 const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
   const { model, updateModel } = props;
+  const isReference = props.model.isReference || props.isReference;
   const [casesInputRelativityError, setCasesInputRelativityError] = useState(
     false,
   );
@@ -402,7 +370,7 @@ const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
       <InputCell>
         <InputTextNumeric
           type="number"
-          isReference={props.isReference}
+          isReference={isReference}
           valueEntered={model[props.firstKey] as number}
           inputRelativityError={casesInputRelativityError}
           onValueChange={(cases) => {
@@ -415,7 +383,7 @@ const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
       <InputCell>
         <InputTextNumeric
           type="number"
-          isReference={props.isReference}
+          isReference={isReference}
           valueEntered={model[props.secondKey] as number}
           inputRelativityError={recoveredInputRelativityError}
           onValueChange={(recovered) => {
@@ -432,7 +400,7 @@ const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
       <InputCell>
         <InputTextNumeric
           type="number"
-          isReference={props.isReference}
+          isReference={isReference}
           valueEntered={model[props.thirdKey] as number}
           inputRelativityError={deathsInputRelativityError}
           onValueChange={(deaths) => {
@@ -449,7 +417,7 @@ const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
       <InputCell>
         <InputTextNumeric
           type="number"
-          isReference={props.isReference}
+          isReference={isReference}
           valueEntered={model[props.lastKey] as number}
           onValueChange={(total) => {
             checkCasesInputRelativity(model[props.firstKey] as number, total);

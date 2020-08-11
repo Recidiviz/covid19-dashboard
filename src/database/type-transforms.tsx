@@ -42,8 +42,6 @@ const buildPlannedRelease = (plannedReleaseData: any): PlannedRelease => {
 export const buildModelInputs = (document: any): ModelInputs => {
   let modelInputs: ModelInputs = { ...document };
 
-  console.log(document);
-
   modelInputs.observedAt = timestampToDate(document.observedAt);
   modelInputs.updatedAt = timestampToDate(document.updatedAt);
   // this field was renamed, existing instances should be mapped over

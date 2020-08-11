@@ -46,7 +46,8 @@ const WrappedInput = styled(CustomDebounceInput)`
 const InlineIcon = styled.img<{ isReference?: boolean }>`
   display: ${(props) => (!props?.isReference ? "none" : "auto")}}
   position: relative;
-  margin-left: 10px;
+  margin-left: 5px;
+  margin-right: -5px;
 `;
 
 const ReferenceIcon: React.FC<{ isReference?: boolean }> = (props) => {
