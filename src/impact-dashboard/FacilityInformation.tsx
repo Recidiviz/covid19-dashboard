@@ -124,7 +124,6 @@ interface AgeGroupGridProps {
   collapsible?: boolean;
   warnedAt: number;
   setWarnedAt: (warnedAt: number) => void;
-  updatedAt?: Date;
   isReference?: boolean;
 }
 
@@ -277,7 +276,6 @@ interface AgeGroupRowProps {
   updateModel: (update: EpidemicModelUpdate) => void;
   warnedAt: number;
   setWarnedAt: (warnedAt: number) => void;
-  updatedAt?: Date;
   isReference?: boolean;
 }
 

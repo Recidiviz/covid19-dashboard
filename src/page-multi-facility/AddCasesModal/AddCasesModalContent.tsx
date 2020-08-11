@@ -198,7 +198,6 @@ const AddCasesModalContent: React.FC<Props> = ({
         collapsible={true}
         warnedAt={warnedAt}
         setWarnedAt={setWarnedAt}
-        updatedAt={observationDate || startOfToday()}
         isReference={isReference}
       />
       <HorizRule />
