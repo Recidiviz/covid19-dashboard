@@ -5,7 +5,7 @@ from google.cloud import storage
 import logging
 import re
 
-REFERENCE_FACILITIES_COLLECTION_ID = 'reference_facilities_dev'
+REFERENCE_FACILITIES_COLLECTION_ID = 'reference_facilities'
 # this limit is imposed by firestore
 BATCH_SIZE = 500
 
@@ -17,12 +17,9 @@ FACILITY_TYPE_MAPPING = {
     "State Prisons": "State Prison",
 }
 
-fs_client = firestore.Client(project='c19-backend')
+fs_client = firestore.Client()
 facilities_collection = fs_client.collection(
     REFERENCE_FACILITIES_COLLECTION_ID)
-
-# TODO: optional names to filter by?
-
 
 def create_or_update_facilities(file_location):
     batch = fs_client.batch()
@@ -37,10 +34,7 @@ def create_or_update_facilities(file_location):
             id = row['facility_id']
 
             facility_doc_ref = facilities_collection.document(id)
-            facility_dict = {
-                "updatedAt": firestore.SERVER_TIMESTAMP,
-            }
-            row_ops_count += 1  # SERVER_TIMESTAMP is a separate operation
+            facility_dict = {}
 
             # are we updating or creating?
             try:
@@ -91,9 +85,8 @@ def create_or_update_facilities(file_location):
                     facility_dict['population'] = [latest_population]
 
             batch_counter += row_ops_count
-            # if we have hti our limit, start a new batch before proceeding
+            # if we have hit our limit, start a new batch before proceeding
             if batch_counter >= BATCH_SIZE:
-                # commit current batch and start a new one
                 batch.commit()
                 batch = fs_client.batch()
                 batch_counter = row_ops_count
