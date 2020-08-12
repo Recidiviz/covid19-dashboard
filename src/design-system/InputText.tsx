@@ -43,7 +43,7 @@ const WrappedInput = styled(CustomDebounceInput)`
   }
 `;
 
-const InlineIcon = styled.img<{ isReference?: boolean }>`
+const InlineIcon = styled.img`
   display: auto;
   position: relative;
   margin-left: 5px;
