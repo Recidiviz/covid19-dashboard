@@ -44,20 +44,14 @@ const WrappedInput = styled(CustomDebounceInput)`
 `;
 
 const InlineIcon = styled.img<{ isReference?: boolean }>`
-  display: ${(props) => (!props?.isReference ? "none" : "auto")}}
+  display: auto;
   position: relative;
   margin-left: 5px;
   margin-right: -5px;
 `;
 
-const ReferenceIcon: React.FC<{ isReference?: boolean }> = (props) => {
-  return (
-    <InlineIcon
-      src={icDataSyncSelected}
-      isReference={props.isReference}
-      alt="reference data"
-    />
-  );
+const ReferenceIcon: React.FC = () => {
+  return <InlineIcon src={icDataSyncSelected} alt="reference data" />;
 };
 
 interface Props extends InputBaseProps<string> {
@@ -106,7 +100,7 @@ const InputText: React.FC<Props> = (props) => {
           }
         />
         {props.children}
-        <ReferenceIcon isReference={props.isReference} />
+        {props.isReference && <ReferenceIcon />}
       </InputWrapper>
     </TextInputContainer>
   );
