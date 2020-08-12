@@ -19,6 +19,11 @@ custom_options = {
         "--trigger-event", "google.storage.object.finalize",
         "--timeout", "540s",
     ],
+    "ingest_facility_metadata": [
+        "--trigger-resource", "c19-backend-facility-metadata",
+        "--trigger-event", "google.storage.object.finalize",
+        "--timeout", "540s",
+    ],
     "calculate_rt" : [
         "--trigger-http",
     ]
