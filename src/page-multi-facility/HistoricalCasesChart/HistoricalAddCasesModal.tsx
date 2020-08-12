@@ -30,6 +30,7 @@ const HistoricalAddCasesModal: React.FC<Props> = ({
     updateInputs,
     resetModalData,
     saveCases,
+    isReference,
   } = useAddCasesInputs(facility, onModalSave, observedAt);
 
   async function handleSave() {
@@ -53,6 +54,7 @@ const HistoricalAddCasesModal: React.FC<Props> = ({
         updateInputs={updateInputs}
         onSave={handleSave}
         facilityModelVersions={facilityModelVersions}
+        isReference={isReference}
       />
     </ModalDialog>
   );

@@ -83,6 +83,7 @@ const useAddCasesInputs = (
 
   // use the current state of the facility as default values
   const defaultInputs = facility.modelInputs;
+  const [isReference, setIsReference] = useState(defaultInputs.isReference);
 
   const [observedAtVersion, setObservedAtVersion] = useState<
     ModelInputs | undefined
@@ -101,6 +102,7 @@ const useAddCasesInputs = (
     });
 
     if (newObservedAtVersion) {
+      setIsReference(newObservedAtVersion.isReference);
       setObservedAtVersion(newObservedAtVersion);
     } else {
       setObservedAtVersion(defaultInputs);
@@ -179,6 +181,7 @@ const useAddCasesInputs = (
     updateInputs,
     resetModalData,
     saveCases,
+    isReference,
   };
 };
 

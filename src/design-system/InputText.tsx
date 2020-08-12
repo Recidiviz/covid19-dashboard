@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 
 import Colors from "./Colors";
+import icDataSyncSelected from "./icons/ic_data_sync_selected.svg";
 import { CustomDebounceInput, InputBaseProps, InputStyle } from "./Input";
 import InputLabelAndHelp from "./InputLabelAndHelp";
 
@@ -18,11 +19,9 @@ const TextInputContainer = styled.div`
 
 const InputWrapper = styled.div`
   ${InputStyle}
-
   align-items: center;
   display: flex;
   flex-direction: row;
-
   &.relativeAmountError--active {
     background-color: ${Colors.darkRed10};
   }
@@ -44,6 +43,17 @@ const WrappedInput = styled(CustomDebounceInput)`
   }
 `;
 
+const InlineIcon = styled.img`
+  display: auto;
+  position: relative;
+  margin-left: 5px;
+  margin-right: -5px;
+`;
+
+const ReferenceIcon: React.FC = () => {
+  return <InlineIcon src={icDataSyncSelected} alt="reference data" />;
+};
+
 interface Props extends InputBaseProps<string> {
   type: "text" | "number" | "email";
   headerStyle?: boolean;
@@ -54,6 +64,7 @@ interface Props extends InputBaseProps<string> {
   required?: boolean;
   style?: object;
   inputRelativityError?: boolean;
+  isReference?: boolean;
 }
 
 const InputText: React.FC<Props> = (props) => {
@@ -61,9 +72,8 @@ const InputText: React.FC<Props> = (props) => {
 
   useEffect(() => {
     if (!props.focus) return;
-
     nameInput.current.focus();
-  }, []);
+  }, [props.focus, nameInput]);
 
   return (
     <TextInputContainer>
@@ -90,6 +100,7 @@ const InputText: React.FC<Props> = (props) => {
           }
         />
         {props.children}
+        {props.isReference && <ReferenceIcon />}
       </InputWrapper>
     </TextInputContainer>
   );

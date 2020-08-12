@@ -8,6 +8,7 @@ interface Props extends InputBaseProps<number> {
   type: "number" | "percent";
   style?: React.CSSProperties;
   inputRelativityError?: boolean;
+  isReference?: boolean;
 }
 
 const PctAddon = styled.div`

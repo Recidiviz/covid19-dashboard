@@ -113,6 +113,7 @@ interface ModelInputsPersistent extends ModelInputsPopulationBrackets {
   rateOfSpreadFactor?: RateOfSpread;
   observedAt?: Date;
   updatedAt?: Date;
+  isReference?: boolean;
 }
 
 interface ModelInputsUpdate extends ModelInputsPersistent {
