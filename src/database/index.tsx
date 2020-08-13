@@ -485,7 +485,7 @@ export const getFacilities = async (
 
 const getUserDocument = async (
   params: { email: string } | { auth0Id: string },
-): Promise<firebase.firestore.DocumentData> => {
+): Promise<firebase.firestore.DocumentData | undefined> => {
   const db = await getDb();
 
   const [key, value] = Object.entries(params)[0];
@@ -605,6 +605,10 @@ export const addScenarioUser = async (
     }
 
     const userDocument = await getUserDocument({ email });
+    if (!userDocument) {
+      throw new Error(`No user found matching email address ${email}`);
+    }
+
     const auth0Id = userDocument.data().auth0Id;
     const scenario = await getScenario(scenarioId);
 
