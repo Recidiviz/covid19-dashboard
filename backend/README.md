@@ -89,6 +89,13 @@ the function, so please be aware of how any changes you make will affect others 
 reasonable measures to avoid breaking it and let others know if it will be unavailable
 or unstable for a time while you are actively developing it.
 
+For local development of functions that need to interact with Google Cloud services, you
+can save a service account private key to `backend/python-functions/service-account.json`
+(it will be untracked) and export its path to an environment variable called
+`GOOGLE_APPLICATION_CREDENTIALS`. Service clients from the Google Cloud Python API libraries
+will consume this environment variable automatically. Please note this has no effect
+on the deployed functions, it is to help with local development only.
+
 See the "Deployment" section below for deployment instructions.
 
 ## Deployment
