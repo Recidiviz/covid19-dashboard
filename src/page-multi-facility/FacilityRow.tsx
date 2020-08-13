@@ -88,6 +88,12 @@ interface Props {
   onSave: (f: Facility) => void;
 }
 
+function usedReferenceData(facility: Facility) {
+  const modelVersions = facility.modelVersions;
+  const isReferenceModelVersions = modelVersions.filter((v) => v.isReference);
+  return isReferenceModelVersions.length > 0;
+}
+
 const FacilityRow: React.FC<Props> = ({ facility, facilityRtData, onSave }) => {
   const {
     actions: { selectFacility },
@@ -102,7 +108,7 @@ const FacilityRow: React.FC<Props> = ({ facility, facilityRtData, onSave }) => {
     useProjectionData(model, true, facilityRtData),
   );
 
-  console.log(model.isReference);
+  const facilityUsedReferenceData = usedReferenceData(facility);
 
   // UI hover states are a little complicated;
   // the entire row is a click target to navigate to the Facility page,
@@ -186,13 +192,15 @@ const FacilityRow: React.FC<Props> = ({ facility, facilityRtData, onSave }) => {
               </div>
             </div>
             <FacilityNameLabel>
+              {facilityUsedReferenceData && (
+                <ReferenceIcon marginRight={"5px"} />
+              )}
               <FacilityName>{name}</FacilityName>
               <IconEdit alt="" src={iconEditSrc} />
             </FacilityNameLabel>
           </div>
           <div className="text-xs text-gray-500 pb-4">
             <LastUpdatedLabel>
-              {model.isReference && <ReferenceIcon marginRight={"5px"} />}
               Last Update: <DateMMMMdyyyy date={updatedAt} />
             </LastUpdatedLabel>
             <Spacer x={32} />
