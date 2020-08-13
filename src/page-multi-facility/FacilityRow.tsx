@@ -48,6 +48,7 @@ const FacilityNameLabel = styled.label`
   padding-right: 25px;
   padding-left: 15px;
   width: 75%;
+  align-items: flex-start;
 `;
 
 const DataContainer = styled.div`
@@ -192,11 +193,11 @@ const FacilityRow: React.FC<Props> = ({ facility, facilityRtData, onSave }) => {
               </div>
             </div>
             <FacilityNameLabel>
+              <FacilityName>{name}</FacilityName>
+              <IconEdit alt="" src={iconEditSrc} />
               {facilityUsedReferenceData && (
                 <ReferenceIcon marginRight={"5px"} />
               )}
-              <FacilityName>{name}</FacilityName>
-              <IconEdit alt="" src={iconEditSrc} />
             </FacilityNameLabel>
           </div>
           <div className="text-xs text-gray-500 pb-4">
