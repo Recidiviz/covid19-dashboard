@@ -91,8 +91,7 @@ interface Props {
 
 function usedReferenceData(facility: Facility) {
   const modelVersions = facility.modelVersions;
-  const isReferenceModelVersions = modelVersions.filter((v) => v.isReference);
-  return isReferenceModelVersions.length > 0;
+  return modelVersions.some((v) => v.isReference);
 }
 
 const FacilityRow: React.FC<Props> = ({ facility, facilityRtData, onSave }) => {
