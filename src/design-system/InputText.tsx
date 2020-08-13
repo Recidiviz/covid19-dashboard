@@ -60,7 +60,7 @@ export const ReferenceIcon: React.FC<{ marginRight?: string }> = (props) => {
       marginRight={props.marginRight}
     />
   );
-};
+}
 
 interface Props extends InputBaseProps<string> {
   type: "text" | "number" | "email";
