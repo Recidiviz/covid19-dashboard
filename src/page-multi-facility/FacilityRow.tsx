@@ -44,11 +44,11 @@ const FacilityNameLabel = styled.label`
   cursor: pointer;
   display: flex;
   flex-direction: row;
+  align-items: flex-start;
   height: 100%;
   padding-right: 25px;
   padding-left: 15px;
   width: 75%;
-  align-items: flex-start;
 `;
 
 const DataContainer = styled.div`
