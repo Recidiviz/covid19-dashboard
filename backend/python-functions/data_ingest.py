@@ -21,6 +21,7 @@ fs_client = firestore.Client()
 facilities_collection = fs_client.collection(
     REFERENCE_FACILITIES_COLLECTION_ID)
 
+
 def create_or_update_facilities(file_location):
     batch = fs_client.batch()
     with open(file_location, newline='') as f:
@@ -34,20 +35,19 @@ def create_or_update_facilities(file_location):
             id = row['facility_id']
 
             facility_doc_ref = facilities_collection.document(id)
-            facility_dict = {}
+            facility_metadata = {}
 
             # are we updating or creating?
-            try:
-                fdoc_snapshot = facility_doc_ref.get()
-                assert fdoc_snapshot.exists
-                facility_dict.update(fdoc_snapshot.to_dict())
-            except AssertionError:
-                facility_dict.update({
+            fdoc_snapshot = facility_doc_ref.get()
+            if fdoc_snapshot.exists:
+                facility_metadata.update(fdoc_snapshot.to_dict())
+            else:
+                facility_metadata.update({
                     "createdAt": firestore.SERVER_TIMESTAMP,
                 })
                 row_ops_count += 1  # SERVER_TIMESTAMP is a separate operation
 
-            facility_dict.update({
+            facility_metadata.update({
                 "canonicalName": row['facility_name'],
                 "stateName": row['state'],
                 "facilityType": FACILITY_TYPE_MAPPING.get(row['facility_type'],
@@ -55,10 +55,10 @@ def create_or_update_facilities(file_location):
             })
 
             if row['capacity']:
-                facility_dict["capacity"] = int(row["capacity"])
+                facility_metadata["capacity"] = int(row["capacity"])
 
             if row['county'] and row['county'] != 'Not found':
-                facility_dict["county"] = re.sub(
+                facility_metadata["county"] = re.sub(
                     r' County$',  '', row['county'])
 
             if row['population_year_updated'] and row['population']:
@@ -69,20 +69,21 @@ def create_or_update_facilities(file_location):
                 # we have to be a bit careful not to obliterate existing data in the population array;
                 # generally this means looking for the item that corresponds to our input
                 # and leaving any other items untouched
-                if 'population' in facility_dict:
+                if 'population' in facility_metadata:
                     # try to find an existing record matching this date
                     # (we only care about the year since that's all we have in the data source)
                     matching_record = next(
-                        (r for r in facility_dict['population']
+                        (r for r in facility_metadata['population']
                             if r['date'].year == latest_population['date'].year),
                         None)
                     # append or update accordingly
                     if matching_record is None:
-                        facility_dict['population'].append(latest_population)
+                        facility_metadata['population'].append(
+                            latest_population)
                     else:
                         matching_record['value'] = latest_population['value']
                 else:
-                    facility_dict['population'] = [latest_population]
+                    facility_metadata['population'] = [latest_population]
 
             batch_counter += row_ops_count
             # if we have hit our limit, start a new batch before proceeding
@@ -91,7 +92,7 @@ def create_or_update_facilities(file_location):
                 batch = fs_client.batch()
                 batch_counter = row_ops_count
 
-            batch.set(facility_doc_ref, facility_dict)
+            batch.set(facility_doc_ref, facility_metadata)
 
     # one last commit for the last partially full batch
     batch.commit()
