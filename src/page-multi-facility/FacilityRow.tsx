@@ -7,6 +7,7 @@ import Colors, { MarkColors as markColors } from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import FontSizes from "../design-system/FontSizes";
 import iconEditSrc from "../design-system/icons/ic_edit.svg";
+import { ReferenceIcon } from "../design-system/InputText";
 import { Spacer } from "../design-system/Spacer";
 import Tooltip from "../design-system/Tooltip";
 import { useFacilities } from "../facilities-context";
@@ -33,6 +34,8 @@ const LastUpdatedLabel = styled.div`
   font-weight: 600;
   font-size: ${FontSizes.Charts.labelText}px;
   line-height: 16px;
+  display: flex;
+  justify-content: flex-start;
 `;
 
 const FacilityRowDiv = styled.div``;
@@ -98,6 +101,8 @@ const FacilityRow: React.FC<Props> = ({ facility, facilityRtData, onSave }) => {
   const chartData = useChartDataFromProjectionData(
     useProjectionData(model, true, facilityRtData),
   );
+
+  console.log(model.isReference);
 
   // UI hover states are a little complicated;
   // the entire row is a click target to navigate to the Facility page,
@@ -187,6 +192,7 @@ const FacilityRow: React.FC<Props> = ({ facility, facilityRtData, onSave }) => {
           </div>
           <div className="text-xs text-gray-500 pb-4">
             <LastUpdatedLabel>
+              {model.isReference && <ReferenceIcon marginRight={"5px"} />}
               Last Update: <DateMMMMdyyyy date={updatedAt} />
             </LastUpdatedLabel>
             <Spacer x={32} />
