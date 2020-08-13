@@ -11,6 +11,8 @@ import InputLabelAndHelp from "./InputLabelAndHelp";
  */
 const InputTextTimeoutMs = 1000;
 
+const RIGHT_MARGIN = "-5px";
+
 const TextInputContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -43,15 +45,21 @@ const WrappedInput = styled(CustomDebounceInput)`
   }
 `;
 
-const InlineIcon = styled.img`
+const InlineIcon = styled.img<{ marginRight?: string }>`
   display: auto;
   position: relative;
   margin-left: 5px;
-  margin-right: -5px;
+  margin-right: ${(props) => props.marginRight || RIGHT_MARGIN};
 `;
 
-const ReferenceIcon: React.FC = () => {
-  return <InlineIcon src={icDataSyncSelected} alt="reference data" />;
+export const ReferenceIcon: React.FC<{ marginRight?: string }> = (props) => {
+  return (
+    <InlineIcon
+      src={icDataSyncSelected}
+      alt="reference data"
+      marginRight={props.marginRight}
+    />
+  );
 };
 
 interface Props extends InputBaseProps<string> {
