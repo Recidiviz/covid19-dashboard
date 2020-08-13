@@ -485,18 +485,30 @@ export const getFacilities = async (
 
 const getUserDocument = async (
   params: { email: string } | { auth0Id: string },
-): Promise<firebase.firestore.DocumentData | never> => {
+): Promise<firebase.firestore.DocumentData> => {
   const db = await getDb();
 
   const [key, value] = Object.entries(params)[0];
 
   const userResult = await db
     .collection(usersCollectionId)
+    .orderBy("createdAt", "asc")
     .where(key, "==", value)
     .get();
 
+  // this can happen sometimes because of the way we create users from
+  // Auth0 profiles in src/auth/react-auth0-spa.tsx; we haven't been able
+  // to prevent it, but we can at least clean it up when it happens here
   if (userResult.docs.length > 1) {
-    throw new Error(`Multiple users found matching ${key} ${value}`);
+    console.warn(`Multiple users found matching ${key} ${value}`);
+    // because we ordered by createdAt, the first result is the original
+    // and we can discard the rest of them
+    userResult.docs.slice(1).forEach((doc) => {
+      if (doc.data().auth0Id === currentUserId()) {
+        console.warn(`Removing duplicate user record for ${key} ${value}`);
+        doc.ref.delete();
+      }
+    });
   }
 
   return userResult.docs[0];
