@@ -49,12 +49,12 @@ class FirestoreBatch():
         self.batch_size = 0
         self.batch = self.client.batch()
 
-
     def _prevent_overflow(self):
         if self.batch_size + self.pending_ops_count >= self.MAX_BATCH_SIZE:
             self.commit()
             self._start_batch()
 
+    # NOTE: can also mirror other server transform operations as needed
     @property
     def SERVER_TIMESTAMP(self):
        self.pending_ops_count += 1
@@ -131,7 +131,7 @@ def create_or_update_facilities(file_location):
 
             batch.set(facility_doc_ref, facility_metadata)
 
-    # one last commit for the last partially full batch
+    # one final commit for the last partially full batch
     batch.commit()
 
 
@@ -221,8 +221,6 @@ def reshape_facilities_data(file_location):
 
 
 def save_case_data(facilities):
-    found = 0
-    not_found = 0
     for facility_id, covid_cases in facilities.items():
 
         facility_ref = facilities_collection.document(facility_id)
@@ -242,9 +240,7 @@ def save_case_data(facilities):
                 batch.set(covidCasesOnDateRef, cases)
             batch.commit()
         else:
-            not_found += 1
-            print(f'facility {facility_id} does not exist')
-    print(f'found: {found} not_found: {not_found}')
+            log.warning('facility %s does not exist', facility_id)
 
 
 def ingest_daily_covid_case_data(bucket_name, file_name):
@@ -256,9 +252,3 @@ def ingest_daily_covid_case_data(bucket_name, file_name):
 def ingest_facility_metadata_file(bucket_name, file_name):
     file_location = download_from_cloud_storage(bucket_name, file_name)
     create_or_update_facilities(file_location)
-
-
-if __name__ == "__main__":
-    # create_or_update_facilities('./bq-metadata.csv')
-    facilities = reshape_facilities_data('./bq-daily-data.csv')
-    save_case_data(facilities)
