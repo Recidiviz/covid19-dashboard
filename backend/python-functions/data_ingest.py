@@ -222,25 +222,19 @@ def reshape_facilities_data(file_location):
 
 def save_case_data(facilities):
     for facility_id, covid_cases in facilities.items():
+        batch = FirestoreBatch(fs_client)
 
         facility_ref = facilities_collection.document(facility_id)
+        if not facility_ref.get().exists:
+            facility_metadata = { 'createdAt': batch.SERVER_TIMESTAMP }
+            batch.set(facility_ref, facility_metadata)
 
-        # facility documents need to be created with the necessary metadata
-        # (which is done via a separate function) before we can populate them
-        # with daily case data
-        if facility_ref.get().exists:
-            found += 1
-            batch = FirestoreBatch(fs_client)
+        for date, cases in covid_cases.items():
+            covidCasesOnDateRef = facility_ref.collection(
+                'covidCases').document(date)
+            batch.set(covidCasesOnDateRef, cases)
 
-            for date, cases in covid_cases.items():
-                covidCasesOnDateRef = facility_ref.collection(
-                    'covidCases').document(date)
-                # overwrite any existing documents; if source has changed,
-                # we will assume it is both correct and exhaustive
-                batch.set(covidCasesOnDateRef, cases)
-            batch.commit()
-        else:
-            log.warning('facility %s does not exist', facility_id)
+        batch.commit()
 
 
 def ingest_daily_covid_case_data(bucket_name, file_name):
