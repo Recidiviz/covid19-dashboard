@@ -1,3 +1,4 @@
+from collections import defaultdict
 import csv
 from datetime import datetime, timezone
 from google.cloud import firestore
@@ -136,14 +137,14 @@ def create_or_update_facilities(file_location):
 
 def build_covid_case_counts(row):
     covid_case_counts = {
-        'popDeaths': row['Pop Deaths'],
-        'popTested': row['Pop Tested'],
-        'popTestedNegative': row['Pop Tested Negative'],
-        'popTestedPositive': row['Pop Tested Positive'],
-        'staffDeaths': row['Staff Deaths'],
-        'staffTested': row['Staff Tested'],
-        'staffTestedNegative': row['Staff Tested Negative'],
-        'staffTestedPositive': row['Staff Tested Positive'],
+        'popDeaths': row['pop_deaths'],
+        'popTested': row['pop_tested'],
+        'popTestedNegative': row['pop_tested_negative'],
+        'popTestedPositive': row['pop_tested_positive'],
+        'staffDeaths': row['staff_deaths'],
+        'staffTested': row['staff_tested'],
+        'staffTestedNegative': row['staff_tested_negative'],
+        'staffTestedPositive': row['staff_tested_positive'],
     }
 
     # Remove empty strings and convert non-empty strings to integers
@@ -169,128 +170,95 @@ def reshape_facilities_data(file_location):
 
     For example, the following CSV:
 
-    Date,Facility Type,State,Canonical Facility Name,Pop Tested,Pop Tested Positive, etc.
-    2020-06-01,State Prisons,Colorado,Denver Reception & Diagnostic Center,253,2,,0,,,,,,,
-    2020-06-02,State Prisons,Colorado,Denver Reception & Diagnostic Center,253,2,,0,,,,,,,
-    2020-06-03,State Prisons,Colorado,Denver Reception & Diagnostic Center,253,2,,0,,,,,,,
-    2020-06-04,State Prisons,Colorado,Denver Reception & Diagnostic Center,253,2,,0,,,,,,,
+    facility_id,date,pop_tested,pop_tested_negative,pop_tested_positive,pop_deaths,...etc
+    510,2020-04-30,,,7,0,,,0,0
+    510,2020-05-04,,,8,0,,,0,0
+    516,2020-04-07,,,0,,,,0,
+    516,2020-04-08,,,0,,,,0,
+    ...
 
-    Would be reshaped to:
+    ... would be aggregated by facility ID:
 
     {
-      "Colorado::Denver Reception & Diagnostic Center": {
-        "canonicalName": "Denver Reception & Diagnostic Center",
-        "facilityType": "State Prisons",
-        "stateName": "Colorado",
-        "covidCases": {
-          "2020-06-01": {
+      510: {
+        "2020-04-30": {
             "popDeaths": 0,
-            "popTested": 253,
-            "popTestedPositive": 2
+            "staffTestedPositive": 0,
+            "staffDeaths": 0,
+            "popTestedPositive": 7
+        },
+        "2020-05-04": {
+            "popDeaths": 0,
+            "staffTestedPositive": 0,
+            "staffDeaths": 0,
+            "popTestedPositive": 8
+        },
+      },
+      516: {
+          "2020-04-07": {
+              "popTestedPositive": 0,
+              "staffTestedPositive": 0,
           },
-          "2020-06-02": {
-            "popDeaths": 0,
-            "popTested": 253,
-            "popTestedPositive": 2
+          "2020-04-08": {
+              "popTestedPositive": 0,
+              "staffTestedPositive": 0,
           },
-          "2020-06-03": {
-            "popDeaths": 0,
-            "popTested": 253,
-            "popTestedPositive": 2
-          },
-          "2020-06-04": {
-            "popDeaths": 0,
-            "popTested": 253,
-            "popTestedPositive": 2
-          }
-        }
       },
       ...
     }
     """
-    facilities = {}
-    with open(file_location) as csv_file:
+    cases_by_facility = defaultdict(dict)
+
+    with open(file_location, newline="") as csv_file:
         reader = csv.DictReader(csv_file, delimiter=',')
 
         for row in reader:
-            state_name = row["State"].strip()
-            canonical_facility_name = row["Canonical Facility Name"].strip()
-            facility_type = row['Facility Type'].strip()
-            date = row['Date'].strip()
+            key = row['facility_id']
+            date = row['date']
+            cases_by_facility[key][date] = build_covid_case_counts(row)
 
-            key = f'{state_name}::{canonical_facility_name}'
-
-            if (key in facilities):
-                # If the facility already exists, append the case counts for a given day.
-                facilities[key]['covidCases'][date] = build_covid_case_counts(
-                    row)
-            else:
-                # If the facility does not already exist, save its metadata along with
-                # the case counts for a given day.
-                facilities[key] = {
-                    'canonicalName': canonical_facility_name,
-                    'facilityType': facility_type,
-                    'stateName': state_name,
-                    'covidCases': {
-                        f'{date}': build_covid_case_counts(row)
-                    }
-                }
-
-    return facilities
+    return cases_by_facility
 
 
-def persist(facilities):
-    for _key, facility in facilities.items():
-        state_name = facility["stateName"]
-        facility_name = facility["canonicalName"]
+def save_case_data(facilities):
+    found = 0
+    not_found = 0
+    for facility_id, covid_cases in facilities.items():
 
-        facilitiesQueryResult = facilities_collection \
-            .where('stateName', '==', f'{state_name}') \
-            .where('canonicalName', '==', f'{facility_name}') \
-            .stream()
+        facility_ref = facilities_collection.document(facility_id)
 
-        facilityDocuments = list(facilitiesQueryResult)
-
-        if len(facilityDocuments) <= 1:
-            # If a reference facility already exists we will set facility_id to the existing
-            # reference facility's id in order to perform an update on that reference
-            # facility.  Otherwise, we will set the facility_id to None which signals to
-            # Firestore to create a new reference facility document.
-            existing_reference_facility = len(facilityDocuments) == 1
-            facility_id = facilityDocuments[0].id if existing_reference_facility else None
-            facility_ref = facilities_collection.document(facility_id)
-
-            # For new reference facility documents, set a createdAt timestamp.  This allows
-            # us to know which reference facilities are "new" from the perspective of a given
-            # user.
-            if not existing_reference_facility:
-                facility['createdAt'] = firestore.SERVER_TIMESTAMP
-
-            # Remove the Covid case data so that it can be stored separately in its own
-            # sub-collection.
-            covid_cases = facility.pop('covidCases')
-
-            batch = fs_client.batch()
-
-            batch.set(facility_ref, facility, merge=True)
+        # facility documents need to be created with the necessary metadata
+        # (which is done via a separate function) before we can populate them
+        # with daily case data
+        if facility_ref.get().exists:
+            found += 1
+            batch = FirestoreBatch(fs_client)
 
             for date, cases in covid_cases.items():
                 covidCasesOnDateRef = facility_ref.collection(
                     'covidCases').document(date)
+                # overwrite any existing documents; if source has changed,
+                # we will assume it is both correct and exhaustive
                 batch.set(covidCasesOnDateRef, cases)
-
             batch.commit()
         else:
-            log.error(
-                f'Multiple Documents were returned for {facility_name} in {state_name}')
+            not_found += 1
+            print(f'facility {facility_id} does not exist')
+    print(f'found: {found} not_found: {not_found}')
 
 
 def ingest_daily_covid_case_data(bucket_name, file_name):
     file_location = download_from_cloud_storage(bucket_name, file_name)
     facilities = reshape_facilities_data(file_location)
-    persist(facilities)
+    save_case_data(facilities)
 
 
 def ingest_facility_metadata_file(bucket_name, file_name):
     file_location = download_from_cloud_storage(bucket_name, file_name)
     create_or_update_facilities(file_location)
+
+
+if __name__ == "__main__":
+    # create_or_update_facilities('./bq-metadata.csv')
+    facilities = reshape_facilities_data('./bq-daily-data.csv')
+    save_case_data(facilities)
