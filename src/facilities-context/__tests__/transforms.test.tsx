@@ -61,6 +61,7 @@ describe("merged facility", () => {
       expect(mergedCase).toEqual({
         observedAt: referenceCase?.observedAt,
         ageUnknownCases: referenceCase?.popTestedPositive,
+        ageUnknownDeaths: referenceCase?.popDeaths,
         ageUnknownPopulation: referencePop,
         facilityCapacity: referenceCapacity,
         isReference: true,
