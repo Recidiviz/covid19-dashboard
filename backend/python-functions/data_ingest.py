@@ -20,6 +20,7 @@ fs_client = firestore.Client()
 facilities_collection = fs_client.collection(
     REFERENCE_FACILITIES_COLLECTION_ID)
 
+
 class FirestoreBatch():
     """
         Utility for managing Firestore batch writes to keep them under the
@@ -57,8 +58,8 @@ class FirestoreBatch():
     # NOTE: can also mirror other server transform operations as needed
     @property
     def SERVER_TIMESTAMP(self):
-       self.pending_ops_count += 1
-       return firestore.SERVER_TIMESTAMP
+        self.pending_ops_count += 1
+        return firestore.SERVER_TIMESTAMP
 
     def commit(self):
         return self.batch.commit()
@@ -226,7 +227,7 @@ def save_case_data(facilities):
 
         facility_ref = facilities_collection.document(facility_id)
         if not facility_ref.get().exists:
-            facility_metadata = { 'createdAt': batch.SERVER_TIMESTAMP }
+            facility_metadata = {'createdAt': batch.SERVER_TIMESTAMP}
             batch.set(facility_ref, facility_metadata)
 
         for date, cases in covid_cases.items():
