@@ -6,8 +6,6 @@ import logging
 import re
 
 REFERENCE_FACILITIES_COLLECTION_ID = 'reference_facilities'
-# this limit is imposed by firestore
-BATCH_SIZE = 500
 
 log = logging.getLogger("cloudLogger")
 
@@ -21,17 +19,63 @@ fs_client = firestore.Client()
 facilities_collection = fs_client.collection(
     REFERENCE_FACILITIES_COLLECTION_ID)
 
+class FirestoreBatch():
+    """
+        Utility for managing Firestore batch writes to keep them under the
+        hard-coded batch size limit.
+
+        Takes a Firestore Client instance, exposes methods and properties
+        that would result in batch "operations". Automatically flushes the
+        batch when it's full to prevent overflows.
+    """
+    # this limit is imposed by firestore
+    MAX_BATCH_SIZE = 500
+
+    def __init__(self, client):
+        # a single "write" can trigger additional operations (in effect,
+        # incrementing the batch size by >1); track them here to anticipate
+        # and prevent overflows
+        self.pending_ops_count = 0
+        self.client = client
+        self._start_batch()
+
+    def _track_write(self):
+        self.batch_size += 1
+        self.batch_size += self.pending_ops_count
+        self.pending_ops_count = 0
+
+    def _start_batch(self):
+        self.batch_size = 0
+        self.batch = self.client.batch()
+
+
+    def _prevent_overflow(self):
+        if self.batch_size + self.pending_ops_count >= self.MAX_BATCH_SIZE:
+            self.commit()
+            self._start_batch()
+
+    @property
+    def SERVER_TIMESTAMP(self):
+       self.pending_ops_count += 1
+       return firestore.SERVER_TIMESTAMP
+
+    def commit(self):
+        return self.batch.commit()
+
+    # NOTE: can also mirror create, delete, update methods on batch as needed
+    def set(self, *args, **kwargs):
+        self._prevent_overflow()
+        self.batch.set(*args, **kwargs)
+        self._track_write()
+
 
 def create_or_update_facilities(file_location):
-    batch = fs_client.batch()
+    batch = FirestoreBatch(fs_client)
+
     with open(file_location, newline='') as f:
         reader = csv.DictReader(f)
 
-        batch_counter = 0
         for row in reader:
-            # what appears to be a single "write" can contain multiple operations;
-            # we need to keep track of them to stay below the Firestore batch limit
-            row_ops_count = 1
             id = row['facility_id']
 
             facility_doc_ref = facilities_collection.document(id)
@@ -43,9 +87,8 @@ def create_or_update_facilities(file_location):
                 facility_metadata.update(fdoc_snapshot.to_dict())
             else:
                 facility_metadata.update({
-                    "createdAt": firestore.SERVER_TIMESTAMP,
+                    "createdAt": batch.SERVER_TIMESTAMP,
                 })
-                row_ops_count += 1  # SERVER_TIMESTAMP is a separate operation
 
             facility_metadata.update({
                 "canonicalName": row['facility_name'],
@@ -84,13 +127,6 @@ def create_or_update_facilities(file_location):
                         matching_record['value'] = latest_population['value']
                 else:
                     facility_metadata['population'] = [latest_population]
-
-            batch_counter += row_ops_count
-            # if we have hit our limit, start a new batch before proceeding
-            if batch_counter >= BATCH_SIZE:
-                batch.commit()
-                batch = fs_client.batch()
-                batch_counter = row_ops_count
 
             batch.set(facility_doc_ref, facility_metadata)
 
