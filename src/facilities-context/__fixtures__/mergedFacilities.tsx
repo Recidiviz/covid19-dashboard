@@ -46,7 +46,7 @@ export const referenceFacility: ReferenceFacility = {
   canonicalName: "Florida State Test Facility",
   facilityType: "State Prison",
   createdAt: new Date(2020, 5, 5),
-  capacity: [{ date: new Date(2020, 0, 1), value: 275 }],
+  capacity: 275,
   population: [{ date: new Date(2020, 0, 1), value: 380 }],
   covidCases: [
     {
@@ -108,7 +108,7 @@ export const compositeFacility: Facility = {
       isReference: true,
       stateName,
       countyName,
-      facilityCapacity: referenceFacility.capacity[0].value,
+      facilityCapacity: referenceFacility.capacity,
     },
     {
       observedAt: new Date(2020, 4, 29),
@@ -118,7 +118,7 @@ export const compositeFacility: Facility = {
       isReference: true,
       stateName,
       countyName,
-      facilityCapacity: referenceFacility.capacity[0].value,
+      facilityCapacity: referenceFacility.capacity,
     },
     userHistory[0],
     {
@@ -129,7 +129,7 @@ export const compositeFacility: Facility = {
       isReference: true,
       stateName,
       countyName,
-      facilityCapacity: referenceFacility.capacity[0].value,
+      facilityCapacity: referenceFacility.capacity,
     },
     {
       observedAt: new Date(2020, 5, 4),
@@ -139,7 +139,7 @@ export const compositeFacility: Facility = {
       isReference: true,
       stateName,
       countyName,
-      facilityCapacity: referenceFacility.capacity[0].value,
+      facilityCapacity: referenceFacility.capacity,
     },
     userHistory[1],
     {
@@ -150,7 +150,7 @@ export const compositeFacility: Facility = {
       isReference: true,
       stateName,
       countyName,
-      facilityCapacity: referenceFacility.capacity[0].value,
+      facilityCapacity: referenceFacility.capacity,
     },
   ],
   modelInputs: {
@@ -161,6 +161,6 @@ export const compositeFacility: Facility = {
     isReference: true,
     stateName,
     countyName,
-    facilityCapacity: referenceFacility.capacity[0].value,
+    facilityCapacity: referenceFacility.capacity,
   },
 };

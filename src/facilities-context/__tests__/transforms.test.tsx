@@ -67,7 +67,7 @@ describe("merged facility", () => {
     expect(merged.modelInputs.observedAt).toEqual(lastReferenceDate);
 
     const referencePop = referenceFacility.population[0].value;
-    const referenceCapacity = referenceFacility.capacity[0].value;
+    const referenceCapacity = referenceFacility.capacity;
 
     expect(merged.modelVersions.length).toBe(
       referenceFacility.covidCases.length,
@@ -158,7 +158,7 @@ describe("merged facility", () => {
   });
 
   it("should impute missing reference capacity from user data", () => {
-    referenceFacility.capacity = [];
+    referenceFacility.capacity = undefined;
     userFacility.modelVersions[0].facilityCapacity = 345;
     userFacility.modelVersions[1].facilityCapacity = 275;
 

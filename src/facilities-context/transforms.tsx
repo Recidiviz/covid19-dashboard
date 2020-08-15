@@ -71,7 +71,6 @@ function getCapacityFunc({
   // (because they change less frequently and are not part of reference covid records)
   const capacityByDate: SimpleTimeseries[] = orderBy(
     [
-      ...referenceFacility.capacity,
       ...userVersions.filter(hasCapacity).map((version) => ({
         date: version.observedAt,
         // this is a safe assertion because we filtered out undefined values above,
@@ -81,7 +80,14 @@ function getCapacityFunc({
     ],
     ["date"],
   );
-
+  // if there is absolutely no user capacity data, the reference value
+  // (unversioned) can be used as a fallback
+  if (capacityByDate.length === 0 && referenceFacility.capacity) {
+    capacityByDate.push({
+      date: new Date(),
+      value: referenceFacility.capacity,
+    });
+  }
   return getDateThresholdFunc(capacityByDate);
 }
 

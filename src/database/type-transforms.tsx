@@ -204,20 +204,15 @@ export const buildReferenceFacility = (
   stateName = String(stateName);
   canonicalName = String(canonicalName);
   facilityType = String(facilityType);
-  countyName = String(countyName);
+  countyName = countyName ? String(countyName) : undefined;
   createdAt = timestampToDate(data.createdAt);
 
-  // if these are not arrays then unfortunately they are garbage;
-  // this probably means the documents have been mangled somehow,
-  // it is not an expected case
-  if (!Array.isArray(capacity)) {
-    capacity = [];
-  }
+  // population can be missing or mangled; if so provide an empty array here
+  // to preserve a consistent interface
   if (!Array.isArray(population)) {
     population = [];
   }
 
-  capacity = capacity.map(toSimpleTimeseries);
   population = population.map(toSimpleTimeseries);
 
   return {
