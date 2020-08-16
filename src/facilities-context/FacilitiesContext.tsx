@@ -142,6 +142,36 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
     },
   };
 
+  async function prepareReferenceFacilities(facilities: FacilityMapping) {
+    // fetch reference facilities based on user facilities
+    // first facility is the reference; assume they're all the same
+    const userFacility = Object.values(facilities)[0];
+    if (!userFacility) return facilities;
+    const {
+      modelInputs: { stateName },
+      systemType,
+    } = userFacility && userFacility;
+
+    if (stateName && systemType) {
+      const referenceFacilities = await facilitiesActions.fetchReferenceFacilities(
+        stateName,
+        systemType,
+      );
+
+      dispatch({
+        type: facilitiesActions.RECEIVE_REFERENCE_FACILITIES,
+        payload: referenceFacilities,
+      });
+
+      return facilitiesActions.buildCompositeFacilities(
+        facilities,
+        referenceFacilities,
+        facilityToReference,
+      );
+    }
+    return facilities;
+  }
+
   // when a new scenario is loaded, facility data must be initialized
   // in a specific order to avoid unwanted side effects:
   // we fetch user facility data, then fetch reference data (when applicable);
@@ -239,14 +269,24 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(
     () => {
       if (state.loading || isEmpty(facilityToReference)) return;
-      facilitiesActions.receiveFacilities(
-        dispatch,
-        facilitiesActions.buildCompositeFacilities(
-          state.facilities,
-          state.referenceFacilities,
-          facilityToReference,
-        ),
-      );
+      async function updateFacilities() {
+        let facilities = state.facilities;
+        // If user just synced new reference facilities and is updating
+        // facilityToReference for the first time after initialization, then
+        // referenceFacilities will not be loaded yet.
+        if (isEmpty(state.referenceFacilities)) {
+          facilities = await prepareReferenceFacilities(facilities);
+        } else {
+          facilities = facilitiesActions.buildCompositeFacilities(
+            facilities,
+            state.referenceFacilities,
+            facilityToReference,
+          );
+        }
+
+        facilitiesActions.receiveFacilities(dispatch, facilities);
+      }
+      updateFacilities();
     },
     // we are controlling changes to the state imperatively via the action functions,
     // so it should be safe to exclude. When facilityToReference changes (externally

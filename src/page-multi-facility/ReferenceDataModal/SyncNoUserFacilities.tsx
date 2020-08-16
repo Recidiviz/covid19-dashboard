@@ -277,7 +277,7 @@ const SyncReferenceFacilitiesCard: React.FC<SyncReferenceFacilitiesCardProps> = 
       return;
     }
 
-    // Promise.all preserves insertion order so we can use this information to guarnatee User
+    // Promise.all preserves insertion order so we can use this information to guarantee User
     // Facilities in the savedFacilities array have a matching index with the Reference
     // Facilities in the selectedFacilities array.  Since the indexes match, it is acceptable
     // to generate the facilityIdToReferenceId mapping by iterating over the savedFacilities

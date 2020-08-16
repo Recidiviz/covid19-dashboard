@@ -308,7 +308,7 @@ export function EpidemicModelProvider({
   );
 
   return (
-    <EpidemicModelStateContext.Provider value={state}>
+    <EpidemicModelStateContext.Provider value={{ ...facilityModel, ...state }}>
       <EpidemicModelDispatchContext.Provider value={dispatch}>
         {children}
       </EpidemicModelDispatchContext.Provider>

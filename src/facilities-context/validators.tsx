@@ -25,6 +25,14 @@ const removeNonsenseCases: SingleDayValidator = (modelInputs) => {
       )
         return null;
     }
+  } else if (
+    modelInputs?.ageUnknownCases === undefined &&
+    modelInputs?.staffCases === undefined
+  ) {
+    // If we create a facility from a reference facility, we will have a modelInput with
+    // no cases. We want to remove this so that it does not interfere with the
+    // reference facility's cases increasing monotonically.
+    return null;
   }
   return modelInputs;
 };
