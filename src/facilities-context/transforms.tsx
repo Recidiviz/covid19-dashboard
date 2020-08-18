@@ -106,7 +106,7 @@ function mergeModelVersions({
   userVersions,
   referenceFacility,
 }: Optional<MergedHistoryInputs, "referenceFacility">): ModelInputs[] {
-  const combinedVersions: ModelInputs[] = [...userVersions];
+  const combinedVersions: ModelInputs[] = [...userVersions.filter(hasCases)];
   let { stateName, countyName } = combinedVersions.length
     ? (last(combinedVersions) as ModelInputs)
     : ({} as ModelInputs);
