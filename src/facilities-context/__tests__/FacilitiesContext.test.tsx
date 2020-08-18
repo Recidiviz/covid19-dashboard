@@ -113,6 +113,41 @@ describe("FacilitiesContext", () => {
     });
   });
 
+  it("does not use reference data when facilities are from multiple systems", async () => {
+    const { result, rerender, wait } = getTestHook();
+    expect(result.current.state.facilities).toEqual({});
+
+    mockedUseScenario.mockReturnValue([
+      {
+        loading: false,
+        failed: false,
+        data: { ...mockBaselineScenario },
+      },
+      noop,
+    ]);
+
+    const secondFacility = cloneDeep(userFacility);
+    secondFacility.systemType = "County Jail";
+    secondFacility.id = "secondTestFacilityId";
+    mockedGetFacilities.mockResolvedValue([
+      cloneDeep(userFacility),
+      secondFacility,
+    ]);
+
+    mockedGetReferenceFacilities.mockResolvedValue([
+      cloneDeep(referenceFacility),
+    ]);
+
+    rerender();
+
+    await wait(() => !isEmpty(result.current.state.facilities));
+
+    expect(result.current.state.facilities).toEqual({
+      [userFacility.id]: userFacility,
+      [secondFacility.id]: secondFacility,
+    });
+  });
+
   it("waits for reference facilities to load before updating facilities", async () => {
     const { result, rerender, waitForValueToChange } = getTestHook();
     expect(result.current.state.facilities).toEqual({});
