@@ -8,6 +8,8 @@ import useScenario from "../../scenario-context/useScenario";
 import { Facility, ModelInputs, ReferenceFacility } from "../types";
 import ReferenceDataModal from ".";
 import {
+  getMappedFacilities,
+  getMappedReferenceFacilities,
   getUnmappedFacilities,
   getUnmappedReferenceFacilities,
   ReferenceFacilitySelect,
@@ -43,6 +45,7 @@ interface Props {
   stateName: ModelInputs["stateName"];
   systemType: Facility["systemType"];
   onClose: () => void;
+  useUnmappedFacilities?: boolean;
 }
 
 const SyncNewReferenceData: React.FC<Props> = ({
@@ -50,24 +53,37 @@ const SyncNewReferenceData: React.FC<Props> = ({
   stateName,
   systemType,
   onClose,
+  useUnmappedFacilities = true,
 }) => {
   const [selections, setSelections] = useState<ReferenceFacilitySelections>({});
   const [scenarioState] = useScenario();
   const {
-    state: { facilities: facilitiesMapping, referenceFacilities },
+    state: { facilities: facilitiesMapping, referenceFacilities, facilities },
   } = useFacilities();
   const scenario = scenarioState.data;
   const mappedReferenceFacilities = scenario?.[referenceFacilitiesProp] || {};
+  const mappedFacilities = getMappedFacilities(
+    mappedReferenceFacilities,
+    facilitiesMapping,
+  );
   const unmappedFacilities = getUnmappedFacilities(
     mappedReferenceFacilities,
     facilitiesMapping,
+  );
+  const mappedRefFacilities = getMappedReferenceFacilities(
+    mappedReferenceFacilities,
+    referenceFacilities,
   );
   const unmappedReferenceFacilities = getUnmappedReferenceFacilities(
     mappedReferenceFacilities,
     referenceFacilities,
   );
 
-  if (!open || isEmpty(unmappedReferenceFacilities)) return null;
+  console.log(facilities);
+
+  if (useUnmappedFacilities) {
+    if (!open || isEmpty(unmappedReferenceFacilities)) return null;
+  }
 
   function handleChange(refFacilityId: ReferenceFacility["id"]) {
     return (facilityId: Facility["id"] | undefined) => {
@@ -84,6 +100,8 @@ const SyncNewReferenceData: React.FC<Props> = ({
     };
   }
 
+  console.log("here");
+
   return (
     <ReferenceDataModal
       open={open}
@@ -92,12 +110,21 @@ const SyncNewReferenceData: React.FC<Props> = ({
       title={<Title stateName={stateName} systemType={systemType} />}
       cancelText="Not now"
     >
-      <ReferenceFacilitySelect
-        facilities={unmappedFacilities}
-        referenceFacilities={unmappedReferenceFacilities}
-        selections={selections}
-        onChange={handleChange}
-      />
+      {useUnmappedFacilities ? (
+        <ReferenceFacilitySelect
+          facilities={unmappedFacilities}
+          referenceFacilities={unmappedReferenceFacilities}
+          selections={selections}
+          onChange={handleChange}
+        />
+      ) : (
+        <ReferenceFacilitySelect
+          facilities={mappedFacilities}
+          referenceFacilities={mappedRefFacilities}
+          selections={selections}
+          onChange={handleChange}
+        />
+      )}
     </ReferenceDataModal>
   );
 };

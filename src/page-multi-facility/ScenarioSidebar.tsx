@@ -17,6 +17,7 @@ import useReadOnlyMode from "../hooks/useReadOnlyMode";
 import useRejectionToast from "../hooks/useRejectionToast";
 import useScenario from "../scenario-context/useScenario";
 import ScenarioShareModal from "../scenario-share/ScenarioShareModal";
+import SyncNewReferenceData from "./ReferenceDataModal/SyncNewReferenceData";
 import ScenarioLibraryModal from "./ScenarioLibraryModal";
 import { Scenario } from "./types";
 
@@ -131,6 +132,7 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
   const [description, setDescription] = useState(scenario?.description);
   // need this to force a form state refresh when switching scenarios
   const [renderKey, setRenderKey] = useState(scenario?.id);
+  const [referenceDataModalOpen, setReferenceDataModalOpen] = useState(true);
 
   const promoType: string | null = getEnabledPromoType(scenario, numFacilities);
 
@@ -198,6 +200,21 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
             <ScenarioShareModal />
           </div>
         )}
+        <div>
+          <Spacer y={20} />
+          <HorizontalRule />
+          <Spacer y={20} />
+          Prepopulate Data
+        </div>
+        {
+          <SyncNewReferenceData
+            open={referenceDataModalOpen}
+            stateName={"Vermont"}
+            systemType={"State Prison"}
+            onClose={() => setReferenceDataModalOpen(false)}
+            useUnmappedFacilities={false}
+          />
+        }
         <div>
           <Spacer y={20} />
           <HorizontalRule />
