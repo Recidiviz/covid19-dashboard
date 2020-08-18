@@ -5,12 +5,9 @@ import {
   Facility,
   FacilityReferenceMapping,
 } from "../../page-multi-facility/types";
-import {
-  FacilitiesDispatch,
-  FacilityMapping,
-  ReferenceFacilityMapping,
-} from "../FacilitiesContext";
+import { FacilitiesDispatch } from "../FacilitiesContext";
 import { mergeFacilityObjects } from "../transforms";
+import { FacilityMapping, ReferenceFacilityMapping } from "../types";
 
 export const RECEIVE_REFERENCE_FACILITIES = "RECEIVE_REFERENCE_FACILITIES";
 export const CLEAR_REFERENCE_FACILITIES = "CLEAR_REFERENCE_FACILITIES";

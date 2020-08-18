@@ -1,8 +1,5 @@
 import { Facility, RtDataMapping } from "../../page-multi-facility/types";
-import {
-  FacilityMapping,
-  ReferenceFacilityMapping,
-} from "../FacilitiesContext";
+import { FacilityMapping, ReferenceFacilityMapping } from "../types";
 import {
   CLEAR_FACILITIES,
   CREATE_OR_UPDATE_FACILITY,

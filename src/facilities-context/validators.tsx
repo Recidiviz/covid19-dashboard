@@ -1,8 +1,9 @@
 import { differenceInCalendarDays } from "date-fns";
-import { has, maxBy } from "lodash";
+import { every, has, matchesProperty, maxBy, sample } from "lodash";
 
 import { validateCumulativeCases } from "../infection-model/validators";
 import { ModelInputs } from "../page-multi-facility/types";
+import { FacilityMapping } from "./types";
 
 type SingleDayValidator = (
   modelInputs: ModelInputs | null,
@@ -123,4 +124,18 @@ export function validateMergedModelVersions(
   }
 
   return validVersions;
+}
+
+export function isSingleSystem(facilities: FacilityMapping) {
+  const randomFacility = sample(facilities);
+
+  return every(
+    facilities,
+    (facility) =>
+      matchesProperty(
+        "modelInputs.stateName",
+        randomFacility?.modelInputs.stateName,
+      )(facility) &&
+      matchesProperty("systemType", randomFacility?.systemType)(facility),
+  );
 }

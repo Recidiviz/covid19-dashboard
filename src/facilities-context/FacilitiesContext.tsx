@@ -5,19 +5,14 @@ import { referenceFacilitiesProp } from "../database";
 import useReferenceFacilitiesEligible from "../hooks/useReferenceFacilitiesEligible";
 import {
   Facility,
-  ReferenceFacility,
   RtDataMapping,
   Scenario,
 } from "../page-multi-facility/types";
 import useScenario from "../scenario-context/useScenario";
 import * as facilitiesActions from "./actions";
 import { facilitiesReducer } from "./reducer";
-
-export type FacilityMapping = { [key in Facility["id"]]: Facility };
-
-export type ReferenceFacilityMapping = {
-  [key in ReferenceFacility["id"]]: ReferenceFacility;
-};
+import { FacilityMapping, ReferenceFacilityMapping } from "./types";
+import { isSingleSystem } from "./validators";
 
 export interface FacilitiesState {
   loading: boolean;
@@ -76,9 +71,9 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
   const scenario = scenarioState.data;
   const scenarioId = scenario?.id;
 
-  const shouldFetchReferenceFacilities = useReferenceFacilitiesEligible();
+  const referenceFacilitiesEligible = useReferenceFacilitiesEligible();
   const shouldUseReferenceFacilities =
-    shouldFetchReferenceFacilities && scenario?.useReferenceData;
+    referenceFacilitiesEligible && scenario?.useReferenceData;
 
   const facilityToReference =
     scenario && shouldUseReferenceFacilities
@@ -157,7 +152,11 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
               scenarioId,
             );
 
-            if (shouldFetchReferenceFacilities && size(facilities)) {
+            if (
+              referenceFacilitiesEligible &&
+              size(facilities) &&
+              isSingleSystem(facilities)
+            ) {
               // fetch reference facilities based on user facilities
               // first facility is the reference; assume they're all the same
               const {
@@ -206,7 +205,7 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
     // state when a new scenario is loaded, so it is excluded here.
     // Another effect will handle subsequent changes to its value based on user input
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [scenarioId, shouldFetchReferenceFacilities],
+    [scenarioId, referenceFacilitiesEligible],
   );
 
   // update facilities when reference mapping changes
