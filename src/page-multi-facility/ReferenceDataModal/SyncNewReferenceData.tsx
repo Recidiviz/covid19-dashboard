@@ -109,12 +109,23 @@ const SyncNewReferenceData: React.FC<Props> = ({
       title={<Title stateName={stateName} systemType={systemType} />}
       cancelText="Not now"
     >
-      <ReferenceFacilitySelect
-        facilities={unmappedFacilities}
-        referenceFacilities={unmappedReferenceFacilities}
-        selections={selections}
-        onChange={handleChange}
-      />
+      {useExistingFacilities ? (
+        <ReferenceFacilitySelect
+          facilities={mappedFacilities}
+          referenceFacilities={mappedRefFacilities}
+          selections={selections}
+          onChange={handleChange}
+          useExistingFacilities={useExistingFacilities}
+        />
+      ) : (
+        <ReferenceFacilitySelect
+          facilities={unmappedFacilities}
+          referenceFacilities={unmappedReferenceFacilities}
+          selections={selections}
+          onChange={handleChange}
+          useExistingFacilities={useExistingFacilities}
+        />
+      )}
     </ReferenceDataModal>
   );
 };
