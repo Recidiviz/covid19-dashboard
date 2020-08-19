@@ -1,4 +1,4 @@
-import { isSameDay } from "date-fns";
+import { addDays, isSameDay } from "date-fns";
 import { cloneDeep, last, pick } from "lodash";
 
 import {
@@ -8,7 +8,11 @@ import {
   stateName,
   userFacility as userFacilityFixture,
 } from "../__fixtures__";
-import { Facility, ReferenceFacility } from "../../page-multi-facility/types";
+import {
+  Facility,
+  ReferenceFacility,
+  ReferenceFacilityCovidCase,
+} from "../../page-multi-facility/types";
 import { mergeFacilityObjects } from "../transforms";
 
 function getFindByDay(targetDate: Date) {
@@ -34,9 +38,21 @@ describe("merged facility", () => {
     // a minimal facility (created from reference data) won't have any real model history,
     // but at least one model version will be created.
     // in this case we expect it to not actually have any case or population data
-    userFacility.modelVersions = [
-      pick(userFacility.modelInputs, ["observedAt", "updatedAt"]),
-    ];
+
+    userFacility.modelInputs = pick(userFacility.modelInputs, [
+      "observedAt",
+      "updatedAt",
+      "stateName",
+      "countyName",
+    ]);
+    // the minimal user data may not coincide with a day of reference data;
+    // make sure it doesn't stick around and cause problems
+    const lastReferenceDate = (last(
+      referenceFacility.covidCases,
+    ) as ReferenceFacilityCovidCase).observedAt;
+
+    userFacility.modelInputs.observedAt = addDays(lastReferenceDate, 10);
+    userFacility.modelVersions = [{ ...userFacility.modelInputs }];
 
     const merged = mergeFacilityObjects({ userFacility, referenceFacility });
 
@@ -46,6 +62,9 @@ describe("merged facility", () => {
       // the contents of this array are tested below
       modelVersions: expect.any(Array),
     });
+
+    // the minimal inputs are junk and should be thrown away
+    expect(merged.modelInputs.observedAt).toEqual(lastReferenceDate);
 
     const referencePop = referenceFacility.population[0].value;
     const referenceCapacity = referenceFacility.capacity[0].value;
@@ -61,6 +80,7 @@ describe("merged facility", () => {
       expect(mergedCase).toEqual({
         observedAt: referenceCase?.observedAt,
         ageUnknownCases: referenceCase?.popTestedPositive,
+        ageUnknownDeaths: referenceCase?.popDeaths,
         ageUnknownPopulation: referencePop,
         facilityCapacity: referenceCapacity,
         isReference: true,

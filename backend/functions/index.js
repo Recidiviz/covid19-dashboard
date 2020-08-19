@@ -28,7 +28,7 @@ const jwtCheck = jwt({
   }),
   audience: auth0Config.audience,
   issuer: `https://${auth0Config.domain}/`,
-  algorithm: "RS256",
+  algorithms: ["RS256"],
 });
 
 firebaseAdmin.initializeApp({

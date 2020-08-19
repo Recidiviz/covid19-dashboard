@@ -103,6 +103,7 @@ export const compositeFacility: Facility = {
     {
       observedAt: new Date(2020, 4, 28),
       ageUnknownCases: 5,
+      ageUnknownDeaths: 0,
       ageUnknownPopulation: referenceFacility.population[0].value,
       isReference: true,
       stateName,
@@ -112,6 +113,7 @@ export const compositeFacility: Facility = {
     {
       observedAt: new Date(2020, 4, 29),
       ageUnknownCases: 6,
+      ageUnknownDeaths: 0,
       ageUnknownPopulation: referenceFacility.population[0].value,
       isReference: true,
       stateName,
@@ -122,6 +124,7 @@ export const compositeFacility: Facility = {
     {
       observedAt: new Date(2020, 5, 3),
       ageUnknownCases: 14,
+      ageUnknownDeaths: 0,
       ageUnknownPopulation: userHistory[0].ageUnknownPopulation,
       isReference: true,
       stateName,
@@ -131,6 +134,7 @@ export const compositeFacility: Facility = {
     {
       observedAt: new Date(2020, 5, 4),
       ageUnknownCases: 19,
+      ageUnknownDeaths: 0,
       ageUnknownPopulation: userHistory[0].ageUnknownPopulation,
       isReference: true,
       stateName,
@@ -141,6 +145,7 @@ export const compositeFacility: Facility = {
     {
       observedAt: new Date(2020, 5, 7),
       ageUnknownCases: 28,
+      ageUnknownDeaths: 1,
       ageUnknownPopulation: userHistory[1].ageUnknownPopulation,
       isReference: true,
       stateName,
@@ -151,6 +156,7 @@ export const compositeFacility: Facility = {
   modelInputs: {
     observedAt: new Date(2020, 5, 7),
     ageUnknownCases: 28,
+    ageUnknownDeaths: 1,
     ageUnknownPopulation: userHistory[1].ageUnknownPopulation,
     isReference: true,
     stateName,
