@@ -113,7 +113,7 @@ describe("FacilitiesContext", () => {
     });
   });
 
-  it("does not use reference data when facilities are from multiple systems", async () => {
+  it("does not enable reference data when facilities are from multiple systems", async () => {
     const { result, rerender, wait } = getTestHook();
     expect(result.current.state.facilities).toEqual({});
 
@@ -121,7 +121,7 @@ describe("FacilitiesContext", () => {
       {
         loading: false,
         failed: false,
-        data: { ...mockBaselineScenario },
+        data: { ...mockBaselineScenario, useReferenceData: false },
       },
       noop,
     ]);
@@ -142,10 +142,7 @@ describe("FacilitiesContext", () => {
 
     await wait(() => !isEmpty(result.current.state.facilities));
 
-    expect(result.current.state.facilities).toEqual({
-      [userFacility.id]: userFacility,
-      [secondFacility.id]: secondFacility,
-    });
+    expect(result.current.state.canUseReferenceData).toBe(false);
   });
 
   it("waits for reference facilities to load before updating facilities", async () => {
