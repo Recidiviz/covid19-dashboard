@@ -2,22 +2,19 @@ import { isEmpty, size } from "lodash";
 import React, { useEffect } from "react";
 
 import { referenceFacilitiesProp } from "../database";
-import useReferenceFacilitiesEligible from "../hooks/useReferenceFacilitiesEligible";
+import { useFlag } from "../feature-flags";
 import {
   Facility,
-  ReferenceFacility,
   RtDataMapping,
   Scenario,
 } from "../page-multi-facility/types";
 import useScenario from "../scenario-context/useScenario";
 import * as facilitiesActions from "./actions";
 import { facilitiesReducer } from "./reducer";
+import { FacilityMapping, ReferenceFacilityMapping } from "./types";
+import { isSingleSystem } from "./validators";
 
-export type FacilityMapping = { [key in Facility["id"]]: Facility };
-
-export type ReferenceFacilityMapping = {
-  [key in ReferenceFacility["id"]]: ReferenceFacility;
-};
+const MIN_REFERENCE_FACILITIES = 3;
 
 export interface FacilitiesState {
   loading: boolean;
@@ -26,6 +23,7 @@ export interface FacilitiesState {
   referenceFacilities: ReferenceFacilityMapping;
   selectedFacilityId: Facility["id"] | null;
   rtData: RtDataMapping;
+  canUseReferenceData: boolean;
 }
 
 export type FacilitiesDispatch = (
@@ -70,18 +68,21 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
     referenceFacilities: {},
     selectedFacilityId: null,
     rtData: {},
+    canUseReferenceData: false,
   });
   const [scenarioState] = useScenario();
 
   const scenario = scenarioState.data;
   const scenarioId = scenario?.id;
 
-  const shouldFetchReferenceFacilities = useReferenceFacilitiesEligible();
-  const shouldUseReferenceFacilities =
-    shouldFetchReferenceFacilities && scenario?.useReferenceData;
+  const referenceDataFeatureAvailable =
+    useFlag(["enableShadowData"]) && !!scenario?.baseline;
+
+  const referenceDataActive =
+    referenceDataFeatureAvailable && scenario?.useReferenceData;
 
   const facilityToReference =
-    scenario && shouldUseReferenceFacilities
+    scenario && referenceDataActive
       ? scenario[referenceFacilitiesProp]
       : undefined;
 
@@ -152,14 +153,22 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
         if (scenarioId) {
           facilitiesActions.requestFacilities(dispatch);
           facilitiesActions.clearReferenceFacilities(dispatch);
+          facilitiesActions.setCanUseReferenceData(dispatch, false);
           try {
             let facilities = await facilitiesActions.fetchUserFacilities(
               scenarioId,
             );
 
-            if (shouldFetchReferenceFacilities && size(facilities)) {
+            // some eligibility checks are dependent on the reference facilities
+            // data itself, so we may update this before we're done here
+            let referenceDataEligible =
+              referenceDataFeatureAvailable &&
+              Boolean(size(facilities)) &&
+              isSingleSystem(facilities);
+
+            // currently active status trumps any eligibility violations
+            if (referenceDataEligible || referenceDataActive) {
               // fetch reference facilities based on user facilities
-              // first facility is the reference; assume they're all the same
               const {
                 modelInputs: { stateName },
                 systemType,
@@ -175,6 +184,15 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
                   payload: referenceFacilities,
                 });
 
+                referenceDataEligible =
+                  referenceDataEligible &&
+                  size(referenceFacilities) >= MIN_REFERENCE_FACILITIES;
+
+                // "eligible" only applies to scenarios that don't already have the
+                // feature toggled on (i.e., referenceDataActive === true);
+                // therefore this merge isn't actually conditional on that flag
+                // (but facilityToReference is conditional on referenceDataActive, so
+                // the final merge result will still reflect the toggle state)
                 facilities = facilitiesActions.buildCompositeFacilities(
                   facilities,
                   referenceFacilities,
@@ -184,6 +202,13 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
             }
             // dispatch facilities to state
             facilitiesActions.receiveFacilities(dispatch, facilities);
+
+            // UI elements conditioned on the reference data feature can watch this
+            facilitiesActions.setCanUseReferenceData(
+              dispatch,
+              // the feature already being activated trumps any eligibility criteria
+              referenceDataActive || referenceDataEligible,
+            );
           } catch (error) {
             console.error(
               `Error fetching facilities for scenario: ${scenarioId}`,
@@ -195,18 +220,19 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
           // Clear facilities if there is no new scenarioId
           dispatch({ type: facilitiesActions.CLEAR_FACILITIES });
           dispatch({ type: facilitiesActions.CLEAR_REFERENCE_FACILITIES });
+          facilitiesActions.setCanUseReferenceData(dispatch, false);
         }
       }
       initializeFacilities();
     },
 
-    // shouldFetchReferenceFacilities should change at the same time as the scenarioId
-    // and is safe to depend on here; however, we don't want to fire all of this logic off
+    // These booleans should change at the same time as the scenarioId
+    // and are safe to depend on here; however, we don't want to fire all of this logic off
     // every time facilityToReference changes; we want explicitly to depend on its initial
     // state when a new scenario is loaded, so it is excluded here.
     // Another effect will handle subsequent changes to its value based on user input
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [scenarioId, shouldFetchReferenceFacilities],
+    [scenarioId, referenceDataActive, referenceDataFeatureAvailable],
   );
 
   // update facilities when reference mapping changes

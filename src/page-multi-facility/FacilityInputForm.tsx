@@ -15,7 +15,6 @@ import { Spacer } from "../design-system/Spacer";
 import { useToasts } from "../design-system/Toast";
 import Tooltip from "../design-system/Tooltip";
 import { getFacilityById, useFacilities } from "../facilities-context";
-import useReferenceFacilitiesEligible from "../hooks/useReferenceFacilitiesEligible";
 import useRejectionToast from "../hooks/useRejectionToast";
 import useScreenWidth from "../hooks/useScreenWidth";
 import { persistedKeys } from "../impact-dashboard/EpidemicModelContext";
@@ -140,10 +139,9 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   const [syncDataModalFacility, setSyncDataModalFacility] = useState<
     string | null
   >(null);
-  const useReferenceFacilities = useReferenceFacilitiesEligible();
   const { addToast } = useToasts();
   const {
-    state: { rtData, facilities, selectedFacilityId },
+    state: { rtData, facilities, selectedFacilityId, canUseReferenceData },
     actions: {
       createOrUpdateFacility,
       removeFacility: deleteFacility,
@@ -192,7 +190,7 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
           systemType: systemType || null,
           modelInputs: modelUpdate,
         }).then((updatedFacility) => {
-          if (!facility?.id && useReferenceFacilities && updatedFacility) {
+          if (!facility?.id && canUseReferenceData && updatedFacility) {
             setSyncDataModalFacility(updatedFacility.id);
           } else {
             navigateHome();

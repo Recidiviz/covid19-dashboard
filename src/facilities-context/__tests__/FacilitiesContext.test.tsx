@@ -113,6 +113,38 @@ describe("FacilitiesContext", () => {
     });
   });
 
+  it("does not enable reference data when facilities are from multiple systems", async () => {
+    const { result, rerender, wait } = getTestHook();
+    expect(result.current.state.facilities).toEqual({});
+
+    mockedUseScenario.mockReturnValue([
+      {
+        loading: false,
+        failed: false,
+        data: { ...mockBaselineScenario, useReferenceData: false },
+      },
+      noop,
+    ]);
+
+    const secondFacility = cloneDeep(userFacility);
+    secondFacility.systemType = "County Jail";
+    secondFacility.id = "secondTestFacilityId";
+    mockedGetFacilities.mockResolvedValue([
+      cloneDeep(userFacility),
+      secondFacility,
+    ]);
+
+    mockedGetReferenceFacilities.mockResolvedValue([
+      cloneDeep(referenceFacility),
+    ]);
+
+    rerender();
+
+    await wait(() => !isEmpty(result.current.state.facilities));
+
+    expect(result.current.state.canUseReferenceData).toBe(false);
+  });
+
   it("waits for reference facilities to load before updating facilities", async () => {
     const { result, rerender, waitForValueToChange } = getTestHook();
     expect(result.current.state.facilities).toEqual({});
@@ -190,5 +222,69 @@ describe("FacilitiesContext", () => {
     expect(result.current.state.facilities).toEqual({
       [userFacility.id]: compositeFacility,
     });
+  });
+
+  it("reports whether reference data can be used", async () => {
+    const { result, rerender, wait, waitForValueToChange } = getTestHook();
+    expect(result.current.state.facilities).toEqual({});
+
+    mockedUseScenario.mockReturnValue([
+      {
+        loading: false,
+        failed: false,
+        data: { ...mockBaselineScenario, useReferenceData: false },
+      },
+      noop,
+    ]);
+
+    mockedGetFacilities.mockResolvedValue([cloneDeep(userFacility)]);
+
+    mockedGetReferenceFacilities.mockResolvedValue([
+      cloneDeep(referenceFacility),
+    ]);
+
+    rerender();
+
+    await wait(() => !isEmpty(result.current.state.facilities));
+    // this is false because there aren't enough reference facilities
+    expect(result.current.state.canUseReferenceData).toBe(false);
+
+    mockedUseScenario.mockReturnValue([
+      {
+        loading: false,
+        failed: false,
+        data: { ...mockBaselineScenario },
+      },
+      noop,
+    ]);
+    rerender();
+
+    await waitForValueToChange(() => result.current.state.canUseReferenceData);
+    // this should now be true because the scenario flag is enabled
+    expect(result.current.state.canUseReferenceData).toBe(true);
+
+    // set the scenario flag back to false
+    mockedUseScenario.mockReturnValue([
+      {
+        loading: false,
+        failed: false,
+        data: { ...mockBaselineScenario, useReferenceData: false },
+      },
+      noop,
+    ]);
+
+    // return more reference facilities (expect at least 3 to be required)
+    mockedGetReferenceFacilities.mockResolvedValue([
+      cloneDeep(referenceFacility),
+      { ...cloneDeep(referenceFacility), id: "testReferenceFacility2" },
+      { ...cloneDeep(referenceFacility), id: "testReferenceFacility3" },
+    ]);
+
+    rerender();
+    await waitForValueToChange(() => result.current.state.canUseReferenceData);
+
+    // this should now be true because we have enough reference facilities,
+    // even though the feature is not currently toggled active
+    expect(result.current.state.canUseReferenceData).toBe(true);
   });
 });
