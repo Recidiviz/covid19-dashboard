@@ -153,6 +153,7 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
         if (scenarioId) {
           facilitiesActions.requestFacilities(dispatch);
           facilitiesActions.clearReferenceFacilities(dispatch);
+          facilitiesActions.setCanUseReferenceData(dispatch, false);
           try {
             let facilities = await facilitiesActions.fetchUserFacilities(
               scenarioId,
@@ -219,6 +220,7 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
           // Clear facilities if there is no new scenarioId
           dispatch({ type: facilitiesActions.CLEAR_FACILITIES });
           dispatch({ type: facilitiesActions.CLEAR_REFERENCE_FACILITIES });
+          facilitiesActions.setCanUseReferenceData(dispatch, false);
         }
       }
       initializeFacilities();

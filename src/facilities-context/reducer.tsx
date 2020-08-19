@@ -63,7 +63,7 @@ export function facilitiesReducer(
       return { ...state, referenceFacilities: action.payload };
 
     case actions.CLEAR_REFERENCE_FACILITIES:
-      return { ...state, referenceFacilities: {}, canUseReferenceData: false };
+      return { ...state, referenceFacilities: {} };
 
     case actions.CLEAR_FACILITIES:
       return { ...state, facilities: {}, loading: false };
