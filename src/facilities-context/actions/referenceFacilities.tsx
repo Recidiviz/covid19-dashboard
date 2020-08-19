@@ -11,6 +11,7 @@ import { FacilityMapping, ReferenceFacilityMapping } from "../types";
 
 export const RECEIVE_REFERENCE_FACILITIES = "RECEIVE_REFERENCE_FACILITIES";
 export const CLEAR_REFERENCE_FACILITIES = "CLEAR_REFERENCE_FACILITIES";
+export const CAN_USE_REFERENCE_DATA = "CAN_USE_REFERENCE_DATA";
 
 export async function fetchReferenceFacilities(
   stateName: string,
@@ -26,6 +27,13 @@ export async function fetchReferenceFacilities(
 
 export function clearReferenceFacilities(dispatch: FacilitiesDispatch) {
   dispatch({ type: CLEAR_REFERENCE_FACILITIES });
+}
+
+export function setCanUseReferenceData(
+  dispatch: FacilitiesDispatch,
+  payload: boolean,
+) {
+  dispatch({ type: CAN_USE_REFERENCE_DATA, payload });
 }
 
 function mapReferenceFacilities(

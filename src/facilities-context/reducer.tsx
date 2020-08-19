@@ -7,7 +7,9 @@ export function facilitiesReducer(
 ): FacilitiesState {
   switch (action.type) {
     case actions.REQUEST_FACILITIES:
-      return Object.assign({}, state, { loading: true });
+      return Object.assign({}, state, {
+        loading: true,
+      });
 
     case actions.RECEIVE_FACILITIES:
       return Object.assign({}, state, {
@@ -21,6 +23,7 @@ export function facilitiesReducer(
         loading: false,
         failed: true,
         facilities: {},
+        canUseReferenceData: false,
       });
 
     case actions.CREATE_OR_UPDATE_FACILITY: {
@@ -60,10 +63,13 @@ export function facilitiesReducer(
       return { ...state, referenceFacilities: action.payload };
 
     case actions.CLEAR_REFERENCE_FACILITIES:
-      return { ...state, referenceFacilities: {} };
+      return { ...state, referenceFacilities: {}, canUseReferenceData: false };
 
     case actions.CLEAR_FACILITIES:
       return { ...state, facilities: {}, loading: false };
+
+    case actions.CAN_USE_REFERENCE_DATA:
+      return { ...state, canUseReferenceData: action.payload };
 
     default:
       return state;

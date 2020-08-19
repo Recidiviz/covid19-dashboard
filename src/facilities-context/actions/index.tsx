@@ -11,6 +11,7 @@ import {
   SELECT_FACILITY,
 } from "./facilities";
 import {
+  CAN_USE_REFERENCE_DATA,
   CLEAR_REFERENCE_FACILITIES,
   RECEIVE_REFERENCE_FACILITIES,
 } from "./referenceFacilities";
@@ -32,7 +33,8 @@ export type FacilitiesActions =
   | ERROR_ACTIONS
   | RECEIVE_REFERENCE_FACILITIES_ACTION
   | CLEAR_ACTIONS
-  | DESELECT_FACILITY_ACTION;
+  | DESELECT_FACILITY_ACTION
+  | CAN_USE_REFERENCE_DATA_ACTION;
 
 export type FACILITY_ACTION = {
   type: typeof CREATE_OR_UPDATE_FACILITY;
@@ -73,4 +75,9 @@ export type RECEIVE_REFERENCE_FACILITIES_ACTION = {
 
 export type CLEAR_ACTIONS = {
   type: typeof CLEAR_REFERENCE_FACILITIES | typeof CLEAR_FACILITIES;
+};
+
+export type CAN_USE_REFERENCE_DATA_ACTION = {
+  type: typeof CAN_USE_REFERENCE_DATA;
+  payload: boolean;
 };
