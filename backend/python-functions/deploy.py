@@ -13,6 +13,22 @@ cloud_fn_name = args.function_name
 if args.env == "development":
     cloud_fn_name += "_development"
 
+custom_options = {
+    "ingest_covid_case_data": [
+        "--trigger-resource", "c19-backend-covid-case-data",
+        "--trigger-event", "google.storage.object.finalize",
+        "--timeout", "540s",
+    ],
+    "ingest_facility_metadata": [
+        "--trigger-resource", "c19-backend-facility-metadata",
+        "--trigger-event", "google.storage.object.finalize",
+        "--timeout", "540s",
+    ],
+    "calculate_rt" : [
+        "--trigger-http",
+    ]
+}
+
 subprocess.run([
     "gcloud",
     "functions",
@@ -20,7 +36,7 @@ subprocess.run([
     cloud_fn_name,
     "--entry-point", "{}".format(args.function_name),
     "--runtime", "python37",
-    "--trigger-http",
+    *custom_options[args.function_name],
     "--allow-unauthenticated",
     "--project", "c19-backend",
 ])

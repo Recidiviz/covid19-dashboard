@@ -8,6 +8,7 @@ interface Props extends InputBaseProps<number> {
   type: "number" | "percent";
   style?: React.CSSProperties;
   inputRelativityError?: boolean;
+  isReference?: boolean;
 }
 
 const PctAddon = styled.div`
@@ -31,7 +32,10 @@ const InputTextNumeric: React.FC<Props> = (props) => {
     if (value == null) return undefined;
 
     if (props.type === "percent") {
-      return `${value * 100}`;
+      const valueIsNumber = (value * 100).toFixed(0);
+      const valueIsString = `${valueIsNumber}`;
+
+      return valueIsString;
     } else {
       return `${value}`;
     }
@@ -44,10 +48,7 @@ const InputTextNumeric: React.FC<Props> = (props) => {
       valueEntered={formatValue(props.valueEntered)}
       onValueChange={onValueChange}
       inputRelativityError={props.inputRelativityError}
-      labelPlaceholder={
-        props.labelPlaceholder ??
-        (props.type === "number" ? "Enter number" : "Enter a percentage")
-      }
+      labelPlaceholder={props.labelPlaceholder ?? "0"}
     >
       {props.type === "percent" && <PctAddon>%</PctAddon>}
     </InputText>

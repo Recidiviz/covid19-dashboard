@@ -59,7 +59,12 @@ service cloud.firestore {
       allow read: if userIsAuthenticated() && resource.data.auth0Id == resource.data.auth0Id;
 
       allow update: if userIsSelf(resource) && userIsSelf(request.resource);
+      allow delete: if userIsSelf(resource);
       allow create: if userIsSelf(request.resource);
+    }
+
+    match /reference_facilities_test/{document=**} {
+      allow read: if userIsAuthenticated();
     }
   }
 }

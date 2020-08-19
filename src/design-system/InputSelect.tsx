@@ -20,6 +20,10 @@ const SelectContainer = styled.div`
   flex-grow: 1;
   flex-basis: 50%;
   margin-right: 8px;
+
+  @media print {
+    display: none;
+  }
 `;
 
 const caretSize = 5;
@@ -46,6 +50,10 @@ const StyledSelect = styled.input`
   appearance: none;
   padding-right: ${caretSize * 2 + 16}px;
   text-overflow: ellipsis;
+
+  &::-ms-expand {
+    display: none;
+  }
 `;
 
 const InputSelect: React.FC<Props> = (props) => {
@@ -59,6 +67,7 @@ const InputSelect: React.FC<Props> = (props) => {
           onChange={props.onChange}
           value={props.value}
           name={props.label}
+          {...props}
         >
           {props.children}
         </StyledSelect>

@@ -12,15 +12,16 @@ export type Props = Pick<ModalProps, "trigger"> & {
 
 const AddCasesModal: React.FC<Props> = ({ facility, trigger, onSave }) => {
   const [modalOpen, setModalOpen] = useState(false);
+  const [observedAt, setObservedAt] = useState<Date | undefined>();
   const {
     inputs,
     observationDate,
-    onDateChange,
     facilityModelVersions,
     updateInputs,
     resetModalData,
     saveCases,
-  } = useAddCasesInputs(facility, onSave);
+    isReference,
+  } = useAddCasesInputs(facility, onSave, observedAt);
 
   async function handleSave() {
     await saveCases();
@@ -29,7 +30,7 @@ const AddCasesModal: React.FC<Props> = ({ facility, trigger, onSave }) => {
 
   return (
     <Modal
-      modalTitle="Update Cases and Population"
+      modalTitle="Add Historical Data"
       onClose={resetModalData}
       open={modalOpen}
       setOpen={setModalOpen}
@@ -37,11 +38,12 @@ const AddCasesModal: React.FC<Props> = ({ facility, trigger, onSave }) => {
     >
       <AddCasesModalContent
         observationDate={observationDate}
-        onValueChange={onDateChange}
+        onValueChange={setObservedAt}
         inputs={inputs}
         updateInputs={updateInputs}
         onSave={handleSave}
         facilityModelVersions={facilityModelVersions}
+        isReference={isReference}
       />
     </Modal>
   );

@@ -1,7 +1,7 @@
 import { startOfToday } from "date-fns";
 import hexAlpha from "hex-alpha";
 import numeral from "numeral";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 
 import Colors from "../../design-system/Colors";
@@ -26,6 +26,7 @@ const ModalContents = styled.div`
   font-weight: normal;
   justify-content: flex-start;
   margin-top: 30px;
+  padding-bottom: 35px;
 
   .react-calendar__tile {
     /* these are needed for tooltip display */
@@ -56,6 +57,15 @@ const HorizRule = styled.div`
   padding-bottom: 20px;
   margin-bottom: 20px;
   width: 100%;
+`;
+
+const Description = styled.p`
+  font-family: Poppins;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 14px;
+  line-height: 16px;
+  margin: 0 0 20px 0;
 `;
 
 const CalendarTileTooltipAnchor = styled.div`
@@ -90,6 +100,7 @@ export type Props = {
   updateInputs: (update: ModelInputsPopulationBrackets) => void;
   facilityModelVersions: ModelInputs[] | undefined;
   onSave: (event: React.MouseEvent<Element>) => void;
+  isReference?: boolean;
 };
 
 const AddCasesModalContent: React.FC<Props> = ({
@@ -99,6 +110,7 @@ const AddCasesModalContent: React.FC<Props> = ({
   updateInputs,
   onSave,
   facilityModelVersions,
+  isReference,
 }) => {
   const findMatchingDay = useCallback(
     ({ date }: { date: Date }) =>
@@ -107,6 +119,7 @@ const AddCasesModalContent: React.FC<Props> = ({
       ),
     [facilityModelVersions],
   );
+  const [warnedAt, setWarnedAt] = useState(0);
 
   const getTileClassName = useCallback(
     ({ date, view }: { date: Date; view: string }) => {
@@ -167,6 +180,10 @@ const AddCasesModalContent: React.FC<Props> = ({
 
   return (
     <ModalContents>
+      <Description>
+        Enter the cumulative number of cases detected and the total population
+        as of this date.
+      </Description>
       <InputDate
         labelAbove={"Date observed"}
         onValueChange={onValueChange}
@@ -179,6 +196,9 @@ const AddCasesModalContent: React.FC<Props> = ({
         model={inputs}
         updateModel={updateInputs}
         collapsible={true}
+        warnedAt={warnedAt}
+        setWarnedAt={setWarnedAt}
+        isReference={isReference}
       />
       <HorizRule />
       <InputButton label="Save" onClick={onSave} />

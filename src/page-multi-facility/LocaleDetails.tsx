@@ -47,15 +47,15 @@ const localeRecordProperties: { [key: string]: keyof LocaleRecord } = {
 const enDash = "–";
 
 interface Props {
-  stateCode: string;
+  stateName: string;
   countyName?: string;
 }
 
-const LocaleDetails: React.FC<Props> = ({ stateCode, countyName }) => {
+const LocaleDetails: React.FC<Props> = ({ stateName, countyName }) => {
   const { data } = useLocaleDataState();
-  if (!data || !stateCode || !countyName) return null;
+  if (!data || !stateName || !countyName) return null;
 
-  const stateData = data.get(stateCode);
+  const stateData = data.get(stateName);
   const localeRecord: LocaleRecord | undefined =
     stateData && stateData.get(countyName);
 

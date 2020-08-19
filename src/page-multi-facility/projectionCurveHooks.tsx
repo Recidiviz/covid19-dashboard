@@ -1,5 +1,5 @@
 import { zip } from "d3-array";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 
 import { EpidemicModelInputs } from "../impact-dashboard/EpidemicModelContext";
 import {
@@ -10,18 +10,24 @@ import {
 } from "../infection-model";
 import { getAllValues, getColView } from "../infection-model/matrixUtils";
 import { isRtData, isRtError } from "../infection-model/rt";
-import { seirIndex } from "../infection-model/seir";
+import {
+  SeirCompartmentKeys,
+  seirIndex,
+  seirIndexList,
+} from "../infection-model/seir";
 import { RtValue } from "./types";
 
 function getCurves(
   input: EpidemicModelInputs,
   useRt?: boolean,
   latestRt?: number,
+  numDays?: number,
 ) {
   return calculateCurves(
     useRt
       ? curveInputsWithRt(input, latestRt)
       : curveInputsFromUserInputs(input),
+    numDays,
   );
 }
 
@@ -29,6 +35,7 @@ export const useProjectionData = (
   input: EpidemicModelInputs,
   useRt?: boolean,
   rtData?: RtValue,
+  numDays?: number,
 ): CurveData | undefined => {
   let latestRt: number | undefined;
 
@@ -40,11 +47,12 @@ export const useProjectionData = (
     }
   }
 
-  const [curves, updateCurves] = useState(getCurves(input, useRt, latestRt));
-
-  useEffect(() => {
-    updateCurves(getCurves(input, useRt, latestRt));
-  }, [input, latestRt, useRt]);
+  const curves = useMemo(() => getCurves(input, useRt, latestRt, numDays), [
+    input,
+    latestRt,
+    useRt,
+    numDays,
+  ]);
 
   return curves;
 };
@@ -56,24 +64,31 @@ function combinePopulations(data: CurveData, columnIndex: number) {
   ).map(([incarcerated, staff]) => incarcerated + staff);
 }
 
-function buildCurves(projectionData?: CurveData) {
+type CurveDataMapping = {
+  [key in SeirCompartmentKeys]: number[];
+};
+
+function buildCurves(projectionData?: CurveData): CurveDataMapping | undefined {
   if (!projectionData) return undefined;
 
-  // merge and filter the curve data to only what we need for the chart
-  return {
-    exposed: combinePopulations(projectionData, seirIndex.exposed),
-    fatalities: combinePopulations(projectionData, seirIndex.fatalities),
-    hospitalized: combinePopulations(projectionData, seirIndex.hospitalized),
-    infectious: combinePopulations(projectionData, seirIndex.infectious),
-  };
+  const curvesToShow = seirIndexList;
+
+  // each SEIR compartment will have a corresponding curve data array
+  return curvesToShow.reduce((curves, currentIndex) => {
+    return {
+      ...curves,
+      [seirIndex[currentIndex]]: combinePopulations(
+        projectionData,
+        currentIndex,
+      ),
+    };
+  }, {} as CurveDataMapping);
 }
 
 export const useChartDataFromProjectionData = (projectionData?: CurveData) => {
-  const [curveData, updateCurveData] = useState(buildCurves(projectionData));
-
-  useEffect(() => {
-    updateCurveData(buildCurves(projectionData));
-  }, [projectionData]);
+  const curveData = useMemo(() => buildCurves(projectionData), [
+    projectionData,
+  ]);
 
   return curveData;
 };

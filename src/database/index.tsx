@@ -1,14 +1,30 @@
 // the core Firebase SDK must be imported before other Firebase modules
 // eslint-disable-next-line simple-import-sort/sort
-import * as firebase from "firebase/app";
+import firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
 
-import { format, startOfDay, startOfToday } from "date-fns";
-import { pick, orderBy, uniqBy, findKey } from "lodash";
+import {
+  format,
+  startOfDay,
+  differenceInCalendarDays,
+  isSameDay,
+  isEqual,
+} from "date-fns";
+import {
+  pick,
+  orderBy,
+  uniqBy,
+  findKey,
+  maxBy,
+  minBy,
+  pickBy,
+  omitBy,
+  isUndefined,
+} from "lodash";
 import { Optional } from "utility-types";
 
-import { MMMMdyyyy } from "../constants";
+import { MMMMdyyyy, CLOUD_FUNCTION_URL_BASE } from "../constants";
 import { persistedKeys } from "../impact-dashboard/EpidemicModelContext";
 import {
   Facility,
@@ -22,17 +38,25 @@ import {
   buildModelInputs,
   buildScenario,
   buildUser,
+  buildReferenceFacility,
+  buildFacilityDocUpdate,
 } from "./type-transforms";
 import AppAuth0ClientPromise from "../auth/AppAuth0ClientPromise";
-import { ascending } from "d3-array";
+import { ascending, zip } from "d3-array";
+import { validateCumulativeCases } from "../infection-model/validators";
+import { ModelInputsUpdate } from "./types";
 
 // As long as there is just one Auth0 config, this endpoint will work with any environment (local, prod, etc.).
-const tokenExchangeEndpoint =
-  "https://us-central1-c19-backend.cloudfunctions.net/getFirebaseToken";
+const tokenExchangeEndpoint = `${CLOUD_FUNCTION_URL_BASE}/getFirebaseToken`;
 const scenariosCollectionId = "scenarios";
 const facilitiesCollectionId = "facilities";
 const modelVersionCollectionId = "modelVersions";
 const usersCollectionId = "users";
+// TODO (#521): when the datasource stabilizes, change this to the real collection
+const referenceFacilitiesCollectionId = "reference_facilities_test";
+const referenceFacilitiesCovidCasesCollectionId = "covidCases";
+// TODO (#521): when we switch to using the real data update this property for the scenario
+export const referenceFacilitiesProp = "testReferenceFacilities";
 
 // Note: None of these are secrets.
 let firebaseConfig = {
@@ -73,17 +97,17 @@ const authenticate = async () => {
   await firebase.auth().signInWithCustomToken(customToken);
 };
 
-const currrentUserId = () => {
+const currentUserId = () => {
   const userId = (firebase.auth().currentUser || {}).uid;
 
   if (!userId) {
-    throw new Error("currrentUserId() always expects a user to be returned");
+    throw new Error("currentUserId() always expects a user to be returned");
   }
 
   return userId;
 };
 
-const currrentTimestamp = () => {
+const currentTimestamp = () => {
   return firebase.firestore.FieldValue.serverTimestamp();
 };
 
@@ -97,21 +121,27 @@ const getDb = async () => {
   return firebase.firestore();
 };
 
-const buildCreatePayload = (entity: any) => {
+const buildCreatePayload = <T,>(entity: T): T => {
   // Make sure the 'id' key doesn't exist on the entity object
   // or else Firestore won't permit the addition.
-  delete entity.id;
+  delete (entity as any).id;
 
-  const timestamp = currrentTimestamp();
-  return Object.assign({}, entity, {
+  // remove any keys that are explicitly set to undefined or Firestore will object
+  const filteredEntity: any = omitBy(entity, isUndefined);
+
+  const timestamp = currentTimestamp();
+  return Object.assign({}, filteredEntity, {
     createdAt: timestamp,
     updatedAt: timestamp,
   });
 };
 
-const buildUpdatePayload = (entity: any) => {
-  const timestamp = currrentTimestamp();
-  const payload = Object.assign({}, entity, {
+const buildUpdatePayload = <T,>(entity: T): T => {
+  // remove any keys that are explicitly set to undefined or Firestore will object
+  const filteredEntity: any = omitBy(entity, isUndefined);
+
+  const timestamp = currentTimestamp();
+  const payload = Object.assign({}, filteredEntity, {
     updatedAt: timestamp,
   });
 
@@ -120,7 +150,7 @@ const buildUpdatePayload = (entity: any) => {
   // `delete payload.id` and not `delete entity.id` (like we do in
   // buildCreatePayload) because we do not want to mutate the entity object and
   // throw away the reference to its own id.
-  delete payload.id;
+  delete (payload as any).id;
 
   return payload;
 };
@@ -135,6 +165,16 @@ function throwIfPermissionsError(
   throw error;
 }
 
+export const SCENARIO_DEFAULTS = {
+  baseline: false,
+  dailyReports: false,
+  dataSharing: false,
+  useReferenceData: false,
+  promoStatuses: {},
+  baselinePopulations: [],
+  [referenceFacilitiesProp]: {},
+};
+
 const getBaselineScenarioRef = async (): Promise<firebase.firestore.DocumentReference | void> => {
   const db = await getDb();
 
@@ -142,7 +182,7 @@ const getBaselineScenarioRef = async (): Promise<firebase.firestore.DocumentRefe
   //       See https://firebase.google.com/docs/firestore/security/rules-conditions#rules_are_not_filters.
   const query = db
     .collection(scenariosCollectionId)
-    .where(`roles.${currrentUserId()}`, "in", ["owner"])
+    .where(`roles.${currentUserId()}`, "in", ["owner"])
     .where("baseline", "==", true);
 
   const results = await query.get();
@@ -167,9 +207,7 @@ const getScenarioRef = async (
   try {
     const db = await getDb();
 
-    const scenarioRef = await db
-      .collection(scenariosCollectionId)
-      .doc(scenarioId);
+    const scenarioRef = db.collection(scenariosCollectionId).doc(scenarioId);
 
     return scenarioRef;
   } catch (error) {
@@ -211,7 +249,7 @@ export const getScenarios = async (): Promise<Scenario[]> => {
 
     const scenarioResults = await db
       .collection(scenariosCollectionId)
-      .where(`roles.${currrentUserId()}`, "in", ["owner", "viewer"])
+      .where(`roles.${currentUserId()}`, "in", ["owner", "viewer"])
       .get();
 
     const scenarios = scenarioResults.docs.map((doc) => {
@@ -234,6 +272,62 @@ export const getScenarios = async (): Promise<Scenario[]> => {
   }
 };
 
+export const getSharedBaselineScenarios = async (): Promise<Scenario[]> => {
+  try {
+    const db = await getDb();
+
+    const results = await db
+      .collection(scenariosCollectionId)
+      .where(`roles.${currentUserId()}`, "in", ["viewer"])
+      .where("baseline", "==", true)
+      .get();
+
+    const sharedBaselineScenarios = results.docs.map((doc) => {
+      return buildScenario(doc);
+    });
+
+    return sharedBaselineScenarios;
+  } catch (error) {
+    console.error(
+      `Encountered error while attempting to retrieve shared scenarios:`,
+    );
+    console.error(error);
+
+    return [];
+  }
+};
+
+export const getScenariosByStateName = async (
+  scenarios: Scenario[],
+  stateName: string,
+): Promise<Scenario[]> => {
+  const db = await getDb();
+  const results = await Promise.all(
+    scenarios.map(async (scenario: Scenario) => {
+      const facilitiesWithStateName = await db
+        .collection(scenariosCollectionId)
+        .doc(scenario.id)
+        .collection(facilitiesCollectionId)
+        .where("modelInputs.stateName", "==", stateName)
+        .get();
+      // Since some of our facilities still have stateCode properties
+      // we need to check for both query results.
+      const facilitiesWithStateCode = await db
+        .collection(scenariosCollectionId)
+        .doc(scenario.id)
+        .collection(facilitiesCollectionId)
+        .where("modelInputs.stateCode", "==", stateName)
+        .get();
+      return (
+        (facilitiesWithStateName.docs.length > 0 ||
+          facilitiesWithStateCode.docs.length > 0) &&
+        scenario
+      );
+    }),
+  );
+  return results.filter((result): result is Scenario => !!result);
+};
+
 export const saveScenario = async (scenario: any): Promise<Scenario | null> => {
   try {
     const db = await getDb();
@@ -251,7 +345,7 @@ export const saveScenario = async (scenario: any): Promise<Scenario | null> => {
 
       scenarioId = scenario.id;
     } else {
-      const userId = currrentUserId();
+      const userId = currentUserId();
       const payload = buildCreatePayload(
         Object.assign({}, scenario, {
           roles: {
@@ -283,42 +377,7 @@ export const saveScenario = async (scenario: any): Promise<Scenario | null> => {
   }
 };
 
-export const getFacilities = async (
-  scenarioId: string,
-): Promise<Array<Facility> | null> => {
-  try {
-    const scenario = await getScenario(scenarioId);
-
-    if (!scenario) return null;
-
-    const db = await getDb();
-
-    const facilitiesResults = await db
-      .collection(scenariosCollectionId)
-      .doc(scenario.id)
-      .collection(facilitiesCollectionId)
-      .orderBy("name")
-      .get();
-
-    const facilities = facilitiesResults.docs.map((doc) => {
-      return buildFacility(scenario.id, doc);
-    });
-
-    return facilities;
-  } catch (error) {
-    console.error("Encountered error while attempting to retrieve facilities:");
-    console.error(error);
-
-    throwIfPermissionsError(
-      error,
-      "You don't have permission to access these facilities.",
-    );
-
-    return null;
-  }
-};
-
-export const getFacilityModelVersions = async ({
+const getFacilityModelVersions = async ({
   facilityId,
   scenarioId,
   distinctByObservedAt = false,
@@ -343,13 +402,34 @@ export const getFacilityModelVersions = async ({
     let modelVersions = historyResults.docs.map((doc) =>
       buildModelInputs(doc.data()),
     );
-    return distinctByObservedAt
-      ? uniqBy(
+    if (distinctByObservedAt) {
+      // if observedAt has not been normalized,
+      // we have to re-sort in memory to properly group by observedAt
+      let normalized = !modelVersions.some((version, index) => {
+        if (!index) return;
+
+        const { observedAt } = version;
+        const { observedAt: prevObservedAt } = modelVersions[index - 1];
+        return (
+          isSameDay(observedAt, prevObservedAt) &&
+          !isEqual(observedAt, prevObservedAt)
+        );
+      });
+      if (!normalized) {
+        modelVersions = orderBy(
           modelVersions,
-          // make sure time doesn't enter into the uniqueness
-          (record) => record.observedAt.toDateString(),
-        )
-      : modelVersions;
+          [(version) => version.observedAt.toDateString(), "updatedAt"],
+          ["asc", "desc"],
+        );
+      }
+      return uniqBy(
+        modelVersions,
+        // make sure time doesn't enter into the uniqueness
+        (record) => record.observedAt.toDateString(),
+      );
+    } else {
+      return modelVersions;
+    }
   } catch (error) {
     console.error(
       "Encountered error while attempting to retrieve facility model versions:",
@@ -363,35 +443,83 @@ export const getFacilityModelVersions = async ({
   }
 };
 
+export const getFacilities = async (
+  scenarioId: string,
+): Promise<Array<Facility> | null> => {
+  try {
+    const scenario = await getScenario(scenarioId);
+
+    if (!scenario) return null;
+
+    const db = await getDb();
+
+    const facilitiesResults = await db
+      .collection(scenariosCollectionId)
+      .doc(scenario.id)
+      .collection(facilitiesCollectionId)
+      .orderBy("name")
+      .get();
+
+    return Promise.all(
+      facilitiesResults.docs.map(async (doc) => {
+        const modelVersions = await getFacilityModelVersions({
+          scenarioId: scenarioId,
+          facilityId: doc.id,
+          distinctByObservedAt: true,
+        });
+        return buildFacility(scenario.id, doc, modelVersions);
+      }),
+    );
+  } catch (error) {
+    console.error("Encountered error while attempting to retrieve facilities:");
+    console.error(error);
+
+    throwIfPermissionsError(
+      error,
+      "You don't have permission to access these facilities.",
+    );
+
+    throw error;
+  }
+};
+
 const getUserDocument = async (
   params: { email: string } | { auth0Id: string },
-): Promise<firebase.firestore.DocumentData | never> => {
+): Promise<firebase.firestore.DocumentData | undefined> => {
   const db = await getDb();
 
   const [key, value] = Object.entries(params)[0];
 
   const userResult = await db
     .collection(usersCollectionId)
+    .orderBy("createdAt", "asc")
     .where(key, "==", value)
     .get();
 
+  // this can happen sometimes because of the way we create users from
+  // Auth0 profiles in src/auth/react-auth0-spa.tsx; we haven't been able
+  // to prevent it, but we can at least clean it up when it happens here
   if (userResult.docs.length > 1) {
-    throw new Error(`Multiple users found matching ${key} ${value}`);
-  } else if (userResult.docs.length === 0) {
-    throw new Error(`No users found matching ${key} ${value}`);
+    console.warn(`Multiple users found matching ${key} ${value}`);
+    // because we ordered by createdAt, the first result is the original
+    // and we can discard the rest of them
+    userResult.docs.slice(1).forEach((doc) => {
+      if (doc.data().auth0Id === currentUserId()) {
+        console.warn(`Removing duplicate user record for ${key} ${value}`);
+        doc.ref.delete();
+      }
+    });
   }
 
   return userResult.docs[0];
 };
 
 export const getUser = async (auth0Id: string): Promise<User | null> => {
-  try {
-    const userDocument = await getUserDocument({ auth0Id });
-    return buildUser(userDocument);
-  } catch (e) {
-    console.error("Encountered error while attempting to retrieve user: \n", e);
-    return null;
-  }
+  const userDocument = await getUserDocument({ auth0Id });
+  // It is ok for this method to return null if we do not find a user document
+  // for the given auth0Id.  This will always be the case when a user logs in
+  // for the first time.
+  return userDocument ? buildUser(userDocument) : null;
 };
 
 export const getScenarioUsers = async (
@@ -469,9 +597,18 @@ export const saveUser = async (userData: UserToSave): Promise<void> => {
 export const addScenarioUser = async (
   scenarioId: string,
   email: string,
+  currentUserEmail: string,
 ): Promise<User> => {
   try {
+    if (email === currentUserEmail) {
+      throw new Error(`Please submit a different user's email`);
+    }
+
     const userDocument = await getUserDocument({ email });
+    if (!userDocument) {
+      throw new Error(`No user found matching email address ${email}`);
+    }
+
     const auth0Id = userDocument.data().auth0Id;
     const scenario = await getScenario(scenarioId);
 
@@ -557,6 +694,29 @@ const batchSetFacilityModelVersions = (
   });
 };
 
+const getFacility = async (scenarioId: string, facilityId: string) => {
+  const db = await getDb();
+  // construct and return a Facility object with newly saved data
+  const [savedFacilityDoc, savedFacilityModelVersions] = await Promise.all([
+    db
+      .collection(scenariosCollectionId)
+      .doc(scenarioId)
+      .collection(facilitiesCollectionId)
+      .doc(facilityId)
+      .get(),
+    getFacilityModelVersions({
+      scenarioId: scenarioId,
+      facilityId: facilityId,
+      distinctByObservedAt: true,
+    }),
+  ]);
+  return buildFacility(
+    scenarioId,
+    savedFacilityDoc,
+    savedFacilityModelVersions,
+  );
+};
+
 /**
  * Please note the following usage patterns and provide data to this method
  * accordingly when updating a facility:
@@ -598,29 +758,29 @@ const batchSetFacilityModelVersions = (
  */
 export const saveFacility = async (
   scenarioId: string,
-  facility: any,
+  facility: Partial<Facility>,
 ): Promise<Facility | void> => {
   try {
     const scenarioRef = await getScenarioRef(scenarioId);
 
     if (!scenarioRef) return;
 
+    let modelInputsToSave: ModelInputsUpdate | undefined;
+
     if (facility.modelInputs) {
-      // Ensures we don't store any attributres that our model does not know
-      // about. This also makes a copy of modelInputs, since we shouldn't mutate
-      // the original.
-      facility.modelInputs = pick(facility.modelInputs, persistedKeys);
-
-      facility.modelInputs.updatedAt = currrentTimestamp();
-
-      // Use observedAt if available. If it is not provided default to today. For dates
-      // observed in the past we'll have to assume the time portion of the
-      // timestamp is startOfDay** since we won't otherwise have any time
-      // information.
-      //
-      // ** https://date-fns.org/v1.29.0/docs/startOfDay
-      facility.modelInputs.observedAt =
-        facility.modelInputs.observedAt || startOfToday();
+      modelInputsToSave = { ...facility.modelInputs };
+      modelInputsToSave.updatedAt = currentTimestamp();
+      // Use observedAt if available. If it is not provided default to today.
+      modelInputsToSave.observedAt = modelInputsToSave.observedAt || new Date();
+      // Normalize to the start of day in either case.
+      modelInputsToSave.observedAt = startOfDay(modelInputsToSave.observedAt);
+      // Ensures we don't store any attributes that our model does not know about.
+      modelInputsToSave = pick(modelInputsToSave, persistedKeys);
+      // remove any keys that are explicitly set to undefined or Firestore will object
+      modelInputsToSave = pickBy(
+        modelInputsToSave,
+        (value) => value !== undefined,
+      ) as ModelInputsUpdate;
     }
 
     const db = await getDb();
@@ -628,22 +788,67 @@ export const saveFacility = async (
 
     const facilitiesCollection = scenarioRef.collection(facilitiesCollectionId);
 
-    let facilityDoc;
+    let facilityRef: firebase.firestore.DocumentReference<firebase.firestore.DocumentData>;
+    let facilityUpdate = {
+      ...buildFacilityDocUpdate(facility),
+      modelInputs: modelInputsToSave,
+    };
 
     // If the facility already has an id associated with it then
     // we just need to update that facility. Otherwise, we are
     // appending a new facility to the scenario's facilities
     // collection.
     if (facility.id) {
-      const payload = buildUpdatePayload(facility);
-      facilityDoc = facilitiesCollection.doc(facility.id);
+      facilityUpdate = buildUpdatePayload(facilityUpdate);
+      facilityRef = facilitiesCollection.doc(facility.id);
 
       // Handle facility updates in a context where we are also updating
       // modelInputs (i.e. Facility Details Page, Add Cases Shortcut)
-      if (facility.modelInputs) {
+      if (facilityUpdate.modelInputs) {
+        const incomingObservedAt = facilityUpdate.modelInputs.observedAt;
+
+        // validate against existing versions to ensure case counts are increasing monotonically
+        const modelInputVersions = (
+          await facilityRef.collection(modelVersionCollectionId).get()
+        ).docs.map((doc) => buildModelInputs(doc.data()));
+
+        if (modelInputVersions.length) {
+          const previous = maxBy(
+            modelInputVersions.filter(
+              (version) =>
+                differenceInCalendarDays(
+                  incomingObservedAt,
+                  version.observedAt,
+                ) >= 1,
+            ),
+            (version) => version.observedAt,
+          );
+
+          const next = minBy(
+            modelInputVersions.filter(
+              (version) =>
+                differenceInCalendarDays(
+                  version.observedAt,
+                  incomingObservedAt,
+                ) >= 1,
+            ),
+            (version) => version.observedAt,
+          );
+
+          if (
+            !validateCumulativeCases(facilityUpdate.modelInputs, {
+              previous,
+              next,
+            })
+          ) {
+            throw new Error(
+              "Failed to save. Cumulative cases, recovered cases, and deaths can only increase over time.",
+            );
+          }
+        }
+
         // Only update the facility if the incoming observedAt date is > than the current observedAt date in the existing facility
-        const incomingObservedAt = facility.modelInputs.observedAt;
-        const currentFacilityData = await facilityDoc.get();
+        const currentFacilityData = await facilityRef.get();
         const currentFacility = buildFacility(scenarioId, currentFacilityData);
         if (
           incomingObservedAt &&
@@ -651,31 +856,32 @@ export const saveFacility = async (
           startOfDay(incomingObservedAt) >=
             startOfDay(currentFacility.modelInputs.observedAt)
         ) {
-          batch.update(facilityDoc, payload);
+          batch.update(facilityRef, facilityUpdate);
         }
         // Handle facility updates from a context where we are not also updating
         // modelInputs (i.e. renaming a facility in the FacilityRow).
       } else {
-        batch.update(facilityDoc, payload);
+        batch.update(facilityRef, facilityUpdate);
       }
     } else {
-      const payload = buildCreatePayload(facility);
-      facilityDoc = facilitiesCollection.doc();
-      batch.set(facilityDoc, payload);
+      facilityUpdate = buildCreatePayload(facilityUpdate);
+      facilityRef = facilitiesCollection.doc();
+      batch.set(facilityRef, facilityUpdate);
     }
 
     // If the facility's model inputs have been provided, store a new
     // versioned copy of those inputs.
-    if (facility.modelInputs) {
-      const newModelVersionDoc = facilityDoc
+    if (modelInputsToSave) {
+      const newModelVersionDoc = facilityRef
         .collection(modelVersionCollectionId)
         .doc();
 
-      batch.set(newModelVersionDoc, facility.modelInputs);
+      batch.set(newModelVersionDoc, modelInputsToSave);
     }
     await batch.commit();
-    const savedFacilityDoc = await facilityDoc.get();
-    return buildFacility(scenarioId, savedFacilityDoc);
+
+    // construct and return a Facility object with newly saved data
+    return await getFacility(scenarioId, facilityRef.id);
   } catch (error) {
     console.error("Encountered error while attempting to save a facility:");
     console.error(error);
@@ -683,6 +889,7 @@ export const saveFacility = async (
       error,
       "You don't have permission to edit this facility.",
     );
+    throw error;
   }
 };
 
@@ -714,8 +921,7 @@ export const duplicateFacility = async (
     batch.set(facilityRef, payload);
     await batch.commit();
 
-    const duplicatedFacility = await facilityRef.get();
-    return buildFacility(scenarioId, duplicatedFacility);
+    return await getFacility(scenarioId, facilityRef.id);
   } catch (error) {
     console.error(
       `Encountered error while attempting to duplicate facility: ${facilityId}`,
@@ -725,6 +931,7 @@ export const duplicateFacility = async (
       error,
       "You don't have permission to edit this facility.",
     );
+    throw error;
   }
 };
 
@@ -752,8 +959,23 @@ export const deleteFacility = async (
       .collection(modelVersionCollectionId)
       .get();
 
+    const scenarioDoc = await scenarioRef.get();
+    const scenario = buildScenario(scenarioDoc);
+    const referenceFacilities = Object.assign(
+      {},
+      scenario[referenceFacilitiesProp],
+    );
+
     const db = await getDb();
     const batch = db.batch();
+
+    // Remove the facility from the scenario referenceFacilities mapping
+    delete referenceFacilities[facilityId];
+    const payload = buildUpdatePayload({
+      ...scenario,
+      [referenceFacilitiesProp]: referenceFacilities,
+    });
+    batch.update(scenarioRef, payload);
 
     modelVersions.docs.forEach((doc) => {
       batch.delete(doc.ref);
@@ -771,6 +993,7 @@ export const deleteFacility = async (
       error,
       "You don't have permission to delete this facility.",
     );
+    throw error;
   }
 };
 
@@ -785,8 +1008,8 @@ export const duplicateScenario = async (
       return;
     }
 
-    const userId = currrentUserId();
-    const timestamp = currrentTimestamp();
+    const userId = currentUserId();
+    const timestamp = currentTimestamp();
     const db = await getDb();
     const batch = db.batch();
 
@@ -797,22 +1020,25 @@ export const duplicateScenario = async (
       ? [...scenario.baselinePopulations]
       : [];
 
-    batch.set(scenarioDoc, {
+    const referenceFacilitiesCopy = scenario[referenceFacilitiesProp]
+      ? { ...scenario[referenceFacilitiesProp] }
+      : {};
+
+    const scenarioData = Object.assign({}, SCENARIO_DEFAULTS, {
       name: `Copy of ${scenario.name}`,
       description: `This is a copy of the '${
         scenario.name
       }' scenario, made on ${format(new Date(), MMMMdyyyy)}`,
-      baseline: false,
-      dailyReports: false,
-      dataSharing: false,
-      promoStatuses: {},
       baselinePopulations: [...baselinePopulationsCopy],
+      [referenceFacilitiesProp]: referenceFacilitiesCopy,
       roles: {
         [userId]: "owner",
       },
       createdAt: timestamp,
       updatedAt: timestamp,
     });
+
+    batch.set(scenarioDoc, scenarioData);
 
     // Duplicate and save all of the Facilities
     const facilities = await getFacilities(scenarioId);
@@ -891,4 +1117,40 @@ export const deleteScenario = async (
       "You don't have permission to delete this scenario.",
     );
   }
+};
+
+export const getReferenceFacilities = async ({
+  stateName,
+  systemType,
+}: {
+  stateName: string;
+  systemType: string;
+}) => {
+  const db = await getDb();
+
+  const facilities = await db
+    .collection(referenceFacilitiesCollectionId)
+    .where("stateName", "==", stateName)
+    .where("facilityType", "==", systemType)
+    .get();
+
+  const facilitiesCovidCases = await Promise.all(
+    facilities.docs.map(async (facilityDoc) => {
+      return (
+        await facilityDoc.ref
+          .collection(referenceFacilitiesCovidCasesCollectionId)
+          .get()
+      ).docs;
+    }),
+  );
+
+  // please excuse the typescript bypass, the d3.zip typedef is busted
+  const referenceFacilities = zip(
+    facilities.docs as any[],
+    facilitiesCovidCases,
+  );
+
+  return referenceFacilities.map(([facility, covidCases]) =>
+    buildReferenceFacility(facility, covidCases),
+  );
 };

@@ -53,4 +53,10 @@ export const InputStyle = css`
   outline: 0 solid transparent;
   padding: 0 16px;
   width: 100%;
+
+  &::-ms-clear {
+    display: none;
+    height: 0;
+    width: 0;
+  }
 `;

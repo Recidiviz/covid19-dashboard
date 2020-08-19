@@ -37,18 +37,18 @@ const LocaleInformation: React.FC = () => {
 
   useEffect(() => {
     const localeDataSource = model.localeDataSource;
-    const stateCode = model.stateCode;
-    if (localeDataSource !== undefined && stateCode !== undefined) {
+    const stateName = model.stateName;
+    if (localeDataSource !== undefined && stateName !== undefined) {
       // TODO: TS is complaining about things being undefined
       // despite the above checks; replace these assertions
       // with proper type guards
-      const keys = localeDataSource?.get(stateCode)?.keys();
+      const keys = localeDataSource?.get(stateName)?.keys();
       const newCountyList = Array.from(
         keys as Iterable<string>,
       ).map((value) => ({ value }));
       updateCountyList(newCountyList);
     }
-  }, [model.localeDataSource, model.stateCode]);
+  }, [model.localeDataSource, model.stateName]);
 
   return (
     <>
@@ -56,9 +56,9 @@ const LocaleInformation: React.FC = () => {
         <LocaleInputDiv>
           <InputSelect
             label="State"
-            value={model.stateCode}
+            value={model.stateName}
             onChange={(event) => {
-              updateModel({ stateCode: event.target.value });
+              updateModel({ stateName: event.target.value });
             }}
           >
             {stateList.map(({ value }) => (
@@ -74,7 +74,7 @@ const LocaleInformation: React.FC = () => {
             value={model.countyName}
             onChange={(event) => {
               updateModel({
-                stateCode: model.stateCode,
+                stateName: model.stateName,
                 countyName: event.target.value,
               });
             }}
@@ -97,7 +97,7 @@ const LocaleInformation: React.FC = () => {
         </LocaleInputDiv>
       </LocaleInformationDiv>
       <LocaleDetails
-        stateCode={model.stateCode}
+        stateName={model.stateName}
         countyName={model.countyName}
       />
     </>

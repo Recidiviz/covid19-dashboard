@@ -1,36 +1,31 @@
 import classNames from "classnames";
 import { navigate } from "gatsby";
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 
 import Colors, { MarkColors as markColors } from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import FontSizes from "../design-system/FontSizes";
 import iconEditSrc from "../design-system/icons/ic_edit.svg";
+import { ReferenceIcon } from "../design-system/InputText";
 import { Spacer } from "../design-system/Spacer";
 import Tooltip from "../design-system/Tooltip";
+import { useFacilities } from "../facilities-context";
 import CurveChartContainer from "../impact-dashboard/CurveChartContainer";
 import {
   totalConfirmedCases,
   totalIncarceratedPopulation,
 } from "../impact-dashboard/EpidemicModelContext";
 import useModel from "../impact-dashboard/useModel";
-import { getNewestRt, isRtData } from "../infection-model/rt";
+import { getNewestRt, isRtData, RtData, RtError } from "../infection-model/rt";
 import AddCasesModal from "./AddCasesModal";
-import { FacilityContext } from "./FacilityContext";
+import { initialPublicCurveToggles } from "./curveToggles";
 import FacilityRowRtValuePill from "./FacilityRowRtValuePill";
 import {
   useChartDataFromProjectionData,
   useProjectionData,
 } from "./projectionCurveHooks";
 import { Facility } from "./types";
-
-const groupStatus = {
-  exposed: true,
-  fatalities: true,
-  hospitalized: true,
-  infectious: true,
-};
 
 const LastUpdatedLabel = styled.div`
   color: ${Colors.forest50};
@@ -39,6 +34,8 @@ const LastUpdatedLabel = styled.div`
   font-weight: 600;
   font-size: ${FontSizes.Charts.labelText}px;
   line-height: 16px;
+  display: flex;
+  justify-content: flex-start;
 `;
 
 const FacilityRowDiv = styled.div``;
@@ -47,6 +44,7 @@ const FacilityNameLabel = styled.label`
   cursor: pointer;
   display: flex;
   flex-direction: row;
+  align-items: flex-start;
   height: 100%;
   padding-right: 25px;
   padding-left: 15px;
@@ -87,15 +85,20 @@ const IconEdit = styled.img`
 
 interface Props {
   facility: Facility;
+  facilityRtData: RtData | RtError | undefined;
   onSave: (f: Facility) => void;
 }
 
-const FacilityRow: React.FC<Props> = ({ facility, onSave }) => {
+function usedReferenceData(facility: Facility) {
+  const modelVersions = facility.modelVersions;
+  return modelVersions.some((v) => v.isReference);
+}
+
+const FacilityRow: React.FC<Props> = ({ facility, facilityRtData, onSave }) => {
+  const {
+    actions: { selectFacility },
+  } = useFacilities();
   const [model] = useModel();
-
-  const { rtData, setFacility } = useContext(FacilityContext);
-
-  const facilityRtData = rtData ? rtData[facility.id] : undefined;
 
   const latestRt = isRtData(facilityRtData)
     ? getNewestRt(facilityRtData.Rt)?.value
@@ -104,6 +107,8 @@ const FacilityRow: React.FC<Props> = ({ facility, onSave }) => {
   const chartData = useChartDataFromProjectionData(
     useProjectionData(model, true, facilityRtData),
   );
+
+  const facilityUsedReferenceData = usedReferenceData(facility);
 
   // UI hover states are a little complicated;
   // the entire row is a click target to navigate to the Facility page,
@@ -118,7 +123,7 @@ const FacilityRow: React.FC<Props> = ({ facility, onSave }) => {
   const population = totalIncarceratedPopulation(model);
 
   const openFacilityPage = () => {
-    setFacility(facility);
+    selectFacility(facility.id);
     navigate("/facility");
   };
 
@@ -189,6 +194,9 @@ const FacilityRow: React.FC<Props> = ({ facility, onSave }) => {
             <FacilityNameLabel>
               <FacilityName>{name}</FacilityName>
               <IconEdit alt="" src={iconEditSrc} />
+              {facilityUsedReferenceData && (
+                <ReferenceIcon marginRight={"5px"} />
+              )}
             </FacilityNameLabel>
           </div>
           <div className="text-xs text-gray-500 pb-4">
@@ -206,9 +214,10 @@ const FacilityRow: React.FC<Props> = ({ facility, onSave }) => {
             curveData={chartData}
             chartHeight={144}
             hideAxes={true}
-            groupStatus={groupStatus}
+            groupStatus={initialPublicCurveToggles}
             markColors={markColors}
             addAnnotations={false}
+            useHoverAnnotations={false}
           />
         </div>
       </DataContainer>

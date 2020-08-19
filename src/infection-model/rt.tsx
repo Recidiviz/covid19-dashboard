@@ -7,9 +7,7 @@ import {
 } from "date-fns";
 import { has, mapValues, maxBy, minBy, pick } from "lodash";
 
-import { FacilityEvents } from "../constants/dispatchEvents";
 import { RateOfSpreadType } from "../constants/EpidemicModel";
-import { getFacilityModelVersions } from "../database";
 import { totalConfirmedCases } from "../impact-dashboard/EpidemicModelContext";
 import {
   Facilities,
@@ -65,6 +63,10 @@ export function isRtError(data: any): data is RtError {
   return has(data, "error");
 }
 
+export function getLatestRtValue(data: RtData | RtError | undefined) {
+  return isRtData(data) ? data.Rt[data.Rt.length - 1].value : null;
+}
+
 const getFetchUrl = () => {
   let url = "https://us-central1-c19-backend.cloudfunctions.net/calculate_rt";
   if (process.env.NODE_ENV !== "production") {
@@ -91,19 +93,11 @@ export async function fetchRt(requestData: RtInputs): Promise<RawRtData> {
   return responseData;
 }
 
-const getRtInputsForFacility = async (
-  facility: Facility,
-): Promise<RtInputs> => {
-  let modelVersions = await getFacilityModelVersions({
-    scenarioId: facility.scenarioId,
-    facilityId: facility.id,
-    distinctByObservedAt: true,
-  });
-
+const getRtInputsForFacility = (facility: Facility): RtInputs => {
   const cases: number[] = [];
   const dates: string[] = [];
 
-  modelVersions.forEach((model) => {
+  facility.modelVersions.forEach((model) => {
     const seconds = model.observedAt.getTime() / 1000;
 
     dates.push(
@@ -134,28 +128,13 @@ export const getRtDataForFacility = async (
   facility: Facility,
 ): Promise<RtValue> => {
   try {
-    const { cases, dates } = await getRtInputsForFacility(facility);
+    const { cases, dates } = getRtInputsForFacility(facility);
     const fetchedData = await fetchRt({ dates, cases });
     return cleanRtData(fetchedData);
   } catch (error) {
     return { error };
   }
 };
-
-export async function updateFacilityRtData(
-  facility: Facility,
-  dispatchRtData: Function,
-) {
-  const facilityRtData = await getRtDataForFacility(facility);
-
-  dispatchRtData({
-    type: FacilityEvents.UPDATE,
-    payload: {
-      id: facility.id,
-      data: facilityRtData,
-    },
-  });
-}
 
 export const getOldestRt = (rtRecords: RtRecord[]) => {
   return minBy(rtRecords, (rtRecord) => rtRecord.date);
@@ -170,6 +149,18 @@ export const getDaysAgoRt = (rtRecords: RtRecord[], daysAgo: number) => {
   return maxBy(
     rtRecords.filter(
       (record) => differenceInCalendarDays(today, record.date) >= daysAgo,
+    ),
+    "date",
+  );
+};
+
+export const getPrevWeekRt = (rtRecords: RtRecord[]) => {
+  const today = new Date();
+  return maxBy(
+    rtRecords.filter(
+      (record) =>
+        differenceInCalendarDays(today, record.date) >= 7 &&
+        record.date != today,
     ),
     "date",
   );

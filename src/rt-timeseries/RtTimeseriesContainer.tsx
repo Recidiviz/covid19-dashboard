@@ -1,17 +1,12 @@
 import hexAlpha from "hex-alpha";
-import React, { useContext, useEffect, useState } from "react";
+import React from "react";
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
 import HelpButtonWithTooltip from "../design-system/HelpButtonWithTooltip";
 import Loading from "../design-system/Loading";
-import {
-  isRtData,
-  isRtError,
-  updateFacilityRtData,
-} from "../infection-model/rt";
+import { isRtData, isRtError } from "../infection-model/rt";
 import AddCasesModal from "../page-multi-facility/AddCasesModal";
-import { FacilityContext } from "../page-multi-facility/FacilityContext";
 import { Facility, RtValue } from "../page-multi-facility/types";
 import RtTimeseries from "./RtTimeseries";
 
@@ -51,24 +46,15 @@ const RtChartEmptyState = styled.button`
 interface Props {
   data?: RtValue;
   facility: Facility;
+  onModalSave: (facility: Facility) => void;
 }
 
-const RtTimeseriesContainer: React.FC<Props> = ({ data }) => {
-  const { facility: initialFacility, dispatchRtData } = useContext(
-    FacilityContext,
-  );
-  const [facility, updateFacility] = useState(initialFacility);
-
-  useEffect(() => {
-    updateFacility(initialFacility);
-  }, [initialFacility]);
-
+const RtTimeseriesContainer: React.FC<Props> = ({
+  data,
+  facility,
+  onModalSave,
+}) => {
   if (data === undefined) return <Loading />;
-
-  const onModalSave = (newFacility: Facility) => {
-    updateFacility(newFacility);
-    updateFacilityRtData(newFacility, dispatchRtData);
-  };
 
   const notEnoughData =
     isRtError(data) || (isRtData(data) && data.Rt.length < 2);
@@ -95,8 +81,8 @@ const RtTimeseriesContainer: React.FC<Props> = ({ data }) => {
                 trigger={
                   <RtChartEmptyState>
                     Live rate of spread could not be calculated for this
-                    facility. Click here to add at least 3 days of confirmed
-                    case data. {isRtError(data) && `(${data.error})`}
+                    facility. Click here to update case data.{" "}
+                    {isRtError(data) && `(${data.error})`}
                   </RtChartEmptyState>
                 }
                 onSave={onModalSave}

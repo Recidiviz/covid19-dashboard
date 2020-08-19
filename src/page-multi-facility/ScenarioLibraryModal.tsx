@@ -5,7 +5,6 @@ import { deleteScenario, duplicateScenario, getScenarios } from "../database";
 import Colors from "../design-system/Colors";
 import { DateMMMMdyyyy } from "../design-system/DateFormats";
 import iconSrcCheck from "../design-system/icons/ic_check.svg";
-import iconSrcRecidiviz from "../design-system/icons/ic_recidiviz.svg";
 import { StyledButton } from "../design-system/InputButton";
 import Loading from "../design-system/Loading";
 import Modal, { Props as ModalProps } from "../design-system/Modal";
@@ -14,6 +13,8 @@ import PopUpMenu from "../design-system/PopUpMenu";
 import useCurrentUserId from "../hooks/useCurrentUserId";
 import useRejectionToast from "../hooks/useRejectionToast";
 import useScenario from "../scenario-context/useScenario";
+import CreateNewScenarioModal from "../scenario-create-new/CreateNewScenarioModal";
+import FacilityChart from "./FacilityChart";
 import { Scenario } from "./types";
 
 const ModalContents = styled.div`
@@ -37,7 +38,8 @@ const ScenarioLibrary = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  height: 100%;
+  height: auto;
+  flex: 1 0 auto;
 `;
 
 const ScenarioCard = styled.div`
@@ -68,13 +70,6 @@ const ScenarioHeaderText = styled.h1`
   white-space: nowrap;
 `;
 
-const ScenarioDataViz = styled.div`
-  color: ${Colors.opacityGray};
-  display: flex;
-  height: 45%;
-  background-color: ${Colors.gray};
-`;
-
 const ScenarioDescription = styled.div`
   color: ${Colors.opacityForest};
   font-family: "Poppins";
@@ -88,6 +83,24 @@ const ScenarioDescription = styled.div`
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+
+  @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+    max-height: 40px;
+
+    &::after {
+      content: "...";
+      text-align: right;
+      bottom: 0;
+      right: 0;
+      display: block;
+      position: absolute;
+      background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0),
+        rgba(255, 255, 255, 1) 75%
+      );
+    }
+  }
 `;
 
 const ScenarioFooter = styled.div`
@@ -114,12 +127,6 @@ const IconCheck = styled.img<IconCheckProps>`
   width: 20px;
   height: 20px;
   margin-right: 8px;
-`;
-
-const IconRecidviz = styled.img`
-  width: 50px;
-  height: 50px;
-  margin: auto;
 `;
 
 const DeleteModalContents = styled.div`
@@ -159,6 +166,78 @@ const CancelButton = styled(ModalButton)`
 `;
 
 type Props = Pick<ModalProps, "trigger">;
+
+interface ScenarioLibraryWrapperProps {
+  scenarios: {
+    data: Scenario[];
+    loading: boolean;
+  };
+  ownedFlag: boolean;
+  copyScenario: (scenarioId: string) => void;
+  openDeleteModal: (scenarioId: string) => void;
+  changeScenario: (scenario: Scenario) => void;
+}
+
+const ScenarioLibraryWrapper = (props: ScenarioLibraryWrapperProps) => {
+  return (
+    <>
+      {props.scenarios?.loading ? (
+        <Loading />
+      ) : (
+        <ScenarioLibrary>
+          {props.ownedFlag && <CreateNewScenarioModal />}
+          {props.scenarios?.data.map((scenario: any) => {
+            const popupItems = [
+              {
+                name: "Duplicate",
+                onClick: () => {
+                  props.copyScenario(scenario.id);
+                },
+              },
+            ];
+
+            // Only show the Delete option for non-baseline & owned scenarios
+            if (!scenario.baseline && props.ownedFlag) {
+              popupItems.push({
+                name: "Delete",
+                onClick: () => {
+                  props.openDeleteModal(scenario.id);
+                },
+              });
+            }
+            return (
+              <ScenarioCard
+                key={scenario.id}
+                onClick={() => {
+                  props.changeScenario(scenario);
+                }}
+              >
+                <ScenarioHeader>
+                  <IconCheck
+                    alt="check"
+                    src={iconSrcCheck}
+                    baseline={scenario.baseline}
+                  />
+                  <ScenarioHeaderText>{scenario.name}</ScenarioHeaderText>
+                </ScenarioHeader>
+                <FacilityChart scenarioId={scenario.id} />
+                <ScenarioDescription>
+                  {scenario.description}
+                </ScenarioDescription>
+                <ScenarioFooter>
+                  <LastUpdatedLabel>
+                    Last Update: <DateMMMMdyyyy date={scenario.updatedAt} />
+                  </LastUpdatedLabel>
+                  <PopUpMenu items={popupItems} />
+                </ScenarioFooter>
+              </ScenarioCard>
+            );
+          })}
+        </ScenarioLibrary>
+      )}
+    </>
+  );
+};
 
 const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -274,55 +353,35 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
     closeDeleteModal(event);
   };
 
-  const ScenarioLibraryWrapper = (props: any) => {
-    return (
-      <ScenarioLibrary>
-        {props.scenarios?.loading ? (
-          <Loading />
-        ) : (
-          props.scenarios?.data.map((scenario: any) => {
-            const popupItems = [
-              {
-                name: "Duplicate",
-                onClick: () => copyScenario(scenario.id),
-              },
-            ];
+  return (
+    <Modal
+      modalTitle="Library"
+      open={modalOpen}
+      setOpen={setModalOpen}
+      trigger={trigger}
+      height="90vmin"
+      width="756px"
+    >
+      <ModalContents>
+        <ScenarioLibraryWrapper
+          scenarios={ownedScenarios}
+          openDeleteModal={openDeleteModal}
+          copyScenario={copyScenario}
+          changeScenario={changeScenario}
+          ownedFlag={true}
+        />
 
-            // Only show the Delete option for non-baseline & owned scenarios
-            if (!scenario.baseline && props.ownedFlag) {
-              popupItems.push({
-                name: "Delete",
-                onClick: () => openDeleteModal(scenario.id),
-              });
-            }
-            return (
-              <ScenarioCard
-                key={scenario.id}
-                onClick={() => changeScenario(scenario)}
-              >
-                <ScenarioHeader>
-                  <IconCheck
-                    alt="check"
-                    src={iconSrcCheck}
-                    baseline={scenario.baseline}
-                  />
-                  <ScenarioHeaderText>{scenario.name}</ScenarioHeaderText>
-                </ScenarioHeader>
-                <ScenarioDataViz>
-                  <IconRecidviz alt="Recidiviz" src={iconSrcRecidiviz} />
-                </ScenarioDataViz>
-                <ScenarioDescription>
-                  {scenario.description}
-                </ScenarioDescription>
-                <ScenarioFooter>
-                  <LastUpdatedLabel>
-                    Last Update: <DateMMMMdyyyy date={scenario.updatedAt} />
-                  </LastUpdatedLabel>
-                  <PopUpMenu items={popupItems} />
-                </ScenarioFooter>
-              </ScenarioCard>
-            );
-          })
+        {sharedScenarios?.data?.length !== 0 && (
+          <div>
+            <h3>Shared Scenarios</h3>
+            <ScenarioLibraryWrapper
+              scenarios={sharedScenarios}
+              openDeleteModal={openDeleteModal}
+              copyScenario={copyScenario}
+              changeScenario={changeScenario}
+              ownedFlag={false}
+            />
+          </div>
         )}
         <ModalDialog
           closeModal={closeDeleteModal}
@@ -343,31 +402,6 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
             </ModalButtons>
           </DeleteModalContents>
         </ModalDialog>
-      </ScenarioLibrary>
-    );
-  };
-
-  return (
-    <Modal
-      modalTitle="Library"
-      open={modalOpen}
-      setOpen={setModalOpen}
-      trigger={trigger}
-      height="90vh"
-      width="45vw"
-    >
-      <ModalContents>
-        <ScenarioLibraryWrapper scenarios={ownedScenarios} ownedFlag={true} />
-
-        {sharedScenarios?.data?.length !== 0 && (
-          <div>
-            <h3>Shared Scenarios</h3>
-            <ScenarioLibraryWrapper
-              scenarios={sharedScenarios}
-              ownedFlag={false}
-            />
-          </div>
-        )}
       </ModalContents>
     </Modal>
   );

@@ -3,16 +3,20 @@ import { rollup } from "d3-array";
 import numeral from "numeral";
 import React from "react";
 
+import { CLOUD_FUNCTION_URL_BASE } from "../constants";
+
 export type LocaleRecord = {
   county: string;
+  totalPopulation: number;
   estimatedIncarceratedCases: number;
   hospitalBeds: number;
   reportedCases: number;
-  state: string;
+  stateName: string;
   totalIncarceratedPopulation: number;
   icuBeds: number;
   totalPrisonPopulation?: number;
   totalJailPopulation?: number;
+  totalDeaths?: number;
 };
 
 export type LocaleData = Map<string, Map<string, LocaleRecord>>;
@@ -65,11 +69,8 @@ export const LocaleDataProvider: React.FC<{ children: React.ReactNode }> = ({
     () => {
       async function effect() {
         try {
-          // TODO: fix the intermittent CORS issue on this fetch?
           const response = await fetch(
-            "https://docs.google.com/spreadsheets/d/e/2PACX-1vSeEO7JySaN21_Cxa7ON_x" +
-              "UHDM-EEOFSMIjOAoLf6YOXBurMRXZYPFi7x_aOe-0awqDcL4KZTK1NhVI/pub?gid=" +
-              "1836987932&single=true&output=csv",
+            `${CLOUD_FUNCTION_URL_BASE}/getLocaleData`,
           );
           let rawCSV = await response.text();
           // the first line is not the header row so we need to strip it
@@ -100,10 +101,12 @@ export const LocaleDataProvider: React.FC<{ children: React.ReactNode }> = ({
               numeral(row["Total Incarcerated Population"]).value() || 0;
             const totalPopulation: number =
               numeral(row["Total Population"]).value() || 0;
+            const totalDeaths: number = numeral(row["deaths"]).value() || 0;
 
             return {
               county: row.County,
-              state: row.State,
+              stateName: row.State,
+              totalPopulation: totalPopulation,
               hospitalBeds: numeral(row["Hospital Beds"]).value() || 0,
               totalIncarceratedPopulation,
               reportedCases,
@@ -116,6 +119,7 @@ export const LocaleDataProvider: React.FC<{ children: React.ReactNode }> = ({
               icuBeds: numeral(row["ICU Beds"]).value() || 0,
               ...(totalPrisonPopulation && { totalPrisonPopulation }),
               ...(totalJailPopulation && { totalJailPopulation }),
+              totalDeaths: totalDeaths,
             };
           }).filter((row) => row !== undefined);
 
@@ -123,7 +127,7 @@ export const LocaleDataProvider: React.FC<{ children: React.ReactNode }> = ({
             parsedArray,
             // there will only ever be one row object per county
             (v: object[]) => v[0],
-            (d: DSVRowAny) => d.state as string,
+            (d: DSVRowAny) => d.stateName as string,
             (d: DSVRowAny) => d.county as string,
             // some wrong/outdated typedefs for d3 are making typescript sad
             // but this should check out

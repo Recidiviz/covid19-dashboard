@@ -1,6 +1,7 @@
 import { range, sum, zip } from "d3-array";
 import differenceInCalendarDays from "date-fns/differenceInCalendarDays";
 import ndarray from "ndarray";
+import { ReadonlyKeys } from "utility-types";
 
 import { PlannedReleases } from "../impact-dashboard/EpidemicModelContext";
 import {
@@ -16,6 +17,8 @@ interface SimulationInputs {
 
 export interface CurveProjectionInputs extends SimulationInputs {
   ageGroupPopulations: number[];
+  ageGroupRecovered: number[];
+  ageGroupDeaths: number[];
   numDays: number;
   ageGroupInitiallyInfected: number[];
   facilityOccupancyPct: number;
@@ -56,6 +59,13 @@ export const seirIndexList = Object.keys(seirIndex)
   // these should all be numbers anyway but this extra cast makes typescript happy
   .map((k) => parseInt(seirIndex[k as any]));
 
+// though obscure, this has the effect of filtering out the reverse-mapping keys
+// for the seirIndex enum, leaving us with a union of all the SEIR compartment names
+export type SeirCompartmentKeys = Exclude<
+  ReadonlyKeys<typeof seirIndex>,
+  "__length"
+>;
+
 export enum ageGroupIndex {
   ageUnknown,
   age0,
@@ -86,13 +96,21 @@ const dHospitalFatality = 8.3;
 const ratioExposedToInfected = dIncubation / dInfectious;
 // factor for estimating population adjustment based on expected turnover
 const populationAdjustmentRatio = 0.0879;
-// Distribution of initial infected cases, based on curve ratios
-const pInitiallyInfectious = 0.611;
-const pInitiallyMild = 0.231;
-const pInitiallySevere = 0.054;
-const pInitiallyHospitalized = 0.043;
-const pInitiallyMildRecovered = 0.057;
-const pInitiallySevereRecovered = 0.004;
+// Distribution of active cases, based on curve ratios
+const pInitiallyInfectious = 0.293;
+const pInitiallyMild = 0.439;
+const pInitiallySevere = 0.052;
+const pInitiallyHospitalized = 0.216;
+// Distribution of recovered cases, based on curve ratios
+const pInitiallyMildRecovered = 0.856;
+const pInitiallySevereRecovered = 0.144;
+// Distribution of cumulative cases, based on curve ratios
+const pInitiallyInfectiousCumulative = 0.611;
+const pInitiallyMildCumulative = 0.231;
+const pInitiallySevereCumulative = 0.054;
+const pInitiallyHospitalizedCumulative = 0.043;
+const pInitiallyMildRecoveredCumulative = 0.057;
+const pInitiallySevereRecoveredCumulative = 0.004;
 
 function simulateOneDay(inputs: SimulationInputs & SingleDayInputs) {
   const {
@@ -219,6 +237,8 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
   let {
     ageGroupInitiallyInfected,
     ageGroupPopulations,
+    ageGroupRecovered,
+    ageGroupDeaths,
     facilityDormitoryPct,
     numDays,
     plannedReleases,
@@ -245,7 +265,6 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
       });
     });
   };
-
   const ageGroupFatalityRates = [];
   ageGroupFatalityRates[ageGroupIndex.ageUnknown] = 0.026;
   ageGroupFatalityRates[ageGroupIndex.age0] = 0;
@@ -288,11 +307,18 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
   );
 
   // assign people to initial states
-  zip(ageGroupPopulations, ageGroupInitiallyInfected).forEach(
-    ([pop, cases], index) => {
-      // distribute cases across compartments proportionally
+  zip(
+    ageGroupPopulations,
+    ageGroupInitiallyInfected,
+    ageGroupRecovered,
+    ageGroupDeaths,
+  ).forEach(([pop, cases, recovered, deaths], index) => {
+    // distribute cases across compartments proportionally
 
-      const infectious = cases * pInitiallyInfectious;
+    if (typeof recovered !== "undefined" && typeof deaths !== "undefined") {
+      const activeCases = Math.max(cases - recovered - deaths, 0);
+
+      const infectious = activeCases * pInitiallyInfectious;
       // exposed is related to the number of infectious
       // but it can't be more than the total uninfected population
       const exposed = Math.min(
@@ -303,25 +329,67 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
       singleDayState.set(index, seirIndex.susceptible, pop - cases - exposed);
       singleDayState.set(index, seirIndex.exposed, exposed);
       singleDayState.set(index, seirIndex.infectious, infectious);
-      singleDayState.set(index, seirIndex.mild, cases * pInitiallyMild);
-      singleDayState.set(index, seirIndex.severe, cases * pInitiallySevere);
+      singleDayState.set(index, seirIndex.mild, activeCases * pInitiallyMild);
+      singleDayState.set(
+        index,
+        seirIndex.severe,
+        activeCases * pInitiallySevere,
+      );
       singleDayState.set(
         index,
         seirIndex.hospitalized,
-        cases * pInitiallyHospitalized,
+        activeCases * pInitiallyHospitalized,
       );
       singleDayState.set(
         index,
         seirIndex.mildRecovered,
-        cases * pInitiallyMildRecovered,
+        recovered * pInitiallyMildRecovered,
       );
       singleDayState.set(
         index,
         seirIndex.severeRecovered,
-        cases * pInitiallySevereRecovered,
+        recovered * pInitiallySevereRecovered,
       );
-    },
-  );
+      singleDayState.set(index, seirIndex.fatalities, deaths);
+    } else {
+      const infectious = cases * pInitiallyInfectiousCumulative;
+      // exposed is related to the number of infectious
+      // but it can't be more than the total uninfected population
+      const exposed = Math.min(
+        infectious * ratioExposedToInfected,
+        pop - cases,
+      );
+
+      singleDayState.set(index, seirIndex.susceptible, pop - cases - exposed);
+      singleDayState.set(index, seirIndex.exposed, exposed);
+      singleDayState.set(index, seirIndex.infectious, infectious);
+      singleDayState.set(
+        index,
+        seirIndex.mild,
+        cases * pInitiallyMildCumulative,
+      );
+      singleDayState.set(
+        index,
+        seirIndex.severe,
+        cases * pInitiallySevereCumulative,
+      );
+      singleDayState.set(
+        index,
+        seirIndex.hospitalized,
+        cases * pInitiallyHospitalizedCumulative,
+      );
+      singleDayState.set(
+        index,
+        seirIndex.mildRecovered,
+        cases * pInitiallyMildRecoveredCumulative,
+      );
+      singleDayState.set(
+        index,
+        seirIndex.severeRecovered,
+        cases * pInitiallySevereRecoveredCumulative,
+      );
+    }
+  });
 
   // index expected population adjustments by day;
   const today = Date.now();

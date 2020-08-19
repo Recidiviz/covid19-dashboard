@@ -31,14 +31,18 @@ const ModalContainer = styled.div<ModalContainerProps>`
   height: ${(props) => props.height || "auto"};
   width: ${(props) => props.width || "65vw"};
   padding: 35px;
-  position: fixed;
   max-height: 90%;
   overflow-y: auto;
+`;
+
+const ModalDescription = styled.div`
+  border-bottom: 0.5px solid ${Colors.darkGray};
 `;
 
 interface Props {
   numSteps?: number;
   title?: TitleProps["title"];
+  description?: string | React.ReactElement;
   open?: boolean;
   closeModal?: TitleProps["closeModal"];
   height?: string;
@@ -54,12 +58,25 @@ const isOutsideModal = (
   !element.contains(event.target);
 
 const ModalDialog: React.FC<Props> = (props) => {
-  const { title, open, closeModal, height, width, children } = props;
+  const {
+    title,
+    description,
+    open,
+    closeModal,
+    height,
+    width,
+    children,
+  } = props;
   const ref = useRef<HTMLDivElement>(null);
 
   if (!open) return null;
 
   const handleOnClick = (event: React.MouseEvent<HTMLElement>) => {
+    // Stopping propogation so that the event does not fall through to elements
+    // "beneath" the modal.  This is useful in the case where we have a modal
+    // within a modal (i.e. a delete confirmation).
+    event.stopPropagation();
+
     if (isOutsideModal(event, ref.current) && closeModal) {
       closeModal(event);
     }
@@ -69,6 +86,7 @@ const ModalDialog: React.FC<Props> = (props) => {
     <BackgroundAside onClick={handleOnClick}>
       <ModalContainer ref={ref} height={height} width={width}>
         <ModalTitle title={title} closeModal={closeModal} />
+        <ModalDescription>{description}</ModalDescription>
         {children}
       </ModalContainer>
     </BackgroundAside>,

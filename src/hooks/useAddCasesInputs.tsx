@@ -1,9 +1,9 @@
 import { startOfDay } from "date-fns";
 import { pick } from "lodash";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
-import { saveFacility } from "../database";
 import { useToasts } from "../design-system/Toast";
+import { useFacilities } from "../facilities-context";
 import {
   ModelInputsPopulationBrackets,
   populationBracketKeys,
@@ -13,85 +13,122 @@ import { Facility, ModelInputs } from "../page-multi-facility/types";
 import useFacilityModelVersions from "./useFacilityModelVersions";
 import useRejectionToast from "./useRejectionToast";
 
-export const getModelInputs = (modelInputs: ModelInputs) => {
+export const getBracketData = (modelInputs: ModelInputs) => {
   return pick(modelInputs, populationBracketKeys);
 };
+
+export function findMostRecentDate(
+  observedAtDate: Date,
+  facilityModelVersions: ModelInputs[] | undefined,
+  includeCurrentDate = true,
+) {
+  let mostRecentDate = observedAtDate;
+  if (facilityModelVersions) {
+    // create array of dates with observed data at a given facility
+    const facilityObservedAtDates = facilityModelVersions.map(
+      (facility) => facility.observedAt,
+    );
+    // sort observed at dates
+    facilityObservedAtDates.sort((a, b) => a.getTime() - b.getTime());
+    // filter to dates earlier than (or the same as) the current date
+    const earlierDates = facilityObservedAtDates?.filter(function (date) {
+      if (includeCurrentDate) {
+        return startOfDay(date) <= startOfDay(observedAtDate);
+      } else {
+        return startOfDay(date) < startOfDay(observedAtDate);
+      }
+    });
+    // if there is data for prior dates, use the most recent one, otherwise use
+    // the next forward-looking date that we have for the facility
+    if (earlierDates && earlierDates.length > 0) {
+      mostRecentDate = earlierDates[earlierDates.length - 1];
+    } else if (facilityObservedAtDates) {
+      mostRecentDate = facilityObservedAtDates[0];
+    }
+  }
+  return mostRecentDate;
+}
+
+export const findMatchingDay = ({
+  date,
+  facilityModelVersions,
+}: {
+  date: Date;
+  facilityModelVersions: ModelInputs[] | undefined;
+}) =>
+  facilityModelVersions?.find(
+    ({ observedAt }) => date.toDateString() === observedAt.toDateString(),
+  );
 
 const useAddCasesInputs = (
   facility: Facility,
   onSave: (f: Facility) => void,
   observedAt?: Date | undefined,
 ) => {
+  const { actions } = useFacilities();
   const { addToast } = useToasts();
+
+  // use date from args but provide a fallback when it's missing
+  const defaultObservationDate = facility.modelInputs.observedAt;
+  const [observationDate, setObservationDate] = useState(
+    observedAt || defaultObservationDate,
+  );
+  useEffect(() => {
+    setObservationDate(observedAt || defaultObservationDate);
+  }, [defaultObservationDate, observedAt]);
+
   const [facilityModelVersions, updateModelVersions] = useFacilityModelVersions(
     facility,
   );
+
+  // use the current state of the facility as default values
+  const defaultInputs = facility.modelInputs;
+  const [isReference, setIsReference] = useState(defaultInputs.isReference);
+
   const [observedAtVersion, setObservedAtVersion] = useState<
     ModelInputs | undefined
   >();
-  // the current state of the facility is the default when we need to reset
-  // If observedAt is provided and a version exists then use the version's inputs
-  const defaultInputs = getModelInputs(
-    observedAtVersion || facility.modelInputs,
-  );
-  // If observedAt is provided then set it as the default date
-  const defaultObservationDate = observedAt || facility.modelInputs.observedAt;
+  // whenever observation date changes we should look for a new model version
+  useEffect(() => {
+    const mostRecentDate = findMostRecentDate(
+      observationDate,
+      facilityModelVersions,
+    );
+
+    // get facility data for most recent date
+    const newObservedAtVersion = findMatchingDay({
+      date: mostRecentDate,
+      facilityModelVersions,
+    });
+
+    if (newObservedAtVersion) {
+      setIsReference(newObservedAtVersion.isReference);
+      setObservedAtVersion(newObservedAtVersion);
+    } else {
+      setObservedAtVersion(defaultInputs);
+    }
+  }, [facilityModelVersions, defaultInputs, observationDate]);
 
   const [inputs, setInputs] = useState<ModelInputsPopulationBrackets>(
-    defaultInputs,
+    getBracketData(observedAtVersion || defaultInputs),
   );
 
-  const [observationDate, setObservationDate] = useState(
-    defaultObservationDate,
-  );
-
-  const findMatchingDay = useCallback(
-    ({ date }: { date: Date }) =>
-      facilityModelVersions?.find(
-        ({ observedAt }) => date.toDateString() === observedAt.toDateString(),
-      ),
-    [facilityModelVersions],
-  );
-
+  // when we find an observedAtVersion, that takes precedence over the default
   useEffect(() => {
-    if (observedAt) {
-      const observedAtVersion = findMatchingDay({ date: observedAt });
-      setObservationDate(observedAt);
-
-      if (observedAtVersion) {
-        setInputs(getModelInputs(observedAtVersion));
-        setObservedAtVersion(observedAtVersion);
-      } else {
-        setInputs({});
-        setObservedAtVersion(undefined);
-      }
-    }
-  }, [observedAt, findMatchingDay]);
+    setInputs(getBracketData(observedAtVersion || defaultInputs));
+  }, [defaultInputs, observedAtVersion]);
 
   const updateInputs = (update: ModelInputsPopulationBrackets) => {
     setInputs({ ...inputs, ...update });
   };
 
   const resetModalData = () => {
-    setInputs(defaultInputs);
+    // any state that is date-dependent should be watching this value,
+    // so we don't have to update all of it imperatively
     setObservationDate(defaultObservationDate);
   };
 
   const [, updateModel] = useModel();
-
-  const onDateChange = (date: Date | undefined) => {
-    if (date) {
-      setObservationDate(date);
-      const inputsForDate = findMatchingDay({
-        date,
-      });
-      if (inputsForDate) {
-        setInputs(pick(inputsForDate, populationBracketKeys));
-      } else {
-        setInputs({ ...defaultInputs });
-      }
-    }
-  };
 
   const rejectionToast = useRejectionToast();
 
@@ -109,40 +146,42 @@ const useAddCasesInputs = (
     // Save to DB with model changes;
     // if they are not most recent the save function will handle it,
     // unlike the local state handlers
-    rejectionToast(
-      saveFacility(facility.scenarioId, {
-        id: facility.id,
-        modelInputs: newInputs,
-      }).then(() => {
-        // don't update the UI unless save succeeds; there may have been a permission rejection
-        if (
-          defaultObservationDate &&
-          observationDate &&
-          startOfDay(observationDate) >= startOfDay(defaultObservationDate)
-        ) {
-          // sending the full input object into the model context may trigger side effects
-          // such as a full reset, so just send the inputs that are editable
-          // in this dialog
-          updateModel({ ...inputs, observedAt: observationDate });
-          // new inputs should be the new "current" model inputs
-          latestFacilityData.modelInputs = newInputs;
-        }
+    await rejectionToast(
+      actions
+        .createOrUpdateFacility({
+          id: facility.id,
+          modelInputs: newInputs,
+        })
+        .then(() => {
+          // don't update the UI unless save succeeds; there may have been a permission rejection
+          if (
+            defaultObservationDate &&
+            observationDate &&
+            startOfDay(observationDate) >= startOfDay(defaultObservationDate)
+          ) {
+            // sending the full input object into the model context may trigger side effects
+            // such as a full reset, so just send the inputs that are editable
+            // in this dialog
+            updateModel({ ...inputs, observedAt: observationDate });
+            // new inputs should be the new "current" model inputs
+            latestFacilityData.modelInputs = newInputs;
+          }
 
-        onSave(latestFacilityData);
-        updateModelVersions();
-        addToast("Data successfully saved!");
-      }),
+          onSave(latestFacilityData);
+          updateModelVersions();
+          addToast("Data successfully saved!");
+        }),
     );
   };
 
   return {
     inputs,
     observationDate,
-    onDateChange,
     facilityModelVersions,
     updateInputs,
     resetModalData,
     saveCases,
+    isReference,
   };
 };
 

@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 
-import Colors from "./Colors";
 import closeIcon from "./icons/ic_close.svg";
 
 export interface TitleProps {
@@ -19,12 +18,11 @@ const CloseButtonImg = styled.img`
 `;
 
 const ModalTitleContainer = styled.div`
-  border-bottom: 0.5px solid ${Colors.darkGray};
   display: inline-block;
   font-size: 16px;
   font-family: "Poppins", sans-serif;
   padding-bottom: 20px;
-  width: 100%;
+  width: auto;
 `;
 
 const ModalTitle: React.FC<TitleProps> = (props) => {

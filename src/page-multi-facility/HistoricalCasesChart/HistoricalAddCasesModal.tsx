@@ -11,6 +11,7 @@ interface Props {
   open: boolean;
   setOpen: (open: boolean) => void;
   observedAt: Date | undefined;
+  setObservedAt: (date: Date | undefined) => void;
   onModalSave: (f: Facility) => void;
 }
 
@@ -19,16 +20,17 @@ const HistoricalAddCasesModal: React.FC<Props> = ({
   open,
   setOpen,
   observedAt,
+  setObservedAt,
   onModalSave,
 }) => {
   const {
     inputs,
     observationDate,
-    onDateChange,
     facilityModelVersions,
     updateInputs,
     resetModalData,
     saveCases,
+    isReference,
   } = useAddCasesInputs(facility, onModalSave, observedAt);
 
   async function handleSave() {
@@ -47,11 +49,12 @@ const HistoricalAddCasesModal: React.FC<Props> = ({
     >
       <AddCasesModalContent
         observationDate={observationDate || startOfToday()}
-        onValueChange={onDateChange}
+        onValueChange={setObservedAt}
         inputs={inputs}
         updateInputs={updateInputs}
         onSave={handleSave}
         facilityModelVersions={facilityModelVersions}
+        isReference={isReference}
       />
     </ModalDialog>
   );

@@ -1,31 +1,30 @@
+import { isAfter } from "date-fns";
 import { navigate } from "gatsby";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 
-import { FetchedFacilities } from "../constants";
-import { getFacilities } from "../database";
 import Colors from "../design-system/Colors";
 import iconAddSrc from "../design-system/icons/ic_add.svg";
 import Loading from "../design-system/Loading";
 import TextLabel from "../design-system/TextLabel";
+import { FacilitiesState, useFacilities } from "../facilities-context";
 import { useFlag } from "../feature-flags";
-import useError from "../hooks/useError";
-import useFacilitiesRtData from "../hooks/useFacilitiesRtData";
+import useReadOnlyMode from "../hooks/useReadOnlyMode";
+import useReferenceFacilitiesEligible from "../hooks/useReferenceFacilitiesEligible";
+import useRejectionToast from "../hooks/useRejectionToast";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
-import {
-  getFacilitiesRtDataById,
-  updateFacilityRtData,
-} from "../infection-model/rt";
-import { useLocaleDataState } from "../locale-data-context";
+import { getFacilitiesRtDataById } from "../infection-model/rt";
+import { LocaleData, useLocaleDataState } from "../locale-data-context";
 import useScenario from "../scenario-context/useScenario";
-import { FacilityContext } from "./FacilityContext";
 import FacilityRow from "./FacilityRow";
 import FacilityRowPlaceholder from "./FacilityRowPlaceholder";
 import ProjectionsHeader from "./ProjectionsHeader";
 import RateOfSpreadPanel from "./RateOfSpreadPanel";
+import SyncNewReferenceData from "./ReferenceDataModal/SyncNewReferenceData";
+import SyncNoUserFacilities from "./ReferenceDataModal/SyncNoUserFacilities";
 import ScenarioSidebar from "./ScenarioSidebar";
 import SystemSummary from "./SystemSummary";
-import { Facilities, Facility } from "./types";
+import { Facility, RtDataMapping } from "./types";
 
 const MultiFacilityImpactDashboardContainer = styled.main.attrs({
   className: `
@@ -79,98 +78,115 @@ const ScenarioTab = styled.li<{ active?: boolean }>`
       : null}
 `;
 
-interface ScenarioPanelsProps {
-  selectedTabIndex: number;
+interface ProjectionsPanelProps {
+  facilitiesState: FacilitiesState;
+  facilities: Facility[];
+  localeDataSource: LocaleData;
+  rtData: Pick<RtDataMapping, string> | undefined;
+  handleFacilitySave: (facility: Facility) => void;
 }
 
-const MultiFacilityImpactDashboard: React.FC = () => {
-  const { data: localeDataSource } = useLocaleDataState();
-  const [scenario] = useScenario();
-
-  const { setFacility, rtData, dispatchRtData } = useContext(FacilityContext);
-
-  const [facilities, setFacilities] = useState<FetchedFacilities>({
-    data: [] as Facilities,
-    loading: true,
-  });
-
-  const rethrowSync = useError();
-
-  async function fetchFacilities() {
-    if (!scenario?.data?.id) return;
-
-    try {
-      const facilitiesData = await getFacilities(scenario.data.id);
-      if (facilitiesData) {
-        setFacilities({
-          data: facilitiesData,
-          loading: false,
-        });
-      }
-    } catch (e) {
-      rethrowSync(e);
-    }
-  }
-
-  useEffect(() => {
-    fetchFacilities();
-  }, [scenario.data?.id]);
-
-  const handleFacilitySave = (newFacility: Facility) => {
-    setFacilities({
-      data: facilities.data.map((f) => {
-        if (f.id === newFacility.id) return { ...newFacility };
-        return { ...f };
-      }),
-      loading: facilities.loading,
-    });
-    updateFacilityRtData(newFacility, dispatchRtData);
-  };
-
-  useFacilitiesRtData(facilities.data);
-  const facilitiesRtData = getFacilitiesRtDataById(rtData, facilities.data);
-
-  const openAddFacilityPage = () => {
-    setFacility(null);
-    navigate("/facility");
-  };
-
-  const [selectedTab, setSelectedTab] = useState(0);
-
-  const projectionsPanel = (
+const ProjectionsPanel = React.memo(function ProjectionsPanel(
+  props: ProjectionsPanelProps,
+) {
+  return (
     <>
       <ProjectionsHeader />
-      {facilities.loading ? (
+      {props.facilitiesState.loading ? (
         <Loading />
       ) : (
-        facilities?.data.map((facility) => (
+        props.facilities.map((facility) => (
           <FacilityRowPlaceholder key={facility.id}>
             <EpidemicModelProvider
               facilityModel={facility.modelInputs}
-              localeDataSource={localeDataSource}
+              localeDataSource={props.localeDataSource}
             >
-              <FacilityRow facility={facility} onSave={handleFacilitySave} />
+              <FacilityRow
+                facility={facility}
+                facilityRtData={props.rtData && props.rtData[facility.id]}
+                onSave={props.handleFacilitySave}
+              />
             </EpidemicModelProvider>
           </FacilityRowPlaceholder>
         ))
       )}
     </>
   );
+});
 
+const MultiFacilityImpactDashboard: React.FC = () => {
+  const rejectionToast = useRejectionToast();
+  const referenceFacilitiesEligible = useReferenceFacilitiesEligible();
   const showRateOfSpreadTab = useFlag(["showRateOfSpreadTab"]);
+
+  const { data: localeDataSource } = useLocaleDataState();
+  const [referenceDataModalOpen, setReferenceDataModalOpen] = useState(false);
+  const [scenarioState] = useScenario();
+  const scenario = scenarioState?.data;
+  const scenarioId = scenario?.id;
+  const readOnlyMode = useReadOnlyMode(scenario);
+  const {
+    state: facilitiesState,
+    actions: { createOrUpdateFacility, deselectFacility },
+  } = useFacilities();
+  const facilities = Object.values(facilitiesState.facilities) || [];
+  const rtData = getFacilitiesRtDataById(facilitiesState.rtData, facilities);
+  const systemType = facilities[0]?.systemType;
+  const stateName = facilities[0]?.modelInputs.stateName;
+  const showSyncReferenceFacilitiesBaseConditions =
+    referenceFacilitiesEligible &&
+    !facilitiesState.loading &&
+    !scenarioState.loading &&
+    !readOnlyMode && // i.e. User must own of the Scenario
+    (scenario?.useReferenceData == undefined || scenario?.useReferenceData);
+
+  const showSyncNoUserFacilities =
+    showSyncReferenceFacilitiesBaseConditions && facilities.length == 0;
+
+  const showSyncNewReferenceData =
+    showSyncReferenceFacilitiesBaseConditions &&
+    !showSyncNoUserFacilities &&
+    (!scenario?.referenceDataObservedAt ||
+      Object.values(facilitiesState.referenceFacilities).some((refFacility) => {
+        return (
+          scenario?.referenceDataObservedAt &&
+          isAfter(refFacility.createdAt, scenario.referenceDataObservedAt)
+        );
+      }));
+
+  const handleFacilitySave = useCallback(
+    async (facility: Facility) => {
+      if (scenarioId) {
+        await rejectionToast(createOrUpdateFacility(facility));
+      }
+    },
+    [createOrUpdateFacility, rejectionToast, scenarioId],
+  );
+
+  useEffect(() => {
+    setReferenceDataModalOpen(showSyncNewReferenceData);
+  }, [showSyncNewReferenceData]);
+
+  const openAddFacilityPage = () => {
+    deselectFacility();
+    navigate("/facility");
+  };
+
+  const [selectedTab, setSelectedTab] = useState(0);
+
   return (
     <MultiFacilityImpactDashboardContainer>
-      {scenario.loading ? (
+      {scenarioState.loading ? (
         <Loading />
       ) : (
-        <ScenarioSidebar numFacilities={facilities?.data.length} />
+        <ScenarioSidebar numFacilities={facilities.length} />
       )}
       <div className="flex flex-col flex-1 pb-6 pl-8 justify-start">
-        {facilitiesRtData && (
+        {rtData && (
           <SystemSummary
-            facilities={facilities.data}
-            scenarioId={scenario?.data?.id}
-            rtData={facilitiesRtData}
+            facilities={facilities}
+            scenarioId={scenarioId}
+            rtData={rtData}
           />
         )}
         <div className="flex flex-row flex-none justify-between items-start">
@@ -197,9 +213,29 @@ const MultiFacilityImpactDashboard: React.FC = () => {
             </ScenarioTabList>
           </ScenarioTabs>
         </div>
-        {selectedTab === 0 && projectionsPanel}
-        {selectedTab === 1 && <RateOfSpreadPanel facilities={facilities} />}
+        {selectedTab == 0 && (
+          <ProjectionsPanel
+            facilitiesState={facilitiesState}
+            facilities={facilities}
+            localeDataSource={localeDataSource}
+            rtData={rtData}
+            handleFacilitySave={handleFacilitySave}
+          />
+        )}
+        {selectedTab === 1 && (
+          <RateOfSpreadPanel
+            facilities={facilities}
+            loading={facilitiesState.loading}
+          />
+        )}
       </div>
+      {showSyncNoUserFacilities && <SyncNoUserFacilities />}
+      <SyncNewReferenceData
+        open={referenceDataModalOpen}
+        stateName={stateName}
+        systemType={systemType}
+        onClose={() => setReferenceDataModalOpen(false)}
+      />
     </MultiFacilityImpactDashboardContainer>
   );
 };

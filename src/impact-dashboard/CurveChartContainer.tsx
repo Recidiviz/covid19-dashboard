@@ -2,8 +2,8 @@ import isEmpty from "lodash/isEmpty";
 import React from "react";
 import { useEffect, useState } from "react";
 
+import { ProjectionColors } from "../design-system/Colors";
 import Loading from "../design-system/Loading";
-import { MarkColors } from "./ChartArea";
 import CurveChart, { ChartData } from "./CurveChart";
 import { useEpidemicModelState } from "./EpidemicModelContext";
 
@@ -11,9 +11,10 @@ interface Props {
   chartHeight?: number;
   groupStatus: Record<string, any>;
   hideAxes?: boolean;
-  markColors: MarkColors;
+  markColors: ProjectionColors;
   curveData?: ChartData;
   addAnnotations?: boolean;
+  useHoverAnnotations?: boolean;
 }
 
 const CurveChartContainer: React.FC<Props> = ({
@@ -23,6 +24,7 @@ const CurveChartContainer: React.FC<Props> = ({
   hideAxes,
   curveData,
   addAnnotations = true,
+  useHoverAnnotations = true,
 }) => {
   const { hospitalBeds } = useEpidemicModelState();
   const [curveDataFiltered, setCurveDataFiltered] = useState(curveData);
@@ -62,6 +64,7 @@ const CurveChartContainer: React.FC<Props> = ({
       markColors={markColors}
       hideAxes={hideAxes}
       addAnnotations={addAnnotations}
+      useHoverAnnotations={useHoverAnnotations}
     />
   );
 };

@@ -12,7 +12,7 @@ const ChartTooltip = styled.div`
   min-width: 60px;
   padding: 12px;
   position: relative;
-  transform: translateX(-50%) translateY(calc(-100% - ${2 * triangleSize}px));
+  transform: translateX(-50%) translateY(-115%);
   z-index: 100;
 
   &::after {
