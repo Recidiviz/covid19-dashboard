@@ -96,6 +96,7 @@ export const ReferenceFacilitySelect: React.FC<ReferenceFacilitySelectProps> = (
 }) => {
   return (
     <>
+      Your facilities
       {referenceFacilities.map((refFacility) => {
         return (
           <Row key={refFacility.id}>

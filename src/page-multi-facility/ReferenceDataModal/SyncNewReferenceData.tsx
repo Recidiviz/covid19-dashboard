@@ -22,16 +22,24 @@ const Spacer = styled.span`
   margin-right: 2em;
 `;
 
-const Title: React.FC<Pick<Props, "stateName" | "systemType">> = ({
-  stateName,
-  systemType,
-}) => (
+const Title: React.FC<Pick<
+  Props,
+  "stateName" | "systemType" | "useExistingFacilities"
+>> = ({ stateName, systemType, useExistingFacilities }) => (
   <TitleContainer>
     <TitleText>Prepopulate Data</TitleText>
-    <TitleText>
-      We've found new facility data - select a corresponding facility to
-      autofill with case data
-    </TitleText>
+    {useExistingFacilities ? (
+      <TitleText>
+        Select the facilities in your model to autofill with real-time COVID-19
+        data. You can turn off or override prepopulated data anytime.
+      </TitleText>
+    ) : (
+      <TitleText>
+        We've found new facility data - select a corresponding facility to
+        autofill with case data
+      </TitleText>
+    )}
+
     <TitleText>
       State: {stateName}
       <Spacer />
@@ -98,25 +106,32 @@ const SyncNewReferenceData: React.FC<Props> = ({
     };
   }
 
-  console.log(mappedFacilities);
-  console.log(mappedRefFacilities);
-
   return (
     <ReferenceDataModal
       open={open}
       onClose={onClose}
       selections={selections}
-      title={<Title stateName={stateName} systemType={systemType} />}
+      title={
+        <Title
+          stateName={stateName}
+          systemType={systemType}
+          useExistingFacilities={useExistingFacilities}
+        />
+      }
       cancelText="Not now"
     >
       {useExistingFacilities ? (
-        <ReferenceFacilitySelect
-          facilities={mappedFacilities}
-          referenceFacilities={mappedRefFacilities}
-          selections={selections}
-          onChange={handleChange}
-          useExistingFacilities={useExistingFacilities}
-        />
+        <>
+          <br />
+          Facilities with available prepopulated data
+          <ReferenceFacilitySelect
+            facilities={mappedFacilities}
+            referenceFacilities={mappedRefFacilities}
+            selections={selections}
+            onChange={handleChange}
+            useExistingFacilities={useExistingFacilities}
+          />
+        </>
       ) : (
         <ReferenceFacilitySelect
           facilities={unmappedFacilities}
