@@ -20,6 +20,12 @@ export const TitleText = styled.h1`
   font-family: "Libre Franklin";
 `;
 
+export const SubheadingText = styled.div`
+  font-weight: 600;
+  line-height: 16px;
+  colors: ${Colors.gray};
+`;
+
 export * from "./ReferenceFacilityList";
 export * from "./ReferenceFacilitySelect";
 export * from "./utils";

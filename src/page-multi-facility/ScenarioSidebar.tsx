@@ -16,6 +16,7 @@ import { useFlag } from "../feature-flags";
 import useReadOnlyMode from "../hooks/useReadOnlyMode";
 import useRejectionToast from "../hooks/useRejectionToast";
 import useScenario from "../scenario-context/useScenario";
+import { LinkContainer } from "../scenario-share/ScenarioShareLink";
 import ScenarioShareModal, {
   ShareButton,
 } from "../scenario-share/ScenarioShareModal";
@@ -203,12 +204,14 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
           </div>
         )}
         <div>
-          <Spacer y={20} />
-          <HorizontalRule />
-          <Spacer y={20} />
-          <ShareButton onClick={() => setReferenceDataModalOpen(true)}>
-            Prepopulate Data
-          </ShareButton>
+          <LinkContainer>
+            <Spacer y={20} />
+            <HorizontalRule />
+            <Spacer y={20} />
+            <ShareButton onClick={() => setReferenceDataModalOpen(true)}>
+              Prepopulate Data
+            </ShareButton>
+          </LinkContainer>
         </div>
         {
           <SyncNewReferenceData

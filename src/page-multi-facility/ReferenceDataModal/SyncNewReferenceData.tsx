@@ -14,6 +14,7 @@ import {
   getUnmappedReferenceFacilities,
   ReferenceFacilitySelect,
   ReferenceFacilitySelections,
+  SubheadingText,
   TitleContainer,
   TitleText,
 } from "./shared";
@@ -39,7 +40,7 @@ const Title: React.FC<Pick<
         autofill with case data
       </TitleText>
     )}
-
+    <br />
     <TitleText>
       State: {stateName}
       <Spacer />
@@ -123,7 +124,12 @@ const SyncNewReferenceData: React.FC<Props> = ({
       {useExistingFacilities ? (
         <>
           <br />
-          Facilities with available prepopulated data
+          <SubheadingText>
+            Facilities with available prepopulated data
+            <Spacer />
+            <Spacer />
+            Your facilities
+          </SubheadingText>
           <ReferenceFacilitySelect
             facilities={mappedFacilities}
             referenceFacilities={mappedRefFacilities}

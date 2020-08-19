@@ -4,7 +4,7 @@ import styled from "styled-components";
 import Colors from "../design-system/Colors";
 import iconLinkPath from "../design-system/icons/ic_link.svg";
 
-const LinkContainer = styled.div`
+export const LinkContainer = styled.div`
   color: ${Colors.forest};
   font-family: "Poppins", sans-serif;
   font-size: 13px;
