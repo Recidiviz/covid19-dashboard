@@ -16,7 +16,9 @@ import { useFlag } from "../feature-flags";
 import useReadOnlyMode from "../hooks/useReadOnlyMode";
 import useRejectionToast from "../hooks/useRejectionToast";
 import useScenario from "../scenario-context/useScenario";
-import ScenarioShareModal from "../scenario-share/ScenarioShareModal";
+import ScenarioShareModal, {
+  ShareButton,
+} from "../scenario-share/ScenarioShareModal";
 import SyncNewReferenceData from "./ReferenceDataModal/SyncNewReferenceData";
 import ScenarioLibraryModal from "./ScenarioLibraryModal";
 import { Scenario } from "./types";
@@ -132,7 +134,7 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
   const [description, setDescription] = useState(scenario?.description);
   // need this to force a form state refresh when switching scenarios
   const [renderKey, setRenderKey] = useState(scenario?.id);
-  const [referenceDataModalOpen, setReferenceDataModalOpen] = useState(true);
+  const [referenceDataModalOpen, setReferenceDataModalOpen] = useState(false);
 
   const promoType: string | null = getEnabledPromoType(scenario, numFacilities);
 
@@ -204,7 +206,9 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
           <Spacer y={20} />
           <HorizontalRule />
           <Spacer y={20} />
-          Prepopulate Data
+          <ShareButton onClick={() => setReferenceDataModalOpen(true)}>
+            Prepopulate Data
+          </ShareButton>
         </div>
         {
           <SyncNewReferenceData

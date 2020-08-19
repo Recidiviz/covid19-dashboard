@@ -101,7 +101,7 @@ const UserList: React.FC<{
   );
 };
 
-const ShareButton = styled.button`
+export const ShareButton = styled.button`
   align-items: center;
   display: flex;
   justify-content: space-between;
