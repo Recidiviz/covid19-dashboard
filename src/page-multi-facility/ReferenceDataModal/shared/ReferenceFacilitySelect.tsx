@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import Colors from "../../../design-system/Colors";
 import InputSelect from "../../../design-system/InputSelect";
+import { ReferenceIcon } from "../../../design-system/InputText";
 import { Facilities, Facility, ReferenceFacility } from "../../types";
 import { ReferenceFacilitySelections } from ".";
 
@@ -33,6 +34,7 @@ interface FacilitiesSelectProps {
   selections: ReferenceFacilitySelections;
   facilities: Facilities;
   onChange: (facilityId: Facility["id"] | undefined) => void;
+  useExistingFacilities?: boolean;
 }
 
 const FacilitiesSelect: React.FC<FacilitiesSelectProps> = ({
@@ -40,6 +42,7 @@ const FacilitiesSelect: React.FC<FacilitiesSelectProps> = ({
   value,
   facilities,
   onChange,
+  useExistingFacilities = false,
 }) => {
   const disabledOption = (facilityId: Facility["id"]) =>
     Object.values(selections).includes(facilityId);
@@ -53,7 +56,12 @@ const FacilitiesSelect: React.FC<FacilitiesSelectProps> = ({
         }}
         value={value || ""}
       >
-        <option value={""}>Select a facility</option>
+        {useExistingFacilities ? (
+          <option value={""}>Select a facility</option>
+        ) : (
+          <option value={""}>Don't autofill this facility</option>
+        )}
+
         {facilities.map((facility: Facility) => {
           return (
             <option
@@ -77,6 +85,7 @@ interface ReferenceFacilitySelectProps {
     id: ReferenceFacility["id"],
   ) => (facilityId: Facility["id"] | undefined) => void;
   selections: ReferenceFacilitySelections;
+  useExistingFacilities?: boolean;
 }
 
 export const ReferenceFacilitySelect: React.FC<ReferenceFacilitySelectProps> = ({
@@ -84,6 +93,7 @@ export const ReferenceFacilitySelect: React.FC<ReferenceFacilitySelectProps> = (
   facilities,
   selections,
   onChange,
+  useExistingFacilities = false,
 }) => {
   return (
     <>
@@ -91,11 +101,13 @@ export const ReferenceFacilitySelect: React.FC<ReferenceFacilitySelectProps> = (
         return (
           <Row key={refFacility.id}>
             <FacilityName>{refFacility.canonicalName}</FacilityName>
+            {useExistingFacilities && <ReferenceIcon marginRight={"5px"} />}
             <FacilitiesSelect
               selections={selections}
               facilities={facilities}
               value={selections[refFacility.id]}
               onChange={onChange(refFacility.id)}
+              useExistingFacilities={useExistingFacilities}
             />
           </Row>
         );

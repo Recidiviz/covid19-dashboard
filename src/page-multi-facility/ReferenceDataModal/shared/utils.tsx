@@ -26,8 +26,12 @@ export function getMappedReferenceFacilities(
   mappedReferenceFacilities: FacilityReferenceMapping,
   referenceFacilities: ReferenceFacilityMapping,
 ) {
+  console.log(referenceFacilities);
   return Object.values(referenceFacilities).filter((refFacility) => {
-    return Object.values(mappedReferenceFacilities).includes(refFacility.id);
+    return (
+      Object.values(mappedReferenceFacilities).includes(refFacility.id) &&
+      !refFacility.canonicalName.startsWith("OVERALL")
+    );
   });
 }
 

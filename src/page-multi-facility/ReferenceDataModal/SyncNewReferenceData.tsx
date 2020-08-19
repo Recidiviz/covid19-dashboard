@@ -45,7 +45,7 @@ interface Props {
   stateName: ModelInputs["stateName"];
   systemType: Facility["systemType"];
   onClose: () => void;
-  useUnmappedFacilities?: boolean;
+  useExistingFacilities?: boolean;
 }
 
 const SyncNewReferenceData: React.FC<Props> = ({
@@ -53,7 +53,7 @@ const SyncNewReferenceData: React.FC<Props> = ({
   stateName,
   systemType,
   onClose,
-  useUnmappedFacilities = true,
+  useExistingFacilities = true,
 }) => {
   const [selections, setSelections] = useState<ReferenceFacilitySelections>({});
   const [scenarioState] = useScenario();
@@ -79,9 +79,7 @@ const SyncNewReferenceData: React.FC<Props> = ({
     referenceFacilities,
   );
 
-  console.log(facilities);
-
-  if (useUnmappedFacilities) {
+  if (useExistingFacilities) {
     if (!open || isEmpty(unmappedReferenceFacilities)) return null;
   }
 
@@ -100,7 +98,8 @@ const SyncNewReferenceData: React.FC<Props> = ({
     };
   }
 
-  console.log("here");
+  console.log(mappedFacilities);
+  console.log(mappedRefFacilities);
 
   return (
     <ReferenceDataModal
@@ -110,21 +109,12 @@ const SyncNewReferenceData: React.FC<Props> = ({
       title={<Title stateName={stateName} systemType={systemType} />}
       cancelText="Not now"
     >
-      {useUnmappedFacilities ? (
-        <ReferenceFacilitySelect
-          facilities={unmappedFacilities}
-          referenceFacilities={unmappedReferenceFacilities}
-          selections={selections}
-          onChange={handleChange}
-        />
-      ) : (
-        <ReferenceFacilitySelect
-          facilities={mappedFacilities}
-          referenceFacilities={mappedRefFacilities}
-          selections={selections}
-          onChange={handleChange}
-        />
-      )}
+      <ReferenceFacilitySelect
+        facilities={unmappedFacilities}
+        referenceFacilities={unmappedReferenceFacilities}
+        selections={selections}
+        onChange={handleChange}
+      />
     </ReferenceDataModal>
   );
 };

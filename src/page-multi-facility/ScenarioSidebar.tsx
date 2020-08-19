@@ -212,7 +212,7 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
             stateName={"Vermont"}
             systemType={"State Prison"}
             onClose={() => setReferenceDataModalOpen(false)}
-            useUnmappedFacilities={false}
+            useExistingFacilities={false}
           />
         }
         <div>
