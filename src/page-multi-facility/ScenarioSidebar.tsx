@@ -13,6 +13,7 @@ import InputDescription from "../design-system/InputDescription";
 import InputName from "../design-system/InputName";
 import PromoBoxWithButton from "../design-system/PromoBoxWithButton";
 import { Spacer } from "../design-system/Spacer";
+import { useFacilities } from "../facilities-context/FacilitiesContext";
 import { useFlag } from "../feature-flags";
 import useReadOnlyMode from "../hooks/useReadOnlyMode";
 import useRejectionToast from "../hooks/useRejectionToast";
@@ -122,6 +123,13 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
   const updatedAtDate = Number(scenario?.updatedAt);
   const showImpactButton = useFlag(["showImpactButton"]);
 
+  console.log(scenario?.baseline);
+
+  const { state: facilitiesState } = useFacilities();
+  const facilities = Object.values(facilitiesState.facilities) || [];
+  const systemType = facilities[0]?.systemType;
+  const stateName = facilities[0]?.modelInputs.stateName;
+
   const rejectionToast = useRejectionToast();
   const readOnly = useReadOnlyMode(scenarioState.data);
 
@@ -217,21 +225,25 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
           </div>
         )}
         <div>
-          <LinkContainer>
-            <Spacer y={20} />
-            <HorizontalRule />
-            <Spacer y={20} />
-            <PrepopulateButton onClick={() => setReferenceDataModalOpen(true)}>
-              <IconSync alt="prepopulate" src={dataSyncIconOutline} />
-              Prepopulate Data
-            </PrepopulateButton>
-          </LinkContainer>
+          {scenario?.baseline && (
+            <LinkContainer>
+              <Spacer y={20} />
+              <HorizontalRule />
+              <Spacer y={20} />
+              <PrepopulateButton
+                onClick={() => setReferenceDataModalOpen(true)}
+              >
+                <IconSync alt="prepopulate" src={dataSyncIconOutline} />
+                Prepopulate Data
+              </PrepopulateButton>
+            </LinkContainer>
+          )}
         </div>
         {
           <SyncNewReferenceData
             open={referenceDataModalOpen}
-            stateName={"Vermont"}
-            systemType={"State Prison"}
+            stateName={stateName}
+            systemType={systemType}
             onClose={() => setReferenceDataModalOpen(false)}
             useExistingFacilities={true}
           />
