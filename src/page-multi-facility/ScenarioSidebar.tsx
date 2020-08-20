@@ -6,6 +6,7 @@ import styled from "styled-components";
 import { saveScenario } from "../database";
 import Colors from "../design-system/Colors";
 import iconCheckSrc from "../design-system/icons/ic_check.svg";
+import dataSyncIconOutline from "../design-system/icons/ic_data_sync_outline.svg";
 import iconFolderSrc from "../design-system/icons/ic_folder.svg";
 import InputButton from "../design-system/InputButton";
 import InputDescription from "../design-system/InputDescription";
@@ -17,9 +18,7 @@ import useReadOnlyMode from "../hooks/useReadOnlyMode";
 import useRejectionToast from "../hooks/useRejectionToast";
 import useScenario from "../scenario-context/useScenario";
 import { LinkContainer } from "../scenario-share/ScenarioShareLink";
-import ScenarioShareModal, {
-  ShareButton,
-} from "../scenario-share/ScenarioShareModal";
+import ScenarioShareModal from "../scenario-share/ScenarioShareModal";
 import SyncNewReferenceData from "./ReferenceDataModal/SyncNewReferenceData";
 import ScenarioLibraryModal from "./ScenarioLibraryModal";
 import { Scenario } from "./types";
@@ -62,6 +61,20 @@ const IconCheck = styled.img`
   width: 12px;
   height: 12px;
   margin-left: 6px;
+`;
+
+const IconSync = styled.img`
+  display: inline;
+  width: 12px;
+  height: 12px;
+  margin-right: 6px;
+`;
+
+const PrepopulateButton = styled.button`
+  align-items: center;
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
 `;
 
 export function getEnabledPromoType(
@@ -208,9 +221,10 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
             <Spacer y={20} />
             <HorizontalRule />
             <Spacer y={20} />
-            <ShareButton onClick={() => setReferenceDataModalOpen(true)}>
+            <PrepopulateButton onClick={() => setReferenceDataModalOpen(true)}>
+              <IconSync alt="prepopulate" src={dataSyncIconOutline} />
               Prepopulate Data
-            </ShareButton>
+            </PrepopulateButton>
           </LinkContainer>
         </div>
         {
