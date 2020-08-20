@@ -14,7 +14,6 @@ import {
   getUnmappedReferenceFacilities,
   ReferenceFacilitySelect,
   ReferenceFacilitySelections,
-  SubheadingText,
   TitleContainer,
   TitleText,
 } from "./shared";
@@ -62,12 +61,12 @@ const SyncNewReferenceData: React.FC<Props> = ({
   stateName,
   systemType,
   onClose,
-  useExistingFacilities = true,
+  useExistingFacilities = false,
 }) => {
   const [selections, setSelections] = useState<ReferenceFacilitySelections>({});
   const [scenarioState] = useScenario();
   const {
-    state: { facilities: facilitiesMapping, referenceFacilities, facilities },
+    state: { facilities: facilitiesMapping, referenceFacilities },
   } = useFacilities();
   const scenario = scenarioState.data;
   const mappedReferenceFacilities = scenario?.[referenceFacilitiesProp] || {};

@@ -18,7 +18,6 @@ import { useFlag } from "../feature-flags";
 import useReadOnlyMode from "../hooks/useReadOnlyMode";
 import useRejectionToast from "../hooks/useRejectionToast";
 import useScenario from "../scenario-context/useScenario";
-import { LinkContainer } from "../scenario-share/ScenarioShareLink";
 import ScenarioShareModal from "../scenario-share/ScenarioShareModal";
 import SyncNewReferenceData from "./ReferenceDataModal/SyncNewReferenceData";
 import ScenarioLibraryModal from "./ScenarioLibraryModal";
@@ -123,8 +122,6 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
   const updatedAtDate = Number(scenario?.updatedAt);
   const showImpactButton = useFlag(["showImpactButton"]);
 
-  console.log(scenario?.baseline);
-
   const { state: facilitiesState } = useFacilities();
   const facilities = Object.values(facilitiesState.facilities) || [];
   const systemType = facilities[0]?.systemType;
@@ -226,7 +223,7 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
         )}
         <div>
           {!!scenario?.baseline && (
-            <LinkContainer>
+            <>
               <Spacer y={20} />
               <HorizontalRule />
               <Spacer y={20} />
@@ -236,7 +233,7 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
                 <IconSync alt="prepopulate" src={dataSyncIconOutline} />
                 Prepopulate Data
               </PrepopulateButton>
-            </LinkContainer>
+            </>
           )}
         </div>
         {

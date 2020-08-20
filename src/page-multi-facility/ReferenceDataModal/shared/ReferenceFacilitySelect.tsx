@@ -60,9 +60,9 @@ const FacilitiesSelect: React.FC<FacilitiesSelectProps> = ({
         }}
         value={value || ""}
       >
-        {/* TODO: what value to use here? */}
+        {/* TODO per #556: what value to use here? */}
         {useExistingFacilities && (
-          <option value={"x"}>Don't autofill this facility</option>
+          <option value={"skip"}>Don't autofill this facility</option>
         )}
         <option value={""}>Select a facility</option>
         {facilities.map((facility: Facility) => {
@@ -100,13 +100,15 @@ export const ReferenceFacilitySelect: React.FC<ReferenceFacilitySelectProps> = (
 }) => {
   return (
     <>
-      <SubheadingContainer>
-        <SubheadingText>
-          Facilities with available prepopulated data
-        </SubheadingText>
-        <SubheadingText>Your facilities</SubheadingText>
-      </SubheadingContainer>
-
+      {" "}
+      {useExistingFacilities && (
+        <SubheadingContainer>
+          <SubheadingText>
+            Facilities with available prepopulated data
+          </SubheadingText>
+          <SubheadingText>Your facilities</SubheadingText>
+        </SubheadingContainer>
+      )}
       {referenceFacilities.map((refFacility) => {
         return (
           <>
