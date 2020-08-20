@@ -1,6 +1,6 @@
 import { sum } from "d3";
 import { pick } from "lodash";
-import React from "react";
+import React, { useEffect } from "react";
 
 import { LocaleData } from "../locale-data-context";
 import { Facility, ModelInputs } from "../page-multi-facility/types";
@@ -281,9 +281,11 @@ function epidemicModelReducer(
         stateName = state.stateName;
       }
       if (stateName && countyName) {
-        return getLocaleDefaults(state.localeDataSource, stateName, countyName);
+        return {
+          ...getLocaleDefaults(state.localeDataSource, stateName, countyName),
+          ...updates,
+        };
       }
-
       return Object.assign({}, state, updates);
   }
 }
@@ -307,8 +309,14 @@ export function EpidemicModelProvider({
     initialState,
   );
 
+  useEffect(() => {
+    if (facilityModel) {
+      dispatch({ type: "update", payload: facilityModel });
+    }
+  }, [facilityModel]);
+
   return (
-    <EpidemicModelStateContext.Provider value={{ ...facilityModel, ...state }}>
+    <EpidemicModelStateContext.Provider value={state}>
       <EpidemicModelDispatchContext.Provider value={dispatch}>
         {children}
       </EpidemicModelDispatchContext.Provider>
