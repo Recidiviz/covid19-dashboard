@@ -3,9 +3,12 @@ import styled from "styled-components";
 
 import Colors from "../../../design-system/Colors";
 import InputSelect from "../../../design-system/InputSelect";
-import { ReferenceIcon } from "../../../design-system/InputText";
 import { Facilities, Facility, ReferenceFacility } from "../../types";
-import { ReferenceFacilitySelections } from ".";
+import {
+  ReferenceFacilitySelections,
+  SubheadingContainer,
+  SubheadingText,
+} from ".";
 
 const Row = styled.div`
   border-bottom: 1px solid ${Colors.paleJade20};
@@ -26,6 +29,7 @@ const FacilitySelectContainer = styled.div`
 `;
 
 const FacilityName = styled.div`
+  margin-top: 10px;
   flex: 1 1;
 `;
 
@@ -96,18 +100,27 @@ export const ReferenceFacilitySelect: React.FC<ReferenceFacilitySelectProps> = (
 }) => {
   return (
     <>
+      <SubheadingContainer>
+        <SubheadingText>
+          Facilities with available prepopulated data
+        </SubheadingText>
+        <SubheadingText>Your facilities</SubheadingText>
+      </SubheadingContainer>
+
       {referenceFacilities.map((refFacility) => {
         return (
-          <Row key={refFacility.id}>
-            <FacilityName>{refFacility.canonicalName}</FacilityName>
-            <FacilitiesSelect
-              selections={selections}
-              facilities={facilities}
-              value={selections[refFacility.id]}
-              onChange={onChange(refFacility.id)}
-              useExistingFacilities={useExistingFacilities}
-            />
-          </Row>
+          <>
+            <Row key={refFacility.id}>
+              <FacilityName>{refFacility.canonicalName}</FacilityName>
+              <FacilitiesSelect
+                selections={selections}
+                facilities={facilities}
+                value={selections[refFacility.id]}
+                onChange={onChange(refFacility.id)}
+                useExistingFacilities={useExistingFacilities}
+              />
+            </Row>
+          </>
         );
       })}
     </>

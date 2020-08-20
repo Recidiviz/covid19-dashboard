@@ -124,12 +124,6 @@ const SyncNewReferenceData: React.FC<Props> = ({
       {useExistingFacilities ? (
         <>
           <br />
-          <SubheadingText>
-            Facilities with available prepopulated data
-            <Spacer />
-            <Spacer />
-            Your facilities
-          </SubheadingText>
           <ReferenceFacilitySelect
             facilities={mappedFacilities}
             referenceFacilities={mappedRefFacilities}
