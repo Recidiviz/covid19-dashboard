@@ -225,7 +225,7 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
           </div>
         )}
         <div>
-          {scenario?.baseline && (
+          {!!scenario?.baseline && (
             <LinkContainer>
               <Spacer y={20} />
               <HorizontalRule />
