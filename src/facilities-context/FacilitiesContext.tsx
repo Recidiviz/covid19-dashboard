@@ -13,9 +13,7 @@ import useScenario from "../scenario-context/useScenario";
 import * as facilitiesActions from "./actions";
 import { facilitiesReducer } from "./reducer";
 import { FacilityMapping, ReferenceFacilityMapping } from "./types";
-import { isSingleSystem } from "./validators";
-
-const MIN_REFERENCE_FACILITIES = 3;
+import { isSingleSystem, validateReferenceData } from "./validators";
 
 export interface FacilitiesState {
   loading: boolean;
@@ -217,10 +215,13 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
             // currently active status trumps any eligibility violations
             if (referenceDataEligible || referenceDataActive) {
               // fetch reference facilities based on user facilities
-              const {
-                modelInputs: { stateName },
-                systemType,
-              } = Object.values(facilities)[0];
+              const firstFacility = Object.values(facilities)[0];
+              let stateName;
+              let systemType;
+              if (firstFacility) {
+                systemType = firstFacility.systemType;
+                stateName = firstFacility.modelInputs.stateName;
+              }
               if (stateName && systemType) {
                 const referenceFacilities = await facilitiesActions.fetchReferenceFacilities(
                   stateName,
@@ -234,7 +235,7 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
 
                 referenceDataEligible =
                   referenceDataEligible &&
-                  size(referenceFacilities) >= MIN_REFERENCE_FACILITIES;
+                  validateReferenceData(referenceFacilities);
 
                 // "eligible" only applies to scenarios that don't already have the
                 // feature toggled on (i.e., referenceDataActive === true);
