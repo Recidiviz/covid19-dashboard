@@ -139,7 +139,7 @@ const MultiFacilityImpactDashboard: React.FC = () => {
     (scenario?.useReferenceData == undefined || scenario?.useReferenceData);
 
   const showSyncNoUserFacilities =
-    showSyncReferenceFacilitiesBaseConditions && facilities.length == 0;
+    facilitiesState.referenceDataFeatureAvailable && facilities.length == 0;
 
   const showSyncNewReferenceData =
     showSyncReferenceFacilitiesBaseConditions &&
