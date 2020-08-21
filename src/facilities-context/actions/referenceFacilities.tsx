@@ -29,6 +29,16 @@ export function clearReferenceFacilities(dispatch: FacilitiesDispatch) {
   dispatch({ type: CLEAR_REFERENCE_FACILITIES });
 }
 
+export function receiveReferenceFacilities(
+  dispatch: FacilitiesDispatch,
+  referenceFacilities: ReferenceFacilityMapping,
+) {
+  dispatch({
+    type: RECEIVE_REFERENCE_FACILITIES,
+    payload: referenceFacilities,
+  });
+}
+
 export function setCanUseReferenceData(
   dispatch: FacilitiesDispatch,
   payload: boolean,

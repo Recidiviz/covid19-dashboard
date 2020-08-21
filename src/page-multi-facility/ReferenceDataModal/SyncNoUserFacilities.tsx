@@ -186,7 +186,11 @@ const SyncReferenceFacilitiesCard: React.FC<SyncReferenceFacilitiesCardProps> = 
   } = props;
 
   const {
-    actions: { createOrUpdateFacility, fetchReferenceFacilities },
+    actions: {
+      createOrUpdateFacility,
+      fetchReferenceFacilities,
+      receiveReferenceFacilities,
+    },
   } = useFacilities();
   const [referenceFacilities, setReferenceFacilities] = useState<
     ReferenceFacility[]
@@ -205,12 +209,12 @@ const SyncReferenceFacilitiesCard: React.FC<SyncReferenceFacilitiesCardProps> = 
     const retrieveReferenceFacilities = async () => {
       if (!stateName || !systemType) return;
 
-      const referenceFacilityMapping = await fetchReferenceFacilities(
+      const referenceFacilitiesMapping = await fetchReferenceFacilities(
         stateName,
         systemType,
       );
-      const facilities = Object.values(referenceFacilityMapping);
-
+      receiveReferenceFacilities(referenceFacilitiesMapping);
+      const facilities = Object.values(referenceFacilitiesMapping);
       setReferenceFacilities(facilities);
       // By default, select all of the available Reference Facilities
       setSelectedFacilities(facilities);

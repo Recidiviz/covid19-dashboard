@@ -47,6 +47,9 @@ export type ExportedActions = {
     stateName: string,
     systemType: string,
   ) => Promise<ReferenceFacilityMapping>;
+  receiveReferenceFacilities: (
+    referenceFacilities: ReferenceFacilityMapping,
+  ) => void;
 };
 
 interface FacilitiesContext {
@@ -141,6 +144,14 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
         systemType,
       );
     },
+    receiveReferenceFacilities: (
+      referenceFacilities: ReferenceFacilityMapping,
+    ) => {
+      return facilitiesActions.receiveReferenceFacilities(
+        dispatch,
+        referenceFacilities,
+      );
+    },
   };
 
   // when a new scenario is loaded, facility data must be initialized
@@ -180,10 +191,10 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
                   systemType,
                 );
 
-                dispatch({
-                  type: facilitiesActions.RECEIVE_REFERENCE_FACILITIES,
-                  payload: referenceFacilities,
-                });
+                facilitiesActions.receiveReferenceFacilities(
+                  dispatch,
+                  referenceFacilities,
+                );
 
                 referenceDataEligible =
                   referenceDataEligible &&
