@@ -132,16 +132,16 @@ const MultiFacilityImpactDashboard: React.FC = () => {
   const systemType = facilities[0]?.systemType;
   const stateName = facilities[0]?.modelInputs.stateName;
   const showSyncReferenceFacilitiesBaseConditions =
+    facilitiesState.canUseReferenceData &&
     !facilitiesState.loading &&
     !scenarioState.loading &&
     !readOnlyMode && // i.e. User must own of the Scenario
     (scenario?.useReferenceData == undefined || scenario?.useReferenceData);
 
   const showSyncNoUserFacilities =
-    showSyncReferenceFacilitiesBaseConditions && facilities.length == 0;
+    facilitiesState.referenceDataFeatureAvailable && facilities.length == 0;
 
   const showSyncNewReferenceData =
-    facilitiesState.canUseReferenceData &&
     showSyncReferenceFacilitiesBaseConditions &&
     !showSyncNoUserFacilities &&
     (!scenario?.referenceDataObservedAt ||

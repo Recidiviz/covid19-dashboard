@@ -71,6 +71,9 @@ export function facilitiesReducer(
     case actions.CAN_USE_REFERENCE_DATA:
       return { ...state, canUseReferenceData: action.payload };
 
+    case actions.REFERENCE_DATA_FEATURE_AVAILABLE:
+      return { ...state, referenceDataFeatureAvailable: action.payload };
+
     default:
       return state;
   }

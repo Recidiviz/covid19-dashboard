@@ -1,11 +1,12 @@
-import { isEmpty, size } from "lodash";
+import { isEmpty, keyBy, size } from "lodash";
 import React, { useEffect } from "react";
 
-import { referenceFacilitiesProp } from "../database";
+import { referenceFacilitiesProp, saveScenario } from "../database";
 import { useFlag } from "../feature-flags";
 import { hasCases } from "../impact-dashboard/EpidemicModelContext";
 import {
   Facility,
+  ReferenceFacility,
   RtDataMapping,
   Scenario,
 } from "../page-multi-facility/types";
@@ -25,6 +26,7 @@ export interface FacilitiesState {
   selectedFacilityId: Facility["id"] | null;
   rtData: RtDataMapping;
   canUseReferenceData: boolean;
+  referenceDataFeatureAvailable: boolean;
 }
 
 export type FacilitiesDispatch = (
@@ -32,6 +34,11 @@ export type FacilitiesDispatch = (
 ) => void;
 
 export type ExportedActions = {
+  createUserFacilitiesFromReferences: (
+    selectedFacilities: ReferenceFacility[],
+    useReferenceData: boolean,
+    scenario: Scenario,
+  ) => void;
   fetchFacilityRtData: (facility: Facility) => Promise<void>;
   createOrUpdateFacility: (
     facility: Partial<Facility>,
@@ -73,8 +80,9 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
     selectedFacilityId: null,
     rtData: {},
     canUseReferenceData: false,
+    referenceDataFeatureAvailable: false,
   });
-  const [scenarioState] = useScenario();
+  const [scenarioState, dispatchScenarioUpdate] = useScenario();
 
   const scenario = scenarioState.data;
   const scenarioId = scenario?.id;
@@ -91,6 +99,35 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
       : undefined;
 
   const actions = {
+    createUserFacilitiesFromReferences: async (
+      selectedFacilities: ReferenceFacility[],
+      useReferenceData: boolean,
+      scenario: Scenario,
+    ) => {
+      const response = await facilitiesActions.createUserFacilitiesFromReferences(
+        scenario.id,
+        selectedFacilities,
+        state.referenceFacilities,
+      );
+      if (response) {
+        const { compositeFacilities, facilityToReference } = response;
+
+        const updatedScenario = await saveScenario({
+          ...scenario,
+          useReferenceData,
+          [referenceFacilitiesProp]: Object.assign(
+            {},
+            scenario?.[referenceFacilitiesProp],
+            facilityToReference,
+          ),
+        });
+
+        if (updatedScenario) dispatchScenarioUpdate(updatedScenario);
+        const facilityMapping = keyBy(compositeFacilities, "id");
+        facilitiesActions.receiveFacilities(dispatch, facilityMapping);
+      }
+      return;
+    },
     createOrUpdateFacility: async (
       facility: Partial<Facility>,
     ): Promise<void | Facility> => {
@@ -236,6 +273,10 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
         }
       }
       initializeFacilities();
+      facilitiesActions.setReferenceDataFeatureAvailable(
+        dispatch,
+        referenceDataFeatureAvailable,
+      );
     },
 
     // These booleans should change at the same time as the scenarioId
@@ -253,35 +294,18 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
       if (
         state.loading ||
         isEmpty(facilityToReference) ||
-        isEmpty(state.facilities)
+        isEmpty(state.facilities) ||
+        isEmpty(state.referenceFacilities)
       )
         return;
-
-      async function updateFacilities() {
-        let referenceFacilities = state.referenceFacilities;
-        // If user just synced new reference facilities and is updating
-        // facilityToReference for the first time after initialization, then
-        // referenceFacilities will not be loaded yet.
-        if (isEmpty(referenceFacilities)) {
-          const {
-            modelInputs: { stateName },
-            systemType,
-          } = Object.values(state.facilities)[0];
-          if (stateName && systemType) {
-            referenceFacilities = await facilitiesActions.fetchReferenceFacilities(
-              stateName,
-              systemType,
-            );
-          }
-        }
-        const facilities = facilitiesActions.buildCompositeFacilities(
+      facilitiesActions.receiveFacilities(
+        dispatch,
+        facilitiesActions.buildCompositeFacilities(
           state.facilities,
-          referenceFacilities,
+          state.referenceFacilities,
           facilityToReference,
-        );
-        facilitiesActions.receiveFacilities(dispatch, facilities);
-      }
-      updateFacilities();
+        ),
+      );
     },
     // we are controlling changes to the state imperatively via the action functions,
     // so it should be safe to exclude. When facilityToReference changes (externally
