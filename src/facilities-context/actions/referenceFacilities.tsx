@@ -162,7 +162,7 @@ export async function createUserFacilitiesFromReferences(
 
   const facilities = savedFacilities.filter(isFacility);
   const facilityToReference: FacilityReferenceMapping = {};
-  savedFacilities.map((facility, index) => {
+  facilities.map((facility, index) => {
     if (!facility) return;
     facilityToReference[facility.id] = selectedFacilities[index].id;
   });
