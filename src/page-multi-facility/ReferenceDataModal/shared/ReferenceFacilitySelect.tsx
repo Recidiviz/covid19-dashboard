@@ -12,7 +12,7 @@ import {
 
 const Row = styled.div`
   border-bottom: 1px solid ${Colors.paleJade20};
-  color: ${Colors.forest}
+  color: ${Colors.forest};
   cursor: pointer;
   display: flex;
   flex-flow: row nowrap;
@@ -111,18 +111,16 @@ export const ReferenceFacilitySelect: React.FC<ReferenceFacilitySelectProps> = (
       )}
       {referenceFacilities.map((refFacility) => {
         return (
-          <>
-            <Row key={refFacility.id}>
-              <FacilityName>{refFacility.canonicalName}</FacilityName>
-              <FacilitiesSelect
-                selections={selections}
-                facilities={facilities}
-                value={selections[refFacility.id]}
-                onChange={onChange(refFacility.id)}
-                useExistingFacilities={useExistingFacilities}
-              />
-            </Row>
-          </>
+          <Row key={refFacility.id}>
+            <FacilityName>{refFacility.canonicalName}</FacilityName>
+            <FacilitiesSelect
+              selections={selections}
+              facilities={facilities}
+              value={selections[refFacility.id]}
+              onChange={onChange(refFacility.id)}
+              useExistingFacilities={useExistingFacilities}
+            />
+          </Row>
         );
       })}
     </>
