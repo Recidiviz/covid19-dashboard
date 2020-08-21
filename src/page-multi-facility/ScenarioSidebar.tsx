@@ -6,20 +6,19 @@ import styled from "styled-components";
 import { saveScenario } from "../database";
 import Colors from "../design-system/Colors";
 import iconCheckSrc from "../design-system/icons/ic_check.svg";
+import dataSyncIconOutline from "../design-system/icons/ic_data_sync_outline.svg";
 import iconFolderSrc from "../design-system/icons/ic_folder.svg";
 import InputButton from "../design-system/InputButton";
 import InputDescription from "../design-system/InputDescription";
 import InputName from "../design-system/InputName";
 import PromoBoxWithButton from "../design-system/PromoBoxWithButton";
 import { Spacer } from "../design-system/Spacer";
+import { useFacilities } from "../facilities-context/FacilitiesContext";
 import { useFlag } from "../feature-flags";
 import useReadOnlyMode from "../hooks/useReadOnlyMode";
 import useRejectionToast from "../hooks/useRejectionToast";
 import useScenario from "../scenario-context/useScenario";
-import { LinkContainer } from "../scenario-share/ScenarioShareLink";
-import ScenarioShareModal, {
-  ShareButton,
-} from "../scenario-share/ScenarioShareModal";
+import ScenarioShareModal from "../scenario-share/ScenarioShareModal";
 import SyncNewReferenceData from "./ReferenceDataModal/SyncNewReferenceData";
 import ScenarioLibraryModal from "./ScenarioLibraryModal";
 import { Scenario } from "./types";
@@ -62,6 +61,20 @@ const IconCheck = styled.img`
   width: 12px;
   height: 12px;
   margin-left: 6px;
+`;
+
+const IconSync = styled.img`
+  display: inline;
+  width: 12px;
+  height: 12px;
+  margin-right: 6px;
+`;
+
+const PrepopulateButton = styled.button`
+  align-items: center;
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
 `;
 
 export function getEnabledPromoType(
@@ -108,6 +121,11 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
   const { numFacilities } = props;
   const updatedAtDate = Number(scenario?.updatedAt);
   const showImpactButton = useFlag(["showImpactButton"]);
+
+  const { state: facilitiesState } = useFacilities();
+  const facilities = Object.values(facilitiesState.facilities) || [];
+  const systemType = facilities[0]?.systemType;
+  const stateName = facilities[0]?.modelInputs.stateName;
 
   const rejectionToast = useRejectionToast();
   const readOnly = useReadOnlyMode(scenarioState.data);
@@ -204,20 +222,25 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
           </div>
         )}
         <div>
-          <LinkContainer>
-            <Spacer y={20} />
-            <HorizontalRule />
-            <Spacer y={20} />
-            <ShareButton onClick={() => setReferenceDataModalOpen(true)}>
-              Prepopulate Data
-            </ShareButton>
-          </LinkContainer>
+          {!!scenario?.baseline && (
+            <>
+              <Spacer y={20} />
+              <HorizontalRule />
+              <Spacer y={20} />
+              <PrepopulateButton
+                onClick={() => setReferenceDataModalOpen(true)}
+              >
+                <IconSync alt="prepopulate" src={dataSyncIconOutline} />
+                Prepopulate Data
+              </PrepopulateButton>
+            </>
+          )}
         </div>
         {
           <SyncNewReferenceData
             open={referenceDataModalOpen}
-            stateName={"Vermont"}
-            systemType={"State Prison"}
+            stateName={stateName}
+            systemType={systemType}
             onClose={() => setReferenceDataModalOpen(false)}
             useExistingFacilities={true}
           />
