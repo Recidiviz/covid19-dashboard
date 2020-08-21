@@ -8,6 +8,7 @@ import SiteHeader from "../site-header/SiteHeader";
 import CreateBaselineScenarioPage from "./CreateBaselineScenarioPage";
 import MultiFacilityImpactDashboard from "./MultiFacilityImpactDashboard";
 import ReadOnlyScenarioBanner from "./ReadOnlyScenarioBanner";
+import { ReferenceDataModalProvider } from "./ReferenceDataModal/context/ReferenceDataModalContext";
 
 const MultiFacilityPageDiv = styled.div``;
 
@@ -37,7 +38,9 @@ const MultiFacilityPage: React.FC = () => {
               <Loading />
             </div>
           ) : scenario.data ? (
-            <MultiFacilityImpactDashboard />
+            <ReferenceDataModalProvider syncType="all">
+              <MultiFacilityImpactDashboard />
+            </ReferenceDataModalProvider>
           ) : (
             <CreateBaselineScenarioPage />
           )}
