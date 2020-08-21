@@ -3,7 +3,6 @@ import React, { useEffect } from "react";
 
 import { referenceFacilitiesProp, saveScenario } from "../database";
 import { useFlag } from "../feature-flags";
-import { hasCases } from "../impact-dashboard/EpidemicModelContext";
 import {
   Facility,
   ReferenceFacility,
@@ -318,10 +317,7 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
     const facilities = Object.values({ ...state.facilities });
     if (facilities.length) {
       facilities.forEach((facility) => {
-        if (
-          !state.rtData.hasOwnProperty(facility.id) &&
-          hasCases(facility.modelInputs)
-        ) {
+        if (!state.rtData.hasOwnProperty(facility.id)) {
           facilitiesActions.fetchFacilityRtData(dispatch)(facility);
         }
       });
