@@ -1,5 +1,5 @@
-import { isEmpty } from "lodash";
-import React, { useState } from "react";
+import { invert, isEmpty } from "lodash";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import { referenceFacilitiesProp } from "../../database";
@@ -8,8 +8,6 @@ import useScenario from "../../scenario-context/useScenario";
 import { Facility, ModelInputs, ReferenceFacility } from "../types";
 import ReferenceDataModal from ".";
 import {
-  getMappedFacilities,
-  getMappedReferenceFacilities,
   getUnmappedFacilities,
   getUnmappedReferenceFacilities,
   ReferenceFacilitySelect,
@@ -70,22 +68,21 @@ const SyncNewReferenceData: React.FC<Props> = ({
   } = useFacilities();
   const scenario = scenarioState.data;
   const mappedReferenceFacilities = scenario?.[referenceFacilitiesProp] || {};
-  const mappedFacilities = getMappedFacilities(
-    mappedReferenceFacilities,
-    facilitiesMapping,
-  );
   const unmappedFacilities = getUnmappedFacilities(
     mappedReferenceFacilities,
     facilitiesMapping,
-  );
-  const mappedRefFacilities = getMappedReferenceFacilities(
-    mappedReferenceFacilities,
-    referenceFacilities,
   );
   const unmappedReferenceFacilities = getUnmappedReferenceFacilities(
     mappedReferenceFacilities,
     referenceFacilities,
   );
+
+  useEffect(() => {
+    // set current mapping as initial selections when scenario changes
+    if (scenario) {
+      setSelections(invert(scenario[referenceFacilitiesProp]));
+    }
+  }, [scenario]);
 
   if (useExistingFacilities) {
     if (!open || isEmpty(unmappedReferenceFacilities)) return null;
@@ -124,8 +121,8 @@ const SyncNewReferenceData: React.FC<Props> = ({
         <>
           <br />
           <ReferenceFacilitySelect
-            facilities={mappedFacilities}
-            referenceFacilities={mappedRefFacilities}
+            facilities={Object.values(facilitiesMapping)}
+            referenceFacilities={Object.values(referenceFacilities)}
             selections={selections}
             onChange={handleChange}
             useExistingFacilities={useExistingFacilities}

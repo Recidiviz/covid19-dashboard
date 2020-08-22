@@ -1,4 +1,4 @@
-import { invert, isEmpty } from "lodash";
+import { invert, isEmpty, pickBy, size } from "lodash";
 import React from "react";
 import styled from "styled-components";
 
@@ -7,14 +7,17 @@ import Colors from "../../design-system/Colors";
 import { StyledButton } from "../../design-system/InputButton";
 import ModalDialog from "../../design-system/ModalDialog";
 import { TitleProps } from "../../design-system/ModalTitle";
+import { useFacilities } from "../../facilities-context";
 import useRejectionToast from "../../hooks/useRejectionToast";
 import useScenario from "../../scenario-context/useScenario";
 import { Facility, ReferenceFacility } from "../types";
+import { ADD_NEW_FACILITY } from "./shared";
 
 const ModalContent = styled.div`
   display: flex;
   flex-direction: column;
   font-weight: normal;
+  margin-top: 20px;
 `;
 
 const SaveButton = styled(StyledButton)`
@@ -38,6 +41,7 @@ const ModalFooter = styled.div`
   flex-flow: row nowrap;
   justify-content: space-between;
   margin-top: 20px;
+  padding-bottom: 35px;
 `;
 
 interface Props {
@@ -60,9 +64,13 @@ const ReferenceDataModal: React.FC<Props> = ({
   const rejectionToast = useRejectionToast();
   const [scenarioState, dispatchScenarioUpdate] = useScenario();
   const scenario = scenarioState.data;
+  const {
+    actions: { createUserFacilitiesFromReferences },
+    state: { referenceFacilities },
+  } = useFacilities();
 
   async function handleClose() {
-    await rejectionToast(
+    rejectionToast(
       saveScenario({
         ...scenario,
         referenceDataObservedAt: new Date(),
@@ -74,19 +82,35 @@ const ReferenceDataModal: React.FC<Props> = ({
   }
 
   async function handleSave() {
-    if (Object.keys(selections)) {
-      await rejectionToast(
-        saveScenario({
-          ...scenario,
-          referenceDataObservedAt: new Date(),
-          [referenceFacilitiesProp]: Object.assign(
-            {},
-            scenario?.[referenceFacilitiesProp],
-            invert(selections),
-          ),
-        }).then((savedScenario) => {
-          if (savedScenario) dispatchScenarioUpdate(savedScenario);
-        }),
+    if (size(selections)) {
+      const facilitiesToCreate = Object.keys(
+        pickBy(selections, (facilityId) => facilityId === ADD_NEW_FACILITY),
+      );
+
+      rejectionToast(
+        createUserFacilitiesFromReferences(
+          facilitiesToCreate.map((id) => referenceFacilities[id]),
+          scenario,
+        )
+          .then((newFacilitiesMapping) => {
+            return saveScenario({
+              ...scenario,
+              referenceDataObservedAt: new Date(),
+              [referenceFacilitiesProp]: Object.assign(
+                {},
+                newFacilitiesMapping,
+                invert(
+                  pickBy(
+                    selections,
+                    (facilityId) => facilityId !== ADD_NEW_FACILITY,
+                  ),
+                ),
+              ),
+            });
+          })
+          .then((savedScenario) => {
+            if (savedScenario) dispatchScenarioUpdate(savedScenario);
+          }),
       );
     }
     onClose();

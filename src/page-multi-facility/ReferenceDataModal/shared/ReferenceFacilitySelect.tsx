@@ -5,6 +5,7 @@ import Colors from "../../../design-system/Colors";
 import InputSelect from "../../../design-system/InputSelect";
 import { Facilities, Facility, ReferenceFacility } from "../../types";
 import {
+  ADD_NEW_FACILITY,
   ReferenceFacilitySelections,
   SubheadingContainer,
   SubheadingText,
@@ -60,11 +61,13 @@ const FacilitiesSelect: React.FC<FacilitiesSelectProps> = ({
         }}
         value={value || ""}
       >
-        {/* TODO per #556: what value to use here? */}
-        {useExistingFacilities && (
-          <option value={"skip"}>Don't autofill this facility</option>
-        )}
         <option value={""}>Select a facility</option>
+        {useExistingFacilities && (
+          // no functional difference between this and the default,
+          // it's just included for greater UI clarity
+          <option value={""}>Don't autofill this facility</option>
+        )}
+        <option value={ADD_NEW_FACILITY}>Add as a new facility</option>
         {facilities.map((facility: Facility) => {
           return (
             <option
