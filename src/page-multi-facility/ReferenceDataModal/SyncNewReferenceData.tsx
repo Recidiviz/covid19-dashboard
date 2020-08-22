@@ -84,10 +84,6 @@ const SyncNewReferenceData: React.FC<Props> = ({
     }
   }, [scenario]);
 
-  if (useExistingFacilities) {
-    if (!open || isEmpty(unmappedReferenceFacilities)) return null;
-  }
-
   function handleChange(refFacilityId: ReferenceFacility["id"]) {
     return (facilityId: Facility["id"] | undefined) => {
       if (facilityId) {

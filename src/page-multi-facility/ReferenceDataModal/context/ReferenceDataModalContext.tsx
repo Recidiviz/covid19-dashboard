@@ -73,8 +73,8 @@ export const ReferenceDataModalProvider: React.FC<{ syncType: SyncType }> = ({
     featureActive &&
     isOwnScenario &&
     syncType === "all" &&
-    !haveFacilities &&
-    haveReferenceFacilities;
+    !facilitiesState.loading &&
+    !haveFacilities;
 
   const renderSyncModal =
     featureAvailable &&
@@ -83,18 +83,7 @@ export const ReferenceDataModalProvider: React.FC<{ syncType: SyncType }> = ({
     haveFacilities &&
     haveReferenceFacilities;
 
-  const showSyncNewReferenceData =
-    renderSyncModal &&
-    syncType === "all" &&
-    haveUnmappedReferenceFacilities &&
-    (!scenario?.referenceDataObservedAt ||
-      Object.values(facilitiesState.referenceFacilities).some((refFacility) => {
-        return (
-          scenario?.referenceDataObservedAt &&
-          isAfter(refFacility.createdAt, scenario.referenceDataObservedAt)
-        );
-      }));
-
+  const showSyncNewReferenceDataBase = renderSyncModal && syncType === "all";
   useEffect(() => {
     dispatch({
       type: "UPDATE",
@@ -103,11 +92,30 @@ export const ReferenceDataModalProvider: React.FC<{ syncType: SyncType }> = ({
   }, [renderSyncModal]);
 
   useEffect(() => {
-    dispatch({
-      type: "UPDATE",
-      payload: { showSyncNewReferenceData: Boolean(showSyncNewReferenceData) },
-    });
-  }, [showSyncNewReferenceData]);
+    if (
+      showSyncNewReferenceDataBase &&
+      haveUnmappedReferenceFacilities &&
+      (!scenario?.referenceDataObservedAt ||
+        Object.values(facilitiesState.referenceFacilities).some(
+          (refFacility) => {
+            return (
+              scenario?.referenceDataObservedAt &&
+              isAfter(refFacility.createdAt, scenario.referenceDataObservedAt)
+            );
+          },
+        ))
+    ) {
+      dispatch({
+        type: "UPDATE",
+        payload: { showSyncNewReferenceData: true },
+      });
+    }
+  }, [
+    facilitiesState.referenceFacilities,
+    haveUnmappedReferenceFacilities,
+    scenario,
+    showSyncNewReferenceDataBase,
+  ]);
 
   const rejectionToast = useRejectionToast();
 
