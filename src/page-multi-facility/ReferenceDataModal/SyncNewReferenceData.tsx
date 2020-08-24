@@ -1,4 +1,4 @@
-import { invert, isEmpty } from "lodash";
+import { invert } from "lodash";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
@@ -112,6 +112,7 @@ const SyncNewReferenceData: React.FC<Props> = ({
         />
       }
       cancelText="Not now"
+      saveType="replace"
     >
       {useExistingFacilities ? (
         <>

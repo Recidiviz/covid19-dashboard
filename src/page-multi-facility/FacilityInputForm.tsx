@@ -26,7 +26,7 @@ import AddCasesModal from "./AddCasesModal";
 import FacilityProjections from "./FacilityProjections";
 import HistoricalCasesChart from "./HistoricalCasesChart";
 import LocaleInformationSection from "./LocaleInformationSection";
-import SyncNewFacility from "./ReferenceDataModal/SyncNewFacility";
+import { useReferenceDataModal } from "./ReferenceDataModal/context/ReferenceDataModalContext";
 import { Facility, Scenario } from "./types";
 
 interface ButtonSectionProps {
@@ -136,12 +136,9 @@ interface Props {
 }
 
 const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
-  const [syncDataModalFacility, setSyncDataModalFacility] = useState<
-    string | null
-  >(null);
   const { addToast } = useToasts();
   const {
-    state: { rtData, facilities, selectedFacilityId, canUseReferenceData },
+    state: { rtData, facilities, selectedFacilityId },
     actions: {
       createOrUpdateFacility,
       removeFacility: deleteFacility,
@@ -164,6 +161,11 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
   const rejectionToast = useRejectionToast();
 
   const screenWidth = useScreenWidth();
+
+  const {
+    state: { canSyncNewFacility },
+    dispatch: dispatchReferenceDataModalUpdate,
+  } = useReferenceDataModal();
 
   const navigateHome = () => {
     deselectFacility();
@@ -190,8 +192,11 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
           systemType: systemType || null,
           modelInputs: modelUpdate,
         }).then((updatedFacility) => {
-          if (!facility?.id && canUseReferenceData && updatedFacility) {
-            setSyncDataModalFacility(updatedFacility.id);
+          if (!facility?.id && canSyncNewFacility && updatedFacility) {
+            dispatchReferenceDataModalUpdate({
+              type: "UPDATE",
+              payload: { newFacilityIdToSync: updatedFacility.id },
+            });
           } else {
             navigateHome();
           }
@@ -318,11 +323,6 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
           <FacilityProjections facility={facility} />
         </Column>
 
-        {/* MODAL */}
-        <SyncNewFacility
-          facilityId={syncDataModalFacility}
-          onClose={navigateHome}
-        />
         <ModalDialog
           closeModal={closeDeleteModal}
           open={showDeleteModal}

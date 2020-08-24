@@ -51,6 +51,7 @@ interface Props {
   cancelText: string | undefined;
   children: React.ReactElement;
   onClose: () => void;
+  saveType: "update" | "replace";
 }
 
 const ReferenceDataModal: React.FC<Props> = ({
@@ -60,6 +61,7 @@ const ReferenceDataModal: React.FC<Props> = ({
   title,
   cancelText,
   children,
+  saveType,
 }) => {
   const rejectionToast = useRejectionToast();
   const [scenarioState, dispatchScenarioUpdate] = useScenario();
@@ -98,6 +100,9 @@ const ReferenceDataModal: React.FC<Props> = ({
               referenceDataObservedAt: new Date(),
               [referenceFacilitiesProp]: Object.assign(
                 {},
+                saveType === "update"
+                  ? scenario?.[referenceFacilitiesProp]
+                  : {},
                 newFacilitiesMapping,
                 invert(
                   pickBy(

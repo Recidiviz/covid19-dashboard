@@ -1,4 +1,5 @@
 import { isAfter } from "date-fns";
+import { navigate } from "gatsby";
 import { size } from "lodash";
 import React, { useEffect, useReducer } from "react";
 
@@ -8,11 +9,14 @@ import useIsOwnScenario from "../../../hooks/useIsOwnScenario";
 import useRejectionToast from "../../../hooks/useRejectionToast";
 import useScenario from "../../../scenario-context/useScenario";
 import { getUnmappedReferenceFacilities } from "../shared";
+import SyncNewFacility from "../SyncNewFacility";
 import SyncNewReferenceData from "../SyncNewReferenceData";
 import SyncNoUserFacilities from "../SyncNoUserFacilities";
 import { referenceDataModalReducer } from "./reducers";
 
 export interface ReferenceDataModalState {
+  canSyncNewFacility?: boolean;
+  newFacilityIdToSync?: string;
   renderSyncButton: boolean;
   showSyncNewReferenceData: boolean;
   useExistingFacilities?: boolean;
@@ -44,7 +48,10 @@ export const ReferenceDataModalProvider: React.FC<{ syncType: SyncType }> = ({
     showSyncNewReferenceData: false,
   });
   const [{ data: scenario }, dispatchScenarioUpdate] = useScenario();
-  const { state: facilitiesState } = useFacilities();
+  const {
+    state: facilitiesState,
+    actions: { deselectFacility },
+  } = useFacilities();
 
   const featureAvailable = facilitiesState.referenceDataFeatureAvailable;
 
@@ -117,6 +124,14 @@ export const ReferenceDataModalProvider: React.FC<{ syncType: SyncType }> = ({
     showSyncNewReferenceDataBase,
   ]);
 
+  const canSyncNewFacility = Boolean(
+    renderSyncModal && syncType === "single" && haveUnmappedReferenceFacilities,
+  );
+
+  useEffect(() => {
+    dispatch({ type: "UPDATE", payload: { canSyncNewFacility } });
+  }, [canSyncNewFacility]);
+
   const rejectionToast = useRejectionToast();
 
   const handleScenarioChange = (scenarioChange: any) => {
@@ -141,7 +156,7 @@ export const ReferenceDataModalProvider: React.FC<{ syncType: SyncType }> = ({
     <ReferenceDataModalContext.Provider value={{ state, dispatch }}>
       {children}
       {renderSyncNoUserFacilities && <SyncNoUserFacilities />}
-      {renderSyncModal && (
+      {renderSyncModal && syncType === "all" && (
         <SyncNewReferenceData
           open={state.showSyncNewReferenceData}
           stateName={stateName}
@@ -166,6 +181,15 @@ export const ReferenceDataModalProvider: React.FC<{ syncType: SyncType }> = ({
             }
           }}
           useExistingFacilities={state.useExistingFacilities}
+        />
+      )}
+      {canSyncNewFacility && (
+        <SyncNewFacility
+          facilityId={state.newFacilityIdToSync}
+          onClose={() => {
+            deselectFacility();
+            navigate("/");
+          }}
         />
       )}
     </ReferenceDataModalContext.Provider>
