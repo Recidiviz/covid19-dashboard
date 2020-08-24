@@ -88,42 +88,38 @@ const ReferenceDataModal: React.FC<Props> = ({
   }
 
   async function handleSave() {
-    if (size(selections)) {
-      const facilitiesToCreate = Object.keys(
-        pickBy(selections, (facilityId) => facilityId === ADD_NEW_FACILITY),
-      );
+    const facilitiesToCreate = Object.keys(
+      pickBy(selections, (facilityId) => facilityId === ADD_NEW_FACILITY),
+    );
 
-      rejectionToast(
-        createUserFacilitiesFromReferences(
-          facilitiesToCreate.map((id) => referenceFacilities[id]),
-          scenario,
-        )
-          .then((newFacilitiesMapping) => {
-            return saveScenario({
-              ...scenario,
-              ...{ useReferenceData: useReferenceDataToggleValue },
-              referenceDataObservedAt: new Date(),
-              [referenceFacilitiesProp]: Object.assign(
-                {},
-                saveType === "update"
-                  ? scenario?.[referenceFacilitiesProp]
-                  : {},
-                newFacilitiesMapping,
-                invert(
-                  pickBy(
-                    selections,
-                    (facilityId) =>
-                      facilityId !== ADD_NEW_FACILITY && facilityId !== SKIP,
-                  ),
+    rejectionToast(
+      createUserFacilitiesFromReferences(
+        facilitiesToCreate.map((id) => referenceFacilities[id]),
+        scenario,
+      )
+        .then((newFacilitiesMapping) => {
+          return saveScenario({
+            ...scenario,
+            ...{ useReferenceData: useReferenceDataToggleValue },
+            referenceDataObservedAt: new Date(),
+            [referenceFacilitiesProp]: Object.assign(
+              {},
+              saveType === "update" ? scenario?.[referenceFacilitiesProp] : {},
+              newFacilitiesMapping,
+              invert(
+                pickBy(
+                  selections,
+                  (facilityId) =>
+                    facilityId !== ADD_NEW_FACILITY && facilityId !== SKIP,
                 ),
               ),
-            });
-          })
-          .then((savedScenario) => {
-            if (savedScenario) dispatchScenarioUpdate(savedScenario);
-          }),
-      );
-    }
+            ),
+          });
+        })
+        .then((savedScenario) => {
+          if (savedScenario) dispatchScenarioUpdate(savedScenario);
+        }),
+    );
     onClose();
   }
 
@@ -139,9 +135,7 @@ const ReferenceDataModal: React.FC<Props> = ({
         {cancelText && (
           <CancelButton onClick={handleClose}>{cancelText}</CancelButton>
         )}
-        <SaveButton disabled={isEmpty(selections)} onClick={handleSave}>
-          Save
-        </SaveButton>
+        <SaveButton onClick={handleSave}>Save</SaveButton>
       </ModalFooter>
     </ModalDialog>
   );

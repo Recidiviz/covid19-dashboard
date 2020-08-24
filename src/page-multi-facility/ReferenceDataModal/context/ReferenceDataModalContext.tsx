@@ -101,7 +101,8 @@ export const ReferenceDataModalProvider: React.FC<{ syncType: SyncType }> = ({
     if (
       showSyncNewReferenceDataBase &&
       haveUnmappedReferenceFacilities &&
-      (!scenario?.referenceDataObservedAt ||
+      (scenario?.promoStatuses.referenceData ||
+        !scenario?.referenceDataObservedAt ||
         Object.values(facilitiesState.referenceFacilities).some(
           (refFacility) => {
             return (
@@ -139,9 +140,6 @@ export const ReferenceDataModalProvider: React.FC<{ syncType: SyncType }> = ({
       saveScenario(changes).then(() => dispatchScenarioUpdate(changes)),
     );
   };
-
-  // scenario?.promoStatuses.referenceData
-  // setReferenceDataModalOpen(Boolean(scenario?.promoStatuses?.referenceData));
 
   const firstFacility = Object.values(facilitiesState.facilities)[0];
   let stateName;

@@ -92,7 +92,7 @@ const SyncNewReferenceData: React.FC<Props> = ({
       onClose={onClose}
       selections={selections}
       title="Prepopulate Data"
-      cancelText="Not now"
+      cancelText={scenario?.promoStatuses.referenceData ? "Not now" : "Cancel"}
       saveType="replace"
       closeModal={closeModal}
       useReferenceDataToggleValue={useReferenceData}
@@ -116,6 +116,7 @@ const SyncNewReferenceData: React.FC<Props> = ({
             systemType={systemType}
             useReferenceData={useReferenceData}
             callback={toggleUseReferenceData}
+            hideToggle={scenario?.promoStatuses.referenceData}
           />
         </TitleContainer>
         <ReferenceFacilitySelect
