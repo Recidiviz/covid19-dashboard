@@ -15,36 +15,11 @@ import {
   TitleContainer,
   TitleText,
 } from "./shared";
+import SyncReferenceFacilitiesToggle from "./shared/SyncReferenceFacilitiesToggle";
 
 const Spacer = styled.span`
   margin-right: 2em;
 `;
-
-const Title: React.FC<Pick<
-  Props,
-  "stateName" | "systemType" | "useExistingFacilities"
->> = ({ stateName, systemType, useExistingFacilities }) => (
-  <TitleContainer>
-    <TitleText>Prepopulate Data</TitleText>
-    {useExistingFacilities ? (
-      <TitleText>
-        Select the facilities in your model to autofill with real-time COVID-19
-        data. You can turn off or override prepopulated data anytime.
-      </TitleText>
-    ) : (
-      <TitleText>
-        We've found new facility data - select a corresponding facility to
-        autofill with case data
-      </TitleText>
-    )}
-    <br />
-    <TitleText>
-      State: {stateName}
-      <Spacer />
-      Type of System: {systemType}
-    </TitleText>
-  </TitleContainer>
-);
 
 interface Props {
   open: boolean;
@@ -69,6 +44,10 @@ const SyncNewReferenceData: React.FC<Props> = ({
     state: { facilities: facilitiesMapping, referenceFacilities },
   } = useFacilities();
   const scenario = scenarioState.data;
+  const [useReferenceData, setUseReferenceData] = useState(
+    scenario?.useReferenceData,
+  );
+
   const mappedReferenceFacilities = scenario?.[referenceFacilitiesProp] || {};
   const unmappedFacilities = getUnmappedFacilities(
     mappedReferenceFacilities,
@@ -101,42 +80,61 @@ const SyncNewReferenceData: React.FC<Props> = ({
     };
   }
 
+  const toggleUseReferenceData = (useReferenceDataToggle: boolean) => {
+    setUseReferenceData(useReferenceDataToggle);
+  };
+
+  const disableSelections = !useReferenceData;
+
   return (
     <ReferenceDataModal
       open={open}
       onClose={onClose}
       selections={selections}
-      title={
-        <Title
-          stateName={stateName}
-          systemType={systemType}
-          useExistingFacilities={useExistingFacilities}
-        />
-      }
+      title="Prepopulate Data"
       cancelText="Not now"
       saveType="replace"
       closeModal={closeModal}
+      useReferenceDataToggleValue={useReferenceData}
     >
-      {useExistingFacilities ? (
-        <>
-          <br />
-          <ReferenceFacilitySelect
-            facilities={Object.values(facilitiesMapping)}
-            referenceFacilities={Object.values(referenceFacilities)}
-            selections={selections}
-            onChange={handleChange}
-            useExistingFacilities={useExistingFacilities}
+      <>
+        <TitleContainer>
+          {useExistingFacilities ? (
+            <TitleText>
+              Select the facilities in your model to autofill with real-time
+              COVID-19 data. You can turn off or override prepopulated data
+              anytime.
+            </TitleText>
+          ) : (
+            <TitleText>
+              We've found new facility data - select a corresponding facility to
+              autofill with case data
+            </TitleText>
+          )}
+          <SyncReferenceFacilitiesToggle
+            stateName={stateName}
+            systemType={systemType}
+            useReferenceData={useReferenceData}
+            callback={toggleUseReferenceData}
           />
-        </>
-      ) : (
+        </TitleContainer>
         <ReferenceFacilitySelect
-          facilities={unmappedFacilities}
-          referenceFacilities={unmappedReferenceFacilities}
+          facilities={
+            useExistingFacilities
+              ? Object.values(facilitiesMapping)
+              : unmappedFacilities
+          }
+          referenceFacilities={
+            useExistingFacilities
+              ? Object.values(referenceFacilities)
+              : unmappedReferenceFacilities
+          }
           selections={selections}
           onChange={handleChange}
           useExistingFacilities={useExistingFacilities}
+          disabled={disableSelections}
         />
-      )}
+      </>
     </ReferenceDataModal>
   );
 };

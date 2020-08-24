@@ -53,6 +53,7 @@ interface Props {
   onClose: () => void;
   closeModal?: () => void;
   saveType: "update" | "replace";
+  useReferenceDataToggleValue?: boolean;
 }
 
 const ReferenceDataModal: React.FC<Props> = ({
@@ -64,6 +65,7 @@ const ReferenceDataModal: React.FC<Props> = ({
   children,
   saveType,
   closeModal,
+  useReferenceDataToggleValue,
 }) => {
   const rejectionToast = useRejectionToast();
   const [scenarioState, dispatchScenarioUpdate] = useScenario();
@@ -99,6 +101,7 @@ const ReferenceDataModal: React.FC<Props> = ({
           .then((newFacilitiesMapping) => {
             return saveScenario({
               ...scenario,
+              ...{ useReferenceData: useReferenceDataToggleValue },
               referenceDataObservedAt: new Date(),
               [referenceFacilitiesProp]: Object.assign(
                 {},

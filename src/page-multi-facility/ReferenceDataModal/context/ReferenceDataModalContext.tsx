@@ -85,7 +85,6 @@ export const ReferenceDataModalProvider: React.FC<{ syncType: SyncType }> = ({
 
   const renderSyncModal =
     featureAvailable &&
-    featureActive &&
     isOwnScenario &&
     haveFacilities &&
     haveReferenceFacilities;

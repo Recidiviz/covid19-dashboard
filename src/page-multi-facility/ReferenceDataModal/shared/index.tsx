@@ -26,6 +26,7 @@ export const TitleText = styled.h1`
 export const SubheadingContainer = styled.div`
   display: flex;
   flex-flow: row nowrap;
+  margin-top: 18px;
 `;
 export const SubheadingText = styled.h2`
   font-weight: 600;

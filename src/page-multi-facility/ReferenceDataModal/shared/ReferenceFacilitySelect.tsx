@@ -35,11 +35,20 @@ const FacilityName = styled.div`
   flex: 1 1;
 `;
 
+const ReferenceFacilitySelectWrapper = styled.div`
+  transition: opacity 250ms ease-in-out;
+
+  &.disabled {
+    opacity: 0.5;
+  }
+`;
+
 interface FacilitiesSelectProps {
   value: Facility["id"] | undefined;
   selections: ReferenceFacilitySelections;
   facilities: Facilities;
   onChange: (facilityId: Facility["id"] | undefined) => void;
+  disabled?: boolean;
 }
 
 const FacilitiesSelect: React.FC<FacilitiesSelectProps> = ({
@@ -47,6 +56,7 @@ const FacilitiesSelect: React.FC<FacilitiesSelectProps> = ({
   value,
   facilities,
   onChange,
+  disabled,
 }) => {
   const disabledOption = (facilityId: Facility["id"]) =>
     Object.values(selections).includes(facilityId);
@@ -54,6 +64,7 @@ const FacilitiesSelect: React.FC<FacilitiesSelectProps> = ({
   return (
     <FacilitySelectContainer>
       <InputSelect
+        disabled={disabled}
         onChange={(event) => {
           const value = event.target.value;
           onChange(value === "" ? undefined : value);
@@ -89,6 +100,7 @@ interface ReferenceFacilitySelectProps {
   ) => (facilityId: Facility["id"] | undefined) => void;
   selections: ReferenceFacilitySelections;
   useExistingFacilities?: boolean;
+  disabled?: boolean;
 }
 
 export const ReferenceFacilitySelect: React.FC<ReferenceFacilitySelectProps> = ({
@@ -97,10 +109,10 @@ export const ReferenceFacilitySelect: React.FC<ReferenceFacilitySelectProps> = (
   selections,
   onChange,
   useExistingFacilities = false,
+  disabled,
 }) => {
   return (
-    <>
-      {" "}
+    <ReferenceFacilitySelectWrapper className={disabled ? "disabled" : ""}>
       {useExistingFacilities && (
         <SubheadingContainer>
           <SubheadingText>
@@ -114,6 +126,7 @@ export const ReferenceFacilitySelect: React.FC<ReferenceFacilitySelectProps> = (
           <Row key={refFacility.id}>
             <FacilityName>{refFacility.canonicalName}</FacilityName>
             <FacilitiesSelect
+              disabled={disabled}
               selections={selections}
               facilities={facilities}
               value={selections[refFacility.id]}
@@ -122,6 +135,6 @@ export const ReferenceFacilitySelect: React.FC<ReferenceFacilitySelectProps> = (
           </Row>
         );
       })}
-    </>
+    </ReferenceFacilitySelectWrapper>
   );
 };
