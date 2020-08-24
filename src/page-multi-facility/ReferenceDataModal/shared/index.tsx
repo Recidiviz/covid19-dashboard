@@ -8,6 +8,7 @@ export type ReferenceFacilitySelections = {
 };
 
 export const ADD_NEW_FACILITY = "ADD_NEW_FACILITY";
+export const SKIP = "SKIP";
 
 export const TitleContainer = styled.div`
   display: flex;

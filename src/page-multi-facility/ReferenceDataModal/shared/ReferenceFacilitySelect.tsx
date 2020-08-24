@@ -7,6 +7,7 @@ import { Facilities, Facility, ReferenceFacility } from "../../types";
 import {
   ADD_NEW_FACILITY,
   ReferenceFacilitySelections,
+  SKIP,
   SubheadingContainer,
   SubheadingText,
 } from ".";
@@ -39,7 +40,6 @@ interface FacilitiesSelectProps {
   selections: ReferenceFacilitySelections;
   facilities: Facilities;
   onChange: (facilityId: Facility["id"] | undefined) => void;
-  useExistingFacilities?: boolean;
 }
 
 const FacilitiesSelect: React.FC<FacilitiesSelectProps> = ({
@@ -47,7 +47,6 @@ const FacilitiesSelect: React.FC<FacilitiesSelectProps> = ({
   value,
   facilities,
   onChange,
-  useExistingFacilities = false,
 }) => {
   const disabledOption = (facilityId: Facility["id"]) =>
     Object.values(selections).includes(facilityId);
@@ -61,12 +60,10 @@ const FacilitiesSelect: React.FC<FacilitiesSelectProps> = ({
         }}
         value={value || ""}
       >
-        <option value={""}>Select a facility</option>
-        {useExistingFacilities && (
-          // no functional difference between this and the default,
-          // it's just included for greater UI clarity
-          <option value={""}>Don't autofill this facility</option>
-        )}
+        <option value="" disabled hidden>
+          Select a facility
+        </option>
+        <option value={SKIP}>Don't autofill this facility</option>
         <option value={ADD_NEW_FACILITY}>Add as a new facility</option>
         {facilities.map((facility: Facility) => {
           return (
@@ -121,7 +118,6 @@ export const ReferenceFacilitySelect: React.FC<ReferenceFacilitySelectProps> = (
               facilities={facilities}
               value={selections[refFacility.id]}
               onChange={onChange(refFacility.id)}
-              useExistingFacilities={useExistingFacilities}
             />
           </Row>
         );

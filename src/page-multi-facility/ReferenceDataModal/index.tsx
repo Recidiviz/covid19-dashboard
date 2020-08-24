@@ -11,7 +11,7 @@ import { useFacilities } from "../../facilities-context";
 import useRejectionToast from "../../hooks/useRejectionToast";
 import useScenario from "../../scenario-context/useScenario";
 import { Facility, ReferenceFacility } from "../types";
-import { ADD_NEW_FACILITY } from "./shared";
+import { ADD_NEW_FACILITY, SKIP } from "./shared";
 
 const ModalContent = styled.div`
   display: flex;
@@ -109,7 +109,8 @@ const ReferenceDataModal: React.FC<Props> = ({
                 invert(
                   pickBy(
                     selections,
-                    (facilityId) => facilityId !== ADD_NEW_FACILITY,
+                    (facilityId) =>
+                      facilityId !== ADD_NEW_FACILITY && facilityId !== SKIP,
                   ),
                 ),
               ),
