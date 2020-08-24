@@ -5,7 +5,8 @@ import {
   saveFacility,
 } from "../../database";
 import { Facilities, Facility } from "../../page-multi-facility/types";
-import { FacilitiesDispatch, FacilityMapping } from "../FacilitiesContext";
+import { FacilitiesDispatch } from "../FacilitiesContext";
+import { FacilityMapping } from "../types";
 
 export const CLEAR_FACILITIES = "CLEAR_FACILITIES";
 export const REQUEST_FACILITIES = "REQUEST_FACILITIES";

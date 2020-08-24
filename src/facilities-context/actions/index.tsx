@@ -1,8 +1,5 @@
 import { Facility, RtDataMapping } from "../../page-multi-facility/types";
-import {
-  FacilityMapping,
-  ReferenceFacilityMapping,
-} from "../FacilitiesContext";
+import { FacilityMapping, ReferenceFacilityMapping } from "../types";
 import {
   CLEAR_FACILITIES,
   CREATE_OR_UPDATE_FACILITY,
@@ -14,8 +11,10 @@ import {
   SELECT_FACILITY,
 } from "./facilities";
 import {
+  CAN_USE_REFERENCE_DATA,
   CLEAR_REFERENCE_FACILITIES,
   RECEIVE_REFERENCE_FACILITIES,
+  REFERENCE_DATA_FEATURE_AVAILABLE,
 } from "./referenceFacilities";
 import {
   RECEIVE_RT_DATA_ERROR,
@@ -35,7 +34,8 @@ export type FacilitiesActions =
   | ERROR_ACTIONS
   | RECEIVE_REFERENCE_FACILITIES_ACTION
   | CLEAR_ACTIONS
-  | DESELECT_FACILITY_ACTION;
+  | DESELECT_FACILITY_ACTION
+  | REFERENCE_DATA_ACTIONS;
 
 export type FACILITY_ACTION = {
   type: typeof CREATE_OR_UPDATE_FACILITY;
@@ -76,4 +76,9 @@ export type RECEIVE_REFERENCE_FACILITIES_ACTION = {
 
 export type CLEAR_ACTIONS = {
   type: typeof CLEAR_REFERENCE_FACILITIES | typeof CLEAR_FACILITIES;
+};
+
+export type REFERENCE_DATA_ACTIONS = {
+  type: typeof CAN_USE_REFERENCE_DATA | typeof REFERENCE_DATA_FEATURE_AVAILABLE;
+  payload: boolean;
 };

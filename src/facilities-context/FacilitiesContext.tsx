@@ -1,8 +1,8 @@
-import { isEmpty, size } from "lodash";
+import { isEmpty, keyBy, size } from "lodash";
 import React, { useEffect } from "react";
 
-import { referenceFacilitiesProp } from "../database";
-import useReferenceFacilitiesEligible from "../hooks/useReferenceFacilitiesEligible";
+import { referenceFacilitiesProp, saveScenario } from "../database";
+import { useFlag } from "../feature-flags";
 import {
   Facility,
   ReferenceFacility,
@@ -12,12 +12,10 @@ import {
 import useScenario from "../scenario-context/useScenario";
 import * as facilitiesActions from "./actions";
 import { facilitiesReducer } from "./reducer";
+import { FacilityMapping, ReferenceFacilityMapping } from "./types";
+import { isSingleSystem } from "./validators";
 
-export type FacilityMapping = { [key in Facility["id"]]: Facility };
-
-export type ReferenceFacilityMapping = {
-  [key in ReferenceFacility["id"]]: ReferenceFacility;
-};
+const MIN_REFERENCE_FACILITIES = 3;
 
 export interface FacilitiesState {
   loading: boolean;
@@ -26,6 +24,8 @@ export interface FacilitiesState {
   referenceFacilities: ReferenceFacilityMapping;
   selectedFacilityId: Facility["id"] | null;
   rtData: RtDataMapping;
+  canUseReferenceData: boolean;
+  referenceDataFeatureAvailable: boolean;
 }
 
 export type FacilitiesDispatch = (
@@ -33,6 +33,11 @@ export type FacilitiesDispatch = (
 ) => void;
 
 export type ExportedActions = {
+  createUserFacilitiesFromReferences: (
+    selectedFacilities: ReferenceFacility[],
+    useReferenceData: boolean,
+    scenario: Scenario,
+  ) => void;
   fetchFacilityRtData: (facility: Facility) => Promise<void>;
   createOrUpdateFacility: (
     facility: Partial<Facility>,
@@ -48,6 +53,9 @@ export type ExportedActions = {
     stateName: string,
     systemType: string,
   ) => Promise<ReferenceFacilityMapping>;
+  receiveReferenceFacilities: (
+    referenceFacilities: ReferenceFacilityMapping,
+  ) => void;
 };
 
 interface FacilitiesContext {
@@ -70,22 +78,55 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
     referenceFacilities: {},
     selectedFacilityId: null,
     rtData: {},
+    canUseReferenceData: false,
+    referenceDataFeatureAvailable: false,
   });
-  const [scenarioState] = useScenario();
+  const [scenarioState, dispatchScenarioUpdate] = useScenario();
 
   const scenario = scenarioState.data;
   const scenarioId = scenario?.id;
 
-  const shouldFetchReferenceFacilities = useReferenceFacilitiesEligible();
-  const shouldUseReferenceFacilities =
-    shouldFetchReferenceFacilities && scenario?.useReferenceData;
+  const referenceDataFeatureAvailable =
+    useFlag(["enableShadowData"]) && !!scenario?.baseline;
+
+  const referenceDataActive =
+    referenceDataFeatureAvailable && scenario?.useReferenceData;
 
   const facilityToReference =
-    scenario && shouldUseReferenceFacilities
+    scenario && referenceDataActive
       ? scenario[referenceFacilitiesProp]
       : undefined;
 
   const actions = {
+    createUserFacilitiesFromReferences: async (
+      selectedFacilities: ReferenceFacility[],
+      useReferenceData: boolean,
+      scenario: Scenario,
+    ) => {
+      const response = await facilitiesActions.createUserFacilitiesFromReferences(
+        scenario.id,
+        selectedFacilities,
+        state.referenceFacilities,
+      );
+      if (response) {
+        const { compositeFacilities, facilityToReference } = response;
+
+        const updatedScenario = await saveScenario({
+          ...scenario,
+          useReferenceData,
+          [referenceFacilitiesProp]: Object.assign(
+            {},
+            scenario?.[referenceFacilitiesProp],
+            facilityToReference,
+          ),
+        });
+
+        if (updatedScenario) dispatchScenarioUpdate(updatedScenario);
+        const facilityMapping = keyBy(compositeFacilities, "id");
+        facilitiesActions.receiveFacilities(dispatch, facilityMapping);
+      }
+      return;
+    },
     createOrUpdateFacility: async (
       facility: Partial<Facility>,
     ): Promise<void | Facility> => {
@@ -139,6 +180,14 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
         systemType,
       );
     },
+    receiveReferenceFacilities: (
+      referenceFacilities: ReferenceFacilityMapping,
+    ) => {
+      return facilitiesActions.receiveReferenceFacilities(
+        dispatch,
+        referenceFacilities,
+      );
+    },
   };
 
   // when a new scenario is loaded, facility data must be initialized
@@ -152,14 +201,22 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
         if (scenarioId) {
           facilitiesActions.requestFacilities(dispatch);
           facilitiesActions.clearReferenceFacilities(dispatch);
+          facilitiesActions.setCanUseReferenceData(dispatch, false);
           try {
             let facilities = await facilitiesActions.fetchUserFacilities(
               scenarioId,
             );
 
-            if (shouldFetchReferenceFacilities && size(facilities)) {
+            // some eligibility checks are dependent on the reference facilities
+            // data itself, so we may update this before we're done here
+            let referenceDataEligible =
+              referenceDataFeatureAvailable &&
+              Boolean(size(facilities)) &&
+              isSingleSystem(facilities);
+
+            // currently active status trumps any eligibility violations
+            if (referenceDataEligible || referenceDataActive) {
               // fetch reference facilities based on user facilities
-              // first facility is the reference; assume they're all the same
               const {
                 modelInputs: { stateName },
                 systemType,
@@ -170,11 +227,20 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
                   systemType,
                 );
 
-                dispatch({
-                  type: facilitiesActions.RECEIVE_REFERENCE_FACILITIES,
-                  payload: referenceFacilities,
-                });
+                facilitiesActions.receiveReferenceFacilities(
+                  dispatch,
+                  referenceFacilities,
+                );
 
+                referenceDataEligible =
+                  referenceDataEligible &&
+                  size(referenceFacilities) >= MIN_REFERENCE_FACILITIES;
+
+                // "eligible" only applies to scenarios that don't already have the
+                // feature toggled on (i.e., referenceDataActive === true);
+                // therefore this merge isn't actually conditional on that flag
+                // (but facilityToReference is conditional on referenceDataActive, so
+                // the final merge result will still reflect the toggle state)
                 facilities = facilitiesActions.buildCompositeFacilities(
                   facilities,
                   referenceFacilities,
@@ -184,6 +250,13 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
             }
             // dispatch facilities to state
             facilitiesActions.receiveFacilities(dispatch, facilities);
+
+            // UI elements conditioned on the reference data feature can watch this
+            facilitiesActions.setCanUseReferenceData(
+              dispatch,
+              // the feature already being activated trumps any eligibility criteria
+              referenceDataActive || referenceDataEligible,
+            );
           } catch (error) {
             console.error(
               `Error fetching facilities for scenario: ${scenarioId}`,
@@ -195,24 +268,35 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
           // Clear facilities if there is no new scenarioId
           dispatch({ type: facilitiesActions.CLEAR_FACILITIES });
           dispatch({ type: facilitiesActions.CLEAR_REFERENCE_FACILITIES });
+          facilitiesActions.setCanUseReferenceData(dispatch, false);
         }
       }
       initializeFacilities();
+      facilitiesActions.setReferenceDataFeatureAvailable(
+        dispatch,
+        referenceDataFeatureAvailable,
+      );
     },
 
-    // shouldFetchReferenceFacilities should change at the same time as the scenarioId
-    // and is safe to depend on here; however, we don't want to fire all of this logic off
+    // These booleans should change at the same time as the scenarioId
+    // and are safe to depend on here; however, we don't want to fire all of this logic off
     // every time facilityToReference changes; we want explicitly to depend on its initial
     // state when a new scenario is loaded, so it is excluded here.
     // Another effect will handle subsequent changes to its value based on user input
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [scenarioId, shouldFetchReferenceFacilities],
+    [scenarioId, referenceDataActive, referenceDataFeatureAvailable],
   );
 
   // update facilities when reference mapping changes
   useEffect(
     () => {
-      if (state.loading || isEmpty(facilityToReference)) return;
+      if (
+        state.loading ||
+        isEmpty(facilityToReference) ||
+        isEmpty(state.facilities) ||
+        isEmpty(state.referenceFacilities)
+      )
+        return;
       facilitiesActions.receiveFacilities(
         dispatch,
         facilitiesActions.buildCompositeFacilities(
