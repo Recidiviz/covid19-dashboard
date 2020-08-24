@@ -52,6 +52,7 @@ interface Props {
   systemType: Facility["systemType"];
   onClose: () => void;
   useExistingFacilities?: boolean;
+  closeModal?: () => void;
 }
 
 const SyncNewReferenceData: React.FC<Props> = ({
@@ -60,6 +61,7 @@ const SyncNewReferenceData: React.FC<Props> = ({
   systemType,
   onClose,
   useExistingFacilities = false,
+  closeModal,
 }) => {
   const [selections, setSelections] = useState<ReferenceFacilitySelections>({});
   const [scenarioState] = useScenario();
@@ -113,6 +115,7 @@ const SyncNewReferenceData: React.FC<Props> = ({
       }
       cancelText="Not now"
       saveType="replace"
+      closeModal={closeModal}
     >
       {useExistingFacilities ? (
         <>

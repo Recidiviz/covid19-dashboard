@@ -152,6 +152,9 @@ export const ReferenceDataModalProvider: React.FC<{ syncType: SyncType }> = ({
     stateName = firstFacility.modelInputs.stateName;
   }
 
+  const closeSyncNewReferenceData = () =>
+    dispatch({ type: "UPDATE", payload: { showSyncNewReferenceData: false } });
+
   return (
     <ReferenceDataModalContext.Provider value={{ state, dispatch }}>
       {children}
@@ -159,6 +162,7 @@ export const ReferenceDataModalProvider: React.FC<{ syncType: SyncType }> = ({
       {renderSyncModal && syncType === "all" && (
         <SyncNewReferenceData
           open={state.showSyncNewReferenceData}
+          closeModal={closeSyncNewReferenceData}
           stateName={stateName}
           systemType={systemType}
           onClose={() => {

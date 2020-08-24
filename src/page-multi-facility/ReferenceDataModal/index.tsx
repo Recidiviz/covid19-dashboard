@@ -51,6 +51,7 @@ interface Props {
   cancelText: string | undefined;
   children: React.ReactElement;
   onClose: () => void;
+  closeModal?: () => void;
   saveType: "update" | "replace";
 }
 
@@ -62,6 +63,7 @@ const ReferenceDataModal: React.FC<Props> = ({
   cancelText,
   children,
   saveType,
+  closeModal,
 }) => {
   const rejectionToast = useRejectionToast();
   const [scenarioState, dispatchScenarioUpdate] = useScenario();
@@ -122,7 +124,12 @@ const ReferenceDataModal: React.FC<Props> = ({
   }
 
   return (
-    <ModalDialog width="650px" open={open} title={title}>
+    <ModalDialog
+      width="650px"
+      open={open}
+      title={title}
+      closeModal={closeModal}
+    >
       <ModalContent>{children}</ModalContent>
       <ModalFooter>
         {cancelText && (
