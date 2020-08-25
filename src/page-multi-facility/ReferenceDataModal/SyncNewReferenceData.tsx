@@ -1,6 +1,5 @@
 import { invert } from "lodash";
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
 
 import { referenceFacilitiesProp } from "../../database";
 import { useFacilities } from "../../facilities-context";
@@ -16,10 +15,6 @@ import {
   TitleText,
 } from "./shared";
 import SyncReferenceFacilitiesToggle from "./shared/SyncReferenceFacilitiesToggle";
-
-const Spacer = styled.span`
-  margin-right: 2em;
-`;
 
 interface Props {
   open: boolean;
