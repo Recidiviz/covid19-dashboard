@@ -47,10 +47,15 @@ export type RECEIVE_FACILITIES_ACTION = {
   payload: FacilityMapping;
 };
 
-export type RT_DATA_ACTION = {
-  type: typeof UPDATE_FACILITY_RT_DATA;
-  payload: RtDataMapping;
-};
+export type RT_DATA_ACTION =
+  | {
+      type: typeof UPDATE_FACILITY_RT_DATA;
+      payload: RtDataMapping;
+    }
+  | {
+      type: typeof REQUEST_RT_DATA;
+      payload: Facility["id"];
+    };
 
 export type FACILITY_ID_ACTION = {
   type: typeof SELECT_FACILITY | typeof REMOVE_FACILITY;
@@ -62,7 +67,7 @@ export type ERROR_ACTIONS = {
 };
 
 export type REQUEST_ACTIONS = {
-  type: typeof REQUEST_FACILITIES | typeof REQUEST_RT_DATA;
+  type: typeof REQUEST_FACILITIES;
 };
 
 export type DESELECT_FACILITY_ACTION = {

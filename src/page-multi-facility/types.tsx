@@ -66,7 +66,7 @@ export type PromoStatuses = {
   newModelInputs: boolean;
 };
 
-export type RtValue = RtData | RtError;
+export type RtValue = RtData | RtError | undefined;
 
 export type RtDataMapping = {
   [key in Facility["id"]]: RtValue;

@@ -47,6 +47,13 @@ export function facilitiesReducer(
       });
     }
 
+    case actions.REQUEST_RT_DATA:
+      const requestedFacility = action.payload;
+      return {
+        ...state,
+        rtData: { ...state.rtData, [requestedFacility]: undefined },
+      };
+
     case actions.UPDATE_FACILITY_RT_DATA:
       return Object.assign({}, state, {
         rtData: { ...state.rtData, ...action.payload },
