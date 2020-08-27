@@ -1,9 +1,9 @@
 import { differenceInCalendarDays } from "date-fns";
-import { every, has, matchesProperty, maxBy, sample } from "lodash";
+import { every, has, matchesProperty, maxBy, sample, size } from "lodash";
 
 import { validateCumulativeCases } from "../infection-model/validators";
 import { ModelInputs } from "../page-multi-facility/types";
-import { FacilityMapping } from "./types";
+import { FacilityMapping, ReferenceFacilityMapping } from "./types";
 
 type SingleDayValidator = (
   modelInputs: ModelInputs | null,
@@ -138,4 +138,12 @@ export function isSingleSystem(facilities: FacilityMapping) {
       )(facility) &&
       matchesProperty("systemType", randomFacility?.systemType)(facility),
   );
+}
+
+const MIN_REFERENCE_FACILITIES = 3;
+
+export function validateReferenceData(
+  referenceFacilities: ReferenceFacilityMapping,
+) {
+  return size(referenceFacilities) >= MIN_REFERENCE_FACILITIES;
 }

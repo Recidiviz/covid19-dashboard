@@ -1,10 +1,11 @@
 import { isEmpty, keyBy, size } from "lodash";
 import React, { useEffect } from "react";
 
-import { referenceFacilitiesProp, saveScenario } from "../database";
+import { referenceFacilitiesProp } from "../database";
 import { useFlag } from "../feature-flags";
 import {
   Facility,
+  FacilityReferenceMapping,
   ReferenceFacility,
   RtDataMapping,
   Scenario,
@@ -13,9 +14,7 @@ import useScenario from "../scenario-context/useScenario";
 import * as facilitiesActions from "./actions";
 import { facilitiesReducer } from "./reducer";
 import { FacilityMapping, ReferenceFacilityMapping } from "./types";
-import { isSingleSystem } from "./validators";
-
-const MIN_REFERENCE_FACILITIES = 3;
+import { isSingleSystem, validateReferenceData } from "./validators";
 
 export interface FacilitiesState {
   loading: boolean;
@@ -35,9 +34,8 @@ export type FacilitiesDispatch = (
 export type ExportedActions = {
   createUserFacilitiesFromReferences: (
     selectedFacilities: ReferenceFacility[],
-    useReferenceData: boolean,
-    scenario: Scenario,
-  ) => void;
+    scenario: Scenario | null,
+  ) => Promise<void | FacilityReferenceMapping>;
   fetchFacilityRtData: (facility: Facility) => Promise<void>;
   createOrUpdateFacility: (
     facility: Partial<Facility>,
@@ -81,7 +79,7 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
     canUseReferenceData: false,
     referenceDataFeatureAvailable: false,
   });
-  const [scenarioState, dispatchScenarioUpdate] = useScenario();
+  const [scenarioState] = useScenario();
 
   const scenario = scenarioState.data;
   const scenarioId = scenario?.id;
@@ -100,9 +98,9 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
   const actions = {
     createUserFacilitiesFromReferences: async (
       selectedFacilities: ReferenceFacility[],
-      useReferenceData: boolean,
-      scenario: Scenario,
+      scenario: Scenario | null,
     ) => {
+      if (!scenario) return;
       const response = await facilitiesActions.createUserFacilitiesFromReferences(
         scenario.id,
         selectedFacilities,
@@ -111,19 +109,10 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
       if (response) {
         const { compositeFacilities, facilityToReference } = response;
 
-        const updatedScenario = await saveScenario({
-          ...scenario,
-          useReferenceData,
-          [referenceFacilitiesProp]: Object.assign(
-            {},
-            scenario?.[referenceFacilitiesProp],
-            facilityToReference,
-          ),
-        });
-
-        if (updatedScenario) dispatchScenarioUpdate(updatedScenario);
         const facilityMapping = keyBy(compositeFacilities, "id");
         facilitiesActions.receiveFacilities(dispatch, facilityMapping);
+
+        return facilityToReference;
       }
       return;
     },
@@ -199,6 +188,7 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
     () => {
       async function initializeFacilities() {
         if (scenarioId) {
+          dispatch({ type: facilitiesActions.CLEAR_FACILITIES });
           facilitiesActions.requestFacilities(dispatch);
           facilitiesActions.clearReferenceFacilities(dispatch);
           facilitiesActions.setCanUseReferenceData(dispatch, false);
@@ -217,10 +207,13 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
             // currently active status trumps any eligibility violations
             if (referenceDataEligible || referenceDataActive) {
               // fetch reference facilities based on user facilities
-              const {
-                modelInputs: { stateName },
-                systemType,
-              } = Object.values(facilities)[0];
+              const firstFacility = Object.values(facilities)[0];
+              let stateName;
+              let systemType;
+              if (firstFacility) {
+                systemType = firstFacility.systemType;
+                stateName = firstFacility.modelInputs.stateName;
+              }
               if (stateName && systemType) {
                 const referenceFacilities = await facilitiesActions.fetchReferenceFacilities(
                   stateName,
@@ -234,7 +227,7 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
 
                 referenceDataEligible =
                   referenceDataEligible &&
-                  size(referenceFacilities) >= MIN_REFERENCE_FACILITIES;
+                  validateReferenceData(referenceFacilities);
 
                 // "eligible" only applies to scenarios that don't already have the
                 // feature toggled on (i.e., referenceDataActive === true);
@@ -267,7 +260,7 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
         } else {
           // Clear facilities if there is no new scenarioId
           dispatch({ type: facilitiesActions.CLEAR_FACILITIES });
-          dispatch({ type: facilitiesActions.CLEAR_REFERENCE_FACILITIES });
+          facilitiesActions.clearReferenceFacilities(dispatch);
           facilitiesActions.setCanUseReferenceData(dispatch, false);
         }
       }
