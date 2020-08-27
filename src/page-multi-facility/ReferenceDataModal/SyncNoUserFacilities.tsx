@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
-import { saveScenario } from "../../database";
+import { referenceFacilitiesProp, saveScenario } from "../../database";
 import Colors from "../../design-system/Colors";
 import InputButton from "../../design-system/InputButton";
 import InputSelect from "../../design-system/InputSelect";
@@ -178,6 +178,7 @@ const SyncReferenceFacilitiesCard: React.FC<SyncReferenceFacilitiesCardProps> = 
     setModalTitle,
     setModalDescription,
     scenario,
+    dispatchScenarioUpdate,
   } = props;
 
   const {
@@ -246,11 +247,24 @@ const SyncReferenceFacilitiesCard: React.FC<SyncReferenceFacilitiesCardProps> = 
   };
 
   const handleSave = async () => {
-    await createUserFacilitiesFromReferences(
+    const facilityToReference = await createUserFacilitiesFromReferences(
       selectedFacilities,
-      !!useReferenceData,
       scenario,
     );
+
+    if (facilityToReference) {
+      const updatedScenario = await saveScenario({
+        ...scenario,
+        useReferenceData,
+        [referenceFacilitiesProp]: Object.assign(
+          {},
+          scenario?.[referenceFacilitiesProp],
+          facilityToReference,
+        ),
+      });
+
+      if (updatedScenario) dispatchScenarioUpdate(updatedScenario);
+    }
   };
 
   return (

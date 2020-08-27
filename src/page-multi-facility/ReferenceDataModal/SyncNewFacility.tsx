@@ -25,7 +25,7 @@ const Title = (
 );
 
 interface Props {
-  facilityId: string | null;
+  facilityId?: string;
   onClose: () => void;
 }
 
@@ -58,6 +58,7 @@ const SyncNewFacility: React.FC<Props> = ({ facilityId, onClose }) => {
       selections={selections}
       title={Title}
       cancelText="Don't prepopulate this facility"
+      saveType="update"
     >
       <ReferenceFacilityList
         referenceFacilities={unmappedReferenceFacilities}

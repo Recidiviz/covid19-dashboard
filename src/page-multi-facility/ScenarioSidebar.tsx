@@ -13,13 +13,12 @@ import InputDescription from "../design-system/InputDescription";
 import InputName from "../design-system/InputName";
 import PromoBoxWithButton from "../design-system/PromoBoxWithButton";
 import { Spacer } from "../design-system/Spacer";
-import { useFacilities } from "../facilities-context/FacilitiesContext";
 import { useFlag } from "../feature-flags";
 import useReadOnlyMode from "../hooks/useReadOnlyMode";
 import useRejectionToast from "../hooks/useRejectionToast";
 import useScenario from "../scenario-context/useScenario";
 import ScenarioShareModal from "../scenario-share/ScenarioShareModal";
-import SyncNewReferenceData from "./ReferenceDataModal/SyncNewReferenceData";
+import { useReferenceDataModal } from "./ReferenceDataModal/context/ReferenceDataModalContext";
 import ScenarioLibraryModal from "./ScenarioLibraryModal";
 import { Scenario } from "./types";
 
@@ -122,11 +121,6 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
   const updatedAtDate = Number(scenario?.updatedAt);
   const showImpactButton = useFlag(["showImpactButton"]);
 
-  const { state: facilitiesState } = useFacilities();
-  const facilities = Object.values(facilitiesState.facilities) || [];
-  const systemType = facilities[0]?.systemType;
-  const stateName = facilities[0]?.modelInputs.stateName;
-
   const rejectionToast = useRejectionToast();
   const readOnly = useReadOnlyMode(scenarioState.data);
 
@@ -153,7 +147,6 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
   const [description, setDescription] = useState(scenario?.description);
   // need this to force a form state refresh when switching scenarios
   const [renderKey, setRenderKey] = useState(scenario?.id);
-  const [referenceDataModalOpen, setReferenceDataModalOpen] = useState(false);
 
   const promoType: string | null = getEnabledPromoType(scenario, numFacilities);
 
@@ -162,6 +155,11 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
     setDescription(scenario?.description);
     setRenderKey(scenario?.id);
   }, [scenario]);
+
+  const {
+    state: { renderSyncButton },
+    dispatch: dispatchReferenceDataModalUpdate,
+  } = useReferenceDataModal();
 
   return (
     <div className="flex flex-col w-1/4 mr-24" key={renderKey}>
@@ -221,30 +219,29 @@ const ScenarioSidebar: React.FC<Props> = (props) => {
             <ScenarioShareModal />
           </div>
         )}
-        <div>
-          {!!scenario?.baseline && (
+        {renderSyncButton && (
+          <div>
             <>
               <Spacer y={20} />
               <HorizontalRule />
               <Spacer y={20} />
               <PrepopulateButton
-                onClick={() => setReferenceDataModalOpen(true)}
+                onClick={() =>
+                  dispatchReferenceDataModalUpdate({
+                    type: "UPDATE",
+                    payload: {
+                      showSyncNewReferenceData: true,
+                      useExistingFacilities: true,
+                    },
+                  })
+                }
               >
                 <IconSync alt="prepopulate" src={dataSyncIconOutline} />
                 Prepopulate Data
               </PrepopulateButton>
             </>
-          )}
-        </div>
-        {
-          <SyncNewReferenceData
-            open={referenceDataModalOpen}
-            stateName={stateName}
-            systemType={systemType}
-            onClose={() => setReferenceDataModalOpen(false)}
-            useExistingFacilities={true}
-          />
-        }
+          </div>
+        )}
         <div>
           <Spacer y={20} />
           <HorizontalRule />

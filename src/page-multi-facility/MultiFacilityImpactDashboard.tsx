@@ -1,6 +1,5 @@
-import { isAfter } from "date-fns";
 import { navigate } from "gatsby";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 
 import Colors from "../design-system/Colors";
@@ -9,7 +8,6 @@ import Loading from "../design-system/Loading";
 import TextLabel from "../design-system/TextLabel";
 import { FacilitiesState, useFacilities } from "../facilities-context";
 import { useFlag } from "../feature-flags";
-import useReadOnlyMode from "../hooks/useReadOnlyMode";
 import useRejectionToast from "../hooks/useRejectionToast";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
 import { getFacilitiesRtDataById } from "../infection-model/rt";
@@ -19,8 +17,6 @@ import FacilityRow from "./FacilityRow";
 import FacilityRowPlaceholder from "./FacilityRowPlaceholder";
 import ProjectionsHeader from "./ProjectionsHeader";
 import RateOfSpreadPanel from "./RateOfSpreadPanel";
-import SyncNewReferenceData from "./ReferenceDataModal/SyncNewReferenceData";
-import SyncNoUserFacilities from "./ReferenceDataModal/SyncNoUserFacilities";
 import ScenarioSidebar from "./ScenarioSidebar";
 import SystemSummary from "./SystemSummary";
 import { Facility, RtDataMapping } from "./types";
@@ -118,39 +114,15 @@ const MultiFacilityImpactDashboard: React.FC = () => {
   const showRateOfSpreadTab = useFlag(["showRateOfSpreadTab"]);
 
   const { data: localeDataSource } = useLocaleDataState();
-  const [referenceDataModalOpen, setReferenceDataModalOpen] = useState(false);
   const [scenarioState] = useScenario();
   const scenario = scenarioState?.data;
   const scenarioId = scenario?.id;
-  const readOnlyMode = useReadOnlyMode(scenario);
   const {
     state: facilitiesState,
     actions: { createOrUpdateFacility, deselectFacility },
   } = useFacilities();
   const facilities = Object.values(facilitiesState.facilities) || [];
   const rtData = getFacilitiesRtDataById(facilitiesState.rtData, facilities);
-  const systemType = facilities[0]?.systemType;
-  const stateName = facilities[0]?.modelInputs.stateName;
-  const showSyncReferenceFacilitiesBaseConditions =
-    facilitiesState.canUseReferenceData &&
-    !facilitiesState.loading &&
-    !scenarioState.loading &&
-    !readOnlyMode && // i.e. User must own of the Scenario
-    (scenario?.useReferenceData == undefined || scenario?.useReferenceData);
-
-  const showSyncNoUserFacilities =
-    facilitiesState.referenceDataFeatureAvailable && facilities.length == 0;
-
-  const showSyncNewReferenceData =
-    showSyncReferenceFacilitiesBaseConditions &&
-    !showSyncNoUserFacilities &&
-    (!scenario?.referenceDataObservedAt ||
-      Object.values(facilitiesState.referenceFacilities).some((refFacility) => {
-        return (
-          scenario?.referenceDataObservedAt &&
-          isAfter(refFacility.createdAt, scenario.referenceDataObservedAt)
-        );
-      }));
 
   const handleFacilitySave = useCallback(
     async (facility: Facility) => {
@@ -160,10 +132,6 @@ const MultiFacilityImpactDashboard: React.FC = () => {
     },
     [createOrUpdateFacility, rejectionToast, scenarioId],
   );
-
-  useEffect(() => {
-    setReferenceDataModalOpen(showSyncNewReferenceData);
-  }, [showSyncNewReferenceData]);
 
   const openAddFacilityPage = () => {
     deselectFacility();
@@ -227,13 +195,6 @@ const MultiFacilityImpactDashboard: React.FC = () => {
           />
         )}
       </div>
-      {showSyncNoUserFacilities && <SyncNoUserFacilities />}
-      <SyncNewReferenceData
-        open={referenceDataModalOpen}
-        stateName={stateName}
-        systemType={systemType}
-        onClose={() => setReferenceDataModalOpen(false)}
-      />
     </MultiFacilityImpactDashboardContainer>
   );
 };

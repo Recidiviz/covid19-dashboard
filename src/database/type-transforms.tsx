@@ -132,6 +132,12 @@ export const buildScenario = (
       scenario.promoStatuses[flagName] = true;
     }
   });
+  // this promo status only applies to baseline scenarios
+  if (scenario.baseline) {
+    if (scenario.promoStatuses.referenceData === undefined) {
+      scenario.promoStatuses.referenceData = true;
+    }
+  }
 
   // this is a newer field that isn't guaranteed to exist in storage;
   // provide a default here because it's required by the type definition

@@ -7,6 +7,9 @@ export type ReferenceFacilitySelections = {
   [id in ReferenceFacility["id"]]: Facility["id"];
 };
 
+export const ADD_NEW_FACILITY = "ADD_NEW_FACILITY";
+export const SKIP = "SKIP";
+
 export const TitleContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -23,6 +26,7 @@ export const TitleText = styled.h1`
 export const SubheadingContainer = styled.div`
   display: flex;
   flex-flow: row nowrap;
+  margin-top: 18px;
 `;
 export const SubheadingText = styled.h2`
   font-weight: 600;
