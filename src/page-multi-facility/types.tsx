@@ -112,7 +112,7 @@ export type ReferenceFacility = {
   countyName?: string;
   canonicalName: string;
   facilityType: string;
-  capacity: SimpleTimeseries[];
+  capacity?: number;
   population: SimpleTimeseries[];
   covidCases: ReferenceFacilityCovidCase[];
   createdAt: Date;

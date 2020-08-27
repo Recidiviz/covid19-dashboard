@@ -52,11 +52,9 @@ const scenariosCollectionId = "scenarios";
 const facilitiesCollectionId = "facilities";
 const modelVersionCollectionId = "modelVersions";
 const usersCollectionId = "users";
-// TODO (#521): when the datasource stabilizes, change this to the real collection
-const referenceFacilitiesCollectionId = "reference_facilities_test";
+const referenceFacilitiesCollectionId = "reference_facilities";
 const referenceFacilitiesCovidCasesCollectionId = "covidCases";
-// TODO (#521): when we switch to using the real data update this property for the scenario
-export const referenceFacilitiesProp = "testReferenceFacilities";
+export const referenceFacilitiesProp = "referenceFacilities";
 
 // Note: None of these are secrets.
 let firebaseConfig = {
