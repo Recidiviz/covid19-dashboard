@@ -1,7 +1,7 @@
 import { isEmpty, keyBy, size } from "lodash";
 import React, { useEffect } from "react";
 
-import { referenceFacilitiesProp } from "../database";
+import { getScenario, referenceFacilitiesProp } from "../database";
 import { useFlag } from "../feature-flags";
 import {
   Facility,
@@ -79,7 +79,7 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
     canUseReferenceData: false,
     referenceDataFeatureAvailable: false,
   });
-  const [scenarioState] = useScenario();
+  const [scenarioState, scenarioDispatch] = useScenario();
 
   const scenario = scenarioState.data;
   const scenarioId = scenario?.id;
@@ -138,7 +138,14 @@ export const FacilitiesProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     },
     fetchFacilityRtData: facilitiesActions.fetchFacilityRtData(dispatch),
-    removeFacility: facilitiesActions.removeFacility(dispatch),
+    removeFacility: async (scenarioId: string, facilityId: string) => {
+      await facilitiesActions.removeFacility(dispatch)(scenarioId, facilityId);
+      // refresh scenario to get updated reference mapping, if applicable
+      const updatedScenario = await getScenario(scenarioId);
+      if (updatedScenario) {
+        scenarioDispatch(updatedScenario);
+      }
+    },
     duplicateFacility: async (facility: Facility): Promise<void | Facility> => {
       if (scenarioId) {
         const savedFacility = await facilitiesActions.duplicateFacility(
