@@ -8,6 +8,7 @@ import { useFacilities } from "../../../facilities-context";
 import useIsOwnScenario from "../../../hooks/useIsOwnScenario";
 import useRejectionToast from "../../../hooks/useRejectionToast";
 import useScenario from "../../../scenario-context/useScenario";
+import { Scenario } from "../../types";
 import { getUnmappedReferenceFacilities } from "../shared";
 import SyncNewFacility from "../SyncNewFacility";
 import SyncNewReferenceData from "../SyncNewReferenceData";
@@ -19,7 +20,7 @@ export interface ReferenceDataModalState {
   newFacilityIdToSync?: string;
   renderSyncButton: boolean;
   showSyncNewReferenceData: boolean;
-  useExistingFacilities?: boolean;
+  useExistingFacilities: boolean;
 }
 
 export type ReferenceDataModalAction = {
@@ -46,6 +47,7 @@ export const ReferenceDataModalProvider: React.FC<{ syncType: SyncType }> = ({
   const [state, dispatch] = useReducer(referenceDataModalReducer, {
     renderSyncButton: false,
     showSyncNewReferenceData: false,
+    useExistingFacilities: true,
   });
   const [{ data: scenario }, dispatchScenarioUpdate] = useScenario();
   const {
@@ -90,6 +92,8 @@ export const ReferenceDataModalProvider: React.FC<{ syncType: SyncType }> = ({
     haveReferenceFacilities;
 
   const showSyncNewReferenceDataBase = renderSyncModal && syncType === "all";
+
+  // if we can render the sync modal, consumers can render the button to open it
   useEffect(() => {
     dispatch({
       type: "UPDATE",
@@ -97,12 +101,39 @@ export const ReferenceDataModalProvider: React.FC<{ syncType: SyncType }> = ({
     });
   }, [renderSyncModal]);
 
+  // open sync modal automatically based on promo status
   useEffect(() => {
     if (
       showSyncNewReferenceDataBase &&
       haveUnmappedReferenceFacilities &&
-      (scenario?.promoStatuses.referenceData ||
-        !scenario?.referenceDataObservedAt ||
+      scenario?.promoStatuses.referenceData
+    ) {
+      dispatch({
+        type: "UPDATE",
+        payload: {
+          showSyncNewReferenceData: true,
+          useExistingFacilities: true,
+        },
+      });
+    }
+  }, [
+    facilitiesState.referenceFacilities,
+    haveUnmappedReferenceFacilities,
+    scenario,
+    showSyncNewReferenceDataBase,
+  ]);
+
+  // open sync modal automatically when new reference facilities are detected
+  // (include new facilities only, not the full list)
+  useEffect(() => {
+    if (
+      showSyncNewReferenceDataBase &&
+      haveUnmappedReferenceFacilities &&
+      // this only applies if the promo status has been dismissed
+      !scenario?.promoStatuses.referenceData &&
+      // if we either don't have a last seen date, or we have facilities newer than that date,
+      // then we want to show this alternate modal
+      (!scenario?.referenceDataObservedAt ||
         Object.values(facilitiesState.referenceFacilities).some(
           (refFacility) => {
             return (
@@ -114,7 +145,10 @@ export const ReferenceDataModalProvider: React.FC<{ syncType: SyncType }> = ({
     ) {
       dispatch({
         type: "UPDATE",
-        payload: { showSyncNewReferenceData: true },
+        payload: {
+          showSyncNewReferenceData: true,
+          useExistingFacilities: false,
+        },
       });
     }
   }, [
@@ -167,19 +201,22 @@ export const ReferenceDataModalProvider: React.FC<{ syncType: SyncType }> = ({
               type: "UPDATE",
               payload: {
                 showSyncNewReferenceData: false,
-                useExistingFacilities: false,
+                useExistingFacilities: true,
               },
             });
+
+            const scenarioChange: Partial<Scenario> = {
+              referenceDataObservedAt: new Date(),
+            };
             // only want to show this once as a promo;
             // closing the modal should dismiss the promo status
             if (scenario?.promoStatuses.referenceData) {
-              handleScenarioChange({
-                promoStatuses: {
-                  ...scenario.promoStatuses,
-                  referenceData: false,
-                },
-              });
+              scenarioChange.promoStatuses = {
+                ...scenario.promoStatuses,
+                referenceData: false,
+              };
             }
+            handleScenarioChange(scenarioChange);
           }}
           useExistingFacilities={state.useExistingFacilities}
         />
@@ -188,6 +225,7 @@ export const ReferenceDataModalProvider: React.FC<{ syncType: SyncType }> = ({
         <SyncNewFacility
           facilityId={state.newFacilityIdToSync}
           onClose={() => {
+            handleScenarioChange({ referenceDataObservedAt: new Date() });
             deselectFacility();
             navigate("/");
           }}

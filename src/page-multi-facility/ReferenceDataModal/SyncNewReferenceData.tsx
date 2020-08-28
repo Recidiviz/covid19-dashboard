@@ -21,7 +21,7 @@ interface Props {
   stateName: ModelInputs["stateName"];
   systemType: Facility["systemType"];
   onClose: () => void;
-  useExistingFacilities?: boolean;
+  useExistingFacilities: boolean;
   closeModal?: () => void;
 }
 
@@ -30,7 +30,7 @@ const SyncNewReferenceData: React.FC<Props> = ({
   stateName,
   systemType,
   onClose,
-  useExistingFacilities = false,
+  useExistingFacilities,
   closeModal,
 }) => {
   const [selections, setSelections] = useState<ReferenceFacilitySelections>({});
@@ -79,7 +79,7 @@ const SyncNewReferenceData: React.FC<Props> = ({
     setUseReferenceData(useReferenceDataToggle);
   };
 
-  const disableSelections = !useReferenceData;
+  const disableSelections = useReferenceData !== undefined && !useReferenceData;
 
   return (
     <ReferenceDataModal
