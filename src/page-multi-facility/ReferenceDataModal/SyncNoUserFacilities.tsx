@@ -320,20 +320,6 @@ const SyncNoUserFacilities: React.FC = () => {
   const [scenarioState, dispatchScenarioUpdate] = useScenario();
   const scenario = scenarioState.data;
 
-  // Immediately set the referenceDataObservedAt time so that
-  // this modal does not compete with the SyncNewReferenceData
-  // modal for attention.
-  useEffect(() => {
-    saveScenario({
-      ...scenario,
-      referenceDataObservedAt: new Date(),
-    }).then((savedScenario) => {
-      if (savedScenario) dispatchScenarioUpdate(savedScenario);
-    });
-    // only want to run this once, on initial mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   return (
     <Modal
       modalTitle={modalTitle}

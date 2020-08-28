@@ -1,7 +1,7 @@
 import { isAfter } from "date-fns";
 import { navigate } from "gatsby";
 import { size } from "lodash";
-import React, { useEffect, useReducer } from "react";
+import React, { useCallback, useEffect, useReducer } from "react";
 
 import { referenceFacilitiesProp, saveScenario } from "../../../database";
 import { useFacilities } from "../../../facilities-context";
@@ -93,6 +93,33 @@ export const ReferenceDataModalProvider: React.FC<{ syncType: SyncType }> = ({
 
   const showSyncNewReferenceDataBase = renderSyncModal && syncType === "all";
 
+  const rejectionToast = useRejectionToast();
+
+  const handleScenarioChange = useCallback(
+    (scenarioChange: any) => {
+      const changes = Object.assign({}, scenario, scenarioChange);
+      rejectionToast(
+        saveScenario(changes).then(() => dispatchScenarioUpdate(changes)),
+      );
+    },
+    [dispatchScenarioUpdate, rejectionToast, scenario],
+  );
+
+  const clearPromoStatus = useCallback(() => {
+    const scenarioChange: Partial<Scenario> = {
+      referenceDataObservedAt: new Date(),
+    };
+    // only want to show this once as a promo;
+    // closing the modal should dismiss the promo status
+    if (scenario?.promoStatuses.referenceData) {
+      scenarioChange.promoStatuses = {
+        ...scenario.promoStatuses,
+        referenceData: false,
+      };
+    }
+    handleScenarioChange(scenarioChange);
+  }, [handleScenarioChange, scenario]);
+
   // if we can render the sync modal, consumers can render the button to open it
   useEffect(() => {
     dispatch({
@@ -166,14 +193,13 @@ export const ReferenceDataModalProvider: React.FC<{ syncType: SyncType }> = ({
     dispatch({ type: "UPDATE", payload: { canSyncNewFacility } });
   }, [canSyncNewFacility]);
 
-  const rejectionToast = useRejectionToast();
-
-  const handleScenarioChange = (scenarioChange: any) => {
-    const changes = Object.assign({}, scenario, scenarioChange);
-    rejectionToast(
-      saveScenario(changes).then(() => dispatchScenarioUpdate(changes)),
-    );
-  };
+  // clear promo status immediately for new scenarios
+  // to suppress the promo dialog after the no facilities dialog
+  useEffect(() => {
+    if (renderSyncNoUserFacilities) {
+      clearPromoStatus();
+    }
+  }, [clearPromoStatus, renderSyncNoUserFacilities]);
 
   const firstFacility = Object.values(facilitiesState.facilities)[0];
   let stateName;
@@ -205,18 +231,7 @@ export const ReferenceDataModalProvider: React.FC<{ syncType: SyncType }> = ({
               },
             });
 
-            const scenarioChange: Partial<Scenario> = {
-              referenceDataObservedAt: new Date(),
-            };
-            // only want to show this once as a promo;
-            // closing the modal should dismiss the promo status
-            if (scenario?.promoStatuses.referenceData) {
-              scenarioChange.promoStatuses = {
-                ...scenario.promoStatuses,
-                referenceData: false,
-              };
-            }
-            handleScenarioChange(scenarioChange);
+            clearPromoStatus;
           }}
           useExistingFacilities={state.useExistingFacilities}
         />
