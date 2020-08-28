@@ -76,14 +76,6 @@ const ReferenceDataModal: React.FC<Props> = ({
   } = useFacilities();
 
   async function handleClose() {
-    rejectionToast(
-      saveScenario({
-        ...scenario,
-        referenceDataObservedAt: new Date(),
-      }).then((savedScenario) => {
-        if (savedScenario) dispatchScenarioUpdate(savedScenario);
-      }),
-    );
     onClose();
   }
 

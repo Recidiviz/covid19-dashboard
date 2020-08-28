@@ -99,7 +99,7 @@ interface ReferenceFacilitySelectProps {
     id: ReferenceFacility["id"],
   ) => (facilityId: Facility["id"] | undefined) => void;
   selections: ReferenceFacilitySelections;
-  useExistingFacilities?: boolean;
+  useExistingFacilities: boolean;
   disabled?: boolean;
 }
 
@@ -108,7 +108,7 @@ export const ReferenceFacilitySelect: React.FC<ReferenceFacilitySelectProps> = (
   facilities,
   selections,
   onChange,
-  useExistingFacilities = false,
+  useExistingFacilities,
   disabled,
 }) => {
   return (

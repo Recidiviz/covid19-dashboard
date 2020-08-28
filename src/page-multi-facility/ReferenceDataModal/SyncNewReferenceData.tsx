@@ -21,7 +21,7 @@ interface Props {
   stateName: ModelInputs["stateName"];
   systemType: Facility["systemType"];
   onClose: () => void;
-  useExistingFacilities?: boolean;
+  useExistingFacilities: boolean;
   closeModal?: () => void;
 }
 
@@ -30,7 +30,7 @@ const SyncNewReferenceData: React.FC<Props> = ({
   stateName,
   systemType,
   onClose,
-  useExistingFacilities = false,
+  useExistingFacilities,
   closeModal,
 }) => {
   const [selections, setSelections] = useState<ReferenceFacilitySelections>({});
@@ -40,7 +40,9 @@ const SyncNewReferenceData: React.FC<Props> = ({
   } = useFacilities();
   const scenario = scenarioState.data;
   const [useReferenceData, setUseReferenceData] = useState(
-    scenario?.useReferenceData,
+    // undefined equals true because it means the user hasn't configured it yet,
+    // it's probably their first visit since the feature was activated
+    scenario?.useReferenceData === undefined || scenario.useReferenceData,
   );
 
   const mappedReferenceFacilities = scenario?.[referenceFacilitiesProp] || {};
