@@ -231,7 +231,7 @@ export const ReferenceDataModalProvider: React.FC<{ syncType: SyncType }> = ({
               },
             });
 
-            clearPromoStatus;
+            clearPromoStatus();
           }}
           useExistingFacilities={state.useExistingFacilities}
         />
