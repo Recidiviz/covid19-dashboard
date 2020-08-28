@@ -40,7 +40,9 @@ const SyncNewReferenceData: React.FC<Props> = ({
   } = useFacilities();
   const scenario = scenarioState.data;
   const [useReferenceData, setUseReferenceData] = useState(
-    scenario?.useReferenceData,
+    // undefined equals true because it means the user hasn't configured it yet,
+    // it's probably their first visit since the feature was activated
+    scenario?.useReferenceData === undefined || scenario.useReferenceData,
   );
 
   const mappedReferenceFacilities = scenario?.[referenceFacilitiesProp] || {};
@@ -79,7 +81,7 @@ const SyncNewReferenceData: React.FC<Props> = ({
     setUseReferenceData(useReferenceDataToggle);
   };
 
-  const disableSelections = useReferenceData !== undefined && !useReferenceData;
+  const disableSelections = !useReferenceData;
 
   return (
     <ReferenceDataModal
