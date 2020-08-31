@@ -1,8 +1,8 @@
 from collections import defaultdict
-import csv
 from datetime import datetime, timezone
 from google.cloud import firestore
 from google.cloud import storage
+import json
 import logging
 import re
 
@@ -75,9 +75,9 @@ def create_or_update_facilities(file_location):
     batch = FirestoreBatch(fs_client)
 
     with open(file_location, newline='') as f:
-        reader = csv.DictReader(f)
+        for line in f:
+            row = json.loads(line)
 
-        for row in reader:
             id = row['facility_id']
 
             facility_doc_ref = facilities_collection.document(id)
@@ -99,14 +99,14 @@ def create_or_update_facilities(file_location):
                                                           row['facility_type']),
             })
 
-            if row['capacity']:
+            if row.get('capacity'):
                 facility_metadata["capacity"] = int(row["capacity"])
 
-            if row['county'] and row['county'] != 'Not found':
+            if row.get('county') and row['county'] != 'Not found':
                 facility_metadata["county"] = re.sub(
                     r' County$',  '', row['county'])
 
-            if row['population_year_updated'] and row['population']:
+            if row.get('population_year_updated') and row.get('population'):
                 latest_population = {
                     "date": datetime(int(row["population_year_updated"]), 1, 1, tzinfo=timezone.utc),
                     "value": int(row["population"]),
@@ -137,19 +137,20 @@ def create_or_update_facilities(file_location):
 
 
 def build_covid_case_counts(row):
+    # none of these fields is guaranteed to exist; default values will be dropped
     covid_case_counts = {
-        'popDeaths': row['pop_deaths'],
-        'popTested': row['pop_tested'],
-        'popTestedNegative': row['pop_tested_negative'],
-        'popTestedPositive': row['pop_tested_positive'],
-        'staffDeaths': row['staff_deaths'],
-        'staffTested': row['staff_tested'],
-        'staffTestedNegative': row['staff_tested_negative'],
-        'staffTestedPositive': row['staff_tested_positive'],
+        'popDeaths': row.get('pop_deaths'),
+        'popTested': row.get('pop_tested'),
+        'popTestedNegative': row.get('pop_tested_negative'),
+        'popTestedPositive': row.get('pop_tested_positive'),
+        'staffDeaths': row.get('staff_deaths'),
+        'staffTested': row.get('staff_tested'),
+        'staffTestedNegative': row.get('staff_tested_negative'),
+        'staffTestedPositive': row.get('staff_tested_positive'),
     }
 
-    # Remove empty strings and convert non-empty strings to integers
-    return {k: int(v) for k, v in covid_case_counts.items() if v}
+    # Remove missing values and convert remaining values to integers
+    return {k: int(v) for k, v in covid_case_counts.items() if v is not None}
 
 
 def download_from_cloud_storage(bucket_name, file_name):
@@ -165,20 +166,12 @@ def download_from_cloud_storage(bucket_name, file_name):
 
 def reshape_facilities_data(file_location):
     """
-    This function reshapes the daily Covid case data provided in CSV format into a
-    dictionary structure that: 1) Removes repetitive and unwanted data and 2) Aligns
-    with how we ultimately persist our documents within Firestore.
+    This function reshapes the daily Covid case data provided in JSON Lines format into a
+    dictionary structure that: 1) Removes repetitive and unwanted data, and
+    2) Aligns with how we ultimately persist our documents within Firestore.
 
-    For example, the following CSV:
-
-    facility_id,date,pop_tested,pop_tested_negative,pop_tested_positive,pop_deaths,...etc
-    510,2020-04-30,,,7,0,,,0,0
-    510,2020-05-04,,,8,0,,,0,0
-    516,2020-04-07,,,0,,,,0,
-    516,2020-04-08,,,0,,,,0,
-    ...
-
-    ... would be aggregated by facility ID:
+    The reshaped data will have fields in camelCase, nested by facility id and
+    observation date, e.g.:
 
     {
       510: {
@@ -210,10 +203,9 @@ def reshape_facilities_data(file_location):
     """
     cases_by_facility = defaultdict(dict)
 
-    with open(file_location, newline="") as csv_file:
-        reader = csv.DictReader(csv_file, delimiter=',')
-
-        for row in reader:
+    with open(file_location, newline="") as f:
+        for line in f:
+            row = json.loads(line)
             key = row['facility_id']
             date = row['date']
             cases_by_facility[key][date] = build_covid_case_counts(row)
