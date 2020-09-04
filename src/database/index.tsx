@@ -45,6 +45,7 @@ import AppAuth0ClientPromise from "../auth/AppAuth0ClientPromise";
 import { ascending, zip } from "d3-array";
 import { validateCumulativeCases } from "../infection-model/validators";
 import { ModelInputsUpdate } from "./types";
+import { BatchWriter } from "./utils";
 
 // As long as there is just one Auth0 config, this endpoint will work with any environment (local, prod, etc.).
 const tokenExchangeEndpoint = `${CLOUD_FUNCTION_URL_BASE}/getFirebaseToken`;
@@ -682,9 +683,9 @@ export const removeScenarioUser = async (
 const batchSetFacilityModelVersions = (
   modelVersions: ModelInputs[],
   facilityDocRef: firebase.firestore.DocumentReference,
-  batch: firebase.firestore.WriteBatch,
+  batch: firebase.firestore.WriteBatch | BatchWriter,
 ) => {
-  modelVersions.forEach((modelVersion: ModelInputs) => {
+  modelVersions.forEach((modelVersion) => {
     const modelVersionDoc = facilityDocRef
       .collection(modelVersionCollectionId)
       .doc();
@@ -999,9 +1000,8 @@ export const duplicateScenario = async (
     }
 
     const userId = currentUserId();
-    const timestamp = currentTimestamp();
     const db = await getDb();
-    const batch = db.batch();
+    const unlimitedBatch = new BatchWriter(db);
 
     // Duplicate and save the Scenario
     const scenarioDoc = db.collection(scenariosCollectionId).doc();
@@ -1024,11 +1024,11 @@ export const duplicateScenario = async (
       roles: {
         [userId]: "owner",
       },
-      createdAt: timestamp,
-      updatedAt: timestamp,
+      createdAt: unlimitedBatch.serverTimestamp,
+      updatedAt: unlimitedBatch.serverTimestamp,
     });
 
-    batch.set(scenarioDoc, scenarioData);
+    unlimitedBatch.set(scenarioDoc, scenarioData);
 
     // Duplicate and save all of the Facilities
     const facilities = await getFacilities(scenarioId);
@@ -1039,7 +1039,7 @@ export const duplicateScenario = async (
 
       const facilityDoc = scenarioDoc.collection(facilitiesCollectionId).doc();
 
-      batch.set(facilityDoc, facilityCopy);
+      unlimitedBatch.set(facilityDoc, facilityCopy);
 
       // Duplicate and save all of the facility's modelVersions
       const modelVersions = await getFacilityModelVersions({
@@ -1047,10 +1047,10 @@ export const duplicateScenario = async (
         facilityId: facility.id,
       });
 
-      batchSetFacilityModelVersions(modelVersions, facilityDoc, batch);
+      batchSetFacilityModelVersions(modelVersions, facilityDoc, unlimitedBatch);
     }
 
-    await batch.commit();
+    await unlimitedBatch.commit();
 
     const duplicatedScenario = await scenarioDoc.get();
 
@@ -1059,8 +1059,7 @@ export const duplicateScenario = async (
     console.error(
       `Encountered error while attempting to duplicate scenario: ${scenarioId}`,
     );
-    console.error(error);
-    return;
+    throw error;
   }
 };
 
