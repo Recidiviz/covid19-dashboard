@@ -157,6 +157,16 @@ export class BatchWriter {
             case "UPDATE":
               writeBatch.update(operation.params.ref, operation.params.data);
               break;
+            default:
+              console.error(
+                // type assertion here because operation is technically a never
+                // in the present implementation; this is mainly intended as a guardrail
+                // for future implementations of additional write methods (e.g. CREATE)
+                `Operation type ${
+                  (operation as any).type
+                } is unsupported; change will not be committed.`,
+              );
+              break;
           }
         });
         return writeBatch.commit();
