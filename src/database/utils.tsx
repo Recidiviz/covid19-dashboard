@@ -89,7 +89,12 @@ export class BatchWriter {
   }
 
   // NOTE: can also mirror other server transform operations as needed
-  get serverTimestamp() {
+  serverDelete() {
+    this.pendingOpsCount += 1;
+    return firebase.firestore.FieldValue.delete();
+  }
+
+  serverTimestamp() {
     this.pendingOpsCount += 1;
     return firebase.firestore.FieldValue.serverTimestamp();
   }
