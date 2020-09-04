@@ -990,77 +990,69 @@ export const deleteFacility = async (
 
 export const duplicateScenario = async (
   scenarioId: string,
-): Promise<Scenario | void> => {
-  try {
-    const scenario = await getScenario(scenarioId);
+): Promise<Scenario> => {
+  const scenario = await getScenario(scenarioId);
 
-    if (!scenario) {
-      console.error(`No scenario found for scenario: ${scenarioId}`);
-      return;
-    }
+  if (!scenario) {
+    throw new Error(`No scenario found matching ID ${scenarioId}`);
+  }
 
-    const userId = currentUserId();
-    const db = await getDb();
-    const unlimitedBatch = new BatchWriter(db);
+  const userId = currentUserId();
+  const db = await getDb();
+  const unlimitedBatch = new BatchWriter(db);
 
-    // Duplicate and save the Scenario
-    const scenarioDoc = db.collection(scenariosCollectionId).doc();
+  // Duplicate and save the Scenario
+  const scenarioDoc = db.collection(scenariosCollectionId).doc();
 
-    const baselinePopulationsCopy = scenario.baselinePopulations
-      ? [...scenario.baselinePopulations]
-      : [];
+  const baselinePopulationsCopy = scenario.baselinePopulations
+    ? [...scenario.baselinePopulations]
+    : [];
 
-    const referenceFacilitiesCopy = scenario[referenceFacilitiesProp]
-      ? { ...scenario[referenceFacilitiesProp] }
-      : {};
+  const referenceFacilitiesCopy = scenario[referenceFacilitiesProp]
+    ? { ...scenario[referenceFacilitiesProp] }
+    : {};
 
-    const scenarioData = Object.assign({}, SCENARIO_DEFAULTS, {
-      name: `Copy of ${scenario.name}`,
-      description: `This is a copy of the '${
-        scenario.name
-      }' scenario, made on ${format(new Date(), MMMMdyyyy)}`,
-      baselinePopulations: [...baselinePopulationsCopy],
-      [referenceFacilitiesProp]: referenceFacilitiesCopy,
-      roles: {
-        [userId]: "owner",
-      },
-      createdAt: unlimitedBatch.serverTimestamp,
-      updatedAt: unlimitedBatch.serverTimestamp,
+  const scenarioData = Object.assign({}, SCENARIO_DEFAULTS, {
+    name: `Copy of ${scenario.name}`,
+    description: `This is a copy of the '${
+      scenario.name
+    }' scenario, made on ${format(new Date(), MMMMdyyyy)}`,
+    baselinePopulations: [...baselinePopulationsCopy],
+    [referenceFacilitiesProp]: referenceFacilitiesCopy,
+    roles: {
+      [userId]: "owner",
+    },
+    createdAt: unlimitedBatch.serverTimestamp,
+    updatedAt: unlimitedBatch.serverTimestamp,
+  });
+
+  unlimitedBatch.set(scenarioDoc, scenarioData);
+
+  // Duplicate and save all of the Facilities
+  const facilities = await getFacilities(scenarioId);
+  for (const facility of facilities || []) {
+    const facilityCopy = Object.assign({}, facility);
+    delete facilityCopy.id;
+    delete facilityCopy.scenarioId;
+
+    const facilityDoc = scenarioDoc.collection(facilitiesCollectionId).doc();
+
+    unlimitedBatch.set(facilityDoc, facilityCopy);
+
+    // Duplicate and save all of the facility's modelVersions
+    const modelVersions = await getFacilityModelVersions({
+      scenarioId,
+      facilityId: facility.id,
     });
 
-    unlimitedBatch.set(scenarioDoc, scenarioData);
-
-    // Duplicate and save all of the Facilities
-    const facilities = await getFacilities(scenarioId);
-    for (const facility of facilities || []) {
-      const facilityCopy = Object.assign({}, facility);
-      delete facilityCopy.id;
-      delete facilityCopy.scenarioId;
-
-      const facilityDoc = scenarioDoc.collection(facilitiesCollectionId).doc();
-
-      unlimitedBatch.set(facilityDoc, facilityCopy);
-
-      // Duplicate and save all of the facility's modelVersions
-      const modelVersions = await getFacilityModelVersions({
-        scenarioId,
-        facilityId: facility.id,
-      });
-
-      batchSetFacilityModelVersions(modelVersions, facilityDoc, unlimitedBatch);
-    }
-
-    await unlimitedBatch.commit();
-
-    const duplicatedScenario = await scenarioDoc.get();
-
-    return buildScenario(duplicatedScenario);
-  } catch (error) {
-    console.error(
-      `Encountered error while attempting to duplicate scenario: ${scenarioId}`,
-    );
-    throw error;
+    batchSetFacilityModelVersions(modelVersions, facilityDoc, unlimitedBatch);
   }
+
+  await unlimitedBatch.commit();
+
+  const duplicatedScenario = await scenarioDoc.get();
+
+  return buildScenario(duplicatedScenario);
 };
 
 export const deleteScenario = async (
