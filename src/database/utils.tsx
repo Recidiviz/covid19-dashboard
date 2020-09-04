@@ -27,17 +27,27 @@ export const prepareFromStorage = (state: object): EpidemicModelPersistent => {
   );
 };
 
-type BatchOperationType = "CREATE" | "DELETE" | "SET" | "UPDATE";
-type BatchOperationParams = [
-  firebase.firestore.DocumentReference<firebase.firestore.DocumentData>,
-  firebase.firestore.DocumentData,
-  // add other option types when implemented
-  firebase.firestore.SetOptions | undefined,
-];
-type BatchOperation = {
-  type: BatchOperationType;
-  params: BatchOperationParams;
+type BatchOperationData = firebase.firestore.DocumentData;
+type BatchOperationRef = firebase.firestore.DocumentReference<
+  BatchOperationData
+>;
+type BatchDelete = {
+  type: "DELETE";
+  params: { ref: BatchOperationRef };
 };
+type BatchUpdate = {
+  type: "UPDATE";
+  params: { ref: BatchOperationRef; data: BatchOperationData };
+};
+type BatchSet = {
+  type: "SET";
+  params: {
+    ref: BatchOperationRef;
+    data: BatchOperationData;
+    options?: firebase.firestore.SetOptions;
+  };
+};
+type BatchOperation = BatchDelete | BatchSet | BatchUpdate;
 
 /**
  * Wrapper around firebase.firestore.WriteBatch that abstracts away the batch size limit.
@@ -84,16 +94,39 @@ export class BatchWriter {
     return firebase.firestore.FieldValue.serverTimestamp();
   }
 
-  // NOTE: can also mirror create, delete, update methods on batch as needed
+  // NOTE: create method not implemented, can add if it becomes needed
+
+  delete(ref: BatchOperationRef) {
+    this.preventOverflow();
+    this.currentBatch.push({
+      type: "DELETE",
+      params: { ref },
+    });
+    this.trackWrite();
+    // mimic Firestore interface, allows for chained method calls
+    return this;
+  }
+
   set(
-    ref: BatchOperationParams[0],
-    data: BatchOperationParams[1],
+    ref: BatchOperationRef,
+    data: BatchOperationData,
     options?: firebase.firestore.SetOptions,
   ) {
     this.preventOverflow();
     this.currentBatch.push({
       type: "SET",
-      params: [ref, data, options],
+      params: { ref, data, options },
+    });
+    this.trackWrite();
+    // mimic Firestore interface, allows for chained method calls
+    return this;
+  }
+
+  update(ref: BatchOperationRef, data: BatchOperationData) {
+    this.preventOverflow();
+    this.currentBatch.push({
+      type: "UPDATE",
+      params: { ref, data },
     });
     this.trackWrite();
     // mimic Firestore interface, allows for chained method calls
@@ -104,12 +137,21 @@ export class BatchWriter {
     await Promise.all(
       this.operationBatches.map((operationBatch) => {
         const writeBatch = this.client.batch();
-        operationBatch.forEach(({ type, params: [ref, data, options] }) => {
-          switch (type) {
-            case "SET":
-              writeBatch.set(ref, data, options);
+        operationBatch.forEach((operation) => {
+          switch (operation.type) {
+            case "DELETE":
+              writeBatch.delete(operation.params.ref);
               break;
-            // add other methods here as they are implemented
+            case "SET":
+              writeBatch.set(
+                operation.params.ref,
+                operation.params.data,
+                operation.params.options,
+              );
+              break;
+            case "UPDATE":
+              writeBatch.update(operation.params.ref, operation.params.data);
+              break;
           }
         });
         return writeBatch.commit();
