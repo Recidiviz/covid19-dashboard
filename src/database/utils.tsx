@@ -1,4 +1,4 @@
-import firebase from "firebase";
+import firebase from "firebase/app";
 import mapObject from "map-obj";
 
 import { EpidemicModelPersistent } from "../impact-dashboard/EpidemicModelContext";
