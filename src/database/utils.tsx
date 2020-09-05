@@ -53,6 +53,13 @@ type BatchOperation = BatchDelete | BatchSet | BatchUpdate;
  * Wrapper around firebase.firestore.WriteBatch that abstracts away the batch size limit.
  * Exposes methods and properties that would result in batch operations.
  * Automatically chunks the batch when it's full to prevent overflows.
+ *
+ * NOTE: Successful use of this class requires that the write method is called
+ * immediately after provisioning its pending ops (the server transformations), so
+ * that the write and additional ops are guaranteed to be applied to the same batch.
+ * If you don't follow this order (e.g. you prepare a number of documents that trigger
+ * pending ops, then call all their write methods), the commit may fail because it will
+ * apply all the pending ops to the first batch.
  */
 export class BatchWriter {
   private client: firebase.firestore.Firestore;
