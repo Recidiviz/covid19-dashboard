@@ -15,16 +15,8 @@ import {
 import { referenceFacilitiesProp } from ".";
 import { FacilityDocUpdate } from "./types";
 
-const timestampToDate = (
-  timestamp: firebase.firestore.Timestamp | null,
-): Date => {
-  if (timestamp) {
-    return timestamp.toDate();
-  } else {
-    // when Firestore writes are pending, server timestamps may be null;
-    // we can substitute the local now in the meantime
-    return new Date();
-  }
+const timestampToDate = (timestamp: firebase.firestore.Timestamp): Date => {
+  return timestamp.toDate();
 };
 
 const buildPlannedRelease = (plannedReleaseData: any): PlannedRelease => {
@@ -106,7 +98,11 @@ export const buildScenario = (
   let scenario: Scenario = documentData;
   scenario.id = document.id;
   scenario.createdAt = timestampToDate(documentData.createdAt);
-  scenario.updatedAt = timestampToDate(documentData.updatedAt);
+  scenario.updatedAt = timestampToDate(
+    // when Firestore writes are pending, updatedAt may be null since it's a server timestamp;
+    // we can substitute the local now in the meantime
+    documentData.updatedAt || firebase.firestore.Timestamp.now(),
+  );
   scenario.referenceDataObservedAt = documentData.referenceDataObservedAt
     ? timestampToDate(documentData.referenceDataObservedAt)
     : undefined;

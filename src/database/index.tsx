@@ -251,6 +251,9 @@ export const getScenarios = async (): Promise<Scenario[]> => {
   try {
     const db = await getDb();
 
+    // if we just made a change let's make sure it's reflected here
+    await db.waitForPendingWrites();
+
     const scenarioResults = await db
       .collection(scenariosCollectionId)
       .where(`roles.${currentUserId()}`, "in", ["owner", "viewer"])
