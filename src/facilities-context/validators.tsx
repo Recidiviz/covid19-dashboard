@@ -1,8 +1,9 @@
 import { differenceInCalendarDays } from "date-fns";
-import { has, maxBy } from "lodash";
+import { every, has, matchesProperty, maxBy, sample, size } from "lodash";
 
 import { validateCumulativeCases } from "../infection-model/validators";
 import { ModelInputs } from "../page-multi-facility/types";
+import { FacilityMapping, ReferenceFacilityMapping } from "./types";
 
 type SingleDayValidator = (
   modelInputs: ModelInputs | null,
@@ -31,16 +32,17 @@ const removeNonsenseCases: SingleDayValidator = (modelInputs) => {
 const requirePopulation: SingleDayValidator = (modelInputs) => {
   const validInputs = modelInputs ? { ...modelInputs } : null;
   if (validInputs?.isReference) {
-    // cases without population should be removed
+    // cases and fatalities without population should be removed
     if (validInputs.ageUnknownPopulation === undefined) {
       delete validInputs.ageUnknownCases;
+      delete validInputs.ageUnknownDeaths;
       delete validInputs.ageUnknownPopulation;
     }
     if (validInputs.staffPopulation === undefined) {
       delete validInputs.staffCases;
       delete validInputs.staffPopulation;
     }
-    // if there are are now no cases at all, kill the record entirely
+    // if there are now no cases at all, kill the record entirely
     if (
       !has(validInputs, "ageUnknownCases") &&
       !has(validInputs, "staffCases")
@@ -122,4 +124,26 @@ export function validateMergedModelVersions(
   }
 
   return validVersions;
+}
+
+export function isSingleSystem(facilities: FacilityMapping) {
+  const randomFacility = sample(facilities);
+
+  return every(
+    facilities,
+    (facility) =>
+      matchesProperty(
+        "modelInputs.stateName",
+        randomFacility?.modelInputs.stateName,
+      )(facility) &&
+      matchesProperty("systemType", randomFacility?.systemType)(facility),
+  );
+}
+
+const MIN_REFERENCE_FACILITIES = 3;
+
+export function validateReferenceData(
+  referenceFacilities: ReferenceFacilityMapping,
+) {
+  return size(referenceFacilities) >= MIN_REFERENCE_FACILITIES;
 }

@@ -10,11 +10,7 @@ import { useFacilities } from "../../facilities-context";
 import { useLocaleDataState } from "../../locale-data-context";
 import useScenario from "../../scenario-context/useScenario";
 import SystemTypeSelection from "../SystemTypeSelection";
-import {
-  FacilityReferenceMapping,
-  ReferenceFacility,
-  Scenario,
-} from "../types";
+import { ReferenceFacility, Scenario } from "../types";
 import ReferenceFacilityRow from "./shared/ReferenceFacilityRow";
 import SyncReferenceFacilitiesToggle from "./shared/SyncReferenceFacilitiesToggle";
 
@@ -186,7 +182,11 @@ const SyncReferenceFacilitiesCard: React.FC<SyncReferenceFacilitiesCardProps> = 
   } = props;
 
   const {
-    actions: { createOrUpdateFacility, fetchReferenceFacilities },
+    actions: {
+      fetchReferenceFacilities,
+      receiveReferenceFacilities,
+      createUserFacilitiesFromReferences,
+    },
   } = useFacilities();
   const [referenceFacilities, setReferenceFacilities] = useState<
     ReferenceFacility[]
@@ -205,12 +205,12 @@ const SyncReferenceFacilitiesCard: React.FC<SyncReferenceFacilitiesCardProps> = 
     const retrieveReferenceFacilities = async () => {
       if (!stateName || !systemType) return;
 
-      const referenceFacilityMapping = await fetchReferenceFacilities(
+      const referenceFacilitiesMapping = await fetchReferenceFacilities(
         stateName,
         systemType,
       );
-      const facilities = Object.values(referenceFacilityMapping);
-
+      receiveReferenceFacilities(referenceFacilitiesMapping);
+      const facilities = Object.values(referenceFacilitiesMapping);
       setReferenceFacilities(facilities);
       // By default, select all of the available Reference Facilities
       setSelectedFacilities(facilities);
@@ -247,61 +247,24 @@ const SyncReferenceFacilitiesCard: React.FC<SyncReferenceFacilitiesCardProps> = 
   };
 
   const handleSave = async () => {
-    const facilitySaves = selectedFacilities.map((facility) => {
-      const minimalModelInput = {
-        observedAt: new Date(),
-        updatedAt: new Date(),
-        stateName: facility.stateName,
-        countyName: facility.countyName,
-      };
+    const facilityToReference = await createUserFacilitiesFromReferences(
+      selectedFacilities,
+      scenario,
+    );
 
-      return createOrUpdateFacility({
-        name: facility.canonicalName,
-        systemType: facility.facilityType,
-        modelInputs: minimalModelInput,
-        modelVersions: [minimalModelInput],
+    if (facilityToReference) {
+      const updatedScenario = await saveScenario({
+        ...scenario,
+        useReferenceData,
+        [referenceFacilitiesProp]: Object.assign(
+          {},
+          scenario?.[referenceFacilitiesProp],
+          facilityToReference,
+        ),
       });
-    });
 
-    const savedFacilities = await Promise.all(facilitySaves);
-
-    // If for whatever reason the number of facilities saved does not match the
-    // number of facilities that were originally selected then return immediately
-    // so that we don't mis-match User Facilities with Reference Facilities.  See
-    // the comment below about how we use insertion order and indexing to map User
-    // Facilities to Reference Facilities.
-    if (savedFacilities.length !== selectedFacilities.length) {
-      console.error(`The number of saved facilities (${savedFacilities.length}) does not match \
-        the number of selected facilities (${selectedFacilities.length}). The saved User \
-        Facilities will not be mapped to selected Reference Facilities.`);
-      return;
+      if (updatedScenario) dispatchScenarioUpdate(updatedScenario);
     }
-
-    // Promise.all preserves insertion order so we can use this information to guarnatee User
-    // Facilities in the savedFacilities array have a matching index with the Reference
-    // Facilities in the selectedFacilities array.  Since the indexes match, it is acceptable
-    // to generate the facilityIdToReferenceId mapping by iterating over the savedFacilities
-    // and mapping corresponding entries at the same index in the selectedFacilities array.
-    // See the following StackOverflow entry for an example of Promise.all's return ordering:
-    // https://stackoverflow.com/questions/28066429/promise-all-order-of-resolved-values
-    const facilityIdToReferenceId: FacilityReferenceMapping = {};
-
-    savedFacilities.map((facility, index) => {
-      if (!facility) return;
-      facilityIdToReferenceId[facility.id] = selectedFacilities[index].id;
-    });
-
-    saveScenario({
-      ...scenario,
-      useReferenceData: useReferenceData,
-      [referenceFacilitiesProp]: Object.assign(
-        {},
-        scenario?.[referenceFacilitiesProp],
-        facilityIdToReferenceId,
-      ),
-    }).then((savedScenario) => {
-      if (savedScenario) dispatchScenarioUpdate(savedScenario);
-    });
   };
 
   return (
@@ -356,20 +319,6 @@ const SyncNoUserFacilities: React.FC = () => {
   const [stateName, setStateName] = useState<string>();
   const [scenarioState, dispatchScenarioUpdate] = useScenario();
   const scenario = scenarioState.data;
-
-  // Immediately set the referenceDataObservedAt time so that
-  // this modal does not compete with the SyncNewReferenceData
-  // modal for attention.
-  useEffect(() => {
-    saveScenario({
-      ...scenario,
-      referenceDataObservedAt: new Date(),
-    }).then((savedScenario) => {
-      if (savedScenario) dispatchScenarioUpdate(savedScenario);
-    });
-    // only want to run this once, on initial mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <Modal

@@ -9,6 +9,7 @@ import useScenario from "../scenario-context/useScenario";
 import SiteHeader from "../site-header/SiteHeader";
 import FacilityInputForm from "./FacilityInputForm";
 import ReadOnlyScenarioBanner from "./ReadOnlyScenarioBanner";
+import { ReferenceDataModalProvider } from "./ReferenceDataModal/context/ReferenceDataModalContext";
 
 const FacilityPageDiv = styled.div``;
 
@@ -40,10 +41,12 @@ const FacilityPage: React.FC = () => {
             <div className="font-body text-green min-h-screen tracking-normal w-full">
               <div className="max-w-screen-xl px-4 mx-auto">
                 <SiteHeader styles={{ borderBottom: "none" }} />
-                <FacilityInputForm
-                  key={selectedFacilityId || undefined}
-                  scenarioId={scenario.data.id}
-                />
+                <ReferenceDataModalProvider syncType="single">
+                  <FacilityInputForm
+                    key={selectedFacilityId || undefined}
+                    scenarioId={scenario.data.id}
+                  />
+                </ReferenceDataModalProvider>
               </div>
             </div>
           </FacilityPageDiv>

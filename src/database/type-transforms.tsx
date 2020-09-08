@@ -98,7 +98,11 @@ export const buildScenario = (
   let scenario: Scenario = documentData;
   scenario.id = document.id;
   scenario.createdAt = timestampToDate(documentData.createdAt);
-  scenario.updatedAt = timestampToDate(documentData.updatedAt);
+  scenario.updatedAt = timestampToDate(
+    // when Firestore writes are pending, updatedAt may be null since it's a server timestamp;
+    // we can substitute the local now in the meantime
+    documentData.updatedAt || firebase.firestore.Timestamp.now(),
+  );
   scenario.referenceDataObservedAt = documentData.referenceDataObservedAt
     ? timestampToDate(documentData.referenceDataObservedAt)
     : undefined;
@@ -128,6 +132,12 @@ export const buildScenario = (
       scenario.promoStatuses[flagName] = true;
     }
   });
+  // this promo status only applies to baseline scenarios
+  if (scenario.baseline) {
+    if (scenario.promoStatuses.referenceData === undefined) {
+      scenario.promoStatuses.referenceData = true;
+    }
+  }
 
   // this is a newer field that isn't guaranteed to exist in storage;
   // provide a default here because it's required by the type definition
@@ -194,20 +204,15 @@ export const buildReferenceFacility = (
   stateName = String(stateName);
   canonicalName = String(canonicalName);
   facilityType = String(facilityType);
-  countyName = String(countyName);
+  countyName = countyName ? String(countyName) : undefined;
   createdAt = timestampToDate(data.createdAt);
 
-  // if these are not arrays then unfortunately they are garbage;
-  // this probably means the documents have been mangled somehow,
-  // it is not an expected case
-  if (!Array.isArray(capacity)) {
-    capacity = [];
-  }
+  // population can be missing or mangled; if so provide an empty array here
+  // to preserve a consistent interface
   if (!Array.isArray(population)) {
     population = [];
   }
 
-  capacity = capacity.map(toSimpleTimeseries);
   population = population.map(toSimpleTimeseries);
 
   return {

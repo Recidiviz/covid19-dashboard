@@ -124,6 +124,7 @@ interface AgeGroupGridProps {
   collapsible?: boolean;
   warnedAt: number;
   setWarnedAt: (warnedAt: number) => void;
+  isReference?: boolean;
 }
 
 export const AgeGroupGrid: React.FC<AgeGroupGridProps> = ({
@@ -275,10 +276,12 @@ interface AgeGroupRowProps {
   updateModel: (update: EpidemicModelUpdate) => void;
   warnedAt: number;
   setWarnedAt: (warnedAt: number) => void;
+  isReference?: boolean;
 }
 
 const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
   const { model, updateModel } = props;
+  const isReference = props.model.isReference || props.isReference;
   const [casesInputRelativityError, setCasesInputRelativityError] = useState(
     false,
   );
@@ -364,6 +367,7 @@ const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
       <InputCell>
         <InputTextNumeric
           type="number"
+          isReference={isReference}
           valueEntered={model[props.firstKey] as number}
           inputRelativityError={casesInputRelativityError}
           onValueChange={(cases) => {
@@ -376,6 +380,7 @@ const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
       <InputCell>
         <InputTextNumeric
           type="number"
+          isReference={isReference}
           valueEntered={model[props.secondKey] as number}
           inputRelativityError={recoveredInputRelativityError}
           onValueChange={(recovered) => {
@@ -392,6 +397,7 @@ const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
       <InputCell>
         <InputTextNumeric
           type="number"
+          isReference={isReference}
           valueEntered={model[props.thirdKey] as number}
           inputRelativityError={deathsInputRelativityError}
           onValueChange={(deaths) => {
@@ -408,6 +414,7 @@ const AgeGroupRow: React.FC<AgeGroupRowProps> = (props) => {
       <InputCell>
         <InputTextNumeric
           type="number"
+          isReference={isReference}
           valueEntered={model[props.lastKey] as number}
           onValueChange={(total) => {
             checkCasesInputRelativity(model[props.firstKey] as number, total);

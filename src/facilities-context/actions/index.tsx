@@ -1,9 +1,7 @@
 import { Facility, RtDataMapping } from "../../page-multi-facility/types";
+import { FacilityMapping, ReferenceFacilityMapping } from "../types";
 import {
-  FacilityMapping,
-  ReferenceFacilityMapping,
-} from "../FacilitiesContext";
-import {
+  CLEAR_FACILITIES,
   CREATE_OR_UPDATE_FACILITY,
   DESELECT_FACILITY,
   RECEIVE_FACILITIES,
@@ -13,8 +11,10 @@ import {
   SELECT_FACILITY,
 } from "./facilities";
 import {
+  CAN_USE_REFERENCE_DATA,
   CLEAR_REFERENCE_FACILITIES,
   RECEIVE_REFERENCE_FACILITIES,
+  REFERENCE_DATA_FEATURE_AVAILABLE,
 } from "./referenceFacilities";
 import {
   RECEIVE_RT_DATA_ERROR,
@@ -33,8 +33,9 @@ export type FacilitiesActions =
   | REQUEST_ACTIONS
   | ERROR_ACTIONS
   | RECEIVE_REFERENCE_FACILITIES_ACTION
-  | CLEAR_REFERENCE_FACILITIES_ACTION
-  | DESELECT_FACILITY_ACTION;
+  | CLEAR_ACTIONS
+  | DESELECT_FACILITY_ACTION
+  | REFERENCE_DATA_ACTIONS;
 
 export type FACILITY_ACTION = {
   type: typeof CREATE_OR_UPDATE_FACILITY;
@@ -46,10 +47,15 @@ export type RECEIVE_FACILITIES_ACTION = {
   payload: FacilityMapping;
 };
 
-export type RT_DATA_ACTION = {
-  type: typeof UPDATE_FACILITY_RT_DATA;
-  payload: RtDataMapping;
-};
+export type RT_DATA_ACTION =
+  | {
+      type: typeof UPDATE_FACILITY_RT_DATA;
+      payload: RtDataMapping;
+    }
+  | {
+      type: typeof REQUEST_RT_DATA;
+      payload: Facility["id"];
+    };
 
 export type FACILITY_ID_ACTION = {
   type: typeof SELECT_FACILITY | typeof REMOVE_FACILITY;
@@ -61,7 +67,7 @@ export type ERROR_ACTIONS = {
 };
 
 export type REQUEST_ACTIONS = {
-  type: typeof REQUEST_FACILITIES | typeof REQUEST_RT_DATA;
+  type: typeof REQUEST_FACILITIES;
 };
 
 export type DESELECT_FACILITY_ACTION = {
@@ -73,6 +79,11 @@ export type RECEIVE_REFERENCE_FACILITIES_ACTION = {
   payload: ReferenceFacilityMapping;
 };
 
-export type CLEAR_REFERENCE_FACILITIES_ACTION = {
-  type: typeof CLEAR_REFERENCE_FACILITIES;
+export type CLEAR_ACTIONS = {
+  type: typeof CLEAR_REFERENCE_FACILITIES | typeof CLEAR_FACILITIES;
+};
+
+export type REFERENCE_DATA_ACTIONS = {
+  type: typeof CAN_USE_REFERENCE_DATA | typeof REFERENCE_DATA_FEATURE_AVAILABLE;
+  payload: boolean;
 };

@@ -15,7 +15,6 @@ import { Spacer } from "../design-system/Spacer";
 import { useToasts } from "../design-system/Toast";
 import Tooltip from "../design-system/Tooltip";
 import { getFacilityById, useFacilities } from "../facilities-context";
-import useReferenceFacilitiesEligible from "../hooks/useReferenceFacilitiesEligible";
 import useRejectionToast from "../hooks/useRejectionToast";
 import useScreenWidth from "../hooks/useScreenWidth";
 import { persistedKeys } from "../impact-dashboard/EpidemicModelContext";
@@ -27,7 +26,7 @@ import AddCasesModal from "./AddCasesModal";
 import FacilityProjections from "./FacilityProjections";
 import HistoricalCasesChart from "./HistoricalCasesChart";
 import LocaleInformationSection from "./LocaleInformationSection";
-import SyncNewFacility from "./ReferenceDataModal/SyncNewFacility";
+import { useReferenceDataModal } from "./ReferenceDataModal/context/ReferenceDataModalContext";
 import { Facility, Scenario } from "./types";
 
 interface ButtonSectionProps {
@@ -137,10 +136,6 @@ interface Props {
 }
 
 const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
-  const [syncDataModalFacility, setSyncDataModalFacility] = useState<
-    string | null
-  >(null);
-  const useReferenceFacilities = useReferenceFacilitiesEligible();
   const { addToast } = useToasts();
   const {
     state: { rtData, facilities, selectedFacilityId },
@@ -167,6 +162,11 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
 
   const screenWidth = useScreenWidth();
 
+  const {
+    state: { canSyncNewFacility },
+    dispatch: dispatchReferenceDataModalUpdate,
+  } = useReferenceDataModal();
+
   const navigateHome = () => {
     deselectFacility();
     navigate("/");
@@ -192,8 +192,11 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
           systemType: systemType || null,
           modelInputs: modelUpdate,
         }).then((updatedFacility) => {
-          if (!facility?.id && useReferenceFacilities && updatedFacility) {
-            setSyncDataModalFacility(updatedFacility.id);
+          if (!facility?.id && canSyncNewFacility && updatedFacility) {
+            dispatchReferenceDataModalUpdate({
+              type: "UPDATE",
+              payload: { newFacilityIdToSync: updatedFacility.id },
+            });
           } else {
             navigateHome();
           }
@@ -320,11 +323,6 @@ const FacilityInputForm: React.FC<Props> = ({ scenarioId }) => {
           <FacilityProjections facility={facility} />
         </Column>
 
-        {/* MODAL */}
-        <SyncNewFacility
-          facilityId={syncDataModalFacility}
-          onClose={navigateHome}
-        />
         <ModalDialog
           closeModal={closeDeleteModal}
           open={showDeleteModal}

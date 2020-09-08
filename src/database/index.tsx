@@ -24,7 +24,7 @@ import {
 } from "lodash";
 import { Optional } from "utility-types";
 
-import { MMMMdyyyy } from "../constants";
+import { MMMMdyyyy, CLOUD_FUNCTION_URL_BASE } from "../constants";
 import { persistedKeys } from "../impact-dashboard/EpidemicModelContext";
 import {
   Facility,
@@ -45,19 +45,17 @@ import AppAuth0ClientPromise from "../auth/AppAuth0ClientPromise";
 import { ascending, zip } from "d3-array";
 import { validateCumulativeCases } from "../infection-model/validators";
 import { ModelInputsUpdate } from "./types";
+import { BatchWriter } from "./utils";
 
 // As long as there is just one Auth0 config, this endpoint will work with any environment (local, prod, etc.).
-const tokenExchangeEndpoint =
-  "https://us-central1-c19-backend.cloudfunctions.net/getFirebaseToken";
+const tokenExchangeEndpoint = `${CLOUD_FUNCTION_URL_BASE}/getFirebaseToken`;
 const scenariosCollectionId = "scenarios";
 const facilitiesCollectionId = "facilities";
 const modelVersionCollectionId = "modelVersions";
 const usersCollectionId = "users";
-// TODO (#521): when the datasource stabilizes, change this to the real collection
-const referenceFacilitiesCollectionId = "reference_facilities_test";
+const referenceFacilitiesCollectionId = "reference_facilities";
 const referenceFacilitiesCovidCasesCollectionId = "covidCases";
-// TODO (#521): when we switch to using the real data update this property for the scenario
-export const referenceFacilitiesProp = "testReferenceFacilities";
+export const referenceFacilitiesProp = "referenceFacilities";
 
 // Note: None of these are secrets.
 let firebaseConfig = {
@@ -122,7 +120,10 @@ const getDb = async () => {
   return firebase.firestore();
 };
 
-const buildCreatePayload = <T,>(entity: T): T => {
+const buildCreatePayload = <T,>(
+  entity: T,
+  getTimestamp = currentTimestamp,
+): T => {
   // Make sure the 'id' key doesn't exist on the entity object
   // or else Firestore won't permit the addition.
   delete (entity as any).id;
@@ -130,18 +131,20 @@ const buildCreatePayload = <T,>(entity: T): T => {
   // remove any keys that are explicitly set to undefined or Firestore will object
   const filteredEntity: any = omitBy(entity, isUndefined);
 
-  const timestamp = currentTimestamp();
   return Object.assign({}, filteredEntity, {
-    createdAt: timestamp,
-    updatedAt: timestamp,
+    createdAt: getTimestamp(),
+    updatedAt: getTimestamp(),
   });
 };
 
-const buildUpdatePayload = <T,>(entity: T): T => {
+const buildUpdatePayload = <T,>(
+  entity: T,
+  getTimestamp = currentTimestamp,
+): T => {
   // remove any keys that are explicitly set to undefined or Firestore will object
   const filteredEntity: any = omitBy(entity, isUndefined);
 
-  const timestamp = currentTimestamp();
+  const timestamp = getTimestamp();
   const payload = Object.assign({}, filteredEntity, {
     updatedAt: timestamp,
   });
@@ -248,6 +251,9 @@ export const getScenarios = async (): Promise<Scenario[]> => {
   try {
     const db = await getDb();
 
+    // if we just made a change let's make sure it's reflected here
+    await db.waitForPendingWrites();
+
     const scenarioResults = await db
       .collection(scenariosCollectionId)
       .where(`roles.${currentUserId()}`, "in", ["owner", "viewer"])
@@ -271,6 +277,62 @@ export const getScenarios = async (): Promise<Scenario[]> => {
 
     return [];
   }
+};
+
+export const getSharedBaselineScenarios = async (): Promise<Scenario[]> => {
+  try {
+    const db = await getDb();
+
+    const results = await db
+      .collection(scenariosCollectionId)
+      .where(`roles.${currentUserId()}`, "in", ["viewer"])
+      .where("baseline", "==", true)
+      .get();
+
+    const sharedBaselineScenarios = results.docs.map((doc) => {
+      return buildScenario(doc);
+    });
+
+    return sharedBaselineScenarios;
+  } catch (error) {
+    console.error(
+      `Encountered error while attempting to retrieve shared scenarios:`,
+    );
+    console.error(error);
+
+    return [];
+  }
+};
+
+export const getScenariosByStateName = async (
+  scenarios: Scenario[],
+  stateName: string,
+): Promise<Scenario[]> => {
+  const db = await getDb();
+  const results = await Promise.all(
+    scenarios.map(async (scenario: Scenario) => {
+      const facilitiesWithStateName = await db
+        .collection(scenariosCollectionId)
+        .doc(scenario.id)
+        .collection(facilitiesCollectionId)
+        .where("modelInputs.stateName", "==", stateName)
+        .get();
+      // Since some of our facilities still have stateCode properties
+      // we need to check for both query results.
+      const facilitiesWithStateCode = await db
+        .collection(scenariosCollectionId)
+        .doc(scenario.id)
+        .collection(facilitiesCollectionId)
+        .where("modelInputs.stateCode", "==", stateName)
+        .get();
+      return (
+        (facilitiesWithStateName.docs.length > 0 ||
+          facilitiesWithStateCode.docs.length > 0) &&
+        scenario
+      );
+    }),
+  );
+  return results.filter((result): result is Scenario => !!result);
 };
 
 export const saveScenario = async (scenario: any): Promise<Scenario | null> => {
@@ -430,18 +492,30 @@ export const getFacilities = async (
 
 const getUserDocument = async (
   params: { email: string } | { auth0Id: string },
-): Promise<firebase.firestore.DocumentData | never> => {
+): Promise<firebase.firestore.DocumentData | undefined> => {
   const db = await getDb();
 
   const [key, value] = Object.entries(params)[0];
 
   const userResult = await db
     .collection(usersCollectionId)
+    .orderBy("createdAt", "asc")
     .where(key, "==", value)
     .get();
 
+  // this can happen sometimes because of the way we create users from
+  // Auth0 profiles in src/auth/react-auth0-spa.tsx; we haven't been able
+  // to prevent it, but we can at least clean it up when it happens here
   if (userResult.docs.length > 1) {
-    throw new Error(`Multiple users found matching ${key} ${value}`);
+    console.warn(`Multiple users found matching ${key} ${value}`);
+    // because we ordered by createdAt, the first result is the original
+    // and we can discard the rest of them
+    userResult.docs.slice(1).forEach((doc) => {
+      if (doc.data().auth0Id === currentUserId()) {
+        console.warn(`Removing duplicate user record for ${key} ${value}`);
+        doc.ref.delete();
+      }
+    });
   }
 
   return userResult.docs[0];
@@ -538,6 +612,10 @@ export const addScenarioUser = async (
     }
 
     const userDocument = await getUserDocument({ email });
+    if (!userDocument) {
+      throw new Error(`No user found matching email address ${email}`);
+    }
+
     const auth0Id = userDocument.data().auth0Id;
     const scenario = await getScenario(scenarioId);
 
@@ -613,9 +691,9 @@ export const removeScenarioUser = async (
 const batchSetFacilityModelVersions = (
   modelVersions: ModelInputs[],
   facilityDocRef: firebase.firestore.DocumentReference,
-  batch: firebase.firestore.WriteBatch,
+  batch: firebase.firestore.WriteBatch | BatchWriter,
 ) => {
-  modelVersions.forEach((modelVersion: ModelInputs) => {
+  modelVersions.forEach((modelVersion) => {
     const modelVersionDoc = facilityDocRef
       .collection(modelVersionCollectionId)
       .doc();
@@ -831,7 +909,7 @@ export const duplicateFacility = async (
     name: `Copy of ${facility.name}`,
   });
   const db = await getDb();
-  const batch = db.batch();
+  const unlimitedBatch = new BatchWriter(db);
   const scenarioRef = await getScenarioRef(scenarioId);
   if (!scenarioRef) return;
   const facilityRef = scenarioRef.collection(facilitiesCollectionId).doc();
@@ -841,14 +919,17 @@ export const duplicateFacility = async (
       scenarioId,
       facilityId,
     });
-    batchSetFacilityModelVersions(modelVersions, facilityRef, batch);
+    batchSetFacilityModelVersions(modelVersions, facilityRef, unlimitedBatch);
 
     // Delete old facility id and set new createdAt timestamp on payload
     delete facilityCopy.id;
-    const payload = buildCreatePayload(facilityCopy);
+    const payload = buildCreatePayload(
+      facilityCopy,
+      unlimitedBatch.serverTimestamp.bind(unlimitedBatch),
+    );
 
-    batch.set(facilityRef, payload);
-    await batch.commit();
+    unlimitedBatch.set(facilityRef, payload);
+    await unlimitedBatch.commit();
 
     return await getFacility(scenarioId, facilityRef.id);
   } catch (error) {
@@ -888,31 +969,26 @@ export const deleteFacility = async (
       .collection(modelVersionCollectionId)
       .get();
 
-    const scenarioDoc = await scenarioRef.get();
-    const scenario = buildScenario(scenarioDoc);
-    const referenceFacilities = Object.assign(
-      {},
-      scenario[referenceFacilitiesProp],
-    );
-
     const db = await getDb();
-    const batch = db.batch();
+    const unlimitedBatch = new BatchWriter(db);
 
     // Remove the facility from the scenario referenceFacilities mapping
-    delete referenceFacilities[facilityId];
-    const payload = buildUpdatePayload({
-      ...scenario,
-      [referenceFacilitiesProp]: referenceFacilities,
-    });
-    batch.update(scenarioRef, payload);
+    const payload = buildUpdatePayload(
+      {
+        [`${referenceFacilitiesProp}.${facilityId}`]: unlimitedBatch.serverDelete(),
+      },
+      unlimitedBatch.serverTimestamp.bind(unlimitedBatch),
+    );
+
+    unlimitedBatch.update(scenarioRef, payload);
 
     modelVersions.docs.forEach((doc) => {
-      batch.delete(doc.ref);
+      unlimitedBatch.delete(doc.ref);
     });
 
-    batch.delete(facilityDocRef);
+    unlimitedBatch.delete(facilityDocRef);
 
-    await batch.commit();
+    await unlimitedBatch.commit();
   } catch (error) {
     console.error(
       `Encountered error while attempting to delete the facility (${facilityId}):`,
@@ -928,79 +1004,69 @@ export const deleteFacility = async (
 
 export const duplicateScenario = async (
   scenarioId: string,
-): Promise<Scenario | void> => {
-  try {
-    const scenario = await getScenario(scenarioId);
+): Promise<Scenario> => {
+  const scenario = await getScenario(scenarioId);
 
-    if (!scenario) {
-      console.error(`No scenario found for scenario: ${scenarioId}`);
-      return;
-    }
+  if (!scenario) {
+    throw new Error(`No scenario found matching ID ${scenarioId}`);
+  }
 
-    const userId = currentUserId();
-    const timestamp = currentTimestamp();
-    const db = await getDb();
-    const batch = db.batch();
+  const userId = currentUserId();
+  const db = await getDb();
+  const unlimitedBatch = new BatchWriter(db);
 
-    // Duplicate and save the Scenario
-    const scenarioDoc = db.collection(scenariosCollectionId).doc();
+  // Duplicate and save the Scenario
+  const scenarioDoc = db.collection(scenariosCollectionId).doc();
 
-    const baselinePopulationsCopy = scenario.baselinePopulations
-      ? [...scenario.baselinePopulations]
-      : [];
+  const baselinePopulationsCopy = scenario.baselinePopulations
+    ? [...scenario.baselinePopulations]
+    : [];
 
-    const referenceFacilitiesCopy = scenario[referenceFacilitiesProp]
-      ? { ...scenario[referenceFacilitiesProp] }
-      : {};
+  const referenceFacilitiesCopy = scenario[referenceFacilitiesProp]
+    ? { ...scenario[referenceFacilitiesProp] }
+    : {};
 
-    const scenarioData = Object.assign({}, SCENARIO_DEFAULTS, {
-      name: `Copy of ${scenario.name}`,
-      description: `This is a copy of the '${
-        scenario.name
-      }' scenario, made on ${format(new Date(), MMMMdyyyy)}`,
-      baselinePopulations: [...baselinePopulationsCopy],
-      [referenceFacilitiesProp]: referenceFacilitiesCopy,
-      roles: {
-        [userId]: "owner",
-      },
-      createdAt: timestamp,
-      updatedAt: timestamp,
+  const scenarioData = Object.assign({}, SCENARIO_DEFAULTS, {
+    name: `Copy of ${scenario.name}`,
+    description: `This is a copy of the '${
+      scenario.name
+    }' scenario, made on ${format(new Date(), MMMMdyyyy)}`,
+    baselinePopulations: [...baselinePopulationsCopy],
+    [referenceFacilitiesProp]: referenceFacilitiesCopy,
+    roles: {
+      [userId]: "owner",
+    },
+    createdAt: unlimitedBatch.serverTimestamp(),
+    updatedAt: unlimitedBatch.serverTimestamp(),
+  });
+
+  unlimitedBatch.set(scenarioDoc, scenarioData);
+
+  // Duplicate and save all of the Facilities
+  const facilities = await getFacilities(scenarioId);
+  for (const facility of facilities || []) {
+    const facilityCopy = Object.assign({}, facility);
+    delete facilityCopy.id;
+    delete facilityCopy.scenarioId;
+
+    const facilityDoc = scenarioDoc.collection(facilitiesCollectionId).doc();
+
+    unlimitedBatch.set(facilityDoc, facilityCopy);
+
+    // Duplicate and save all of the facility's modelVersions
+    const modelVersions = await getFacilityModelVersions({
+      scenarioId,
+      facilityId: facility.id,
     });
 
-    batch.set(scenarioDoc, scenarioData);
-
-    // Duplicate and save all of the Facilities
-    const facilities = await getFacilities(scenarioId);
-    for (const facility of facilities || []) {
-      const facilityCopy = Object.assign({}, facility);
-      delete facilityCopy.id;
-      delete facilityCopy.scenarioId;
-
-      const facilityDoc = scenarioDoc.collection(facilitiesCollectionId).doc();
-
-      batch.set(facilityDoc, facilityCopy);
-
-      // Duplicate and save all of the facility's modelVersions
-      const modelVersions = await getFacilityModelVersions({
-        scenarioId,
-        facilityId: facility.id,
-      });
-
-      batchSetFacilityModelVersions(modelVersions, facilityDoc, batch);
-    }
-
-    await batch.commit();
-
-    const duplicatedScenario = await scenarioDoc.get();
-
-    return buildScenario(duplicatedScenario);
-  } catch (error) {
-    console.error(
-      `Encountered error while attempting to duplicate scenario: ${scenarioId}`,
-    );
-    console.error(error);
-    return;
+    batchSetFacilityModelVersions(modelVersions, facilityDoc, unlimitedBatch);
   }
+
+  await unlimitedBatch.commit();
+
+  const duplicatedScenario = await scenarioDoc.get();
+
+  return buildScenario(duplicatedScenario);
 };
 
 export const deleteScenario = async (
@@ -1015,7 +1081,7 @@ export const deleteScenario = async (
     }
 
     const db = await getDb();
-    const batch = db.batch();
+    const unlimitedBatch = new BatchWriter(db);
 
     const facilities = await scenarioRef
       .collection(facilitiesCollectionId)
@@ -1027,15 +1093,15 @@ export const deleteScenario = async (
         .get();
 
       modelVersions.docs.forEach((doc) => {
-        batch.delete(doc.ref);
+        unlimitedBatch.delete(doc.ref);
       });
 
-      batch.delete(facility.ref);
+      unlimitedBatch.delete(facility.ref);
     }
 
-    batch.delete(scenarioRef);
+    unlimitedBatch.delete(scenarioRef);
 
-    await batch.commit();
+    await unlimitedBatch.commit();
   } catch (error) {
     console.error(
       `Encountered error while attempting to delete scenario: ${scenarioId}`,

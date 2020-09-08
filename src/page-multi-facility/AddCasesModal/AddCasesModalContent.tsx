@@ -100,6 +100,7 @@ export type Props = {
   updateInputs: (update: ModelInputsPopulationBrackets) => void;
   facilityModelVersions: ModelInputs[] | undefined;
   onSave: (event: React.MouseEvent<Element>) => void;
+  isReference?: boolean;
 };
 
 const AddCasesModalContent: React.FC<Props> = ({
@@ -109,6 +110,7 @@ const AddCasesModalContent: React.FC<Props> = ({
   updateInputs,
   onSave,
   facilityModelVersions,
+  isReference,
 }) => {
   const findMatchingDay = useCallback(
     ({ date }: { date: Date }) =>
@@ -196,6 +198,7 @@ const AddCasesModalContent: React.FC<Props> = ({
         collapsible={true}
         warnedAt={warnedAt}
         setWarnedAt={setWarnedAt}
+        isReference={isReference}
       />
       <HorizRule />
       <InputButton label="Save" onClick={onSave} />

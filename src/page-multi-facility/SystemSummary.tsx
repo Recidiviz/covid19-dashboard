@@ -125,14 +125,14 @@ const SystemSummary: React.FC<Props> = ({ facilities, scenarioId, rtData }) => {
         .filter(isRtData)
         .map((rtData: RtData) => rtData.Rt);
 
-      const udpatedMetrics = { ...defaultRtMetrics };
-      udpatedMetrics.facilitiesWithRtLessThan1.sum = rtStats.numFacilitiesWithRtLessThan1(
+      const updatedMetrics = { ...defaultRtMetrics };
+      updatedMetrics.facilitiesWithRtLessThan1.sum = rtStats.numFacilitiesWithRtLessThan1(
         facilitiesRtRecords,
       );
-      udpatedMetrics.facilitiesWithRtLessThan1.total =
+      updatedMetrics.facilitiesWithRtLessThan1.total =
         facilitiesRtRecords.length;
 
-      setRtMetrics(udpatedMetrics);
+      setRtMetrics(updatedMetrics);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [rtData, facilities.length],

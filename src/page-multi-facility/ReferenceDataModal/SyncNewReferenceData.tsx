@@ -1,6 +1,5 @@
-import { isEmpty } from "lodash";
-import React, { useState } from "react";
-import styled from "styled-components";
+import { invert } from "lodash";
+import React, { useEffect, useState } from "react";
 
 import { referenceFacilitiesProp } from "../../database";
 import { useFacilities } from "../../facilities-context";
@@ -15,34 +14,15 @@ import {
   TitleContainer,
   TitleText,
 } from "./shared";
-
-const Spacer = styled.span`
-  margin-right: 2em;
-`;
-
-const Title: React.FC<Pick<Props, "stateName" | "systemType">> = ({
-  stateName,
-  systemType,
-}) => (
-  <TitleContainer>
-    <TitleText>Prepopulate Data</TitleText>
-    <TitleText>
-      We've found new facility data - select a corresponding facility to
-      autofill with case data
-    </TitleText>
-    <TitleText>
-      State: {stateName}
-      <Spacer />
-      Type of System: {systemType}
-    </TitleText>
-  </TitleContainer>
-);
+import SyncReferenceFacilitiesToggle from "./shared/SyncReferenceFacilitiesToggle";
 
 interface Props {
   open: boolean;
   stateName: ModelInputs["stateName"];
   systemType: Facility["systemType"];
   onClose: () => void;
+  useExistingFacilities: boolean;
+  closeModal?: () => void;
 }
 
 const SyncNewReferenceData: React.FC<Props> = ({
@@ -50,6 +30,8 @@ const SyncNewReferenceData: React.FC<Props> = ({
   stateName,
   systemType,
   onClose,
+  useExistingFacilities,
+  closeModal,
 }) => {
   const [selections, setSelections] = useState<ReferenceFacilitySelections>({});
   const [scenarioState] = useScenario();
@@ -57,6 +39,12 @@ const SyncNewReferenceData: React.FC<Props> = ({
     state: { facilities: facilitiesMapping, referenceFacilities },
   } = useFacilities();
   const scenario = scenarioState.data;
+  const [useReferenceData, setUseReferenceData] = useState(
+    // undefined equals true because it means the user hasn't configured it yet,
+    // it's probably their first visit since the feature was activated
+    scenario?.useReferenceData === undefined || scenario.useReferenceData,
+  );
+
   const mappedReferenceFacilities = scenario?.[referenceFacilitiesProp] || {};
   const unmappedFacilities = getUnmappedFacilities(
     mappedReferenceFacilities,
@@ -67,7 +55,12 @@ const SyncNewReferenceData: React.FC<Props> = ({
     referenceFacilities,
   );
 
-  if (!open || isEmpty(unmappedReferenceFacilities)) return null;
+  useEffect(() => {
+    // set current mapping as initial selections when scenario changes
+    if (scenario) {
+      setSelections(invert(scenario[referenceFacilitiesProp]));
+    }
+  }, [scenario]);
 
   function handleChange(refFacilityId: ReferenceFacility["id"]) {
     return (facilityId: Facility["id"] | undefined) => {
@@ -84,20 +77,62 @@ const SyncNewReferenceData: React.FC<Props> = ({
     };
   }
 
+  const toggleUseReferenceData = (useReferenceDataToggle: boolean) => {
+    setUseReferenceData(useReferenceDataToggle);
+  };
+
+  const disableSelections = !useReferenceData;
+
   return (
     <ReferenceDataModal
       open={open}
       onClose={onClose}
       selections={selections}
-      title={<Title stateName={stateName} systemType={systemType} />}
-      cancelText="Not now"
+      title="Prepopulate Data"
+      cancelText={scenario?.promoStatuses.referenceData ? "Not now" : "Cancel"}
+      saveType="replace"
+      closeModal={closeModal}
+      useReferenceDataToggleValue={useReferenceData}
     >
-      <ReferenceFacilitySelect
-        facilities={unmappedFacilities}
-        referenceFacilities={unmappedReferenceFacilities}
-        selections={selections}
-        onChange={handleChange}
-      />
+      <>
+        <TitleContainer>
+          {useExistingFacilities ? (
+            <TitleText>
+              Select the facilities in your model to autofill with real-time
+              COVID-19 data. You can turn off or override prepopulated data
+              anytime.
+            </TitleText>
+          ) : (
+            <TitleText>
+              We've found new facility data - select a corresponding facility to
+              autofill with case data
+            </TitleText>
+          )}
+          <SyncReferenceFacilitiesToggle
+            stateName={stateName}
+            systemType={systemType}
+            useReferenceData={useReferenceData}
+            callback={toggleUseReferenceData}
+            hideToggle={scenario?.promoStatuses.referenceData}
+          />
+        </TitleContainer>
+        <ReferenceFacilitySelect
+          facilities={
+            useExistingFacilities
+              ? Object.values(facilitiesMapping)
+              : unmappedFacilities
+          }
+          referenceFacilities={
+            useExistingFacilities
+              ? Object.values(referenceFacilities)
+              : unmappedReferenceFacilities
+          }
+          selections={selections}
+          onChange={handleChange}
+          useExistingFacilities={useExistingFacilities}
+          disabled={disableSelections}
+        />
+      </>
     </ReferenceDataModal>
   );
 };

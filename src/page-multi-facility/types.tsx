@@ -66,7 +66,7 @@ export type PromoStatuses = {
   newModelInputs: boolean;
 };
 
-export type RtValue = RtData | RtError;
+export type RtValue = RtData | RtError | undefined;
 
 export type RtDataMapping = {
   [key in Facility["id"]]: RtValue;
@@ -112,7 +112,7 @@ export type ReferenceFacility = {
   countyName?: string;
   canonicalName: string;
   facilityType: string;
-  capacity: SimpleTimeseries[];
+  capacity?: number;
   population: SimpleTimeseries[];
   covidCases: ReferenceFacilityCovidCase[];
   createdAt: Date;

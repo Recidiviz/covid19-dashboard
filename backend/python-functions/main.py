@@ -3,7 +3,7 @@ from collections import defaultdict
 from helpers import cloudfunction
 from schemas import rt_input, rt_output
 from realtime_rt import compute_r_t
-from data_ingest import ingest_daily_covid_case_data
+from data_ingest import ingest_daily_covid_case_data, ingest_facility_metadata_file
 
 @cloudfunction(
     in_schema=rt_input,
@@ -34,3 +34,12 @@ def ingest_covid_case_data(event, _context):
         c19-backend-covid-case-data bucket.
     """
     ingest_daily_covid_case_data(event['bucket'], event['name'])
+
+
+def ingest_facility_metadata(event, _context):
+    """
+        Ingests facility metadata. This function is triggered when a new
+        CSV file containing facility metadata is placed into the
+        c19-backend-facility-metadata bucket.
+    """
+    ingest_facility_metadata_file(event['bucket'], event['name'])

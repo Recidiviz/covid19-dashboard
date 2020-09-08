@@ -32,6 +32,7 @@ interface Props {
   systemType: Facility["systemType"];
   useReferenceData?: boolean;
   callback: (useReferenceData: boolean) => void;
+  hideToggle?: boolean;
 }
 
 const SyncReferenceFacilitiesToggle: React.FC<Props> = ({
@@ -39,6 +40,7 @@ const SyncReferenceFacilitiesToggle: React.FC<Props> = ({
   systemType,
   useReferenceData,
   callback,
+  hideToggle,
 }) => {
   const [toggled, setToggled] = useState(
     useReferenceData === undefined || useReferenceData,
@@ -59,7 +61,7 @@ const SyncReferenceFacilitiesToggle: React.FC<Props> = ({
           Type of System: {systemType}
         </SyncReferenceFacilitiesToggleLabel>
       </SyncReferenceFacilitiesToggleLabels>
-      <InputToggle toggled={toggled} onChange={onToggle} />
+      {!hideToggle && <InputToggle toggled={toggled} onChange={onToggle} />}
     </SyncReferenceFacilitiesToggleContainer>
   );
 };

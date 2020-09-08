@@ -5,8 +5,10 @@ import {
   saveFacility,
 } from "../../database";
 import { Facilities, Facility } from "../../page-multi-facility/types";
-import { FacilitiesDispatch, FacilityMapping } from "../FacilitiesContext";
+import { FacilitiesDispatch } from "../FacilitiesContext";
+import { FacilityMapping } from "../types";
 
+export const CLEAR_FACILITIES = "CLEAR_FACILITIES";
 export const REQUEST_FACILITIES = "REQUEST_FACILITIES";
 export const RECEIVE_FACILITIES = "RECEIVE_FACILITIES";
 export const RECEIVE_FACILITIES_ERROR = "RECEIVE_FACILITIES_ERROR";
