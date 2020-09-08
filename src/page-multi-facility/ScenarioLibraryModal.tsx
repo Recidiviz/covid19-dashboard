@@ -314,9 +314,11 @@ const ScenarioLibraryModal: React.FC<Props> = ({ trigger }) => {
       loading: true,
     });
 
-    duplicateScenario(scenarioId).then(() => {
-      fetchScenarios();
-    });
+    rejectionToast(
+      duplicateScenario(scenarioId).then(() => {
+        fetchScenarios();
+      }),
+    );
   };
 
   const changeScenario = (scenario: Scenario) => {

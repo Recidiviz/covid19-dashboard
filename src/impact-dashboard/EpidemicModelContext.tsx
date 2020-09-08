@@ -1,6 +1,6 @@
 import { sum } from "d3";
 import { pick } from "lodash";
-import React from "react";
+import React, { useEffect } from "react";
 
 import { LocaleData } from "../locale-data-context";
 import { Facility, ModelInputs } from "../page-multi-facility/types";
@@ -85,7 +85,9 @@ export const recoveredBracketKeys: Array<
   "staffRecovered",
 ];
 
-export const deathBracketKeys: Array<keyof ModelInputsPopulationBrackets> = [
+export const incarceratedDeathsKeys: Array<
+  keyof ModelInputsPopulationBrackets
+> = [
   "age0Deaths",
   "age20Deaths",
   "age45Deaths",
@@ -94,7 +96,13 @@ export const deathBracketKeys: Array<keyof ModelInputsPopulationBrackets> = [
   "age75Deaths",
   "age85Deaths",
   "ageUnknownDeaths",
-  "staffDeaths",
+];
+
+export const staffDeathsKey = "staffDeaths";
+
+export const deathBracketKeys: Array<keyof ModelInputsPopulationBrackets> = [
+  ...incarceratedDeathsKeys,
+  staffDeathsKey,
 ];
 
 interface ModelInputsPersistent extends ModelInputsPopulationBrackets {
@@ -105,6 +113,7 @@ interface ModelInputsPersistent extends ModelInputsPopulationBrackets {
   rateOfSpreadFactor?: RateOfSpread;
   observedAt?: Date;
   updatedAt?: Date;
+  isReference?: boolean;
 }
 
 interface ModelInputsUpdate extends ModelInputsPersistent {
@@ -223,6 +232,7 @@ export function getLocaleDefaults(
   dataSource: LocaleData,
   stateName = "US Total",
   countyName = "Total",
+  rateOfSpreadFactor = RateOfSpread.high,
 ) {
   return {
     // metadata
@@ -244,7 +254,7 @@ export function getLocaleDefaults(
     totalJailPopulation:
       dataSource.get(stateName)?.get(countyName)?.totalJailPopulation || 0,
     // user input defaults
-    rateOfSpreadFactor: RateOfSpread.high,
+    rateOfSpreadFactor,
     facilityDormitoryPct: 0.15,
     populationTurnover: 0,
   };
@@ -271,9 +281,11 @@ function epidemicModelReducer(
         stateName = state.stateName;
       }
       if (stateName && countyName) {
-        return getLocaleDefaults(state.localeDataSource, stateName, countyName);
+        return {
+          ...getLocaleDefaults(state.localeDataSource, stateName, countyName),
+          ...updates,
+        };
       }
-
       return Object.assign({}, state, updates);
   }
 }
@@ -296,6 +308,12 @@ export function EpidemicModelProvider({
     epidemicModelReducer,
     initialState,
   );
+
+  useEffect(() => {
+    if (facilityModel) {
+      dispatch({ type: "update", payload: facilityModel });
+    }
+  }, [facilityModel]);
 
   return (
     <EpidemicModelStateContext.Provider value={state}>
@@ -344,12 +362,15 @@ const incarceratedCasesKeys: (keyof ModelInputsPopulationBrackets)[] = [
   "age85Cases",
   "ageUnknownCases",
 ];
+
+const staffCasesKey = "staffCases";
+
 const casesKeys: (keyof ModelInputsPopulationBrackets)[] = [
   ...incarceratedCasesKeys,
-  "staffCases",
+  staffCasesKey,
 ];
 
-const incarceratedPopulationKeys: (keyof ModelInputsPopulationBrackets)[] = [
+export const incarceratedPopulationKeys: (keyof ModelInputsPopulationBrackets)[] = [
   "age0Population",
   "age20Population",
   "age45Population",
@@ -360,7 +381,7 @@ const incarceratedPopulationKeys: (keyof ModelInputsPopulationBrackets)[] = [
   "ageUnknownPopulation",
 ];
 
-const populationKeys: (keyof ModelInputsPopulationBrackets)[] = [
+export const populationKeys: (keyof ModelInputsPopulationBrackets)[] = [
   ...incarceratedPopulationKeys,
   "staffPopulation",
 ];
@@ -383,10 +404,28 @@ export function totalConfirmedDeaths(
   return sum(Object.values(pick(brackets, deathBracketKeys)));
 }
 
+export function totalStaffConfirmedDeaths(
+  brackets: ModelInputsPopulationBrackets,
+): number {
+  return sum(Object.values(pick(brackets, staffDeathsKey)));
+}
+
+export function totalIncarceratedConfirmedDeaths(
+  brackets: ModelInputsPopulationBrackets,
+): number {
+  return sum(Object.values(pick(brackets, incarceratedDeathsKeys)));
+}
+
 export function totalIncarceratedConfirmedCases(
   brackets: ModelInputsPopulationBrackets,
 ): number {
   return sum(Object.values(pick(brackets, incarceratedCasesKeys)));
+}
+
+export function totalStaffConfirmedCases(
+  brackets: ModelInputsPopulationBrackets,
+): number {
+  return sum(Object.values(pick(brackets, staffCasesKey)));
 }
 
 export function totalIncarceratedPopulation(

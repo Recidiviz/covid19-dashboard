@@ -2,10 +2,10 @@ import React from "react";
 import styled from "styled-components";
 
 import Loading from "../design-system/Loading";
+import { useFacilities } from "../facilities-context";
 import { EpidemicModelProvider } from "../impact-dashboard/EpidemicModelContext";
 import { getFacilitiesRtDataById } from "../infection-model/rt";
-import { LocaleData } from "../locale-data-context";
-import { Facilities, RtDataMapping } from "../page-multi-facility/types";
+import { useLocaleDataState } from "../locale-data-context";
 import FacilityPage from "./FacilityPage";
 
 const FacilitySummariesContainer = styled.div`
@@ -17,19 +17,12 @@ const FacilityRow = styled.div`
   padding: 20px 0;
 `;
 
-interface Props {
-  localeData: LocaleData;
-  loading: boolean;
-  rtData: RtDataMapping;
-  facilities: Facilities;
-}
-
-const FacilitySummaries: React.FC<Props> = ({
-  localeData,
-  loading,
-  rtData,
-  facilities,
-}) => {
+const FacilitySummaries: React.FC = () => {
+  const localeState = useLocaleDataState();
+  const {
+    state: { loading, facilities: facilitiesState, rtData },
+  } = useFacilities();
+  const facilities = Object.values(facilitiesState);
   const facilitiesRtData = getFacilitiesRtDataById(rtData, facilities);
   return (
     <FacilitySummariesContainer>
@@ -40,7 +33,7 @@ const FacilitySummaries: React.FC<Props> = ({
           <FacilityRow key={facility.id}>
             <EpidemicModelProvider
               facilityModel={facility.modelInputs}
-              localeDataSource={localeData}
+              localeDataSource={localeState.data}
             >
               <FacilityPage
                 facility={facility}

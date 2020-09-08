@@ -71,7 +71,6 @@ function getCapacityFunc({
   // (because they change less frequently and are not part of reference covid records)
   const capacityByDate: SimpleTimeseries[] = orderBy(
     [
-      ...referenceFacility.capacity,
       ...userVersions.filter(hasCapacity).map((version) => ({
         date: version.observedAt,
         // this is a safe assertion because we filtered out undefined values above,
@@ -81,7 +80,14 @@ function getCapacityFunc({
     ],
     ["date"],
   );
-
+  // if there is absolutely no user capacity data, the reference value
+  // (unversioned) can be used as a fallback
+  if (capacityByDate.length === 0 && referenceFacility.capacity) {
+    capacityByDate.push({
+      date: new Date(),
+      value: referenceFacility.capacity,
+    });
+  }
   return getDateThresholdFunc(capacityByDate);
 }
 
@@ -106,7 +112,7 @@ function mergeModelVersions({
   userVersions,
   referenceFacility,
 }: Optional<MergedHistoryInputs, "referenceFacility">): ModelInputs[] {
-  const combinedVersions: ModelInputs[] = [...userVersions];
+  const combinedVersions: ModelInputs[] = [...userVersions.filter(hasCases)];
   let { stateName, countyName } = combinedVersions.length
     ? (last(combinedVersions) as ModelInputs)
     : ({} as ModelInputs);
@@ -130,7 +136,7 @@ function mergeModelVersions({
     // fill any gaps with reference records:
     // don't overwrite any user records with actual data
     referenceFacility.covidCases.forEach(
-      ({ observedAt, popTestedPositive, staffTestedPositive }) => {
+      ({ observedAt, popDeaths, popTestedPositive, staffTestedPositive }) => {
         const existingRecord = combinedVersions.find((v) =>
           isSameDay(v.observedAt, observedAt),
         );
@@ -155,6 +161,7 @@ function mergeModelVersions({
         const newRecord = {
           isReference: true,
           observedAt,
+          ageUnknownDeaths: popDeaths || 0,
           ageUnknownCases: popTestedPositive,
           ageUnknownPopulation: populationForDate(observedAt),
           facilityCapacity: capacityForDate(observedAt),

@@ -1,3 +1,4 @@
+import { navigate } from "gatsby";
 import { findKey, isEmpty } from "lodash";
 import React, { useState } from "react";
 
@@ -24,7 +25,7 @@ const Title = (
 );
 
 interface Props {
-  facilityId: string | null;
+  facilityId?: string;
   onClose: () => void;
 }
 
@@ -42,7 +43,13 @@ const SyncNewFacility: React.FC<Props> = ({ facilityId, onClose }) => {
     mappedReferenceFacilities,
     referenceFacilities,
   );
-  if (!facilityId || isEmpty(unmappedReferenceFacilities)) return null;
+
+  if (!facilityId) {
+    return null;
+  } else if (facilityId && isEmpty(unmappedReferenceFacilities)) {
+    navigate("/");
+    return null;
+  }
 
   return (
     <ReferenceDataModal
@@ -51,6 +58,7 @@ const SyncNewFacility: React.FC<Props> = ({ facilityId, onClose }) => {
       selections={selections}
       title={Title}
       cancelText="Don't prepopulate this facility"
+      saveType="update"
     >
       <ReferenceFacilityList
         referenceFacilities={unmappedReferenceFacilities}

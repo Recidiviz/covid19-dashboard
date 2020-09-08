@@ -63,6 +63,10 @@ export function isRtError(data: any): data is RtError {
   return has(data, "error");
 }
 
+export function getLatestRtValue(data: RtData | RtError | undefined) {
+  return isRtData(data) ? data.Rt[data.Rt.length - 1].value : null;
+}
+
 const getFetchUrl = () => {
   let url = "https://us-central1-c19-backend.cloudfunctions.net/calculate_rt";
   if (process.env.NODE_ENV !== "production") {
@@ -145,6 +149,18 @@ export const getDaysAgoRt = (rtRecords: RtRecord[], daysAgo: number) => {
   return maxBy(
     rtRecords.filter(
       (record) => differenceInCalendarDays(today, record.date) >= daysAgo,
+    ),
+    "date",
+  );
+};
+
+export const getPrevWeekRt = (rtRecords: RtRecord[]) => {
+  const today = new Date();
+  return maxBy(
+    rtRecords.filter(
+      (record) =>
+        differenceInCalendarDays(today, record.date) >= 7 &&
+        record.date != today,
     ),
     "date",
   );

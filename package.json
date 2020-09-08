@@ -67,7 +67,7 @@
     "hex-alpha": "^1.0.2",
     "husky": "^4.2.3",
     "lint-staged": "^10.0.9",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "map-obj": "^4.1.0",
     "ndarray": "^1.0.19",
     "npm-run-all": "^4.1.5",
@@ -107,7 +107,7 @@
     "!(*.d).ts": [
       "false -- Please use .tsx instead of .ts!"
     ],
-    "*/**/*.js": [
+    "src/**/*.js": [
       "false -- Please use .tsx with `// @ts-nocheck` instead of .js!"
     ],
     "*.{html,json,md,webmanifest}": [

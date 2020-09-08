@@ -1,5 +1,5 @@
 import { zip } from "d3-array";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 
 import { EpidemicModelInputs } from "../impact-dashboard/EpidemicModelContext";
 import {
@@ -47,13 +47,12 @@ export const useProjectionData = (
     }
   }
 
-  const [curves, updateCurves] = useState(
-    getCurves(input, useRt, latestRt, numDays),
-  );
-
-  useEffect(() => {
-    updateCurves(getCurves(input, useRt, latestRt, numDays));
-  }, [input, latestRt, useRt, numDays]);
+  const curves = useMemo(() => getCurves(input, useRt, latestRt, numDays), [
+    input,
+    latestRt,
+    useRt,
+    numDays,
+  ]);
 
   return curves;
 };
@@ -87,10 +86,9 @@ function buildCurves(projectionData?: CurveData): CurveDataMapping | undefined {
 }
 
 export const useChartDataFromProjectionData = (projectionData?: CurveData) => {
-  const [curveData, updateCurveData] = useState(buildCurves(projectionData));
-  useEffect(() => {
-    updateCurveData(buildCurves(projectionData));
-  }, [projectionData]);
+  const curveData = useMemo(() => buildCurves(projectionData), [
+    projectionData,
+  ]);
 
   return curveData;
 };

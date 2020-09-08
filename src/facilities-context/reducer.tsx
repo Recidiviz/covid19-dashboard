@@ -7,13 +7,15 @@ export function facilitiesReducer(
 ): FacilitiesState {
   switch (action.type) {
     case actions.REQUEST_FACILITIES:
-      return Object.assign({}, state, { loading: true });
+      return Object.assign({}, state, {
+        loading: true,
+      });
 
     case actions.RECEIVE_FACILITIES:
       return Object.assign({}, state, {
         loading: false,
         failed: false,
-        facilities: action.payload,
+        facilities: { ...state.facilities, ...action.payload },
       });
 
     case actions.RECEIVE_FACILITIES_ERROR:
@@ -21,6 +23,7 @@ export function facilitiesReducer(
         loading: false,
         failed: true,
         facilities: {},
+        canUseReferenceData: false,
       });
 
     case actions.CREATE_OR_UPDATE_FACILITY: {
@@ -44,6 +47,13 @@ export function facilitiesReducer(
       });
     }
 
+    case actions.REQUEST_RT_DATA:
+      const requestedFacility = action.payload;
+      return {
+        ...state,
+        rtData: { ...state.rtData, [requestedFacility]: undefined },
+      };
+
     case actions.UPDATE_FACILITY_RT_DATA:
       return Object.assign({}, state, {
         rtData: { ...state.rtData, ...action.payload },
@@ -61,6 +71,15 @@ export function facilitiesReducer(
 
     case actions.CLEAR_REFERENCE_FACILITIES:
       return { ...state, referenceFacilities: {} };
+
+    case actions.CLEAR_FACILITIES:
+      return { ...state, facilities: {} };
+
+    case actions.CAN_USE_REFERENCE_DATA:
+      return { ...state, canUseReferenceData: action.payload };
+
+    case actions.REFERENCE_DATA_FEATURE_AVAILABLE:
+      return { ...state, referenceDataFeatureAvailable: action.payload };
 
     default:
       return state;

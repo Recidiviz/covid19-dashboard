@@ -4,11 +4,17 @@ import styled from "styled-components";
 import Colors from "../../../design-system/Colors";
 import InputSelect from "../../../design-system/InputSelect";
 import { Facilities, Facility, ReferenceFacility } from "../../types";
-import { ReferenceFacilitySelections } from ".";
+import {
+  ADD_NEW_FACILITY,
+  ReferenceFacilitySelections,
+  SKIP,
+  SubheadingContainer,
+  SubheadingText,
+} from ".";
 
 const Row = styled.div`
   border-bottom: 1px solid ${Colors.paleJade20};
-  color: ${Colors.forest}
+  color: ${Colors.forest};
   cursor: pointer;
   display: flex;
   flex-flow: row nowrap;
@@ -25,7 +31,16 @@ const FacilitySelectContainer = styled.div`
 `;
 
 const FacilityName = styled.div`
+  margin-top: 10px;
   flex: 1 1;
+`;
+
+const ReferenceFacilitySelectWrapper = styled.div`
+  transition: opacity 250ms ease-in-out;
+
+  &.disabled {
+    opacity: 0.5;
+  }
 `;
 
 interface FacilitiesSelectProps {
@@ -33,6 +48,7 @@ interface FacilitiesSelectProps {
   selections: ReferenceFacilitySelections;
   facilities: Facilities;
   onChange: (facilityId: Facility["id"] | undefined) => void;
+  disabled?: boolean;
 }
 
 const FacilitiesSelect: React.FC<FacilitiesSelectProps> = ({
@@ -40,6 +56,7 @@ const FacilitiesSelect: React.FC<FacilitiesSelectProps> = ({
   value,
   facilities,
   onChange,
+  disabled,
 }) => {
   const disabledOption = (facilityId: Facility["id"]) =>
     Object.values(selections).includes(facilityId);
@@ -47,13 +64,18 @@ const FacilitiesSelect: React.FC<FacilitiesSelectProps> = ({
   return (
     <FacilitySelectContainer>
       <InputSelect
+        disabled={disabled}
         onChange={(event) => {
           const value = event.target.value;
           onChange(value === "" ? undefined : value);
         }}
         value={value || ""}
       >
-        <option value={""}>Select a facility</option>
+        <option value="" disabled hidden>
+          Select a facility
+        </option>
+        <option value={SKIP}>Don't autofill this facility</option>
+        <option value={ADD_NEW_FACILITY}>Add as a new facility</option>
         {facilities.map((facility: Facility) => {
           return (
             <option
@@ -77,6 +99,8 @@ interface ReferenceFacilitySelectProps {
     id: ReferenceFacility["id"],
   ) => (facilityId: Facility["id"] | undefined) => void;
   selections: ReferenceFacilitySelections;
+  useExistingFacilities: boolean;
+  disabled?: boolean;
 }
 
 export const ReferenceFacilitySelect: React.FC<ReferenceFacilitySelectProps> = ({
@@ -84,14 +108,25 @@ export const ReferenceFacilitySelect: React.FC<ReferenceFacilitySelectProps> = (
   facilities,
   selections,
   onChange,
+  useExistingFacilities,
+  disabled,
 }) => {
   return (
-    <>
+    <ReferenceFacilitySelectWrapper className={disabled ? "disabled" : ""}>
+      {useExistingFacilities && (
+        <SubheadingContainer>
+          <SubheadingText>
+            Facilities with available prepopulated data
+          </SubheadingText>
+          <SubheadingText>Your facilities</SubheadingText>
+        </SubheadingContainer>
+      )}
       {referenceFacilities.map((refFacility) => {
         return (
           <Row key={refFacility.id}>
             <FacilityName>{refFacility.canonicalName}</FacilityName>
             <FacilitiesSelect
+              disabled={disabled}
               selections={selections}
               facilities={facilities}
               value={selections[refFacility.id]}
@@ -100,6 +135,6 @@ export const ReferenceFacilitySelect: React.FC<ReferenceFacilitySelectProps> = (
           </Row>
         );
       })}
-    </>
+    </ReferenceFacilitySelectWrapper>
   );
 };

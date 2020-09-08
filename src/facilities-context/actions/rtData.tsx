@@ -8,7 +8,7 @@ export const UPDATE_FACILITY_RT_DATA = "UPDATE_FACILITY_RT_DATA";
 
 export function fetchFacilityRtData(dispatch: FacilitiesDispatch) {
   return async (facility: Facility) => {
-    dispatch({ type: REQUEST_RT_DATA });
+    dispatch({ type: REQUEST_RT_DATA, payload: facility.id });
     try {
       const facilityRtData = await getRtDataForFacility(facility);
       dispatch({
