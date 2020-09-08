@@ -286,7 +286,6 @@ function epidemicModelReducer(
           ...updates,
         };
       }
-
       return Object.assign({}, state, updates);
   }
 }
