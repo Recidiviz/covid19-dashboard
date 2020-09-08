@@ -55,8 +55,6 @@ const Tooltip: React.FC<TooltipProps> = ({
   date,
   parentLine: { title },
 }) => {
-  const displayDate = add(new Date(), { days });
-
   return (
     <ChartTooltip>
       <TooltipTitle>{title}</TooltipTitle>

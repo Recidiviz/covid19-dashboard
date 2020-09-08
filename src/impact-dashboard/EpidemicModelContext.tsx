@@ -286,9 +286,6 @@ function epidemicModelReducer(
           ...updates,
         };
       }
-      if (stateName && countyName) {
-        return getLocaleDefaults(state.localeDataSource, stateName, countyName);
-      }
 
       return Object.assign({}, state, updates);
   }
