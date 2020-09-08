@@ -45,6 +45,7 @@ import AppAuth0ClientPromise from "../auth/AppAuth0ClientPromise";
 import { ascending, zip } from "d3-array";
 import { validateCumulativeCases } from "../infection-model/validators";
 import { ModelInputsUpdate } from "./types";
+import { BatchWriter } from "./utils";
 
 // As long as there is just one Auth0 config, this endpoint will work with any environment (local, prod, etc.).
 const tokenExchangeEndpoint = `${CLOUD_FUNCTION_URL_BASE}/getFirebaseToken`;
@@ -119,7 +120,10 @@ const getDb = async () => {
   return firebase.firestore();
 };
 
-const buildCreatePayload = <T,>(entity: T): T => {
+const buildCreatePayload = <T,>(
+  entity: T,
+  getTimestamp = currentTimestamp,
+): T => {
   // Make sure the 'id' key doesn't exist on the entity object
   // or else Firestore won't permit the addition.
   delete (entity as any).id;
@@ -127,18 +131,20 @@ const buildCreatePayload = <T,>(entity: T): T => {
   // remove any keys that are explicitly set to undefined or Firestore will object
   const filteredEntity: any = omitBy(entity, isUndefined);
 
-  const timestamp = currentTimestamp();
   return Object.assign({}, filteredEntity, {
-    createdAt: timestamp,
-    updatedAt: timestamp,
+    createdAt: getTimestamp(),
+    updatedAt: getTimestamp(),
   });
 };
 
-const buildUpdatePayload = <T,>(entity: T): T => {
+const buildUpdatePayload = <T,>(
+  entity: T,
+  getTimestamp = currentTimestamp,
+): T => {
   // remove any keys that are explicitly set to undefined or Firestore will object
   const filteredEntity: any = omitBy(entity, isUndefined);
 
-  const timestamp = currentTimestamp();
+  const timestamp = getTimestamp();
   const payload = Object.assign({}, filteredEntity, {
     updatedAt: timestamp,
   });
@@ -244,6 +250,9 @@ export const getScenario = async (
 export const getScenarios = async (): Promise<Scenario[]> => {
   try {
     const db = await getDb();
+
+    // if we just made a change let's make sure it's reflected here
+    await db.waitForPendingWrites();
 
     const scenarioResults = await db
       .collection(scenariosCollectionId)
@@ -682,9 +691,9 @@ export const removeScenarioUser = async (
 const batchSetFacilityModelVersions = (
   modelVersions: ModelInputs[],
   facilityDocRef: firebase.firestore.DocumentReference,
-  batch: firebase.firestore.WriteBatch,
+  batch: firebase.firestore.WriteBatch | BatchWriter,
 ) => {
-  modelVersions.forEach((modelVersion: ModelInputs) => {
+  modelVersions.forEach((modelVersion) => {
     const modelVersionDoc = facilityDocRef
       .collection(modelVersionCollectionId)
       .doc();
@@ -900,7 +909,7 @@ export const duplicateFacility = async (
     name: `Copy of ${facility.name}`,
   });
   const db = await getDb();
-  const batch = db.batch();
+  const unlimitedBatch = new BatchWriter(db);
   const scenarioRef = await getScenarioRef(scenarioId);
   if (!scenarioRef) return;
   const facilityRef = scenarioRef.collection(facilitiesCollectionId).doc();
@@ -910,14 +919,17 @@ export const duplicateFacility = async (
       scenarioId,
       facilityId,
     });
-    batchSetFacilityModelVersions(modelVersions, facilityRef, batch);
+    batchSetFacilityModelVersions(modelVersions, facilityRef, unlimitedBatch);
 
     // Delete old facility id and set new createdAt timestamp on payload
     delete facilityCopy.id;
-    const payload = buildCreatePayload(facilityCopy);
+    const payload = buildCreatePayload(
+      facilityCopy,
+      unlimitedBatch.serverTimestamp.bind(unlimitedBatch),
+    );
 
-    batch.set(facilityRef, payload);
-    await batch.commit();
+    unlimitedBatch.set(facilityRef, payload);
+    await unlimitedBatch.commit();
 
     return await getFacility(scenarioId, facilityRef.id);
   } catch (error) {
@@ -958,22 +970,25 @@ export const deleteFacility = async (
       .get();
 
     const db = await getDb();
-    const batch = db.batch();
+    const unlimitedBatch = new BatchWriter(db);
 
     // Remove the facility from the scenario referenceFacilities mapping
-    const payload = buildUpdatePayload({
-      [`${referenceFacilitiesProp}.${facilityId}`]: firebase.firestore.FieldValue.delete(),
-    });
+    const payload = buildUpdatePayload(
+      {
+        [`${referenceFacilitiesProp}.${facilityId}`]: unlimitedBatch.serverDelete(),
+      },
+      unlimitedBatch.serverTimestamp.bind(unlimitedBatch),
+    );
 
-    batch.update(scenarioRef, payload);
+    unlimitedBatch.update(scenarioRef, payload);
 
     modelVersions.docs.forEach((doc) => {
-      batch.delete(doc.ref);
+      unlimitedBatch.delete(doc.ref);
     });
 
-    batch.delete(facilityDocRef);
+    unlimitedBatch.delete(facilityDocRef);
 
-    await batch.commit();
+    await unlimitedBatch.commit();
   } catch (error) {
     console.error(
       `Encountered error while attempting to delete the facility (${facilityId}):`,
@@ -989,79 +1004,69 @@ export const deleteFacility = async (
 
 export const duplicateScenario = async (
   scenarioId: string,
-): Promise<Scenario | void> => {
-  try {
-    const scenario = await getScenario(scenarioId);
+): Promise<Scenario> => {
+  const scenario = await getScenario(scenarioId);
 
-    if (!scenario) {
-      console.error(`No scenario found for scenario: ${scenarioId}`);
-      return;
-    }
+  if (!scenario) {
+    throw new Error(`No scenario found matching ID ${scenarioId}`);
+  }
 
-    const userId = currentUserId();
-    const timestamp = currentTimestamp();
-    const db = await getDb();
-    const batch = db.batch();
+  const userId = currentUserId();
+  const db = await getDb();
+  const unlimitedBatch = new BatchWriter(db);
 
-    // Duplicate and save the Scenario
-    const scenarioDoc = db.collection(scenariosCollectionId).doc();
+  // Duplicate and save the Scenario
+  const scenarioDoc = db.collection(scenariosCollectionId).doc();
 
-    const baselinePopulationsCopy = scenario.baselinePopulations
-      ? [...scenario.baselinePopulations]
-      : [];
+  const baselinePopulationsCopy = scenario.baselinePopulations
+    ? [...scenario.baselinePopulations]
+    : [];
 
-    const referenceFacilitiesCopy = scenario[referenceFacilitiesProp]
-      ? { ...scenario[referenceFacilitiesProp] }
-      : {};
+  const referenceFacilitiesCopy = scenario[referenceFacilitiesProp]
+    ? { ...scenario[referenceFacilitiesProp] }
+    : {};
 
-    const scenarioData = Object.assign({}, SCENARIO_DEFAULTS, {
-      name: `Copy of ${scenario.name}`,
-      description: `This is a copy of the '${
-        scenario.name
-      }' scenario, made on ${format(new Date(), MMMMdyyyy)}`,
-      baselinePopulations: [...baselinePopulationsCopy],
-      [referenceFacilitiesProp]: referenceFacilitiesCopy,
-      roles: {
-        [userId]: "owner",
-      },
-      createdAt: timestamp,
-      updatedAt: timestamp,
+  const scenarioData = Object.assign({}, SCENARIO_DEFAULTS, {
+    name: `Copy of ${scenario.name}`,
+    description: `This is a copy of the '${
+      scenario.name
+    }' scenario, made on ${format(new Date(), MMMMdyyyy)}`,
+    baselinePopulations: [...baselinePopulationsCopy],
+    [referenceFacilitiesProp]: referenceFacilitiesCopy,
+    roles: {
+      [userId]: "owner",
+    },
+    createdAt: unlimitedBatch.serverTimestamp(),
+    updatedAt: unlimitedBatch.serverTimestamp(),
+  });
+
+  unlimitedBatch.set(scenarioDoc, scenarioData);
+
+  // Duplicate and save all of the Facilities
+  const facilities = await getFacilities(scenarioId);
+  for (const facility of facilities || []) {
+    const facilityCopy = Object.assign({}, facility);
+    delete facilityCopy.id;
+    delete facilityCopy.scenarioId;
+
+    const facilityDoc = scenarioDoc.collection(facilitiesCollectionId).doc();
+
+    unlimitedBatch.set(facilityDoc, facilityCopy);
+
+    // Duplicate and save all of the facility's modelVersions
+    const modelVersions = await getFacilityModelVersions({
+      scenarioId,
+      facilityId: facility.id,
     });
 
-    batch.set(scenarioDoc, scenarioData);
-
-    // Duplicate and save all of the Facilities
-    const facilities = await getFacilities(scenarioId);
-    for (const facility of facilities || []) {
-      const facilityCopy = Object.assign({}, facility);
-      delete facilityCopy.id;
-      delete facilityCopy.scenarioId;
-
-      const facilityDoc = scenarioDoc.collection(facilitiesCollectionId).doc();
-
-      batch.set(facilityDoc, facilityCopy);
-
-      // Duplicate and save all of the facility's modelVersions
-      const modelVersions = await getFacilityModelVersions({
-        scenarioId,
-        facilityId: facility.id,
-      });
-
-      batchSetFacilityModelVersions(modelVersions, facilityDoc, batch);
-    }
-
-    await batch.commit();
-
-    const duplicatedScenario = await scenarioDoc.get();
-
-    return buildScenario(duplicatedScenario);
-  } catch (error) {
-    console.error(
-      `Encountered error while attempting to duplicate scenario: ${scenarioId}`,
-    );
-    console.error(error);
-    return;
+    batchSetFacilityModelVersions(modelVersions, facilityDoc, unlimitedBatch);
   }
+
+  await unlimitedBatch.commit();
+
+  const duplicatedScenario = await scenarioDoc.get();
+
+  return buildScenario(duplicatedScenario);
 };
 
 export const deleteScenario = async (
@@ -1076,7 +1081,7 @@ export const deleteScenario = async (
     }
 
     const db = await getDb();
-    const batch = db.batch();
+    const unlimitedBatch = new BatchWriter(db);
 
     const facilities = await scenarioRef
       .collection(facilitiesCollectionId)
@@ -1088,15 +1093,15 @@ export const deleteScenario = async (
         .get();
 
       modelVersions.docs.forEach((doc) => {
-        batch.delete(doc.ref);
+        unlimitedBatch.delete(doc.ref);
       });
 
-      batch.delete(facility.ref);
+      unlimitedBatch.delete(facility.ref);
     }
 
-    batch.delete(scenarioRef);
+    unlimitedBatch.delete(scenarioRef);
 
-    await batch.commit();
+    await unlimitedBatch.commit();
   } catch (error) {
     console.error(
       `Encountered error while attempting to delete scenario: ${scenarioId}`,

@@ -9,6 +9,7 @@ import iconRecidivizSrc from "../design-system/icons/ic_recidiviz_color.svg";
 import Loading from "../design-system/Loading";
 import ModalDialog from "../design-system/ModalDialog";
 import useReadOnlyMode from "../hooks/useReadOnlyMode";
+import useRejectionToast from "../hooks/useRejectionToast";
 import { Scenario } from "./types";
 
 interface BannerProps {
@@ -64,15 +65,18 @@ const ReadOnlyScenarioBanner: React.FC<Props> = (props) => {
   const { scenario, dispatchScenarioUpdate } = props;
   const readOnlyMode = useReadOnlyMode(scenario);
   const [modalOpen, setModalOpen] = useState(false);
+  const rejectionToast = useRejectionToast();
 
   const duplicate = (scenarioId: string) => {
     setModalOpen(true);
-    duplicateScenario(scenarioId)
-      .then((scenario) => {
-        setModalOpen(false);
-        dispatchScenarioUpdate(scenario);
-      })
-      .then(() => navigate("/"));
+    rejectionToast(
+      duplicateScenario(scenarioId)
+        .then((scenario) => {
+          setModalOpen(false);
+          dispatchScenarioUpdate(scenario);
+        })
+        .then(() => navigate("/")),
+    );
   };
 
   return (
