@@ -1,3 +1,4 @@
+import datetime
 from flask import json
 import logging
 from unittest import TestCase
@@ -90,7 +91,7 @@ class TestCalculateRt(TestCase):
         self.assertIn('error', resp)
 
         # make sure it doesn't get confused by dates being out of order
-        data = data = {
+        data = {
             # here the values decrease but not when sorted in date order
             'dates': ['2020-04-15', '2020-04-18', '2020-04-12', '2020-04-19'],
             'cases': [50, 66, 20, 129]
@@ -110,4 +111,18 @@ class TestCalculateRt(TestCase):
         resp = self.get_response_json()
         self.assertIn('error', resp)
 
+    def test_repeated_case_counts(self):
+        num_days = 100
+        base = datetime.datetime.today()
+        date_list = [(base + datetime.timedelta(days=x)).strftime('%Y-%m-%d') for x in range(num_days)]
 
+        data = {
+            'dates': date_list,
+            'cases': [0] * int(num_days/2) + [120] * int(num_days/2)
+        }
+        self.req.get_json.return_value = data
+
+        resp = self.get_response_json()
+
+        # the earliest date should not be present in the response
+        self.verify_response_data(resp, data['dates'][1:])
