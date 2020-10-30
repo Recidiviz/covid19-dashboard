@@ -465,8 +465,7 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
     // update total population for today to account for any adjustments made;
     // the next day will depend on this
     totalPopulationByDay[day] =
-      // make sure we don't set the population below zero
-      Math.max(totalPopulation + expectedPopulationChanges[day], 0);
+      totalPopulation + expectedPopulationChanges[day];
 
     day++;
   }
