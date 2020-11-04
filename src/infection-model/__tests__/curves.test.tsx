@@ -108,6 +108,30 @@ describe("curveInputsWithRt function", () => {
   });
 });
 
+/**
+ * Verifies that the sum of all compartments equals the total population
+ */
+function validateCompartmentsChecksum({
+  totalPopulationByDay,
+  projectionGrid,
+}: Pick<
+  ReturnType<typeof calculateAllCurves>,
+  "projectionGrid" | "totalPopulationByDay"
+>) {
+  totalPopulationByDay.forEach((totalPop, day) => {
+    let sumOfCompartments = 0;
+
+    range(projectionGrid.shape[0]).map((compartment) =>
+      range(projectionGrid.shape[2]).map(
+        (bracket) =>
+          (sumOfCompartments += projectionGrid.get(compartment, day, bracket)),
+      ),
+    );
+    expect(totalPop).not.toBe(0);
+    expect(totalPop).toBeCloseTo(sumOfCompartments, 5);
+  });
+}
+
 describe("calculateAllCurves function", () => {
   let inputs = {} as CurveFunctionInputs;
   beforeEach(() => {
@@ -162,22 +186,56 @@ describe("calculateAllCurves function", () => {
   });
 
   test("each day's compartments should equal total population", () => {
-    const { totalPopulationByDay, projectionGrid } = calculateAllCurves(inputs);
-    totalPopulationByDay.forEach((totalPop, day) => {
-      let sumOfCompartments = 0;
+    validateCompartmentsChecksum(calculateAllCurves(inputs));
+  });
 
-      range(projectionGrid.shape[0]).map((compartment) =>
-        range(projectionGrid.shape[2]).map(
-          (bracket) =>
-            (sumOfCompartments += projectionGrid.get(
-              compartment,
-              day,
-              bracket,
-            )),
-        ),
-      );
-      expect(totalPop).not.toBe(0);
-      expect(totalPop).toBeCloseTo(sumOfCompartments, 5);
+  test("population can be less than historical cases", () => {
+    inputs = {
+      age0Cases: 2,
+      age0Population: 2,
+      age0Recovered: 2,
+      age20Cases: 55,
+      age20Population: 200,
+      age20Recovered: 55,
+      age45Cases: 14,
+      age45Population: 100,
+      age45Recovered: 14,
+      age55Cases: 62,
+      age55Population: 90,
+      age55Recovered: 62,
+      // this number is larger than the population;
+      // this is sane because the number of active cases is not
+      // (i.e. total - recovered; in this case it's zero, and the population
+      // could have decreased after these cases resolved)
+      age65Cases: 6,
+      age65Population: 3,
+      age65Recovered: 6,
+      // same situation as above
+      age75Cases: 1,
+      age75Population: 0,
+      age75Recovered: 1,
+      age85Cases: 0,
+      age85Population: 0,
+      ageUnknownCases: 0,
+      ageUnknownPopulation: 0,
+      facilityOccupancyPct: 1,
+      facilityDormitoryPct: 0.15,
+      populationTurnover: 0.9,
+      rateOfSpreadCells: 1.8,
+      rateOfSpreadDorms: 2.4,
+      staffCases: 20,
+      staffPopulation: 99,
+      staffRecovered: 10,
+      usePopulationSubsets: true,
+    };
+
+    const { totalPopulationByDay, projectionGrid } = calculateAllCurves(inputs);
+    // no compartment value should ever go below zero
+    projectionGrid.data.forEach((value: number) => {
+      expect(value).toBeGreaterThanOrEqual(0);
     });
+
+    // sanity check on these inputs
+    validateCompartmentsChecksum({ totalPopulationByDay, projectionGrid });
   });
 });
