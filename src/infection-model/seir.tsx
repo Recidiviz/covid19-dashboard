@@ -315,18 +315,33 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
   ).forEach(([pop, cases, recovered, deaths], index) => {
     // distribute cases across compartments proportionally
 
+    let uninfectedPopulation = pop - cases;
+    if (uninfectedPopulation < 0) {
+      // there are legitimate cases for population to be less than cases,
+      // such as deaths or post-recovery releases; when this happens,
+      // we need to prevent negative numbers from entering the model
+      // and also adjust the total population accordingly
+      totalPopulationByDay[0] -= uninfectedPopulation;
+      uninfectedPopulation = 0;
+    }
+
     if (typeof recovered !== "undefined" && typeof deaths !== "undefined") {
       const activeCases = Math.max(cases - recovered - deaths, 0);
 
       const infectious = activeCases * pInitiallyInfectious;
+
       // exposed is related to the number of infectious
       // but it can't be more than the total uninfected population
       const exposed = Math.min(
         infectious * ratioExposedToInfected,
-        pop - cases,
+        uninfectedPopulation,
       );
 
-      singleDayState.set(index, seirIndex.susceptible, pop - cases - exposed);
+      singleDayState.set(
+        index,
+        seirIndex.susceptible,
+        uninfectedPopulation - exposed,
+      );
       singleDayState.set(index, seirIndex.exposed, exposed);
       singleDayState.set(index, seirIndex.infectious, infectious);
       singleDayState.set(index, seirIndex.mild, activeCases * pInitiallyMild);
@@ -357,10 +372,14 @@ export function getAllBracketCurves(inputs: CurveProjectionInputs) {
       // but it can't be more than the total uninfected population
       const exposed = Math.min(
         infectious * ratioExposedToInfected,
-        pop - cases,
+        uninfectedPopulation,
       );
 
-      singleDayState.set(index, seirIndex.susceptible, pop - cases - exposed);
+      singleDayState.set(
+        index,
+        seirIndex.susceptible,
+        uninfectedPopulation - exposed,
+      );
       singleDayState.set(index, seirIndex.exposed, exposed);
       singleDayState.set(index, seirIndex.infectious, infectious);
       singleDayState.set(

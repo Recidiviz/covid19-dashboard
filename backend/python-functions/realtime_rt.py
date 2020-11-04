@@ -14,6 +14,10 @@ def prepare_cases(cases):
         min_periods=1,
         center=True).mean(std=2).round()
 
+    # the min accepted value for the Rt calc is 1
+    # bump any 0 values up to 1
+    smoothed.loc[smoothed == 0] = 1
+
     original = new_cases.loc[smoothed.index]
 
     return original, smoothed
@@ -115,7 +119,8 @@ def compute_r_t(historical_case_counts):
         if required_column not in historical_case_counts:
             raise ValueError(f'Input is missing required column {required_column}')
 
-    case_df = pd.Series(historical_case_counts['cases'], index=historical_case_counts['dates'])
+    case_df = pd.Series(historical_case_counts['cases'], index=historical_case_counts['dates'],
+                        dtype=int)
     case_df.index = pd.to_datetime(case_df.index)
     case_df.index.name = 'date'
     case_df.sort_index(inplace=True)
