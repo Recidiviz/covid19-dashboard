@@ -37,14 +37,16 @@ module.exports = {
     },
 
     {
-      resolve: "gatsby-plugin-prefetch-google-fonts",
+      resolve: "gatsby-plugin-webfonts",
       options: {
-        fonts: [
-          { family: "Libre Baskerville" },
-          { family: "Libre Franklin" },
-          { family: "Poppins", variants: ["300", "400", "600"] },
-          { family: "Rubik" },
-        ],
+        fonts: {
+          google: [
+            { family: "Libre Baskerville" },
+            { family: "Libre Franklin" },
+            { family: "Poppins", variants: ["300", "400", "600"] },
+            { family: "Rubik" },
+          ],
+        },
       },
     },
   ],
