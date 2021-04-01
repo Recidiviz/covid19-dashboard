@@ -168,5 +168,8 @@
     "jest-styled-components": "^7.0.2",
     "react-test-renderer": "^16.13.1",
     "ts-jest": "^25.4.0"
+  },
+  "resolutions": {
+    "is-svg": "^4.2.2"
   }
 }
