@@ -158,7 +158,7 @@ export class BatchWriter {
               writeBatch.set(
                 operation.params.ref,
                 operation.params.data,
-                operation.params.options,
+                operation.params.options || {},
               );
               break;
             case "UPDATE":
