@@ -170,6 +170,7 @@
     "ts-jest": "^25.4.0"
   },
   "resolutions": {
+    "@firebase/util": "^0.3.4",
     "is-svg": "^4.2.2"
   }
 }
