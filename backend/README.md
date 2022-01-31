@@ -1,6 +1,7 @@
 ## Run locally
 
-You'll need access to the Firebase project at https://console.firebase.google.com/project/c19-backend.
+The backend of the production app is hosted via Firebase, using Cloud Firestore
+and Google Cloud Functions.
 
 ### Sign into Firebase
 
