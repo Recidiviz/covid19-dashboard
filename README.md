@@ -1,6 +1,20 @@
-# covid19-dashboard
+# Recidiviz Covid-19 Dashboard
 
-COVID 19 Dashboard
+An application for modeling the impact of COVID-19 in jails and prisons.
+
+## Decommissioned
+
+**As of February 1, 2022, this application has officially been turned down.**
+
+No further updates are planned in this application, including security patches.
+
+If you need additional support modeling COVID-19 outbreaks, or monitoring
+release cohort outcomes, please contact our team.
+
+If you are hoping to run this application yourself (and we really hope there is
+no cause to do so!), read on below for instructions on working with the frontend.
+Make sure to check out the `backend/README` for instructions on working with the
+backend.
 
 ## Setting up
 
