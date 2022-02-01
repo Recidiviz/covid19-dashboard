@@ -6,6 +6,8 @@ An application for modeling the impact of COVID-19 in jails and prisons.
 
 **As of February 1, 2022, this application has officially been turned down.**
 
+No further updates are planned in this application, including security patches.
+
 If you need additional support modeling COVID-19 outbreaks, or monitoring
 release cohort outcomes, please contact our team.
 
